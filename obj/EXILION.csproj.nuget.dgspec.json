@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\workspace\\EXILION\\EXILION.csproj": {}
+    "c:\\workspace\\EXILION\\EXILION.csproj": {}
   },
   "projects": {
-    "C:\\workspace\\EXILION\\EXILION.csproj": {
+    "c:\\workspace\\EXILION\\EXILION.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\workspace\\EXILION\\EXILION.csproj",
+        "projectUniqueName": "c:\\workspace\\EXILION\\EXILION.csproj",
         "projectName": "EXILION",
-        "projectPath": "C:\\workspace\\EXILION\\EXILION.csproj",
+        "projectPath": "c:\\workspace\\EXILION\\EXILION.csproj",
         "packagesPath": "C:\\Users\\Ignacio\\.nuget\\packages\\",
-        "outputPath": "C:\\workspace\\EXILION\\obj\\",
+        "outputPath": "c:\\workspace\\EXILION\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Ignacio\\AppData\\Roaming\\NuGet\\NuGet.Config"
