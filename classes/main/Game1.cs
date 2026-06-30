@@ -65,6 +65,10 @@ public class Game1 : Game
             sprite.position.Y -= sprite.speed;
         }
 
+        MouseState mouse = Mouse.GetState();
+
+        sprite.Update(mouse.Position.ToVector2());
+
         base.Update(gameTime);
     }
 
@@ -76,7 +80,7 @@ public class Game1 : Game
 
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
-        _spriteBatch.Draw(sprite.texture, sprite.rectangle, Color.White);
+        sprite.Draw(_spriteBatch);
 
         _spriteBatch.End();
 
