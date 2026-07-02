@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Design;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -11,7 +9,9 @@ public class Game1 : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
-    private Sprite sprite;
+    private Entity jugador;
+
+    Texture2D pixel;
 
     public Game1()
     {
@@ -33,8 +33,11 @@ public class Game1 : Game
 
         // TODO: use this.Content to load your game content here
 
+        pixel = new Texture2D(GraphicsDevice, 1, 1);
+        pixel.SetData(new[] { Color.White });
+
         Texture2D texture = Content.Load<Texture2D>("jugador");
-        sprite = new Sprite(texture, Vector2.Zero, 2f);
+        jugador = new Entity(Vector2.Zero, new Sprite(texture, 1f));
 
     }
 
@@ -47,27 +50,27 @@ public class Game1 : Game
 
         if (Keyboard.GetState().IsKeyDown(Keys.Left))
         {
-            sprite.position.X -= sprite.speed;
+            jugador.position.X -= jugador.speed;
         }
 
         if (Keyboard.GetState().IsKeyDown(Keys.Right))
         {
-            sprite.position.X += sprite.speed;
+            jugador.position.X += jugador.speed;
         }
 
         if (Keyboard.GetState().IsKeyDown(Keys.Down))
         {
-            sprite.position.Y += sprite.speed;
+            jugador.position.Y += jugador.speed;
         }
 
         if (Keyboard.GetState().IsKeyDown(Keys.Up))
         {
-            sprite.position.Y -= sprite.speed;
+            jugador.position.Y -= jugador.speed;
         }
 
         MouseState mouse = Mouse.GetState();
 
-        sprite.Update(mouse.Position.ToVector2());
+        jugador.Update(mouse.Position.ToVector2());
 
         base.Update(gameTime);
     }
@@ -80,7 +83,7 @@ public class Game1 : Game
 
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
-        sprite.Draw(_spriteBatch);
+        jugador.Draw(_spriteBatch, pixel);
 
         _spriteBatch.End();
 

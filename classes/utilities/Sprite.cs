@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -7,34 +6,26 @@ namespace EXILION;
 public class Sprite
 {
     
-    public Texture2D texture;
-    public Vector2 position;
-    public float rotation;
-    public float speed;
+    private Vector2 position;
+    private Texture2D texture;
+    private float rotation;
+    private float scale;
 
-    public Rectangle rectangle
-    {
-        get
-        {
-            return new Rectangle((int)position.X, (int)position.Y, 100, 100);
-        }
-    }
-
-    public Sprite(Texture2D texture, Vector2 position, float speed)
+    public Sprite(Texture2D texture, float scale)
     {
         this.texture = texture;
-        this.position = position;
-        this.speed = speed;
+        this.scale = scale;
     }
 
-    public void Update(Vector2 mousePosition)
+    public void Update(float angle, Vector2 position)
     {
-        Vector2 direction = mousePosition - position;
-        rotation = System.MathF.Atan2(direction.Y, direction.X);
+        this.position = position;
+        this.rotation = angle;
     }
 
     public void Draw(SpriteBatch spriteBatch)
     {
+
         spriteBatch.Draw(
             texture,
             position,
@@ -42,7 +33,7 @@ public class Sprite
             Color.White,
             rotation,
             new Vector2(texture.Width / 2f, texture.Height / 2f),
-            1f,
+            scale,
             SpriteEffects.None,
             0f
         );
