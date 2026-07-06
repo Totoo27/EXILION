@@ -9,8 +9,6 @@ public class Entity
 
     private Point hitboxSize = new Point(40, 40);
 
-    public float speed = 2f;
-
     protected Rectangle hitbox
     {
         get

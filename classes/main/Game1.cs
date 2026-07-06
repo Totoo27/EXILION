@@ -9,7 +9,7 @@ public class Game1 : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
-    private Entity jugador;
+    private Player jugador;
 
     Texture2D pixel;
 
@@ -37,7 +37,7 @@ public class Game1 : Game
         pixel.SetData(new[] { Color.White });
 
         Texture2D texture = Content.Load<Texture2D>("jugador");
-        jugador = new Entity(Vector2.Zero, new Sprite(texture, 1f));
+        jugador = new Player(Vector2.Zero, new Sprite(texture, 1f));
 
     }
 
@@ -48,29 +48,16 @@ public class Game1 : Game
 
         // TODO: Add your update logic here
 
-        if (Keyboard.GetState().IsKeyDown(Keys.Left))
-        {
-            jugador.position.X -= jugador.speed;
-        }
-
-        if (Keyboard.GetState().IsKeyDown(Keys.Right))
-        {
-            jugador.position.X += jugador.speed;
-        }
-
-        if (Keyboard.GetState().IsKeyDown(Keys.Down))
-        {
-            jugador.position.Y += jugador.speed;
-        }
-
-        if (Keyboard.GetState().IsKeyDown(Keys.Up))
-        {
-            jugador.position.Y -= jugador.speed;
-        }
-
         MouseState mouse = Mouse.GetState();
 
-        jugador.Update(mouse.Position.ToVector2());
+        if(jugador != null)
+        {
+            jugador.Update(mouse.Position.ToVector2(), Keyboard.GetState(), gameTime);
+            if (jugador.isDead)
+            {
+                jugador = null;
+            }
+        }
 
         base.Update(gameTime);
     }
@@ -83,7 +70,7 @@ public class Game1 : Game
 
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
-        jugador.Draw(_spriteBatch, pixel);
+        jugador?.Draw(_spriteBatch, pixel);
 
         _spriteBatch.End();
 
