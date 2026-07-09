@@ -8,7 +8,7 @@ public class Entity
     public Vector2 position;
     protected Sprite sprite { get; private set;}
 
-    private Point hitboxSize = new Point(40, 40);
+    private Point hitboxSize;
 
     protected Rectangle hitbox
     {
@@ -25,6 +25,7 @@ public class Entity
         this.position = position;
         this.sprite = sprite;
         this.gameContext = gameContext;
+        this.hitboxSize = new Point(gameContext.ScaleX(40), gameContext.ScaleY(40));
     }
 
     public void Update(Vector2 mousePosition)

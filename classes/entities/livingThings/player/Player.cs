@@ -17,7 +17,7 @@ public class Player : LivingThing
     private float hungerTimer = 0f;
 
     public Player(Vector2 position, Sprite sprite, GameContext gameContext)
-    : base(position, sprite, gameContext.ScaleY(100), (float) gameContext.ScaleXY(2), gameContext)
+    : base(position, sprite, gameContext.ScaleY(100), (float) gameContext.ScaleXY(3), gameContext)
     {
         this.hunger = maxHunger;
     }
@@ -27,24 +27,31 @@ public class Player : LivingThing
 
         updateHunger(gameTime);
 
+        float currentSpeed = this.speed;
+
+        if(currentKeyboardState.IsKeyDown(Keys.LeftShift))
+        {
+            currentSpeed *= 2;
+        }
+
         if (currentKeyboardState.IsKeyDown(Keys.Left))
         {
-            this.position.X -= this.speed;
+            this.position.X -= currentSpeed;
         }
 
         if (currentKeyboardState.IsKeyDown(Keys.Right))
         {
-            this.position.X += this.speed;
+            this.position.X += currentSpeed;
         }
 
         if (currentKeyboardState.IsKeyDown(Keys.Down))
         {
-            this.position.Y += this.speed;
+            this.position.Y += currentSpeed;
         }
 
         if (currentKeyboardState.IsKeyDown(Keys.Up))
         {
-            this.position.Y -= this.speed;
+            this.position.Y -= currentSpeed;
         }
 
         if (currentKeyboardState.IsKeyDown(Keys.H) && !previousKeyboardState.IsKeyDown(Keys.H))
