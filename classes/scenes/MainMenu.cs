@@ -12,20 +12,28 @@ public class MainMenu : Scene
     private Button startGame;
     private Button settings;
     private Button quitGame;
+
+    Texture2D backGround;
     public MainMenu(Game1 game) : base(game)
     {
     }
 
     public override void LoadContent()
     {
-        startGame = new Button("Start Game", new Rectangle(25, 250, 300, 60), Game.Content.Load<Texture2D>("button"));
-        settings = new Button("Settings", new Rectangle(25, 320, 200, 50), Game.Content.Load<Texture2D>("button"));
-        quitGame = new Button("Quit Game", new Rectangle(25, 380, 200, 50), Game.Content.Load<Texture2D>("button"));
+        GameContext gameContext = Game.gameContext;
+        
+        //  backGround = Game.Content.Load<Texture2D>("background");
+
+        startGame = new Button("Start Game", new Rectangle(gameContext.ScaleX(25), gameContext.ScaleY(450), gameContext.ScaleX(300), gameContext.ScaleY(60)), Game.Content.Load<Texture2D>("button"));
+        settings = new Button("Settings", new Rectangle(gameContext.ScaleX(25), gameContext.ScaleY(520), gameContext.ScaleX(200), gameContext.ScaleY(50)), Game.Content.Load<Texture2D>("button"));
+        quitGame = new Button("Quit Game", new Rectangle(gameContext.ScaleX(25), gameContext.ScaleY(580), gameContext.ScaleX(200), gameContext.ScaleY(50)), Game.Content.Load<Texture2D>("button"));
         font = Game.Content.Load<SpriteFont>("Arial");
         
     }
     public override void Draw(SpriteBatch spriteBatch)
     {
+        // Draw(backGround, new Rectangle(0, 0, Game.GraphicsDevice.Viewport.Width, Game.GraphicsDevice.Viewport.Height), Color.White);
+
         startGame.Draw(spriteBatch, font);
         settings.Draw(spriteBatch, font);
         quitGame.Draw(spriteBatch, font);

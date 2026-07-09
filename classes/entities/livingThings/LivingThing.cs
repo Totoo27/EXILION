@@ -6,13 +6,13 @@ namespace EXILION.Entities.LivingThings;
 public class LivingThing : Entity
 {
     
-
+    
     private int maxHealth;
     private int health;
     public bool isDead { get; private set; } = false;
     public float speed { get; private set; }
 
-    public LivingThing(Vector2 position, Sprite sprite, int maxHealth, float speed) : base(position, sprite)
+    public LivingThing(Vector2 position, Sprite sprite, int maxHealth, float speed, GameContext gameContext) : base(position, sprite, gameContext)
     {
         this.maxHealth = maxHealth;
         this.health = maxHealth;

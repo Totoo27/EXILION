@@ -11,12 +11,15 @@ public class Game1 : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     private SceneManager sceneManager;
+    public GameContext gameContext { get; private set; }
 
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
+        
+        gameContext = new GameContext(this);
     }
 
     protected override void Initialize()
@@ -63,8 +66,8 @@ public class Game1 : Game
         base.Draw(gameTime);
     }
 
-    public void changeScene(Scene newScene)
+    public void changeScene(Scene scene)
     {
-        sceneManager.ChangeScene(newScene);
+        sceneManager.ChangeScene(scene);
     }
 }

@@ -15,7 +15,9 @@ public class Player : LivingThing
     private KeyboardState previousKeyboardState;
 
     private float hungerTimer = 0f;
-    public Player(Vector2 position, Sprite sprite) : base(position, sprite, 100, 2f)
+
+    public Player(Vector2 position, Sprite sprite, GameContext gameContext)
+    : base(position, sprite, gameContext.ScaleY(100), (float) gameContext.ScaleXY(2), gameContext)
     {
         this.hunger = maxHunger;
     }
@@ -47,7 +49,7 @@ public class Player : LivingThing
 
         if (currentKeyboardState.IsKeyDown(Keys.H) && !previousKeyboardState.IsKeyDown(Keys.H))
         {
-            Global.showHitboxes = !Global.showHitboxes;
+            gameContext.showHitboxes = !gameContext.showHitboxes;
         }
 
         previousKeyboardState = currentKeyboardState;

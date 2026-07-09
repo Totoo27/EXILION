@@ -6,7 +6,7 @@ namespace EXILION.Entities;
 public class Entity
 {
     public Vector2 position;
-    public Sprite sprite { get; private set;}
+    protected Sprite sprite { get; private set;}
 
     private Point hitboxSize = new Point(40, 40);
 
@@ -18,11 +18,13 @@ public class Entity
         }
     }
 
-    public Entity(Vector2 position, Sprite sprite)
+    protected GameContext gameContext;
+
+    public Entity(Vector2 position, Sprite sprite, GameContext gameContext)
     {
         this.position = position;
         this.sprite = sprite;
-
+        this.gameContext = gameContext;
     }
 
     public void Update(Vector2 mousePosition)
@@ -36,7 +38,7 @@ public class Entity
     {
 
         sprite.Draw(spriteBatch);
-        if (Global.showHitboxes)
+        if (gameContext.showHitboxes)
         {
             spriteBatch.Draw(pixel, hitbox, Color.Red);
         }

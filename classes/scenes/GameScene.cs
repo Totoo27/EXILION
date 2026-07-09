@@ -10,17 +10,21 @@ public class GameScene : Scene
 
     Texture2D pixel;
 
+    
+
     public GameScene(Game1 game) : base(game)
     {
     }
 
     public override void LoadContent()
     {
+        GameContext gameContext = Game.gameContext;
+
         pixel = new Texture2D(Game.GraphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
 
         Texture2D texture = Game.Content.Load<Texture2D>("jugador");
-        player = new Player(Vector2.Zero, new Sprite(texture, 1f));
+        player = new Player(Vector2.Zero, new Sprite(texture, gameContext.ScaleXY(1)), gameContext);
     }
     public override void Update(GameTime gameTime)
     {
