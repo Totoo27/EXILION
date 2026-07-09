@@ -2,7 +2,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace EXILION;
+namespace EXILION.Entities.LivingThings;
 public class LivingThing : Entity
 {
     

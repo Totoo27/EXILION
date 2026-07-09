@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using EXILION.Entities.LivingThings;
+using EXILION.Scenes;
 
 namespace EXILION;
 
@@ -8,10 +10,7 @@ public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
-
-    private Player jugador;
-
-    Texture2D pixel;
+    private SceneManager sceneManager;
 
     public Game1()
     {
@@ -25,6 +24,8 @@ public class Game1 : Game
         // TODO: Add your initialization logic here
 
         base.Initialize();
+        sceneManager = new SceneManager();
+        sceneManager.ChangeScene(new GameScene(this));
     }
 
     protected override void LoadContent()
@@ -32,12 +33,6 @@ public class Game1 : Game
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
         // TODO: use this.Content to load your game content here
-
-        pixel = new Texture2D(GraphicsDevice, 1, 1);
-        pixel.SetData(new[] { Color.White });
-
-        Texture2D texture = Content.Load<Texture2D>("jugador");
-        jugador = new Player(Vector2.Zero, new Sprite(texture, 1f));
 
     }
 
@@ -48,16 +43,7 @@ public class Game1 : Game
 
         // TODO: Add your update logic here
 
-        MouseState mouse = Mouse.GetState();
-
-        if(jugador != null)
-        {
-            jugador.Update(mouse.Position.ToVector2(), Keyboard.GetState(), gameTime);
-            if (jugador.isDead)
-            {
-                jugador = null;
-            }
-        }
+        sceneManager.Update(gameTime);
 
         base.Update(gameTime);
     }
@@ -70,7 +56,7 @@ public class Game1 : Game
 
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
-        jugador?.Draw(_spriteBatch, pixel);
+        sceneManager.Draw(_spriteBatch);
 
         _spriteBatch.End();
 

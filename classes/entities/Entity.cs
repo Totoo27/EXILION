@@ -1,7 +1,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace EXILION;
+
+namespace EXILION.Entities;
 public class Entity
 {
     public Vector2 position;
@@ -35,7 +36,10 @@ public class Entity
     {
 
         sprite.Draw(spriteBatch);
-        spriteBatch.Draw(pixel, hitbox, Color.Red);
+        if (Global.showHitboxes)
+        {
+            spriteBatch.Draw(pixel, hitbox, Color.Red);
+        }
 
     }
 

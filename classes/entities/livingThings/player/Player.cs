@@ -1,10 +1,10 @@
 using System;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace EXILION;
+namespace EXILION.Entities.LivingThings;
+
 
 public class Player : LivingThing
 {
@@ -12,42 +12,45 @@ public class Player : LivingThing
     public int maxHunger { get; private set; } = 100;
     public int hunger { get; private set; }
 
+    private KeyboardState previousKeyboardState;
+
     private float hungerTimer = 0f;
     public Player(Vector2 position, Sprite sprite) : base(position, sprite, 100, 2f)
     {
         this.hunger = maxHunger;
     }
 
-    public async void Update(Vector2 mousePosition, KeyboardState keyboardState, GameTime gameTime)
+    public async void Update(Vector2 mousePosition, KeyboardState currentKeyboardState, GameTime gameTime)
     {
 
         updateHunger(gameTime);
 
-        if (keyboardState.IsKeyDown(Keys.Left))
+        if (currentKeyboardState.IsKeyDown(Keys.Left))
         {
             this.position.X -= this.speed;
         }
 
-        if (keyboardState.IsKeyDown(Keys.Right))
+        if (currentKeyboardState.IsKeyDown(Keys.Right))
         {
             this.position.X += this.speed;
         }
 
-        if (keyboardState.IsKeyDown(Keys.Down))
+        if (currentKeyboardState.IsKeyDown(Keys.Down))
         {
             this.position.Y += this.speed;
         }
 
-        if (keyboardState.IsKeyDown(Keys.Up))
+        if (currentKeyboardState.IsKeyDown(Keys.Up))
         {
             this.position.Y -= this.speed;
         }
 
-        if (keyboardState.IsKeyDown(Keys.Space))
+        if (currentKeyboardState.IsKeyDown(Keys.H) && !previousKeyboardState.IsKeyDown(Keys.H))
         {
-            this.takeDamage(1);
+            Global.showHitboxes = !Global.showHitboxes;
         }
 
+        previousKeyboardState = currentKeyboardState;
         base.Update(mousePosition);
     }
 
