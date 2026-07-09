@@ -7,10 +7,12 @@
     <File>C:/workspace/EXILION/Content/button.png</File>
     <File>C:/workspace/EXILION/Content/File.spritefont</File>
     <File>C:/workspace/EXILION/Content/jugador.png</File>
+    <File>C:/workspace/EXILION/Content/MainMenuBackground.png</File>
   </SourceFiles>
   <DestFiles>
     <File xsi:nil="true" />
     <File>Arial.spritefont</File>
     <File xsi:nil="true" />
+    <File>Background.png</File>
   </DestFiles>
 </SourceFileCollection>

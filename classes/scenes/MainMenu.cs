@@ -16,13 +16,14 @@ public class MainMenu : Scene
     Texture2D backGround;
     public MainMenu(Game1 game) : base(game)
     {
+        Music.PlaySong("menuMusic", Game.Content);
     }
 
     public override void LoadContent()
     {
         GameContext gameContext = Game.gameContext;
         
-        //  backGround = Game.Content.Load<Texture2D>("background");
+        backGround = Game.Content.Load<Texture2D>("Background");
 
         startGame = new Button("Start Game", new Rectangle(gameContext.ScaleX(25), gameContext.ScaleY(450), gameContext.ScaleX(300), gameContext.ScaleY(60)), Game.Content.Load<Texture2D>("button"));
         settings = new Button("Settings", new Rectangle(gameContext.ScaleX(25), gameContext.ScaleY(520), gameContext.ScaleX(200), gameContext.ScaleY(50)), Game.Content.Load<Texture2D>("button"));
@@ -32,7 +33,7 @@ public class MainMenu : Scene
     }
     public override void Draw(SpriteBatch spriteBatch)
     {
-        // Draw(backGround, new Rectangle(0, 0, Game.GraphicsDevice.Viewport.Width, Game.GraphicsDevice.Viewport.Height), Color.White);
+        spriteBatch.Draw(backGround, new Rectangle(0, 0, Game.GraphicsDevice.Viewport.Width, Game.GraphicsDevice.Viewport.Height), Color.White);
 
         startGame.Draw(spriteBatch, font);
         settings.Draw(spriteBatch, font);
