@@ -1,2 +1,4 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
-"C:/workspace/EXILION/Content/jugador.png","C:/workspace/EXILION/Content/bin/DesktopGL/jugador.xnb","TextureProcessor","Texture2DContent",1455,16469,0,2264415
+"C:/workspace/EXILION/Content/button.png","C:/workspace/EXILION/Content/bin/DesktopGL/button.xnb","TextureProcessor","Texture2DContent",156,4181,0,1726341
+"C:/workspace/EXILION/Content/File.spritefont","C:/workspace/EXILION/Content/bin/DesktopGL/Arial.xnb","FontDescriptionProcessor","SpriteFontContent",2068,21529,0,1206758
+"C:/workspace/EXILION/Content/jugador.png","C:/workspace/EXILION/Content/bin/DesktopGL/jugador.xnb","TextureProcessor","Texture2DContent",1356,16213,0,0081075

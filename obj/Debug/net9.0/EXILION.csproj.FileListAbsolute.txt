@@ -33,3 +33,5 @@ C:\workspace\EXILION\obj\Debug\net9.0\EXILION.genruntimeconfig.cache
 C:\workspace\EXILION\obj\Debug\net9.0\ref\EXILION.dll
 c:\workspace\EXILION\obj\Debug\net9.0\EXILION.sourcelink.json
 c:\workspace\EXILION\bin\Debug\net9.0\Content\jugador.xnb
+c:\workspace\EXILION\bin\Debug\net9.0\Content\button.xnb
+c:\workspace\EXILION\bin\Debug\net9.0\Content\Arial.xnb

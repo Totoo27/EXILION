@@ -4,9 +4,13 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
+    <File>c:/workspace/EXILION/Content/button.png</File>
+    <File>c:/workspace/EXILION/Content/File.spritefont</File>
     <File>c:/workspace/EXILION/Content/jugador.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File>Arial.spritefont</File>
     <File xsi:nil="true" />
   </DestFiles>
 </SourceFileCollection>

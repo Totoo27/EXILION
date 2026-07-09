@@ -25,7 +25,7 @@ public class Game1 : Game
 
         base.Initialize();
         sceneManager = new SceneManager();
-        sceneManager.ChangeScene(new GameScene(this));
+        sceneManager.ChangeScene(new MainMenu(this));
     }
 
     protected override void LoadContent()
@@ -61,5 +61,10 @@ public class Game1 : Game
         _spriteBatch.End();
 
         base.Draw(gameTime);
+    }
+
+    public void changeScene(Scene newScene)
+    {
+        sceneManager.ChangeScene(newScene);
     }
 }

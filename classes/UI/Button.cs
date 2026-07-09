@@ -14,22 +14,39 @@ public class Button
 
     private bool IsHovered;
 
-    public void Update(MouseState currentMouse)
+    public Button(String text, Rectangle bounds, Texture2D texture)
+    {
+        this.Text = text;
+        this.Bounds = bounds;
+        this.Texture = texture;
+    }
+
+    public bool isClicked(MouseState currentMouse)
     {
         IsHovered = Bounds.Contains(currentMouse.Position);
 
-        if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released && this.Bounds.Contains(currentMouse.Position))
+        if (currentMouse.LeftButton == ButtonState.Released && previousMouse.LeftButton == ButtonState.Pressed && this.Bounds.Contains(currentMouse.Position))
         {
-            Console.WriteLine("Click!");
+            return true;
         }
         previousMouse = currentMouse;
 
+        return false;
+
     }
 
-    public void Draw(SpriteBatch spriteBatch)
+    public void Draw(SpriteBatch spriteBatch, SpriteFont font)
     {
         Color color = this.IsHovered ? Color.LightGray : Color.White;
+        Vector2 textSize = font.MeasureString(Text);
+        Vector2 textPosition = new Vector2(Bounds.X + (Bounds.Width - textSize.X) / 2, Bounds.Y + (Bounds.Height - textSize.Y) / 2);
 
         spriteBatch.Draw(Texture, Bounds, color);
+        spriteBatch.DrawString(
+            font,
+            Text,
+            textPosition,
+            color);
+
     }
 }
