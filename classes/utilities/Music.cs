@@ -9,27 +9,21 @@ public static class Music
     
     private static Song currentSong;
 
-    public static void PlaySong(string songName, ContentManager content)
+    public static void Play(Song song)
     {
-        if (currentSong != null)
-        {
-            MediaPlayer.Stop();
-            currentSong.Dispose();
-        }
+        if (currentSong == song)
+            return;
 
-        currentSong = content.Load<Song>(songName);
-        MediaPlayer.Play(currentSong);
+        currentSong = song;
+
         MediaPlayer.IsRepeating = true;
+        MediaPlayer.Play(song);
     }
 
-    public static void StopSong()
+    public static void Stop()
     {
-        if (currentSong != null)
-        {
-            MediaPlayer.Stop();
-            currentSong.Dispose();
-            currentSong = null;
-        }
+        MediaPlayer.Stop();
+        currentSong = null;
     }
 
 }

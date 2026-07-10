@@ -16,7 +16,7 @@ public class MainMenu : Scene
     Texture2D backGround;
     public MainMenu(Game1 game) : base(game)
     {
-        Music.PlaySong("menuMusic", Game.Content);
+        Music.Play(Assets.MenuMusic);
     }
 
     public override void LoadContent()
@@ -52,6 +52,7 @@ public class MainMenu : Scene
         {
             // Game.changeScene(new SettingsMenu(Game));
             Console.WriteLine("Settings");
+            Music.Stop();
         }
 
         if (quitGame.isClicked(Mouse.GetState()))
