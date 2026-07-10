@@ -12,13 +12,16 @@ public class MainMenu : Scene
     private Button startGame;
     private Button settings;
     private Button quitGame;
-    GameContext gameContext;
+    private GameContext gameContext;
+
+    private Rectangle backgroundRect;
+    private Rectangle titleRect;
 
     Texture2D backGround;
     Texture2D title;
     public MainMenu(Game1 game) : base(game)
     {
-        Music.Play(Assets.MenuMusic);
+        Music.Play(Assets.Songs.MenuMusic);
         this.gameContext = game.gameContext;
     }
 
@@ -27,20 +30,20 @@ public class MainMenu : Scene
         
         backGround = Game.Content.Load<Texture2D>("Background");
         title = Game.Content.Load<Texture2D>("title");
+        font = Assets.Fonts.Arial;
 
         startGame = new Button("Start Game", new Rectangle(gameContext.ScaleX(25), gameContext.ScaleY(450), gameContext.ScaleX(300), gameContext.ScaleY(60)), Game.Content.Load<Texture2D>("button"));
         settings = new Button("Settings", new Rectangle(gameContext.ScaleX(25), gameContext.ScaleY(520), gameContext.ScaleX(200), gameContext.ScaleY(50)), Game.Content.Load<Texture2D>("button"));
         quitGame = new Button("Quit Game", new Rectangle(gameContext.ScaleX(25), gameContext.ScaleY(580), gameContext.ScaleX(200), gameContext.ScaleY(50)), Game.Content.Load<Texture2D>("button"));
-        font = Game.Content.Load<SpriteFont>("Arial");
         
+        backgroundRect = new Rectangle(0, 0, Game.GraphicsDevice.Viewport.Width, Game.GraphicsDevice.Viewport.Height);
+        titleRect = new Rectangle((Game.GraphicsDevice.Viewport.Width - gameContext.ScaleX(900)) / 2, gameContext.ScaleY(-30), gameContext.ScaleX(900), gameContext.ScaleY(384));
     }
     public override void Draw(SpriteBatch spriteBatch)
     {
-        int panelWidth = Game.GraphicsDevice.Viewport.Width;
-        int panelHeight = Game.GraphicsDevice.Viewport.Height;
 
-        spriteBatch.Draw(backGround, new Rectangle(0, 0, panelWidth, panelHeight), Color.White);
-        spriteBatch.Draw(title, new Rectangle((panelWidth - gameContext.ScaleX(900)) / 2, gameContext.ScaleY(-30), gameContext.ScaleX(900), gameContext.ScaleY(384)), Color.White);
+        spriteBatch.Draw(backGround, backgroundRect, Color.White);
+        spriteBatch.Draw(title, titleRect, Color.White);
 
         startGame.Draw(spriteBatch, font);
         settings.Draw(spriteBatch, font);

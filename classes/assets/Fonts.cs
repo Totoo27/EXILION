@@ -1,0 +1,15 @@
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
+
+namespace EXILION;
+public sealed class Fonts
+{
+
+    public SpriteFont Arial { get; private set; }
+    public void Load(ContentManager content)
+    {
+
+        Arial = content.Load<SpriteFont>("Arial");
+
+    }
+}
