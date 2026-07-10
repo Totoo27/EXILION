@@ -1,2 +1,2 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
-"C:/workspace/EXILION/Content/MainMenuBackground.png","C:/workspace/EXILION/Content/bin/DesktopGL/Background.xnb","TextureProcessor","Texture2DContent",5179,3686485,0,274485
+"C:/workspace/EXILION/Content/exilionTitle.png","C:/workspace/EXILION/Content/bin/DesktopGL/title.xnb","TextureProcessor","Texture2DContent",6970,192597,0,1227743

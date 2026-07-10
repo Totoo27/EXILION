@@ -5,6 +5,7 @@
   <Config />
   <SourceFiles>
     <File>c:/workspace/EXILION/Content/button.png</File>
+    <File>c:/workspace/EXILION/Content/exilionTitle.png</File>
     <File>c:/workspace/EXILION/Content/File.spritefont</File>
     <File>c:/workspace/EXILION/Content/jugador.png</File>
     <File>c:/workspace/EXILION/Content/MainMenuBackground.png</File>
@@ -12,6 +13,7 @@
   </SourceFiles>
   <DestFiles>
     <File xsi:nil="true" />
+    <File>title.png</File>
     <File>Arial.spritefont</File>
     <File xsi:nil="true" />
     <File>Background.png</File>

@@ -38,3 +38,4 @@ c:\workspace\EXILION\bin\Debug\net9.0\Content\Arial.xnb
 c:\workspace\EXILION\bin\Debug\net9.0\Content\Background.xnb
 c:\workspace\EXILION\bin\Debug\net9.0\Content\menuMusic.ogg
 c:\workspace\EXILION\bin\Debug\net9.0\Content\menuMusic.xnb
+c:\workspace\EXILION\bin\Debug\net9.0\Content\title.xnb

@@ -4,15 +4,17 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
+    <File>C:/workspace/EXILION/Content/exilionTitle.png</File>
     <File>C:/workspace/EXILION/Content/button.png</File>
     <File>C:/workspace/EXILION/Content/File.spritefont</File>
     <File>C:/workspace/EXILION/Content/jugador.png</File>
     <File>C:/workspace/EXILION/Content/MainMenuBackground.png</File>
+    <File>C:/workspace/EXILION/Content/menuMusic.mp3</File>
   </SourceFiles>
   <DestFiles>
+    <File>title.png</File>
     <File xsi:nil="true" />
     <File>Arial.spritefont</File>
-    <File xsi:nil="true" />
     <File>Background.png</File>
   </DestFiles>
 </SourceFileCollection>
