@@ -9,14 +9,18 @@ public sealed class Sprites
 
     public Texture2D MenuBackground { get; private set; }
     public Texture2D GameTitle { get; private set; }
+    public Texture2D Sun { get; private set; }
     public Texture2D Button { get; private set; }
     public Texture2D Player { get; private set; }
     public void Load(ContentManager content)
     {
 
+
+
         // UI
         MenuBackground = content.Load<Texture2D>("Sprites/MainMenuBackground");
         GameTitle = content.Load<Texture2D>("Sprites/ExilionTitle");
+        Sun = content.Load<Texture2D>("Sprites/Sun");        
         Button = content.Load<Texture2D>("Sprites/Button");
 
         // Player

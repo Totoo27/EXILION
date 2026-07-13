@@ -12,7 +12,8 @@ public class Button
 
     private MouseState previousMouse;
 
-    private bool IsHovered;
+    private bool isHovered = false;
+    private bool madeSound = false;
 
     private SpriteFont font;
 
@@ -26,7 +27,17 @@ public class Button
 
     public bool isClicked(MouseState currentMouse)
     {
-        IsHovered = bounds.Contains(currentMouse.Position);
+        isHovered = bounds.Contains(currentMouse.Position);
+
+        if (isHovered && !madeSound)
+        {
+            Assets.SoundEffects.buttonHover.Play();
+            madeSound = true;
+
+        } else if(!isHovered)
+        {
+            madeSound = false;
+        }
 
         if (currentMouse.LeftButton == ButtonState.Released && previousMouse.LeftButton == ButtonState.Pressed && this.bounds.Contains(currentMouse.Position))
         {
@@ -40,7 +51,7 @@ public class Button
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        Color color = this.IsHovered ? Color.LightGray : Color.White;
+        Color color = this.isHovered ? Color.LightGray : Color.White;
         Vector2 textSize = font.MeasureString(text);
         Vector2 textPosition = new Vector2(bounds.X + (bounds.Width - textSize.X) / 2, bounds.Y + (bounds.Height - textSize.Y) / 2);
 

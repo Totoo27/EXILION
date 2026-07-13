@@ -8,12 +8,16 @@
     <File>c:/workspace/EXILION/Content/Fonts/PixelArt.spritefont</File>
     <File>c:/workspace/EXILION/Content/Fonts/PixelArtBig.spritefont</File>
     <File>c:/workspace/EXILION/Content/Music/menuMusic.mp3</File>
+    <File>c:/workspace/EXILION/Content/SFX/buttonHover.wav</File>
     <File>c:/workspace/EXILION/Content/Sprites/Button.png</File>
     <File>c:/workspace/EXILION/Content/Sprites/exilionTitle.png</File>
     <File>c:/workspace/EXILION/Content/Sprites/MainMenuBackground.png</File>
     <File>c:/workspace/EXILION/Content/Sprites/Player.png</File>
+    <File>c:/workspace/EXILION/Content/Sprites/Sun.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

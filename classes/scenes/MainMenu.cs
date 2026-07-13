@@ -16,9 +16,11 @@ public class MainMenu : Scene
 
     private Rectangle backgroundRect;
     private Rectangle titleRect;
+    private Rectangle sunRect;
 
     private Texture2D backGround;
     private Texture2D title;
+    private Texture2D sun;
     private Texture2D buttonSprite;
     
     public MainMenu(Game1 game) : base(game)
@@ -33,26 +35,29 @@ public class MainMenu : Scene
         // Sprites        
         backGround = Assets.Sprites.MenuBackground;
         title = Assets.Sprites.GameTitle;
-        font = Assets.Fonts.PixelArt;
-
         buttonSprite = Assets.Sprites.Button;
+        sun = Assets.Sprites.Sun;
+
+        // Font common buttons
+        font = Assets.Fonts.PixelArt;
 
         // Buttons
         
         startGame = new Button("Start Game", new Rectangle((int)getHalfScreenPositionX(500), gameContext.ScaleY(400), gameContext.ScaleX(500), gameContext.ScaleY(80)), buttonSprite, Assets.Fonts.PixelArtBig);
-        settings = new Button("Settings", new Rectangle((int)getHalfScreenPositionX(280), gameContext.ScaleY(500), gameContext.ScaleX(280), gameContext.ScaleY(50)), buttonSprite, font);
-        quitGame = new Button("Quit Game", new Rectangle((int)getHalfScreenPositionX(280), gameContext.ScaleY(560), gameContext.ScaleX(280), gameContext.ScaleY(50)), buttonSprite, font);
+        settings = new Button("Settings", new Rectangle((int)getHalfScreenPositionX(280), gameContext.ScaleY(520), gameContext.ScaleX(280), gameContext.ScaleY(50)), buttonSprite, font);
+        quitGame = new Button("Quit Game", new Rectangle((int)getHalfScreenPositionX(280), gameContext.ScaleY(610), gameContext.ScaleX(280), gameContext.ScaleY(50)), buttonSprite, font);
         
-
+        // Rect initializations
         backgroundRect = new Rectangle(0, 0, Game.GraphicsDevice.Viewport.Width, Game.GraphicsDevice.Viewport.Height);
         titleRect = new Rectangle((int)getHalfScreenPositionX(900) + gameContext.ScaleX(10), gameContext.ScaleY(-30), gameContext.ScaleX(900), gameContext.ScaleY(384));
-        sunRect = new Rectangle((int)getHalfScreenPositionX(900) + gameContext.ScaleX(10), gameContext.ScaleY(-30), gameContext.ScaleX(900), gameContext.ScaleY(384));
+        sunRect = new Rectangle((int)getHalfScreenPositionX(900) + gameContext.ScaleX(420), gameContext.ScaleY(20), gameContext.ScaleX(300), gameContext.ScaleY(300));
     }
     public override void Draw(SpriteBatch spriteBatch)
     {
 
         spriteBatch.Draw(backGround, backgroundRect, Color.White);
         spriteBatch.Draw(title, titleRect, Color.White);
+        spriteBatch.Draw(sun, sunRect, Color.White);
 
         startGame.Draw(spriteBatch);
         settings.Draw(spriteBatch);
