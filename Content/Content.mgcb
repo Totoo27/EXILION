@@ -27,13 +27,20 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/PixelArt.spritefont
 
+#begin Fonts/PixelArtBig.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/PixelArtBig.spritefont
+
 #begin Music/menuMusic.mp3
 /importer:Mp3Importer
 /processor:SongProcessor
 /processorParam:Quality=Best
 /build:Music/menuMusic.mp3
 
-#begin Sprites/button.png
+#begin Sprites/Button.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -43,7 +50,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/button.png;Sprites/Button.png
+/build:Sprites/Button.png
 
 #begin Sprites/exilionTitle.png
 /importer:TextureImporter

@@ -6,8 +6,9 @@
   <SourceFiles>
     <File>C:/workspace/EXILION/Content/Fonts/Arial.spritefont</File>
     <File>C:/workspace/EXILION/Content/Fonts/PixelArt.spritefont</File>
+    <File>C:/workspace/EXILION/Content/Fonts/PixelArtBig.spritefont</File>
     <File>C:/workspace/EXILION/Content/Music/menuMusic.mp3</File>
-    <File>C:/workspace/EXILION/Content/Sprites/button.png</File>
+    <File>C:/workspace/EXILION/Content/Sprites/Button.png</File>
     <File>C:/workspace/EXILION/Content/Sprites/exilionTitle.png</File>
     <File>C:/workspace/EXILION/Content/Sprites/MainMenuBackground.png</File>
     <File>C:/workspace/EXILION/Content/Sprites/Player.png</File>
@@ -16,7 +17,8 @@
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
-    <File>Sprites/Button.png</File>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
