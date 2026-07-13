@@ -1,8 +1,8 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
-"C:/workspace/EXILION/Content/Fonts/Arial.spritefont","C:/workspace/EXILION/Content/bin/DesktopGL/Fonts/Arial.xnb","FontDescriptionProcessor","SpriteFontContent",2068,21529,0,185894
-"C:/workspace/EXILION/Content/Fonts/PixelArt.spritefont","C:/workspace/EXILION/Content/bin/DesktopGL/Fonts/PixelArt.xnb","FontDescriptionProcessor","SpriteFontContent",2075,21529,0,0219871
-"C:/workspace/EXILION/Content/Music/menuMusic.mp3","C:/workspace/EXILION/Content/bin/DesktopGL/Music/menuMusic.xnb","SongProcessor","SongContent",2091627,127,1,9785903
-"C:/workspace/EXILION/Content/Sprites/button.png","C:/workspace/EXILION/Content/bin/DesktopGL/Sprites/button.xnb","TextureProcessor","Texture2DContent",156,4181,0,0114542
-"C:/workspace/EXILION/Content/Sprites/exilionTitle.png","C:/workspace/EXILION/Content/bin/DesktopGL/Sprites/exilionTitle.xnb","TextureProcessor","Texture2DContent",6970,192597,0,0188667
-"C:/workspace/EXILION/Content/Sprites/jugador.png","C:/workspace/EXILION/Content/bin/DesktopGL/Sprites/jugador.xnb","TextureProcessor","Texture2DContent",1356,16213,0,0043537
-"C:/workspace/EXILION/Content/Sprites/MainMenuBackground.png","C:/workspace/EXILION/Content/bin/DesktopGL/Sprites/MainMenuBackground.xnb","TextureProcessor","Texture2DContent",5179,3686485,0,1957495
+"C:/workspace/EXILION/Content/Fonts/Arial.spritefont","C:/workspace/EXILION/Content/bin/DesktopGL/Fonts/Arial.xnb","FontDescriptionProcessor","SpriteFontContent",2068,21529,0,4754502
+"C:/workspace/EXILION/Content/Fonts/PixelArt.spritefont","C:/workspace/EXILION/Content/bin/DesktopGL/Fonts/PixelArt.xnb","FontDescriptionProcessor","SpriteFontContent",2075,21529,0,3291674
+"C:/workspace/EXILION/Content/Music/menuMusic.mp3","C:/workspace/EXILION/Content/bin/DesktopGL/Music/menuMusic.xnb","SongProcessor","SongContent",2091627,127,2,4807024
+"C:/workspace/EXILION/Content/Sprites/button.png","C:/workspace/EXILION/Content/bin/DesktopGL/Sprites/Button.xnb","TextureProcessor","Texture2DContent",156,4181,0,0880209
+"C:/workspace/EXILION/Content/Sprites/exilionTitle.png","C:/workspace/EXILION/Content/bin/DesktopGL/Sprites/exilionTitle.xnb","TextureProcessor","Texture2DContent",6970,192597,0,0205639
+"C:/workspace/EXILION/Content/Sprites/MainMenuBackground.png","C:/workspace/EXILION/Content/bin/DesktopGL/Sprites/MainMenuBackground.xnb","TextureProcessor","Texture2DContent",5179,3686485,0,1836424
+"C:/workspace/EXILION/Content/Sprites/Player.png","C:/workspace/EXILION/Content/bin/DesktopGL/Sprites/Player.xnb","TextureProcessor","Texture2DContent",1356,16213,0,0127422

@@ -6,26 +6,29 @@ using Microsoft.Xna.Framework.Input;
 namespace EXILION.UI;
 public class Button
 {
-    private Rectangle Bounds;
-    private Texture2D Texture;
-    private string Text;
+    private Rectangle bounds;
+    private Texture2D texture;
+    private string text;
 
     private MouseState previousMouse;
 
     private bool IsHovered;
 
-    public Button(String text, Rectangle bounds, Texture2D texture)
+    private SpriteFont font;
+
+    public Button(String text, Rectangle bounds, Texture2D texture, SpriteFont font)
     {
-        this.Text = text;
-        this.Bounds = bounds;
-        this.Texture = texture;
+        this.text = text;
+        this.bounds = bounds;
+        this.texture = texture;
+        this.font = font;
     }
 
     public bool isClicked(MouseState currentMouse)
     {
-        IsHovered = Bounds.Contains(currentMouse.Position);
+        IsHovered = bounds.Contains(currentMouse.Position);
 
-        if (currentMouse.LeftButton == ButtonState.Released && previousMouse.LeftButton == ButtonState.Pressed && this.Bounds.Contains(currentMouse.Position))
+        if (currentMouse.LeftButton == ButtonState.Released && previousMouse.LeftButton == ButtonState.Pressed && this.bounds.Contains(currentMouse.Position))
         {
             return true;
         }
@@ -35,16 +38,16 @@ public class Button
 
     }
 
-    public void Draw(SpriteBatch spriteBatch, SpriteFont font)
+    public void Draw(SpriteBatch spriteBatch)
     {
         Color color = this.IsHovered ? Color.LightGray : Color.White;
-        Vector2 textSize = font.MeasureString(Text);
-        Vector2 textPosition = new Vector2(Bounds.X + (Bounds.Width - textSize.X) / 2, Bounds.Y + (Bounds.Height - textSize.Y) / 2);
+        Vector2 textSize = font.MeasureString(text);
+        Vector2 textPosition = new Vector2(bounds.X + (bounds.Width - textSize.X) / 2, bounds.Y + (bounds.Height - textSize.Y) / 2);
 
-        spriteBatch.Draw(Texture, Bounds, color);
+        spriteBatch.Draw(texture, bounds, color);
         spriteBatch.DrawString(
             font,
-            Text,
+            text,
             textPosition,
             color);
 

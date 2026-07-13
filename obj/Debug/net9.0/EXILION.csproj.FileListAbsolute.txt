@@ -40,3 +40,4 @@ c:\workspace\EXILION\bin\Debug\net9.0\Content\Sprites\button.xnb
 c:\workspace\EXILION\bin\Debug\net9.0\Content\Sprites\exilionTitle.xnb
 c:\workspace\EXILION\bin\Debug\net9.0\Content\Sprites\jugador.xnb
 c:\workspace\EXILION\bin\Debug\net9.0\Content\Sprites\MainMenuBackground.xnb
+c:\workspace\EXILION\bin\Debug\net9.0\Content\Sprites\Player.xnb

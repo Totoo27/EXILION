@@ -1,1 +1,3 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
+"c:/workspace/EXILION/Content/Sprites/button.png","c:/workspace/EXILION/Content/bin/DesktopGL/Content/Sprites/Button.xnb","TextureProcessor","Texture2DContent",156,4181,0,1173109
+"c:/workspace/EXILION/Content/Sprites/Player.png","c:/workspace/EXILION/Content/bin/DesktopGL/Content/Sprites/Player.xnb","TextureProcessor","Texture2DContent",1356,16213,0,0078301

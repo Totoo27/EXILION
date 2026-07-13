@@ -9,14 +9,14 @@
     <File>c:/workspace/EXILION/Content/Music/menuMusic.mp3</File>
     <File>c:/workspace/EXILION/Content/Sprites/button.png</File>
     <File>c:/workspace/EXILION/Content/Sprites/exilionTitle.png</File>
-    <File>c:/workspace/EXILION/Content/Sprites/jugador.png</File>
     <File>c:/workspace/EXILION/Content/Sprites/MainMenuBackground.png</File>
+    <File>c:/workspace/EXILION/Content/Sprites/Player.png</File>
   </SourceFiles>
   <DestFiles>
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
-    <File xsi:nil="true" />
+    <File>Sprites/Button.png</File>
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
