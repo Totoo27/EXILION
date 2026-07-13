@@ -9,7 +9,7 @@ public sealed class Songs
     public void Load(ContentManager content)
     {
 
-        MenuMusic = content.Load<Song>("menuMusic");
+        MenuMusic = content.Load<Song>("Music/menuMusic");
 
     }
 }

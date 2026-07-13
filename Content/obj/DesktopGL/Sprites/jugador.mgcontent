@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>c:/workspace/EXILION/Content/MainMenuBackground.png</SourceFile>
-  <SourceTime>2026-07-09T20:20:33.3264711-03:00</SourceTime>
-  <DestFile>c:/workspace/EXILION/Content/bin/DesktopGL/Content/Background.xnb</DestFile>
-  <DestTime>2026-07-09T20:22:50.9431897-03:00</DestTime>
+  <SourceFile>C:/workspace/EXILION/Content/Sprites/jugador.png</SourceFile>
+  <SourceTime>2026-06-30T00:20:02.1567032-03:00</SourceTime>
+  <DestFile>C:/workspace/EXILION/Content/bin/DesktopGL/Sprites/jugador.xnb</DestFile>
+  <DestTime>2026-07-13T12:39:34.9801404-03:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2025-10-20T11:25:32-03:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

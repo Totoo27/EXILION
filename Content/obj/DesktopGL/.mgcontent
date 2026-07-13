@@ -4,17 +4,21 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>C:/workspace/EXILION/Content/exilionTitle.png</File>
-    <File>C:/workspace/EXILION/Content/button.png</File>
-    <File>C:/workspace/EXILION/Content/File.spritefont</File>
-    <File>C:/workspace/EXILION/Content/jugador.png</File>
-    <File>C:/workspace/EXILION/Content/MainMenuBackground.png</File>
-    <File>C:/workspace/EXILION/Content/menuMusic.mp3</File>
+    <File>C:/workspace/EXILION/Content/Fonts/Arial.spritefont</File>
+    <File>C:/workspace/EXILION/Content/Fonts/PixelArt.spritefont</File>
+    <File>C:/workspace/EXILION/Content/Music/menuMusic.mp3</File>
+    <File>C:/workspace/EXILION/Content/Sprites/button.png</File>
+    <File>C:/workspace/EXILION/Content/Sprites/exilionTitle.png</File>
+    <File>C:/workspace/EXILION/Content/Sprites/jugador.png</File>
+    <File>C:/workspace/EXILION/Content/Sprites/MainMenuBackground.png</File>
   </SourceFiles>
   <DestFiles>
-    <File>title.png</File>
     <File xsi:nil="true" />
-    <File>Arial.spritefont</File>
-    <File>Background.png</File>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
   </DestFiles>
 </SourceFileCollection>

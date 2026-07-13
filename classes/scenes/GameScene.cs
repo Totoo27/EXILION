@@ -23,7 +23,7 @@ public class GameScene : Scene
         pixel = new Texture2D(Game.GraphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
 
-        Texture2D texture = Game.Content.Load<Texture2D>("jugador");
+        Texture2D texture = Game.Content.Load<Texture2D>("Sprites/jugador");
         player = new Player(Vector2.Zero, new Sprite(texture, gameContext.ScaleXY(1)), gameContext);
     }
     public override void Update(GameTime gameTime)

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EXILION")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7eae58d8a0b940c3d23705565249861bb4257254")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+58a2ca0cfe24e0eb91cab92964212f0ac9954bcc")]
 [assembly: System.Reflection.AssemblyProductAttribute("EXILION")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EXILION")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
