@@ -1,7 +1,5 @@
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Media;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace EXILION;
 public static class Assets
@@ -10,7 +8,7 @@ public static class Assets
     public static Fonts Fonts { get; private set; }
     public static Sprites Sprites { get; private set; }
     public static SoundEffects SoundEffects { get; private set; }
-    public static void Load(ContentManager content)
+    public static async Task Load(ContentManager content)
     {
         
         Songs = new();
@@ -18,10 +16,10 @@ public static class Assets
         Sprites = new();
         SoundEffects = new();
 
-        Songs.Load(content);
-        Fonts.Load(content);
-        Sprites.Load(content);
-        SoundEffects.Load(content);
+        await Fonts.Load(content);
+        await Songs.Load(content);
+        await Sprites.Load(content);
+        await SoundEffects.Load(content);
 
     }
 }

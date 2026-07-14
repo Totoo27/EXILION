@@ -1,5 +1,5 @@
-using EXILION.Entities.LivingThings;
-using EXILION.UI;
+using EXILION.Scenes;
+using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -12,10 +12,8 @@ public sealed class Sprites
     public Texture2D Sun { get; private set; }
     public Texture2D Button { get; private set; }
     public Texture2D Player { get; private set; }
-    public void Load(ContentManager content)
+    public async Task Load(ContentManager content)
     {
-
-
 
         // UI
         MenuBackground = content.Load<Texture2D>("Sprites/MainMenuBackground");
@@ -25,6 +23,8 @@ public sealed class Sprites
 
         // Player
         Player = content.Load<Texture2D>("Sprites/Player");
+
+        await MainLoader.addCompletedTask();
 
     }
 }

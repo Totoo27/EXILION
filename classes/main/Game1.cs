@@ -28,7 +28,7 @@ public class Game1 : Game
 
         base.Initialize();
         sceneManager = new SceneManager();
-        sceneManager.ChangeScene(new MainMenu(this));
+        sceneManager.ChangeScene(new MainLoader(this));
     }
 
     protected override void LoadContent()
@@ -36,8 +36,6 @@ public class Game1 : Game
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
         // TODO: use this.Content to load your game content here
-
-        Assets.Load(Content);
 
     }
 
