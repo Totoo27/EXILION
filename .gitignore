@@ -1,4 +1,5 @@
-bin/
-obj/
-Content/bin/
-Content/obj/
+/.vscode
+/bin/
+/obj/
+/Content/bin/
+/Content/obj/
