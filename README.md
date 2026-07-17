@@ -30,7 +30,7 @@
 
 ## 🔗 Enlace a la Wiki del Proyecto
 Puedes acceder a la propuesta detallada del proyecto, minutas de diseño, diagramas de arquitectura y el Documento de Diseño de Juego (GDD) completo a través del siguiente enlace directo:
-👉 **[Wiki del Proyecto EXILION - Propuesta Detallada](#)** 
+👉 **[Wiki del Proyecto EXILION - Propuesta Detallada](https://github.com/Totoo27/EXILION/wiki)** 
 
 ---
 
