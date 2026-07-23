@@ -164,7 +164,7 @@ public class MainMenu : Scene
             int destinationPos = titleRect.Y + gameContext.ScaleY(50);
             if(sunRect.Y < destinationPos) 
                 {
-                    int velocity = getEasingSpeed(20, sunRect.Y, destinationPos);
+                    int velocity = getEasingSpeed(60, sunRect.Y, destinationPos);
 
                     sunRect.Y += velocity;
                 }
