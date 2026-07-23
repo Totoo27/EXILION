@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using EXILION.Entities.LivingThings;
 using EXILION.Scenes;
+using System;
 
 namespace EXILION;
 
@@ -11,15 +12,24 @@ public class Game1 : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     private SceneManager sceneManager;
+
     public GameContext gameContext { get; private set; }
+
+    private KeyboardState previousKeyboardState;
 
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
-        
         gameContext = new GameContext(this);
+
+        _graphics.PreferredBackBufferWidth = gameContext.ScreenWidth;
+        _graphics.PreferredBackBufferHeight =  gameContext.ScreenHeight;
+
+        _graphics.IsFullScreen = true;
+        _graphics.ApplyChanges();
+        
     }
 
     protected override void Initialize()
@@ -46,14 +56,22 @@ public class Game1 : Game
 
         // TODO: Add your update logic here
 
+        if (Keyboard.GetState().IsKeyDown(Keys.F11) && !previousKeyboardState.IsKeyDown(Keys.F11))
+        {
+            _graphics.IsFullScreen = !_graphics.IsFullScreen;
+            _graphics.ApplyChanges();
+        }
+
         sceneManager.Update(gameTime);
 
         base.Update(gameTime);
+
+        previousKeyboardState = Keyboard.GetState();
     }
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
+        GraphicsDevice.Clear(Color.Black);
 
         // TODO: Add your drawing code here
 
