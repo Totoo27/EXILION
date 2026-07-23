@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using EXILION.UI;
+using System.Runtime.CompilerServices;
 
 namespace EXILION.Scenes;
 
@@ -33,6 +34,10 @@ public class MainMenu : Scene
     private Rectangle backgroundCopyRect;
     private float timer = 0;
 
+    // Opacity
+    private float titleOpacity = 0;
+    private float buttonsOpacity = 0;
+
     // Animation states
     private enum TitleAnimationState
     {
@@ -45,6 +50,7 @@ public class MainMenu : Scene
 
     private TitleAnimationState currentState = TitleAnimationState.WaitingStart;
     
+
     public MainMenu(Game1 game) : base(game)
     {
         Music.Play(Assets.Songs.MenuMusic);
@@ -88,15 +94,14 @@ public class MainMenu : Scene
         spriteBatch.Draw(backGround, backgroundRect, Color.White);
         spriteBatch.Draw(backGround, backgroundCopyRect, Color.White);
 
-        spriteBatch.Draw(title, titleRect, Color.White);
+        spriteBatch.Draw(title, titleRect, Color.White * titleOpacity);
         spriteBatch.Draw(sun, sunRect, Color.White);
 
-        if (animationFinished)
-        {
-            startGame.Draw(spriteBatch);
-            settings.Draw(spriteBatch);
-            quitGame.Draw(spriteBatch);
-        }
+        
+        startGame.Draw(spriteBatch, buttonsOpacity);
+        settings.Draw(spriteBatch, buttonsOpacity);
+        quitGame.Draw(spriteBatch, buttonsOpacity);
+
         
     }
 
@@ -142,22 +147,29 @@ public class MainMenu : Scene
     private void updateTitleAnimation(GameTime gameTime)
     {
         if(animationFinished) return;
+
         timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+        float fadeSpeed = 0.03f;
 
         switch (currentState)
         {
             case TitleAnimationState.WaitingStart:
-            if(timer >= 1f)
+            
+            titleOpacity += fadeSpeed * timer;
+
+            if(titleOpacity >= 1f && timer >= 1.5f)
                 {
                     timer = 0;
+                    titleOpacity = 1f;
                     currentState = TitleAnimationState.MovingSun;
                 }
             break;
 
             case TitleAnimationState.MovingSun:
-            if(sunRect.Y < titleRect.Y + gameContext.ScaleY(50)) 
+            int destinationPos = titleRect.Y + gameContext.ScaleY(50);
+            if(sunRect.Y < destinationPos) 
                 {
-                    int velocity = 3;
+                    int velocity = getEasingSpeed(20, sunRect.Y, destinationPos);
 
                     sunRect.Y += velocity;
                 }
@@ -169,7 +181,7 @@ public class MainMenu : Scene
             break;
 
             case TitleAnimationState.MiddleWait:
-            if(timer >= 1f)
+            if(timer >= 0.5f)
                 {
                     timer = 0;
                     currentState = TitleAnimationState.MovingTitle;
@@ -179,7 +191,7 @@ public class MainMenu : Scene
             case TitleAnimationState.MovingTitle:
             if (titleRect.Y > originalTitlePosition.Y && sunRect.Y > originalSunPosition.Y)
                 {
-                    int velocity = 5;
+                    int velocity = getEasingSpeed(10, sunRect.Y, (int)originalSunPosition.Y);
 
                     sunRect.Y -= velocity;
                     titleRect.Y -= velocity;
@@ -192,7 +204,17 @@ public class MainMenu : Scene
             break;
 
             case TitleAnimationState.Finished:
-            animationFinished = true;
+
+            if(buttonsOpacity < 1f)
+                {
+                    buttonsOpacity += fadeSpeed * timer;
+                }
+            else
+                {
+                    buttonsOpacity = 1f;    
+                    animationFinished = true;
+                }
+
             break;
         }
 
@@ -200,12 +222,11 @@ public class MainMenu : Scene
 
     private void updateBackgroundAnimation()
     {
-        
-        
 
         backgroundRect.Y += 1;
         backgroundCopyRect.Y += 1;
 
+        // Restart positions
         if(backgroundRect.Y > Game.GraphicsDevice.Viewport.Height)
         {
             backgroundRect.Y = -Game.GraphicsDevice.Viewport.Height + 1;
@@ -216,6 +237,11 @@ public class MainMenu : Scene
             backgroundCopyRect.Y = -Game.GraphicsDevice.Viewport.Height + 1;
         }
 
+    }
+
+    private int getEasingSpeed(int speedDelimiter, int ownPosition, int destinationPos)
+    {
+        return (int)Math.Ceiling(1 * Math.Abs(ownPosition - (float)destinationPos) / speedDelimiter);
     }
 
 }

@@ -49,18 +49,23 @@ public class Button
 
     }
 
-    public void Draw(SpriteBatch spriteBatch)
+
+    public void Draw(SpriteBatch spriteBatch, float opacity)
     {
         Color color = this.isHovered ? Color.LightGray : Color.White;
         Vector2 textSize = font.MeasureString(text);
         Vector2 textPosition = new Vector2(bounds.X + (bounds.Width - textSize.X) / 2, bounds.Y + (bounds.Height - textSize.Y) / 2);
 
-        spriteBatch.Draw(texture, bounds, color);
+        spriteBatch.Draw(texture, bounds, color * opacity);
         spriteBatch.DrawString(
             font,
             text,
             textPosition,
-            color);
+            color * opacity);
 
+    }
+    public void Draw(SpriteBatch spriteBatch)
+    {
+        this.Draw(spriteBatch, 1f);
     }
 }
