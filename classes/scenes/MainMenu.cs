@@ -14,14 +14,36 @@ public class MainMenu : Scene
     private Button quitGame;
     private GameContext gameContext;
 
-    private Rectangle backgroundRect;
     private Rectangle titleRect;
     private Rectangle sunRect;
+
+    private Vector2 originalSunPosition;
+    private Vector2 originalTitlePosition;
 
     private Texture2D backGround;
     private Texture2D title;
     private Texture2D sun;
     private Texture2D buttonSprite;
+
+    // Animation
+    private bool animationFinished = false;
+    private bool waiting = false;
+
+    private Rectangle backgroundRect;
+    private Rectangle backgroundCopyRect;
+    private float timer = 0;
+
+    // Animation states
+    private enum TitleAnimationState
+    {
+        WaitingStart,
+        MovingSun,
+        MiddleWait,
+        MovingTitle,
+        Finished
+    }
+
+    private TitleAnimationState currentState = TitleAnimationState.WaitingStart;
     
     public MainMenu(Game1 game) : base(game)
     {
@@ -47,25 +69,44 @@ public class MainMenu : Scene
         settings = new Button("Settings", new Rectangle((int)getHalfScreenPositionX(280), gameContext.ScaleY(520), gameContext.ScaleX(280), gameContext.ScaleY(50)), buttonSprite, font);
         quitGame = new Button("Quit Game", new Rectangle((int)getHalfScreenPositionX(280), gameContext.ScaleY(610), gameContext.ScaleX(280), gameContext.ScaleY(50)), buttonSprite, font);
         
+        // Set original positions
+        originalTitlePosition = new Vector2((int)getHalfScreenPositionX(900), gameContext.ScaleY(-30));
+        originalSunPosition = new Vector2((int)getHalfScreenPositionX(900) + gameContext.ScaleX(410), gameContext.ScaleY(20));
+
         // Rect initializations
         backgroundRect = new Rectangle(0, 0, Game.GraphicsDevice.Viewport.Width, Game.GraphicsDevice.Viewport.Height);
-        titleRect = new Rectangle((int)getHalfScreenPositionX(900) + gameContext.ScaleX(10), gameContext.ScaleY(-30), gameContext.ScaleX(900), gameContext.ScaleY(384));
-        sunRect = new Rectangle((int)getHalfScreenPositionX(900) + gameContext.ScaleX(420), gameContext.ScaleY(20), gameContext.ScaleX(300), gameContext.ScaleY(300));
+        backgroundCopyRect = new Rectangle(0, -Game.GraphicsDevice.Viewport.Height, Game.GraphicsDevice.Viewport.Width, Game.GraphicsDevice.Viewport.Height);
+        titleRect = new Rectangle((int)originalTitlePosition.X, (int)getHalfScreenPositionY(384), gameContext.ScaleX(900), gameContext.ScaleY(384));
+        sunRect = new Rectangle((int)originalSunPosition.X, gameContext.ScaleY(-300), gameContext.ScaleX(300), gameContext.ScaleY(300));
+    
+
     }
     public override void Draw(SpriteBatch spriteBatch)
     {
 
+        // Draw Background
         spriteBatch.Draw(backGround, backgroundRect, Color.White);
+        spriteBatch.Draw(backGround, backgroundCopyRect, Color.White);
+
         spriteBatch.Draw(title, titleRect, Color.White);
         spriteBatch.Draw(sun, sunRect, Color.White);
 
-        startGame.Draw(spriteBatch);
-        settings.Draw(spriteBatch);
-        quitGame.Draw(spriteBatch);
+        if (animationFinished)
+        {
+            startGame.Draw(spriteBatch);
+            settings.Draw(spriteBatch);
+            quitGame.Draw(spriteBatch);
+        }
+        
     }
 
     public override void Update(GameTime gameTime)
     {
+
+        updateBackgroundAnimation();
+
+        updateTitleAnimation(gameTime);
+        if(!animationFinished) return;
 
         if (startGame.isClicked(Mouse.GetState()))
         {
@@ -91,4 +132,90 @@ public class MainMenu : Scene
         float positionX = (Game.GraphicsDevice.Viewport.Width - gameContext.ScaleX(size)) / 2;
         return positionX;
     }
+
+    private float getHalfScreenPositionY(int size)
+    {
+        float positionY = (Game.GraphicsDevice.Viewport.Height - gameContext.ScaleY(size)) / 2;
+        return positionY;
+    }
+
+    private void updateTitleAnimation(GameTime gameTime)
+    {
+        if(animationFinished) return;
+        timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        switch (currentState)
+        {
+            case TitleAnimationState.WaitingStart:
+            if(timer >= 1f)
+                {
+                    timer = 0;
+                    currentState = TitleAnimationState.MovingSun;
+                }
+            break;
+
+            case TitleAnimationState.MovingSun:
+            if(sunRect.Y < titleRect.Y + gameContext.ScaleY(50)) 
+                {
+                    int velocity = 3;
+
+                    sunRect.Y += velocity;
+                }
+            else
+                {  
+                    timer = 0;
+                    currentState = TitleAnimationState.MiddleWait;
+                }
+            break;
+
+            case TitleAnimationState.MiddleWait:
+            if(timer >= 1f)
+                {
+                    timer = 0;
+                    currentState = TitleAnimationState.MovingTitle;
+                }
+            break;
+
+            case TitleAnimationState.MovingTitle:
+            if (titleRect.Y > originalTitlePosition.Y && sunRect.Y > originalSunPosition.Y)
+                {
+                    int velocity = 5;
+
+                    sunRect.Y -= velocity;
+                    titleRect.Y -= velocity;
+                }
+                else
+                {
+                    timer = 0;
+                    currentState = TitleAnimationState.Finished;
+                }
+            break;
+
+            case TitleAnimationState.Finished:
+            animationFinished = true;
+            break;
+        }
+
+    }
+
+    private void updateBackgroundAnimation()
+    {
+        
+        
+
+        backgroundRect.Y += 1;
+        backgroundCopyRect.Y += 1;
+
+        if(backgroundRect.Y > Game.GraphicsDevice.Viewport.Height)
+        {
+            backgroundRect.Y = -Game.GraphicsDevice.Viewport.Height + 1;
+        }
+
+        if(backgroundCopyRect.Y > Game.GraphicsDevice.Viewport.Height)
+        {
+            backgroundCopyRect.Y = -Game.GraphicsDevice.Viewport.Height + 1;
+        }
+
+    }
+
 }
