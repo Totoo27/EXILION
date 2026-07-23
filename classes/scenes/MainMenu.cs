@@ -21,7 +21,6 @@ public class MainMenu : Scene
     private Vector2 originalSunPosition;
     private Vector2 originalTitlePosition;
 
-    private Texture2D backGround;
     private Texture2D title;
     private Texture2D sun;
     private Texture2D buttonSprite;
@@ -29,9 +28,6 @@ public class MainMenu : Scene
     // Animation
     private bool animationFinished = false;
     private bool waiting = false;
-
-    private Rectangle backgroundRect;
-    private Rectangle backgroundCopyRect;
     private float timer = 0;
 
     // Opacity
@@ -49,6 +45,8 @@ public class MainMenu : Scene
     }
 
     private TitleAnimationState currentState = TitleAnimationState.WaitingStart;
+
+    private Starfield starfield;
     
 
     public MainMenu(Game1 game) : base(game)
@@ -60,8 +58,10 @@ public class MainMenu : Scene
     public override void LoadContent()
     {
 
+        // Stars
+        starfield = new Starfield(Game.GraphicsDevice, 200);
+
         // Sprites        
-        backGround = Assets.Sprites.MenuBackground;
         title = Assets.Sprites.GameTitle;
         buttonSprite = Assets.Sprites.Button;
         sun = Assets.Sprites.Sun;
@@ -80,8 +80,6 @@ public class MainMenu : Scene
         originalSunPosition = new Vector2((int)getHalfScreenPositionX(900) + gameContext.ScaleX(410), gameContext.ScaleY(20));
 
         // Rect initializations
-        backgroundRect = new Rectangle(0, 0, Game.GraphicsDevice.Viewport.Width, Game.GraphicsDevice.Viewport.Height);
-        backgroundCopyRect = new Rectangle(0, -Game.GraphicsDevice.Viewport.Height, Game.GraphicsDevice.Viewport.Width, Game.GraphicsDevice.Viewport.Height);
         titleRect = new Rectangle((int)originalTitlePosition.X, (int)getHalfScreenPositionY(384), gameContext.ScaleX(900), gameContext.ScaleY(384));
         sunRect = new Rectangle((int)originalSunPosition.X, gameContext.ScaleY(-300), gameContext.ScaleX(300), gameContext.ScaleY(300));
     
@@ -90,10 +88,7 @@ public class MainMenu : Scene
     public override void Draw(SpriteBatch spriteBatch)
     {
 
-        // Draw Background
-        spriteBatch.Draw(backGround, backgroundRect, Color.White);
-        spriteBatch.Draw(backGround, backgroundCopyRect, Color.White);
-
+        starfield.Draw(spriteBatch);
         spriteBatch.Draw(title, titleRect, Color.White * titleOpacity);
         spriteBatch.Draw(sun, sunRect, Color.White);
 
@@ -108,7 +103,7 @@ public class MainMenu : Scene
     public override void Update(GameTime gameTime)
     {
 
-        updateBackgroundAnimation();
+        starfield.Update(gameTime);
 
         updateTitleAnimation(gameTime);
         if(!animationFinished) return;
@@ -216,25 +211,6 @@ public class MainMenu : Scene
                 }
 
             break;
-        }
-
-    }
-
-    private void updateBackgroundAnimation()
-    {
-
-        backgroundRect.Y += 1;
-        backgroundCopyRect.Y += 1;
-
-        // Restart positions
-        if(backgroundRect.Y > Game.GraphicsDevice.Viewport.Height)
-        {
-            backgroundRect.Y = -Game.GraphicsDevice.Viewport.Height + 1;
-        }
-
-        if(backgroundCopyRect.Y > Game.GraphicsDevice.Viewport.Height)
-        {
-            backgroundCopyRect.Y = -Game.GraphicsDevice.Viewport.Height + 1;
         }
 
     }
