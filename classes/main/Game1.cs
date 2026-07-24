@@ -51,12 +51,11 @@ public class Game1 : Game
 
     protected override void Update(GameTime gameTime)
     {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-            Exit();
-
         // TODO: Add your update logic here
 
-        if (Keyboard.GetState().IsKeyDown(Keys.F11) && !previousKeyboardState.IsKeyDown(Keys.F11))
+        KeyboardState keyboardState = Keyboard.GetState();
+
+        if (keyboardState.IsKeyDown(Keys.F11) && !previousKeyboardState.IsKeyDown(Keys.F11))
         {
             _graphics.IsFullScreen = !_graphics.IsFullScreen;
             _graphics.ApplyChanges();
@@ -66,7 +65,7 @@ public class Game1 : Game
 
         base.Update(gameTime);
 
-        previousKeyboardState = Keyboard.GetState();
+        previousKeyboardState = keyboardState;
     }
 
     protected override void Draw(GameTime gameTime)

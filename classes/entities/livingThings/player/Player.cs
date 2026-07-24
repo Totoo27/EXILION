@@ -17,7 +17,7 @@ public class Player : LivingThing
     private float hungerTimer = 0f;
 
     public Player(Vector2 position, Sprite sprite, GameContext gameContext)
-    : base(position, sprite, gameContext.ScaleY(100), (float) gameContext.ScaleXY(3), gameContext)
+    : base(position, sprite, 100, (float) gameContext.ScaleXY(3), gameContext)
     {
         this.hunger = maxHunger;
     }

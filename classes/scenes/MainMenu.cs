@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using EXILION.UI;
 using System.Runtime.CompilerServices;
+using System.Dynamic;
 
 namespace EXILION.Scenes;
 
@@ -14,10 +15,12 @@ public class MainMenu : Scene
     private Button settings;
     private Button quitGame;
     private GameContext gameContext;
+    private KeyboardState previousKeyboardState;
 
     private Rectangle titleRect;
     private Rectangle sunRect;
 
+    // Original positions
     private Vector2 originalSunPosition;
     private Vector2 originalTitlePosition;
 
@@ -25,16 +28,21 @@ public class MainMenu : Scene
     private Texture2D sun;
     private Texture2D buttonSprite;
 
-    // Animation
+    // Settings
+
+    private SettingsPanel settingsPanel;
+    private Vector2 enabledSettingsPosition;
+
+    // ---- Animation
     private bool animationFinished = false;
-    private bool waiting = false;
+    private bool settingsDisableAnimation = false;
     private float timer = 0;
 
-    // Opacity
+
     private float titleOpacity = 0;
     private float buttonsOpacity = 0;
 
-    // Animation states
+
     private enum TitleAnimationState
     {
         WaitingStart,
@@ -58,6 +66,9 @@ public class MainMenu : Scene
     public override void LoadContent()
     {
 
+        settingsPanel = new SettingsPanel(Game, new Vector2(Game.GraphicsDevice.Viewport.Width, 0));
+        settingsPanel.position.Y = getHalfScreenPositionY(settingsPanel.Height);
+
         // Stars
         starfield = new Starfield(Game.GraphicsDevice, 200);
 
@@ -76,8 +87,10 @@ public class MainMenu : Scene
         quitGame = new Button("Quit Game", new Rectangle((int)getHalfScreenPositionX(280), gameContext.ScaleY(610), gameContext.ScaleX(280), gameContext.ScaleY(50)), buttonSprite, font);
         
         // Set original positions
-        originalTitlePosition = new Vector2((int)getHalfScreenPositionX(900), gameContext.ScaleY(-30));
-        originalSunPosition = new Vector2((int)getHalfScreenPositionX(900) + gameContext.ScaleX(410), gameContext.ScaleY(20));
+        originalTitlePosition = new Vector2(getHalfScreenPositionX(900), gameContext.ScaleY(-30));
+        originalSunPosition = new Vector2(getHalfScreenPositionX(900) + gameContext.ScaleX(410), gameContext.ScaleY(20));
+
+        enabledSettingsPosition = new Vector2(getHalfScreenPositionX(settingsPanel.Width), getHalfScreenPositionY(settingsPanel.Height));
 
         // Rect initializations
         titleRect = new Rectangle((int)originalTitlePosition.X, (int)getHalfScreenPositionY(384), gameContext.ScaleX(900), gameContext.ScaleY(384));
@@ -92,22 +105,43 @@ public class MainMenu : Scene
         spriteBatch.Draw(title, titleRect, Color.White * titleOpacity);
         spriteBatch.Draw(sun, sunRect, Color.White);
 
-        
         startGame.Draw(spriteBatch, buttonsOpacity);
         settings.Draw(spriteBatch, buttonsOpacity);
         quitGame.Draw(spriteBatch, buttonsOpacity);
 
-        
+        settingsPanel.Draw(spriteBatch);
+
     }
 
     public override void Update(GameTime gameTime)
     {
+        KeyboardState keyboardState = Keyboard.GetState();
+
+        if (keyboardState.IsKeyDown(Keys.Escape) && previousKeyboardState.IsKeyUp(Keys.Escape))
+        {
+
+            if (settingsPanel.enabled)
+            {
+                settingsDisableAnimation = true;
+            } else
+            {
+                Game.Exit();
+            }
+            
+        }
+
+        previousKeyboardState = keyboardState;
 
         starfield.Update(gameTime);
-
         updateTitleAnimation(gameTime);
-        if(!animationFinished) return;
+        if(!animationFinished) return; // Prevent any logic before the animation ends
 
+
+        settingsPanel.Update();
+        updateSettingsAnimation();
+        if(settingsPanel.enabled) return; // Prevent using Menu buttons while settings is enabled
+
+        // Buttons update
         if (startGame.isClicked(Mouse.GetState()))
         {
             Game.changeScene(new GameScene(Game));
@@ -115,9 +149,9 @@ public class MainMenu : Scene
 
         if (settings.isClicked(Mouse.GetState()))
         {
-            // Game.changeScene(new SettingsMenu(Game));
-            Console.WriteLine("Settings");
-            Music.Stop();
+            
+            settingsPanel.enabled = true;
+
         }
 
         if (quitGame.isClicked(Mouse.GetState()))
@@ -125,18 +159,6 @@ public class MainMenu : Scene
             Game.Exit();
         }
 
-    }
-
-    private float getHalfScreenPositionX(int size)
-    {
-        float positionX = (Game.GraphicsDevice.Viewport.Width - gameContext.ScaleX(size)) / 2;
-        return positionX;
-    }
-
-    private float getHalfScreenPositionY(int size)
-    {
-        float positionY = (Game.GraphicsDevice.Viewport.Height - gameContext.ScaleY(size)) / 2;
-        return positionY;
     }
 
     private void updateTitleAnimation(GameTime gameTime)
@@ -150,74 +172,151 @@ public class MainMenu : Scene
         {
             case TitleAnimationState.WaitingStart:
             
-            titleOpacity += fadeSpeed * timer;
+                titleOpacity += fadeSpeed * timer;
 
-            if(titleOpacity >= 1f && timer >= 1.5f)
-                {
-                    timer = 0;
-                    titleOpacity = 1f;
-                    currentState = TitleAnimationState.MovingSun;
-                }
+                if(titleOpacity >= 1f && timer >= 1.5f)
+                    {
+                        timer = 0;
+                        titleOpacity = 1f;
+                        currentState = TitleAnimationState.MovingSun;
+                    }
+
             break;
 
             case TitleAnimationState.MovingSun:
-            int destinationPos = titleRect.Y + gameContext.ScaleY(50);
-            if(sunRect.Y < destinationPos) 
-                {
-                    int velocity = getEasingSpeed(60, sunRect.Y, destinationPos);
 
-                    sunRect.Y += velocity;
-                }
-            else
-                {  
-                    timer = 0;
-                    currentState = TitleAnimationState.MiddleWait;
-                }
+                int destinationPos = titleRect.Y + gameContext.ScaleY(60);
+                if(sunRect.Y < destinationPos) 
+                    {
+                        int velocity = gameContext.ScaleY(getEasingSpeed(35, sunRect.Y, destinationPos));
+
+                        sunRect.Y += velocity;
+                    }
+                else
+                    {  
+                        timer = 0;
+                        currentState = TitleAnimationState.MiddleWait;
+                    }
+
             break;
 
             case TitleAnimationState.MiddleWait:
-            if(timer >= 0.5f)
-                {
-                    timer = 0;
-                    currentState = TitleAnimationState.MovingTitle;
-                }
+
+                if(timer >= 0.5f)
+                    {
+                        timer = 0;
+                        currentState = TitleAnimationState.MovingTitle;
+                    }
+
             break;
 
             case TitleAnimationState.MovingTitle:
-            if (titleRect.Y > originalTitlePosition.Y && sunRect.Y > originalSunPosition.Y)
-                {
-                    int velocity = getEasingSpeed(10, sunRect.Y, (int)originalSunPosition.Y);
+                if (titleRect.Y > originalTitlePosition.Y && sunRect.Y > originalSunPosition.Y)
+                    {
+                        int velocity = gameContext.ScaleY(getEasingSpeed(20, sunRect.Y, (int)originalSunPosition.Y));
 
-                    sunRect.Y -= velocity;
-                    titleRect.Y -= velocity;
-                }
+                        sunRect.Y -= velocity;
+                        titleRect.Y -= velocity;
+                    }
                 else
-                {
-                    timer = 0;
-                    currentState = TitleAnimationState.Finished;
-                }
+                    {
+                        timer = 0;
+                        currentState = TitleAnimationState.Finished;
+                    }
             break;
 
             case TitleAnimationState.Finished:
 
-            if(buttonsOpacity < 1f)
-                {
-                    buttonsOpacity += fadeSpeed * timer;
-                }
-            else
-                {
-                    buttonsOpacity = 1f;    
-                    animationFinished = true;
-                }
+                if(buttonsOpacity < 1f)
+                    {
+                        buttonsOpacity += fadeSpeed * timer;
+                    }
+                else
+                    {
+                        buttonsOpacity = 1f;    
+                        animationFinished = true;
+                    }
 
             break;
         }
 
     }
 
+    private void updateSettingsAnimation()
+    {
+        if(!settingsPanel.enabled) return;
+
+        float positionX = settingsPanel.position.X;
+
+        if (positionX > enabledSettingsPosition.X && !settingsDisableAnimation)
+        {
+
+            int speed = gameContext.ScaleX(getEasingSpeed(10, (int)positionX, (int)enabledSettingsPosition.X));
+
+            // Settings move to center
+            settingsPanel.position.X -= speed;
+
+            // Everything else move apart
+            titleRect.X -= speed;
+            sunRect.X -= speed;
+            startGame.position.X -= speed;
+            settings.position.X -= speed;
+            quitGame.position.X -= speed;
+
+        }
+
+        if(settingsDisableAnimation && positionX < Game.GraphicsDevice.Viewport.Width)
+        {
+            int speed = gameContext.ScaleX(getEasingSpeed(10, (int)positionX, Game.GraphicsDevice.Viewport.Width));
+
+            // Settings move to center
+            settingsPanel.position.X += speed;
+
+            // Everything else move apart
+            titleRect.X += speed;
+            sunRect.X += speed;
+            startGame.position.X += speed;
+            settings.position.X += speed;
+            quitGame.position.X += speed;
+
+        } else if(settingsDisableAnimation)
+        {
+            settingsDisableAnimation = false;
+            settingsPanel.enabled = false;
+        }
+
+    }
+    private float getHalfScreenPositionX(int size)
+    {
+        if(size <= 0)
+        {
+            throw new Exception("size cannot be negative");
+        }
+
+        float positionX = (Game.GraphicsDevice.Viewport.Width - gameContext.ScaleX(size)) / 2;
+        return positionX;
+    }
+
+    private float getHalfScreenPositionY(int size)
+    {
+        if(size <= 0)
+        {
+            throw new Exception("size cannot be negative");
+        }
+
+        float positionY = (Game.GraphicsDevice.Viewport.Height - gameContext.ScaleY(size)) / 2;
+        return positionY;
+    }
+
     private int getEasingSpeed(int speedDelimiter, int ownPosition, int destinationPos)
     {
-        return (int)Math.Ceiling(1 * Math.Abs(ownPosition - (float)destinationPos) / speedDelimiter);
+
+        if(speedDelimiter <= 0)
+        {
+            throw new Exception("speed Delimiter must be above 0");
+        }
+
+        return (int)Math.Ceiling(1 * Math.Abs(ownPosition - destinationPos) / (float)speedDelimiter);
     }
 
 }

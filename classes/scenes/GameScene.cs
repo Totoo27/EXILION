@@ -29,11 +29,16 @@ public class GameScene : Scene
     public override void Update(GameTime gameTime)
     {
         MouseState mouse = Mouse.GetState();
-        KeyboardState keyBoardState = Keyboard.GetState();
+        KeyboardState keyboardState = Keyboard.GetState();
+
+        if (keyboardState.IsKeyDown(Keys.Escape))
+        {
+            Game.changeScene(new MainMenu(Game));
+        }
 
         if(player != null)
         {
-            player.Update(mouse.Position.ToVector2(), keyBoardState, gameTime);
+            player.Update(mouse.Position.ToVector2(), keyboardState, gameTime);
             if (player.isDead)
             {
                 player = null;
