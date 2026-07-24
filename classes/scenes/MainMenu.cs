@@ -15,7 +15,6 @@ public class MainMenu : Scene
     private Button settings;
     private Button quitGame;
     private GameContext gameContext;
-    private KeyboardState previousKeyboardState;
 
     private Rectangle titleRect;
     private Rectangle sunRect;
@@ -115,9 +114,8 @@ public class MainMenu : Scene
 
     public override void Update(GameTime gameTime)
     {
-        KeyboardState keyboardState = Keyboard.GetState();
 
-        if (keyboardState.IsKeyDown(Keys.Escape) && previousKeyboardState.IsKeyUp(Keys.Escape))
+        if (Game.input.IsKeyPressed(Keys.Escape))
         {
 
             if (settingsPanel.enabled)
@@ -129,8 +127,6 @@ public class MainMenu : Scene
             }
             
         }
-
-        previousKeyboardState = keyboardState;
 
         starfield.Update(gameTime);
         updateTitleAnimation(gameTime);

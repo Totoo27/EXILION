@@ -12,10 +12,8 @@ public class Game1 : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     private SceneManager sceneManager;
-
+    public InputManager input {get; private set;}
     public GameContext gameContext { get; private set; }
-
-    private KeyboardState previousKeyboardState;
 
     public Game1()
     {
@@ -39,6 +37,8 @@ public class Game1 : Game
         base.Initialize();
         sceneManager = new SceneManager();
         sceneManager.ChangeScene(new MainLoader(this));
+
+        input = new InputManager();
     }
 
     protected override void LoadContent()
@@ -52,10 +52,9 @@ public class Game1 : Game
     protected override void Update(GameTime gameTime)
     {
         // TODO: Add your update logic here
+        input.Update();
 
-        KeyboardState keyboardState = Keyboard.GetState();
-
-        if (keyboardState.IsKeyDown(Keys.F11) && !previousKeyboardState.IsKeyDown(Keys.F11))
+        if (input.IsKeyPressed(Keys.F11))
         {
             _graphics.IsFullScreen = !_graphics.IsFullScreen;
             _graphics.ApplyChanges();
@@ -64,8 +63,6 @@ public class Game1 : Game
         sceneManager.Update(gameTime);
 
         base.Update(gameTime);
-
-        previousKeyboardState = keyboardState;
     }
 
     protected override void Draw(GameTime gameTime)

@@ -12,8 +12,6 @@ public class Player : LivingThing
     public int maxHunger { get; private set; } = 100;
     public int hunger { get; private set; }
 
-    private KeyboardState previousKeyboardState;
-
     private float hungerTimer = 0f;
 
     public Player(Vector2 position, Sprite sprite, GameContext gameContext)
@@ -22,44 +20,43 @@ public class Player : LivingThing
         this.hunger = maxHunger;
     }
 
-    public async void Update(Vector2 mousePosition, KeyboardState currentKeyboardState, GameTime gameTime)
+    public async void Update(Vector2 mousePosition, InputManager input, GameTime gameTime)
     {
 
         updateHunger(gameTime);
 
         float currentSpeed = this.speed;
 
-        if(currentKeyboardState.IsKeyDown(Keys.LeftShift))
+        if(input.IsKeyHeld(Keys.LeftShift))
         {
             currentSpeed *= 2;
         }
 
-        if (currentKeyboardState.IsKeyDown(Keys.Left))
+        if (input.IsKeyHeld(Keys.Left))
         {
             this.position.X -= currentSpeed;
         }
 
-        if (currentKeyboardState.IsKeyDown(Keys.Right))
+        if (input.IsKeyHeld(Keys.Right))
         {
             this.position.X += currentSpeed;
         }
 
-        if (currentKeyboardState.IsKeyDown(Keys.Down))
+        if (input.IsKeyHeld(Keys.Down))
         {
             this.position.Y += currentSpeed;
         }
 
-        if (currentKeyboardState.IsKeyDown(Keys.Up))
+        if (input.IsKeyHeld(Keys.Up))
         {
             this.position.Y -= currentSpeed;
         }
 
-        if (currentKeyboardState.IsKeyDown(Keys.H) && !previousKeyboardState.IsKeyDown(Keys.H))
+        if (input.IsKeyPressed(Keys.H))
         {
             gameContext.showHitboxes = !gameContext.showHitboxes;
         }
 
-        previousKeyboardState = currentKeyboardState;
         base.Update(mousePosition);
     }
 
