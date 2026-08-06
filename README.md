@@ -46,8 +46,9 @@ Antes de comenzar, asegúrate de tener instalado en tu sistema:
 ### 1. Clonar el Repositorio
 Abre tu terminal o consola de comandos y ejecuta el siguiente comando para clonar el proyecto:
 ```bash
-git clone [https://github.com/usuario/exilion.git](https://github.com/usuario/exilion.git)
-cd exilion
+git clone https://github.com/Totoo27/EXILION.git
+cd EXILION
+```
 
 ### 2. Restaurar Dependencias de NuGet
 Restaura todos los paquetes NuGet asociados a la solución (incluyendo librerías de MonoGame y dependencias de red):
@@ -67,19 +68,13 @@ Para iniciar el juego de manera directa, podés hacerlo de tres formas dependien
 #### Opción A: Desde la consola de comandos (Recomendado y más rápido)
 Usa la interfaz de línea de comandos de .NET ejecutando el siguiente comando desde la carpeta raíz donde clonaste el proyecto:
 ```bash
-dotnet run --project EXILION.Desktop
+dotnet run --project EXILION.csproj
 ```
-*(Nota: Asegúrate de reemplazar "EXILION.Desktop" por el nombre exacto de la carpeta o del archivo de proyecto `.csproj` que actúe como el punto de entrada de tu juego).*
 
-#### Opción B: Desde Visual Studio (2022 o superior)
-1. Abre el archivo de solución de tu proyecto: **`EXILION.sln`**.
-2. Asegúrate de que el proyecto de inicio de la solución esté configurado en el proyecto de Escritorio (ej. `EXILION.Desktop`).
-3. Presiona el botón verde de **Iniciar** o la tecla **F5** (Depurar) / **Ctrl + F5** (Iniciar sin depurar).
-
-#### Opción C: Desde Visual Studio Code
+#### Opción B: Desde Visual Studio Code
 1. Abre la carpeta del proyecto en VS Code.
 2. Abre una terminal integrada (`Ctrl + \``) y ejecuta el comando de la Opción A:
    ```bash
-   dotnet run --project EXILION.Desktop
+   dotnet run --project EXILION.csjproj
    ```
 3. *(Alternativamente)* Si usas la extensión **C# Dev Kit**, presiona **F5** seleccionando la configuración de ejecución para .NET.
