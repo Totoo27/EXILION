@@ -1,3 +1,4 @@
 {
-  "release-type": "simple"
+  "release-type": "simple",
+  "bootstrap-sha": "c00a22e"
 }
