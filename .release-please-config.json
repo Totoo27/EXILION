@@ -1,4 +1,7 @@
 {
-  "release-type": "simple",
-  "last-release-sha": "c00a22e"
+  "packages": {
+    ".": {
+      "release-type": "simple"
+    }
+  }
 }
