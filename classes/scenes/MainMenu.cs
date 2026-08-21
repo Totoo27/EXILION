@@ -8,7 +8,7 @@ using System.Dynamic;
 
 namespace EXILION.Scenes;
 
-public class MainMenu : Scene
+public class MainMenu : Scene, IHasSettings
 {
     private SpriteFont font;
     private Button startGame;
@@ -65,7 +65,7 @@ public class MainMenu : Scene
     public override void LoadContent()
     {
 
-        settingsPanel = new SettingsPanel(Game, new Vector2(Game.GraphicsDevice.Viewport.Width, 0));
+        settingsPanel = new SettingsPanel(Game, this, new Vector2(Game.GraphicsDevice.Viewport.Width, 0));
         settingsPanel.position.Y = getHalfScreenPositionY(settingsPanel.Height);
 
         // Stars
@@ -235,6 +235,13 @@ public class MainMenu : Scene
 
             break;
         }
+
+    }
+
+    public void closeSettings()
+    {
+        
+       settingsDisableAnimation = true;
 
     }
 
