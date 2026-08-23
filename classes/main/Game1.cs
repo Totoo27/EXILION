@@ -12,10 +12,8 @@ public class Game1 : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     private SceneManager sceneManager;
-
+    public InputManager input {get; private set;}
     public GameContext gameContext { get; private set; }
-
-    private KeyboardState previousKeyboardState;
 
     public Game1()
     {
@@ -39,6 +37,8 @@ public class Game1 : Game
         base.Initialize();
         sceneManager = new SceneManager();
         sceneManager.ChangeScene(new MainLoader(this));
+
+        input = new InputManager();
     }
 
     protected override void LoadContent()
@@ -51,22 +51,17 @@ public class Game1 : Game
 
     protected override void Update(GameTime gameTime)
     {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-            Exit();
-
         // TODO: Add your update logic here
+        input.Update();
 
-        if (Keyboard.GetState().IsKeyDown(Keys.F11) && !previousKeyboardState.IsKeyDown(Keys.F11))
+        if (input.IsKeyPressed(Keys.F11))
         {
-            _graphics.IsFullScreen = !_graphics.IsFullScreen;
-            _graphics.ApplyChanges();
+            toggleFullScreen();
         }
 
         sceneManager.Update(gameTime);
 
         base.Update(gameTime);
-
-        previousKeyboardState = Keyboard.GetState();
     }
 
     protected override void Draw(GameTime gameTime)
@@ -75,13 +70,19 @@ public class Game1 : Game
 
         // TODO: Add your drawing code here
 
-        _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        _spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend);
 
         sceneManager.Draw(_spriteBatch);
 
         _spriteBatch.End();
 
         base.Draw(gameTime);
+    }
+
+    public void toggleFullScreen()
+    {
+        _graphics.IsFullScreen = !_graphics.IsFullScreen;
+        _graphics.ApplyChanges();
     }
 
     public void changeScene(Scene scene)
