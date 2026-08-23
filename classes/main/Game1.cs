@@ -56,8 +56,7 @@ public class Game1 : Game
 
         if (input.IsKeyPressed(Keys.F11))
         {
-            _graphics.IsFullScreen = !_graphics.IsFullScreen;
-            _graphics.ApplyChanges();
+            toggleFullScreen();
         }
 
         sceneManager.Update(gameTime);
@@ -71,13 +70,19 @@ public class Game1 : Game
 
         // TODO: Add your drawing code here
 
-        _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        _spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend);
 
         sceneManager.Draw(_spriteBatch);
 
         _spriteBatch.End();
 
         base.Draw(gameTime);
+    }
+
+    public void toggleFullScreen()
+    {
+        _graphics.IsFullScreen = !_graphics.IsFullScreen;
+        _graphics.ApplyChanges();
     }
 
     public void changeScene(Scene scene)

@@ -29,12 +29,18 @@ public class SettingsPanel
 
     private Texture2D panelTexture;
     private Texture2D borderTexture;
-    private Texture2D shadowTexture;
 
     private IHasSettings scene;
 
-    // Back button
+    private Color borderColor = new Color(46, 15, 74);
+
+    // Buttons
     private Button backButton;
+    private Button fullScreenButton;
+    private Button musicButton;
+    private Button SFXButton;
+
+    // Buttons config
     private Texture2D buttonSprite;
     private SpriteFont font;
 
@@ -59,6 +65,173 @@ public class SettingsPanel
 
         panelTexture = new Texture2D(graphicsDevice, 1, 100);
 
+        initPanelTexture();
+
+        borderTexture = new Texture2D(graphicsDevice, 1, 1);
+        borderTexture.SetData(new[] { Color.White });
+
+        buttonSprite = Assets.Sprites.Button;
+        font = Assets.Fonts.PixelArt;
+
+        backButton = new Button(
+            "Back",
+            new Rectangle(
+                (int)position.X,
+                (int)position.Y,
+                game.gameContext.ScaleX(180),
+                game.gameContext.ScaleY(50)
+            ),
+            buttonSprite,
+            font
+        );
+
+        fullScreenButton = new Button(
+            "FullScreen",
+            new Rectangle(
+                (int)position.X,
+                (int)position.Y,
+                game.gameContext.ScaleX(180),
+                game.gameContext.ScaleY(50)
+            ),
+            buttonSprite,
+            font
+        );
+
+        SFXButton = new Button(
+            "SFX",
+            new Rectangle(
+                (int)position.X,
+                (int)position.Y,
+                game.gameContext.ScaleX(100),
+                game.gameContext.ScaleY(50)
+            ),
+            buttonSprite,
+            font
+        );
+
+        musicButton = new Button(
+            "Music",
+            new Rectangle(
+                (int)position.X,
+                (int)position.Y,
+                game.gameContext.ScaleX(100),
+                game.gameContext.ScaleY(50)
+            ),
+            buttonSprite,
+            font
+        );
+
+    }
+
+    public void Update()
+    {
+        if (!enabled) return;
+
+        updateButtonPosition(SFXButton, game.gameContext.ScaleX(40), game.gameContext.ScaleY(20));
+        updateButtonPosition(musicButton, game.gameContext.ScaleX(40), game.gameContext.ScaleY(80));
+        updateButtonPosition(backButton, game.gameContext.ScaleX(40), Height - game.gameContext.ScaleY(90));
+        updateButtonPosition(fullScreenButton, Width - game.gameContext.ScaleX(200), game.gameContext.ScaleY(20));
+
+        if (backButton.isClicked(Mouse.GetState()))
+        {
+            scene.closeSettings();
+        }
+
+        if (fullScreenButton.isClicked(Mouse.GetState()))
+        {
+            game.toggleFullScreen();
+        }
+
+        if (musicButton.isClicked(Mouse.GetState()))
+        {
+            Music.toggle();
+        }
+
+        if (SFXButton.isClicked(Mouse.GetState()))
+        {
+            SFX.toggle();
+        }
+
+    }
+
+    public void Draw(SpriteBatch spriteBatch)
+    {
+        if (!enabled)
+            return;
+
+        int borderSize = game.gameContext.ScaleX(4);
+
+        Rectangle innerBounds = new Rectangle(
+            bounds.X + borderSize,
+            bounds.Y + borderSize,
+            bounds.Width - borderSize * 2,
+            bounds.Height - borderSize * 2
+        );
+
+        // Panel
+        spriteBatch.Draw(
+            panelTexture,
+            innerBounds,
+            Color.White
+        );
+
+        // Borde superior
+        spriteBatch.Draw(
+            borderTexture,
+            new Rectangle(
+                bounds.X,
+                bounds.Y,
+                bounds.Width,
+                borderSize
+            ),
+            borderColor
+        );
+
+        // Borde inferior
+        spriteBatch.Draw(
+            borderTexture,
+            new Rectangle(
+                bounds.X,
+                bounds.Bottom - borderSize,
+                bounds.Width,
+                borderSize
+            ),
+            borderColor
+        );
+
+        // Borde izquierdo
+        spriteBatch.Draw(
+            borderTexture,
+            new Rectangle(
+                bounds.X,
+                bounds.Y,
+                borderSize,
+                bounds.Height
+            ),
+            borderColor
+        );
+
+        // Borde derecho
+        spriteBatch.Draw(
+            borderTexture,
+            new Rectangle(
+                bounds.Right - borderSize,
+                bounds.Y,
+                borderSize,
+                bounds.Height
+            ),
+            borderColor
+        );
+
+
+        SFXButton.Draw(spriteBatch, 1f);
+        musicButton.Draw(spriteBatch, 1f);
+        backButton.Draw(spriteBatch, 1f);
+        fullScreenButton.Draw(spriteBatch, 1f);
+    }
+
+    public void initPanelTexture()
+    {
         Color[] panelColors = new Color[100];
 
         for (int i = 0; i < 100; i++)
@@ -70,96 +243,18 @@ public class SettingsPanel
                 new Color(25, 15, 35),
                 progress
             );
+
+            panelColors[i] = new Color(panelColors[i], 0.5f);
         }
 
         panelTexture.SetData(panelColors);
-
-        borderTexture = new Texture2D(graphicsDevice, 1, 1);
-        borderTexture.SetData(new[] { Color.White });
-
-        shadowTexture = new Texture2D(graphicsDevice, 1, 1);
-        shadowTexture.SetData(new[] { Color.White });
-
-        buttonSprite = Assets.Sprites.Button;
-        font = Assets.Fonts.PixelArt;
-
-        backButton = new Button(
-            "Back",
-            new Rectangle(
-                (int)position.X + game.gameContext.ScaleX(40),
-                (int)position.Y + Height - game.gameContext.ScaleY(90),
-                game.gameContext.ScaleX(180),
-                game.gameContext.ScaleY(50)
-            ),
-            buttonSprite,
-            font
-        );
     }
 
-    public void Update()
+    public void updateButtonPosition(Button button, int positionX, int positionY)
     {
-        if (!enabled) return;
-
-        backButton.position.X = (int)position.X + game.gameContext.ScaleX(40);
-        backButton.position.Y = (int)position.Y + Height - game.gameContext.ScaleY(90);
-
-        if (backButton.isClicked(Mouse.GetState()))
-        {
-            scene.closeSettings();
-        }
+        button.position.X = (int)position.X + positionX;
+        button.position.Y = (int)position.Y + positionY;
+        // Cambiar los valores por positionX y positionY
     }
 
-    public void Draw(SpriteBatch spriteBatch)
-    {
-        if (!enabled)
-            return;
-
-        int borderSize = game.gameContext.ScaleX(4);
-        int shadowSize = game.gameContext.ScaleX(12);
-
-        Rectangle shadowBounds = new Rectangle(
-            bounds.X + shadowSize / 2,
-            bounds.Y + shadowSize / 2,
-            bounds.Width + shadowSize,
-            bounds.Height + shadowSize
-        );
-
-        spriteBatch.Draw(
-            shadowTexture,
-            shadowBounds,
-            new Color(0, 0, 0, 100)
-        );
-
-        spriteBatch.Draw(
-            borderTexture,
-            new Rectangle(
-                bounds.X - borderSize,
-                bounds.Y - borderSize,
-                bounds.Width + borderSize * 2,
-                bounds.Height + borderSize * 2
-            ),
-            new Color(80, 75, 100)
-        );
-
-        spriteBatch.Draw(
-            borderTexture,
-            bounds,
-            new Color(125, 90, 160)
-        );
-
-        Rectangle innerBounds = new Rectangle(
-            bounds.X + borderSize,
-            bounds.Y + borderSize,
-            bounds.Width - borderSize * 2,
-            bounds.Height - borderSize * 2
-        );
-
-        spriteBatch.Draw(
-            panelTexture,
-            innerBounds,
-            Color.White
-        );
-
-        backButton.Draw(spriteBatch, 1f);
-    }
 }

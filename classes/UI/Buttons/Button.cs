@@ -45,7 +45,7 @@ public class Button
 
         if (isHovered && !madeSound)
         {
-            Assets.SoundEffects.buttonHover.Play();
+            SFX.Play(Assets.SoundEffects.buttonHover);
             madeSound = true;
 
         } else if(!isHovered)
