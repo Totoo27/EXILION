@@ -5,25 +5,41 @@ using Microsoft.Xna.Framework.Input;
 
 namespace EXILION.Entities.LivingThings;
 
-
 public class Player : LivingThing
 {
 
-    public int maxHunger { get; private set; } = 100;
-    public int hunger { get; private set; }
 
-    private float hungerTimer = 0f;
+    private int maxStat = 10;
+    private int maxOxygen = 5;
+
+    private PlayerStat oxygen;
+    private PlayerStat hunger;
+    private PlayerStat thirst;
+
 
     public Player(Vector2 position, Sprite sprite, GameContext gameContext)
     : base(position, sprite, 100, (float) gameContext.ScaleXY(3), gameContext)
     {
-        this.hunger = maxHunger;
+
+        hunger = new PlayerStat();
+        thirst = new PlayerStat();
+        oxygen = new PlayerStat();
+
+        hunger.max = maxStat;
+        thirst.max = maxStat;
+        oxygen.max = maxOxygen;
+
+        hunger.value = hunger.max;
+        thirst.value = thirst.max;
+        oxygen.value = oxygen.max;
     }
 
     public async void Update(Vector2 mousePosition, InputManager input, GameTime gameTime)
     {
 
-        updateHunger(gameTime);
+        hunger = updateStat(gameTime, hunger);
+        thirst = updateStat(gameTime, thirst);
+        oxygen = updateStat(gameTime, oxygen);
 
         float currentSpeed = this.speed;
 
@@ -65,23 +81,24 @@ public class Player : LivingThing
         base.Draw(spriteBatch, pixel);
     }
 
-    public void updateHunger(GameTime gameTime)
+    public PlayerStat updateStat(GameTime gameTime, PlayerStat stat)
     {
 
-        hungerTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+        stat.timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        if (hungerTimer >= 1f)
+        if (stat.timer >= 1f)
         {
-            hungerTimer -= 1f;
-            hunger--;
+            stat.timer = 0f;
+            stat.value--;
 
-            Console.WriteLine($"Hunger: {hunger}");
-
-            if (hunger <= 0)
+            if (stat.value <= 0)
             {
+                stat.value = 0;
                 takeDamage(1);
             }
         }
+
+        return stat;
 
     }
 

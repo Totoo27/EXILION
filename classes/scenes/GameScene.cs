@@ -47,6 +47,6 @@ public class GameScene : Scene
 
     public override void Draw(SpriteBatch spriteBatch)
     {
-        player.Draw(spriteBatch, pixel);
+        player?.Draw(spriteBatch, pixel);
     }
 }
