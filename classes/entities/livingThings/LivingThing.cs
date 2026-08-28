@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EXILION.Entities.LivingThings;
-public class LivingThing : Entity
+public abstract class LivingThing : Entity
 {
     
     

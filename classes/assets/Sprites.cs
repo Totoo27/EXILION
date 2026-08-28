@@ -12,6 +12,8 @@ public sealed class Sprites
     public Texture2D Sun { get; private set; }
     public Texture2D Button { get; private set; }
     public Texture2D Player { get; private set; }
+    public Texture2D testBG { get; private set; }
+    public Texture2D testProgress { get; private set; }
     public async Task Load(ContentManager content)
     {
 
@@ -20,6 +22,9 @@ public sealed class Sprites
         GameTitle = content.Load<Texture2D>("Sprites/ExilionTitle");
         Sun = content.Load<Texture2D>("Sprites/Sun");        
         Button = content.Load<Texture2D>("Sprites/Button");
+        // Bars
+        testBG = content.Load<Texture2D>("Sprites/testBG");
+        testProgress = content.Load<Texture2D>("Sprites/testProgress");
 
         // Player
         Player = content.Load<Texture2D>("Sprites/Player");

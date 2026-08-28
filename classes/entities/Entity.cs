@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 
 namespace EXILION.Entities;
-public class Entity
+public abstract class Entity
 {
     protected Sprite sprite { get; private set;}
 

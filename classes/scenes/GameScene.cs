@@ -2,14 +2,16 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using EXILION.Entities.LivingThings;
+using EXILION.UI.Bar;
+using System;
 
 namespace EXILION.Scenes;
 public class GameScene : Scene
 {
-    Player player;
+    private Player player;
 
-    Texture2D pixel;
-
+    private Texture2D pixel;
+    private LinearBar hungerBar;
     
 
     public GameScene(Game1 game) : base(game)
@@ -23,8 +25,22 @@ public class GameScene : Scene
         pixel = new Texture2D(Game.GraphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
 
-        Texture2D texture = Assets.Sprites.Player;
-        player = new Player(Vector2.Zero, new Sprite(texture, gameContext.ScaleXY(1)), gameContext);
+        player = new Player(Vector2.Zero, new Sprite(Assets.Sprites.Player, gameContext.ScaleXY(1)), gameContext);
+
+        Rectangle rectangle = new Rectangle(gameContext.ScaleX(0), gameContext.ScaleY(0), gameContext.ScaleX(100), gameContext.ScaleY(10));
+        Rectangle progressRectangle = new Rectangle(gameContext.ScaleX(0), gameContext.ScaleY(0), gameContext.ScaleX(100), gameContext.ScaleY(10));
+
+        hungerBar = new LinearBar(
+            Assets.Sprites.testBG,
+            Assets.Sprites.testProgress,
+            rectangle,
+            progressRectangle,
+            false,
+            player.hunger.max
+            
+        );
+
+        player.HungerChanged += hungerBar.setValue;
     }
     public override void Update(GameTime gameTime)
     {
@@ -48,5 +64,6 @@ public class GameScene : Scene
     public override void Draw(SpriteBatch spriteBatch)
     {
         player?.Draw(spriteBatch, pixel);
+        hungerBar.Draw(spriteBatch);
     }
 }
