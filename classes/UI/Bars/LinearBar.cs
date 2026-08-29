@@ -12,37 +12,26 @@ public class LinearBar : Bar
     private Rectangle positionRectangle;
     private bool vertical;
 
-    public LinearBar(Texture2D background, Texture2D progress, Texture2D setoff, Rectangle rectangle, Rectangle positionRectangle, bool vertical, int maxValue)
-    : base(background, progress, setoff, rectangle, maxValue)
+    public LinearBar(Texture2D background, Texture2D progress, Texture2D setoff, Rectangle rectangle, Rectangle positionRectangle, bool vertical, int maxValue, Vector2 textPosition)
+    : base(background, progress, setoff, rectangle, maxValue, textPosition)
     {
+        this.positionRectangle = positionRectangle;
+        fillRectangle = new Rectangle(positionRectangle.X, positionRectangle.Y, positionRectangle.Width, positionRectangle.Height);
+        this.vertical = vertical;
+    }
 
-        if (maxValue <= 0)
-        {
-            throw new ArgumentException("The max value must be above 0");
-        }
-
+    public LinearBar(Texture2D background, Texture2D progress, Rectangle rectangle, Rectangle positionRectangle, bool vertical,  int maxValue, Vector2 textPosition)
+    : base(background, progress, null, rectangle, maxValue, textPosition)
+    {
 
         this.positionRectangle = positionRectangle;
         fillRectangle = new Rectangle(positionRectangle.X, positionRectangle.Y, positionRectangle.Width, positionRectangle.Height);
         this.vertical = vertical;
     }
 
-    public LinearBar(Texture2D background, Texture2D progress, Rectangle rectangle, Rectangle positionRectangle, bool vertical,  int maxValue)
-    : base(background, progress, null, rectangle, maxValue)
+    public override void setValue(int value)
     {
-
-        if (maxValue <= 0)
-        {
-            throw new ArgumentException("The max value must be above 0");
-        }
-
-        this.positionRectangle = positionRectangle;
-        fillRectangle = new Rectangle(positionRectangle.X, positionRectangle.Y, positionRectangle.Width, positionRectangle.Height);
-        this.vertical = vertical;
-    }
-
-    public void setValue(int value)
-    {
+        this.value = value;
         int percentage = value * 100 / maxValue;
 
         if (vertical)
