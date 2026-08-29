@@ -18,6 +18,7 @@ public class LinearBar : Bar
         this.positionRectangle = positionRectangle;
         fillRectangle = new Rectangle(positionRectangle.X, positionRectangle.Y, positionRectangle.Width, positionRectangle.Height);
         this.vertical = vertical;
+        setValue(maxValue);
     }
 
     public LinearBar(Texture2D background, Texture2D progress, Rectangle rectangle, Rectangle positionRectangle, bool vertical,  int maxValue, Vector2 textPosition)
@@ -27,11 +28,11 @@ public class LinearBar : Bar
         this.positionRectangle = positionRectangle;
         fillRectangle = new Rectangle(positionRectangle.X, positionRectangle.Y, positionRectangle.Width, positionRectangle.Height);
         this.vertical = vertical;
+        setValue(maxValue);
     }
 
     public override void setValue(int value)
     {
-        this.value = value;
         int percentage = value * 100 / maxValue;
 
         if (vertical)
@@ -44,6 +45,8 @@ public class LinearBar : Bar
             fillRectangle.Width =
                 positionRectangle.Width * percentage / 100;
         }
+
+        setTextPercentage(percentage);
     }
 
     protected override void drawProgress(SpriteBatch spriteBatch)

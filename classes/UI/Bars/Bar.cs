@@ -11,13 +11,16 @@ public abstract class Bar
     protected Texture2D background;
     protected Texture2D setoff;
     protected Texture2D progress;
-    protected int value;
+    protected int percentage = 100;
     protected int maxValue;
-    protected Color progressColor = Color.White;
-    protected Color fontColor = Color.White;
     protected Rectangle rectangle;
-    
+    protected Color progressColor = Color.White;
+
+
+    protected Color fontColor = Color.White;    
     private bool showText = true;
+    private String text;
+    private Vector2 textInnerPosition;
     private SpriteFont font = Assets.Fonts.PixelArtSmall;
     private Vector2 textPosition;
     public Bar(Texture2D background, Texture2D progress, Texture2D setoff, Rectangle rectangle, int maxValue, Vector2 textPosition)
@@ -57,7 +60,7 @@ public abstract class Bar
         if(background != null) spriteBatch.Draw(background, rectangle, Color.White);
     }
 
-    public abstract void setValue(int value);
+    public abstract void setValue(int percentage);
     protected abstract void drawProgress(SpriteBatch spriteBatch);
 
     public void setProgressColor(Color color)
@@ -69,15 +72,17 @@ public abstract class Bar
     {
         this.fontColor = color;
     }
-    private void drawSetoff(SpriteBatch spriteBatch)
+
+    protected void setTextPercentage(int percentage)
     {
-        String text = value.ToString();
-
+        text = percentage.ToString(); // + "%";
         Vector2 textSize = font.MeasureString(text);
-        Vector2 position = new Vector2(textPosition.X - textSize.X / 2, textPosition.Y - textSize.Y / 2);
+        textInnerPosition = new Vector2(textPosition.X - textSize.X / 2, textPosition.Y - textSize.Y / 2);
+    }
+    private void drawSetoff(SpriteBatch spriteBatch)
+    {   
 
-        spriteBatch.DrawString(font, text, position, fontColor);
-
+        spriteBatch.DrawString(font, text, textInnerPosition, fontColor);
         if(setoff != null) spriteBatch.Draw(setoff, rectangle, Color.White);
         
     }

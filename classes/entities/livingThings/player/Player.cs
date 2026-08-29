@@ -19,6 +19,7 @@ public class Player : LivingThing
     public event Action<int>? OxygenChanged;
     public event Action<int>? HungerChanged;
     public event Action<int>? ThirstChanged;
+    public event Action<int>? HealthChanged;
 
 
     public Player(Vector2 position, Sprite sprite, GameContext gameContext)
@@ -84,7 +85,7 @@ public class Player : LivingThing
 
         stat.timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        if (stat.timer >= 1f)
+        if (stat.timer >= 2.5f)
         {
             if (stat.value <= 0)
             {
@@ -139,7 +140,7 @@ public class Player : LivingThing
 
         stat.timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        if (stat.timer >= 1f)
+        if (stat.timer >= 2f)
         {
             if (stat.value <= 0)
             {
@@ -157,6 +158,12 @@ public class Player : LivingThing
 
         thirst = stat;
 
+    }
+
+    public override void takeDamage(int damage)
+    {
+        base.takeDamage(damage);
+        HealthChanged?.Invoke(this.health);
     }
 
 }

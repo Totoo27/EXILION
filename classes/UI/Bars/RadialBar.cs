@@ -100,10 +100,10 @@ public class RadialBar : Bar
 
     public override void setValue(int value)
     {
-        this.value = value;
         float percentage = value / (float)maxValue;
         if (filledProgress != progress) filledProgress.Dispose();
         filledProgress = CreateRadialMask(progress, percentage);
+        setTextPercentage((int) (percentage*100));
 
     }
 

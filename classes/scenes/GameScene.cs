@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using EXILION.Entities.LivingThings;
 using EXILION.UI.Bar;
 using System;
+using System.Threading;
 
 namespace EXILION.Scenes;
 public class GameScene : Scene
@@ -13,6 +14,8 @@ public class GameScene : Scene
     private Texture2D pixel;
     private Bar hungerBar;
     private Bar thirstBar;
+    private Bar healthBar;
+    private Bar oxygenBar;
     
 
     public GameScene(Game1 game) : base(game)
@@ -30,6 +33,9 @@ public class GameScene : Scene
 
         Rectangle hungerRectangle = new Rectangle(gameContext.ScaleX(850), gameContext.ScaleY(500), gameContext.ScaleX(100), gameContext.ScaleY(100));
         Rectangle thirstRectangle = new Rectangle(gameContext.ScaleX(850), gameContext.ScaleY(610), gameContext.ScaleX(100), gameContext.ScaleY(100));
+        Rectangle healthRectangle = new Rectangle(gameContext.ScaleX(970), gameContext.ScaleY(500), gameContext.ScaleX(200), gameContext.ScaleY(200));
+        Rectangle oxygenRectangle = new Rectangle(gameContext.ScaleX(1200), gameContext.ScaleY(500), gameContext.ScaleX(20), gameContext.ScaleY(200));
+        
         Vector2 meterTextPosition = new Vector2(hungerRectangle.Width/2, hungerRectangle.Height/2);
 
         hungerBar = new RadialBar(
@@ -41,8 +47,8 @@ public class GameScene : Scene
             player.hunger.max,
             Game.GraphicsDevice,
             meterTextPosition,
-            40,
-            320
+            35,
+            325
             
         );
 
@@ -55,19 +61,49 @@ public class GameScene : Scene
             player.thirst.max,
             Game.GraphicsDevice,
             meterTextPosition,
-            40,
-            320
+            35,
+            325
             
+        );
+
+        healthBar = new RadialBar(
+
+            Assets.Sprites.meter,
+            Assets.Sprites.meterProgress,
+            Assets.Sprites.thirstIcon,
+            healthRectangle,
+            player.maxHealth,
+            Game.GraphicsDevice,
+            new Vector2(healthRectangle.Width/2, healthRectangle.Height/2),
+            35,
+            325
+            
+        );
+
+        oxygenBar = new LinearBar(
+
+            Assets.Sprites.testBG,
+            Assets.Sprites.testProgress,
+            oxygenRectangle,
+            oxygenRectangle,
+            true,
+            player.oxygen.max,
+            new Vector2(oxygenRectangle.Width/2, oxygenRectangle.Height/2)
         );
 
         hungerBar.setProgressColor(new Color(148, 55, 24));
         thirstBar.setProgressColor(new Color(79, 165, 184));
+        healthBar.setProgressColor(new Color(155, 25, 25));
 
         hungerBar.setFontColor(new Color(42, 168, 65));
         thirstBar.setFontColor(new Color(42, 168, 65));
+        healthBar.setFontColor(new Color(42, 168, 65));
+        healthBar.setFontColor(new Color(42, 168, 65));
 
         player.HungerChanged += hungerBar.setValue;
         player.ThirstChanged += thirstBar.setValue;
+        player.HealthChanged += healthBar.setValue;
+        player.OxygenChanged += oxygenBar.setValue;
     }
 
     public override void Update(GameTime gameTime)
@@ -94,5 +130,7 @@ public class GameScene : Scene
         player?.Draw(spriteBatch, pixel);
         hungerBar.Draw(spriteBatch);
         thirstBar.Draw(spriteBatch);
+        healthBar.Draw(spriteBatch);
+        oxygenBar.Draw(spriteBatch);
     }
 }
