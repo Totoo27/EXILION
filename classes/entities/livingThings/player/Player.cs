@@ -11,6 +11,8 @@ public class Player : LivingThing
 
     public int maxHunger { get; private set; } = 100;
     public int hunger { get; private set; }
+    private Inventory inventory;
+    public Inventory Inventory => inventory;
 
     private float hungerTimer = 0f;
 
@@ -18,6 +20,7 @@ public class Player : LivingThing
     : base(position, sprite, 100, (float) gameContext.ScaleXY(3), gameContext)
     {
         this.hunger = maxHunger;
+        this.inventory = new Inventory(); 
     }
 
     public async void Update(Vector2 mousePosition, InputManager input, GameTime gameTime)
