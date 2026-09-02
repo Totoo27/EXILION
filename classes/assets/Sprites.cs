@@ -16,6 +16,10 @@ public sealed class Sprites
     public Texture2D testProgress { get; private set; }
     public Texture2D meter { get; private set; }
     public Texture2D meterProgress { get; private set; }
+    public Texture2D healthMeter { get; private set; }
+    public Texture2D healthProgress { get; private set; }
+    public Texture2D oxygenMeter { get; private set; }
+    public Texture2D oxygenProgress { get; private set; }
     public Texture2D hungerIcon { get; private set; }
     public Texture2D thirstIcon { get; private set; }
     public async Task Load(ContentManager content)
@@ -34,6 +38,10 @@ public sealed class Sprites
         meterProgress = content.Load<Texture2D>("Sprites/meterProgress");
         hungerIcon = content.Load<Texture2D>("Sprites/hungerMeterIcon");
         thirstIcon = content.Load<Texture2D>("Sprites/thirstMeterIcon");
+        healthMeter = content.Load<Texture2D>("Sprites/healthMeter");
+        healthProgress = content.Load<Texture2D>("Sprites/healthProgress");
+        oxygenMeter = content.Load<Texture2D>("Sprites/oxygenMeter");
+        oxygenProgress = content.Load<Texture2D>("Sprites/oxygenProgress");
 
         // Player
         Player = content.Load<Texture2D>("Sprites/Player");

@@ -73,6 +73,18 @@ public abstract class Bar
         this.fontColor = color;
     }
 
+    public void setDynamicColor(int percentage)
+    {
+        percentage = Math.Clamp(percentage, 0, 100);
+
+        Color minColor = new Color(100, 0, 20);
+        Color midColor = new Color(220, 130, 30);
+        Color maxColor = new Color(0, 170, 50);
+
+        if(percentage >= 50) this.progressColor = Color.Lerp(midColor, maxColor, (percentage - 50) / 50f );
+        if(percentage < 50) this.progressColor = Color.Lerp(minColor, midColor, percentage / 50f);
+    }
+
     protected void setTextPercentage(int percentage)
     {
         text = percentage.ToString(); // + "%";

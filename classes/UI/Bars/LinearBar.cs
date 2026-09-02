@@ -37,21 +37,21 @@ public class LinearBar : Bar
 
         if (vertical)
         {
-            fillRectangle.Height =
-                positionRectangle.Height * percentage / 100;
+            fillRectangle.Height = positionRectangle.Height * percentage / 100;
+
+            fillRectangle.Y = positionRectangle.Y + positionRectangle.Height - fillRectangle.Height;
         }
         else
         {
-            fillRectangle.Width =
-                positionRectangle.Width * percentage / 100;
+            fillRectangle.Width = positionRectangle.Width * percentage / 100;
         }
 
-        setTextPercentage(percentage);
+        setTextPercentage(Math.Clamp(percentage, 0, 100));
     }
 
     protected override void drawProgress(SpriteBatch spriteBatch)
     {
-        spriteBatch.Draw(progress, fillRectangle, null, Color.White);
+        spriteBatch.Draw(progress, fillRectangle, null, progressColor);
     }
 
 }

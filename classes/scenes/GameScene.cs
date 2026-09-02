@@ -3,8 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using EXILION.Entities.LivingThings;
 using EXILION.UI.Bar;
-using System;
-using System.Threading;
 
 namespace EXILION.Scenes;
 public class GameScene : Scene
@@ -31,10 +29,12 @@ public class GameScene : Scene
 
         player = new Player(Vector2.Zero, new Sprite(Assets.Sprites.Player, gameContext.ScaleXY(1)), gameContext);
 
-        Rectangle hungerRectangle = new Rectangle(gameContext.ScaleX(850), gameContext.ScaleY(500), gameContext.ScaleX(100), gameContext.ScaleY(100));
-        Rectangle thirstRectangle = new Rectangle(gameContext.ScaleX(850), gameContext.ScaleY(610), gameContext.ScaleX(100), gameContext.ScaleY(100));
-        Rectangle healthRectangle = new Rectangle(gameContext.ScaleX(970), gameContext.ScaleY(500), gameContext.ScaleX(200), gameContext.ScaleY(200));
-        Rectangle oxygenRectangle = new Rectangle(gameContext.ScaleX(1200), gameContext.ScaleY(500), gameContext.ScaleX(20), gameContext.ScaleY(200));
+        Rectangle hungerRectangle = new Rectangle(gameContext.ScaleX(850), gameContext.ScaleY(500), gameContext.ScaleX(96), gameContext.ScaleY(96));
+        Rectangle thirstRectangle = new Rectangle(gameContext.ScaleX(850), gameContext.ScaleY(610), gameContext.ScaleX(96), gameContext.ScaleY(96));
+        Rectangle healthRectangle = new Rectangle(gameContext.ScaleX(950), gameContext.ScaleY(500), gameContext.ScaleX(200), gameContext.ScaleY(200));
+        Rectangle oxygenRectangle = new Rectangle(gameContext.ScaleX(1150), gameContext.ScaleY(468), gameContext.ScaleX(65), gameContext.ScaleY(232));
+        
+        Rectangle oxygenProgressRectangle = new Rectangle(oxygenRectangle.X + gameContext.ScaleX(21), oxygenRectangle.Y + gameContext.ScaleY(70), gameContext.ScaleX(6), gameContext.ScaleY(150));
         
         Vector2 meterTextPosition = new Vector2(hungerRectangle.Width/2, hungerRectangle.Height/2);
 
@@ -68,42 +68,47 @@ public class GameScene : Scene
 
         healthBar = new RadialBar(
 
-            Assets.Sprites.meter,
-            Assets.Sprites.meterProgress,
-            Assets.Sprites.thirstIcon,
+            Assets.Sprites.healthMeter,
+            Assets.Sprites.healthProgress,
             healthRectangle,
             player.maxHealth,
             Game.GraphicsDevice,
             new Vector2(healthRectangle.Width/2, healthRectangle.Height/2),
-            35,
-            325
+            90,
+            360
             
         );
 
         oxygenBar = new LinearBar(
 
-            Assets.Sprites.testBG,
-            Assets.Sprites.testProgress,
+            Assets.Sprites.oxygenMeter,
+            Assets.Sprites.oxygenProgress,
             oxygenRectangle,
-            oxygenRectangle,
+            oxygenProgressRectangle,
             true,
             player.oxygen.max,
-            new Vector2(oxygenRectangle.Width/2, oxygenRectangle.Height/2)
+            new Vector2(oxygenRectangle.Width/2, gameContext.ScaleY(52))
         );
 
         hungerBar.setProgressColor(new Color(148, 55, 24));
         thirstBar.setProgressColor(new Color(79, 165, 184));
-        healthBar.setProgressColor(new Color(155, 25, 25));
+        healthBar.setProgressColor(new Color(0, 170, 50));
+        oxygenBar.setProgressColor(new Color(0, 170, 50));
 
         hungerBar.setFontColor(new Color(42, 168, 65));
         thirstBar.setFontColor(new Color(42, 168, 65));
         healthBar.setFontColor(new Color(42, 168, 65));
-        healthBar.setFontColor(new Color(42, 168, 65));
+        oxygenBar.setFontColor(new Color(42, 168, 65));
 
         player.HungerChanged += hungerBar.setValue;
+
         player.ThirstChanged += thirstBar.setValue;
+
         player.HealthChanged += healthBar.setValue;
+        player.HealthChanged += healthBar.setDynamicColor;
+
         player.OxygenChanged += oxygenBar.setValue;
+        player.OxygenChanged += oxygenBar.setDynamicColor;
     }
 
     public override void Update(GameTime gameTime)
@@ -128,6 +133,7 @@ public class GameScene : Scene
     public override void Draw(SpriteBatch spriteBatch)
     {
         player?.Draw(spriteBatch, pixel);
+        
         hungerBar.Draw(spriteBatch);
         thirstBar.Draw(spriteBatch);
         healthBar.Draw(spriteBatch);

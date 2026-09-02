@@ -92,7 +92,6 @@ public class Player : LivingThing
                 stat.value = 0;
                 takeDamage(1);
                 hunger = stat;
-                return;
             }
 
             stat.timer = 0f;
@@ -120,13 +119,11 @@ public class Player : LivingThing
                 stat.value = 0;
                 takeDamage(1);
                 oxygen = stat;
-                return;
             }
 
             stat.timer = 0f;
-            stat.value--;
+            stat.value -= 10;
             OxygenChanged?.Invoke(stat.value);
-
         }
 
         oxygen = stat;
@@ -147,7 +144,6 @@ public class Player : LivingThing
                 stat.value = 0;
                 takeDamage(1);
                 thirst = stat;
-                return;
             }
 
             stat.timer = 0f;
