@@ -122,7 +122,7 @@ public class Player : LivingThing
             }
 
             stat.timer = 0f;
-            stat.value -= 10;
+            stat.value--;
             OxygenChanged?.Invoke(stat.value);
         }
 
