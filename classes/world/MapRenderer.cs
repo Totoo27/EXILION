@@ -17,27 +17,33 @@ public class MapRenderer
 
         _sourceRects = new Dictionary<TileType, Rectangle>
         {
-            { TileType.DeepWater, new Rectangle(0 * tileSize, 0, tileSize, tileSize) },
-            { TileType.Water,     new Rectangle(1 * tileSize, 0, tileSize, tileSize) },
-            { TileType.Sand,      new Rectangle(2 * tileSize, 0, tileSize, tileSize) },
-            { TileType.Grass,     new Rectangle(3 * tileSize, 0, tileSize, tileSize) },
-            { TileType.Forest,    new Rectangle(4 * tileSize, 0, tileSize, tileSize) },
-            { TileType.Rock,      new Rectangle(5 * tileSize, 0, tileSize, tileSize) },
-            { TileType.Snow,      new Rectangle(6 * tileSize, 0, tileSize, tileSize) },
+            { TileType.DeepWater, new Rectangle(0 * 32, 0, 32, 32) },
+            { TileType.Water,     new Rectangle(1 * 32, 0, 32, 32) },
+            { TileType.Sand,      new Rectangle(2 * 32, 0, 32, 32) },
+            { TileType.Grass,     new Rectangle(3 * 32, 0, 32, 32) },
+            { TileType.Forest,    new Rectangle(4 * 32, 0, 32, 32) },
+            { TileType.Rock,      new Rectangle(5 * 32, 0, 32, 32) },
+            { TileType.Snow,      new Rectangle(6 * 32, 0, 32, 32) },
         };
     }
 
-    public void Draw(SpriteBatch spriteBatch, MapTile[,] map)
+    public void Draw(SpriteBatch spriteBatch, World world)
     {
-        int width = map.GetLength(0);
-        int height = map.GetLength(1);
-
-        for (int x = 0; x < width; x++)
+        foreach (var chunk in world.LoadedChunks)
         {
-            for (int y = 0; y < height; y++)
+            int baseX = chunk.ChunkX * Chunk.Size;
+            int baseY = chunk.ChunkY * Chunk.Size;
+
+            for (int lx = 0; lx < Chunk.Size; lx++)
             {
-                var dest = new Rectangle(x * _tileSize, y * _tileSize, _tileSize, _tileSize);
-                spriteBatch.Draw(_tileset, dest, _sourceRects[map[x, y].Type], Color.White);
+                for (int ly = 0; ly < Chunk.Size; ly++)
+                {
+                    var dest = new Rectangle(
+                        (baseX + lx) * _tileSize, (baseY + ly) * _tileSize,
+                        _tileSize, _tileSize);
+
+                    spriteBatch.Draw(_tileset, dest, _sourceRects[chunk.Tiles[lx, ly].Type], Color.White);
+                }
             }
         }
     }

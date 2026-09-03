@@ -9,20 +9,19 @@ namespace EXILION.Scenes;
 public class GameScene : Scene
 {
     Player player;
-
     Texture2D pixel;
 
-    MapTile[,] map;
+    World.World world;
     MapRenderer mapRenderer;
+    Camera camera;
 
-    private const int MapWidth = 100;
-    private const int MapHeight = 100;
-    private const int TileSize = 32;
-    private const int Seed = 12345; // más adelante: random o elegido por el jugador
+    private const int Seed = 12345;
 
     public GameScene(Game1 game) : base(game)
     {
     }
+
+    public override Matrix? CameraTransform => camera?.GetViewMatrix();
 
     public override void LoadContent()
     {
@@ -34,36 +33,53 @@ public class GameScene : Scene
         Texture2D texture = Assets.Sprites.Player;
         player = new Player(Vector2.Zero, new Sprite(texture, gameContext.ScaleXY(1)), gameContext);
 
-        // --- Generación del mapa ---
-        var generator = new MapGenerator(MapWidth, MapHeight, Seed);
-        map = generator.Generate();
+        int tileSize = (int)gameContext.ScaleXY(64);
 
-        Texture2D tileset = Assets.Sprites.Tileset; // agregá esta referencia en tu clase Assets
-        mapRenderer = new MapRenderer(tileset, TileSize);
+        world = new World.World(seed: Seed, tileSize: tileSize) { RenderDistanceChunks = 2 };
+        world.UpdateAroundPosition(player.position);
+
+        Texture2D tileset = Assets.Sprites.Tileset;
+        mapRenderer = new MapRenderer(tileset, tileSize);
+
+        camera = new Camera(Game.GraphicsDevice.Viewport);
     }
 
-    public override void Update(GameTime gameTime)
+public override void Update(GameTime gameTime)
+{
+    MouseState mouse = Mouse.GetState();
+
+    if (Game.input.IsKeyPressed(Keys.Escape))
     {
-        MouseState mouse = Mouse.GetState();
+        Game.changeScene(new MainMenu(Game));
+    }
 
-        if (Game.input.IsKeyPressed(Keys.Escape))
+    if (player != null)
+    {
+        Vector2 mouseWorldPosition = mouse.Position.ToVector2();
+
+        if (camera != null)
         {
-            Game.changeScene(new MainMenu(Game));
+            Matrix inverseCamera = Matrix.Invert(camera.GetViewMatrix());
+            mouseWorldPosition = Vector2.Transform(mouseWorldPosition, inverseCamera);
         }
 
-        if(player != null)
+        player.Update(mouseWorldPosition, Game.input, gameTime);
+        if (player.isDead)
         {
-            player.Update(mouse.Position.ToVector2(), Game.input, gameTime);
-            if (player.isDead)
-            {
-                player = null;
-            }
+            player = null;
         }
     }
+
+    if (player != null)
+    {
+        world.UpdateAroundPosition(player.position);
+        camera.Follow(player.position);
+    }
+}
 
     public override void Draw(SpriteBatch spriteBatch)
     {
-        mapRenderer.Draw(spriteBatch, map);
+        mapRenderer.Draw(spriteBatch, world);
 
         if (player != null)
             player.Draw(spriteBatch, pixel);
