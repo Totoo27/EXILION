@@ -139,6 +139,7 @@ public class Player : LivingThing
 
         if (stat.timer >= 2f)
         {
+            
             if (stat.value <= 0)
             {
                 stat.value = 0;
@@ -159,6 +160,7 @@ public class Player : LivingThing
     public override void takeDamage(int damage)
     {
         base.takeDamage(damage);
+        SFX.Play(Assets.SoundEffects.playerDamage);
         HealthChanged?.Invoke(this.health);
     }
 

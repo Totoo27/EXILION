@@ -14,7 +14,7 @@ public class GameScene : Scene
     private float timer = 0f;
     private const float TIMER_INTERVAL = 1f;
     private float nightOpacity = 0f;
-    private const int DIURNAL_PRESET_TIME = 10; // in seconds
+    private const int DIURNAL_PRESET_TIME = 200; // in seconds
     private int diurnalCycleTime = DIURNAL_PRESET_TIME; // in seconds
     private const float MAX_NIGHT_OPACITY = 0.5f;
     private const float NIGHT_TRANSITION_SPEED = 0.15f;
@@ -31,6 +31,7 @@ public class GameScene : Scene
 
     public GameScene(Game1 game) : base(game)
     {
+        Music.Play(Assets.Songs.StandardGameMusic);
     }
 
     public override void LoadContent()
