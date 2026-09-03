@@ -9,6 +9,7 @@ public abstract class Entity
 
     public Vector2 position;
     private Point hitboxSize;
+    protected Color color = Color.White;
 
     protected Rectangle hitbox
     {
@@ -40,7 +41,7 @@ public abstract class Entity
     public void Draw(SpriteBatch spriteBatch, Texture2D pixel)
     {
 
-        sprite.Draw(spriteBatch);
+        sprite.Draw(spriteBatch, color);
         if (gameContext.showHitboxes)
         {
             spriteBatch.Draw(pixel, hitbox, Color.Red);

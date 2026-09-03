@@ -8,9 +8,12 @@ namespace EXILION.Entities.LivingThings;
 public class Player : LivingThing
 {
 
-
-    public int maxStat = 100;
+    public const int maxStat = 100;
     private int maxOxygen = 100;
+
+    private float damagedTimer = 0f;
+
+    private Color damageColor = new Color(230, 180, 180);
 
     public PlayerStat oxygen {get; private set;}
     public PlayerStat hunger {get; private set;}
@@ -70,6 +73,17 @@ public class Player : LivingThing
             gameContext.showHitboxes = !gameContext.showHitboxes;
         }
 
+        if(damagedTimer > 0f)
+        {
+            damagedTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            if(damagedTimer <= 0f)
+            {
+                color = Color.White;
+            }
+
+        }
+
         base.Update(mousePosition);
     }
 
@@ -87,6 +101,9 @@ public class Player : LivingThing
 
         if (stat.timer >= 2.5f)
         {
+
+            takeDamage(1);
+
             if (stat.value <= 0)
             {
                 stat.value = 0;
@@ -102,7 +119,6 @@ public class Player : LivingThing
 
         hunger = stat;
 
-
     }
 
     public void updateOxygen(GameTime gameTime)
@@ -117,7 +133,7 @@ public class Player : LivingThing
             if (stat.value <= 0)
             {
                 stat.value = 0;
-                takeDamage(1);
+                takeDamage(3);
                 oxygen = stat;
             }
 
@@ -160,6 +176,10 @@ public class Player : LivingThing
     public override void takeDamage(int damage)
     {
         base.takeDamage(damage);
+
+        color = damageColor;
+        damagedTimer = 0.3f;
+
         SFX.Play(Assets.SoundEffects.playerDamage);
         HealthChanged?.Invoke(this.health);
     }
