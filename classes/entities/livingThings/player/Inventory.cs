@@ -9,61 +9,62 @@ public class Inventory
 
      public int Capacity { get; private set; }
 
-     private readonly List<ItemStack> stacks;
+     private readonly ItemStack[] slots;
 
     public Inventory(int capacity = DefaultStacksAmount)
     {
         Capacity = capacity;
-        stacks = new List<ItemStack>();
+        slots = new ItemStack[capacity];
     }
 
      public int AddItem(Item item, int amount)
     {
-        foreach (var stack in stacks)
+        for (int i = 0; i < slots.Length && amount > 0; i++)
         {
-            if (amount <= 0) break;
-            if (stack.CanStackWith(item))
+            if (slots[i] != null && slots[i].CanStackWith(item))
             {
-                amount = stack.Add(amount);
+                amount = slots[i].Add(amount);
             }
         }
 
-        while (amount > 0 && stacks.Count < Capacity)
+        for (int i = 0; i < slots.Length && amount > 0; i++)
         {
-            var newStack = new ItemStack(item, 0);
-            amount = newStack.Add(amount);
-            stacks.Add(newStack);
+            if (slots[i] == null)
+            {
+                var newStack = new ItemStack(item, 0);
+                amount = newStack.Add(amount);
+                slots[i] = newStack;
+            }
         }
 
         return amount;
     }
 
-    public int RemoveItem(Item item, int amount)
+     public int RemoveItem(Item item, int amount)
     {
         int removed = 0;
 
-        for (int i = stacks.Count - 1; i >= 0 && amount > 0; i--)
+        for (int i = 0; i < slots.Length && amount > 0; i++)
         {
-            var stack = stacks[i];
-            if (stack.Item.Id != item.Id) continue;
+            if (slots[i] == null || slots[i].Item.Id != item.Id) continue;
 
-            int taken = stack.Remove(amount);
+            int taken = slots[i].Remove(amount);
             removed += taken;
             amount -= taken;
 
-            if (stack.Quantity == 0)
-                stacks.RemoveAt(i);
+            if (slots[i].Quantity == 0)
+                slots[i] = null;
         }
 
         return removed;
     }
 
-    public int GetItemCount(Item item)
+     public int GetItemCount(Item item)
     {
         int total = 0;
-        foreach (var stack in stacks)
+        foreach (var stack in slots)
         {
-            if (stack.Item.Id == item.Id)
+            if (stack != null && stack.Item.Id == item.Id)
                 total += stack.Quantity;
         }
         return total;
@@ -76,8 +77,43 @@ public class Inventory
 
     public ItemStack GetSlot(int index)
     {
-        if (index < 0 || index >= stacks.Count) return null;
-        return stacks[index];
+        if (index < 0 || index >= slots.Length) return null;
+        return slots[index];
+    }
+
+
+    public void MoveItem(int from, int to)
+    {
+        if (from < 0 || from >= slots.Length) return;
+        if (to < 0 || to >= slots.Length) return;
+        if (from == to) return;
+
+        ItemStack source = slots[from];
+        if (source == null) return; 
+
+        ItemStack destination = slots[to];
+
+        if (destination == null)
+        {
+            slots[to] = source;
+            slots[from] = null;
+            return;
+        }
+
+        if (destination.Item.Id == source.Item.Id)
+        {
+            int leftover = destination.Add(source.Quantity);
+
+            slots[from] = leftover == 0
+                ? null
+                : new ItemStack(source.Item, leftover);
+
+            return;
+        }
+
+        
+        slots[from] = destination;
+        slots[to] = source;
     }
 
 
