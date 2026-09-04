@@ -70,27 +70,27 @@ public class Game1 : Game
         base.Update(gameTime);
     }
 
-protected override void Draw(GameTime gameTime)
-{
-    GraphicsDevice.Clear(Color.Black);
+    protected override void Draw(GameTime gameTime)
+    {
+        GraphicsDevice.Clear(Color.Black);
 
-    // Draw the scene with camera transform
-    _spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend, transformMatrix: camera.GetViewMatrix());
+        // Draw the scene with camera transform
+        _spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend, transformMatrix: camera.GetViewMatrix());
 
-    sceneManager.Draw(_spriteBatch);
+        sceneManager.Draw(_spriteBatch);
 
-    _spriteBatch.End();
+        _spriteBatch.End();
 
 
-    // Fix to camera
-    _spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend);
+        // Fix to camera
+        _spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend);
 
-    sceneManager.DrawUI(_spriteBatch);
+        sceneManager.DrawUI(_spriteBatch);
 
-    _spriteBatch.End();
+        _spriteBatch.End();
 
-    base.Draw(gameTime);
-}
+        base.Draw(gameTime);
+    }
 
     public void toggleFullScreen()
     {
@@ -101,5 +101,10 @@ protected override void Draw(GameTime gameTime)
     public void changeScene(Scene scene)
     {
         sceneManager.ChangeScene(scene);
+    }
+
+    public Scene getScene()
+    {
+       return sceneManager.CurrentScene;
     }
 }

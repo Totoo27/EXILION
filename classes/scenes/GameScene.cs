@@ -29,7 +29,7 @@ public class GameScene : Scene
 
     // Settings
 
-    // private PausePanel PausePanel;
+    private PausePanel pausePanel;
 
 
     // Player
@@ -176,6 +176,8 @@ public class GameScene : Scene
 
         Texture2D tileset = Assets.Sprites.Tileset;
         mapRenderer = new MapRenderer(tileset, tileSize);
+
+        pausePanel = new PausePanel(Game);
     }
 
     public override void Update(GameTime gameTime)
@@ -184,8 +186,11 @@ public class GameScene : Scene
 
         if (Game.input.IsKeyPressed(Keys.Escape))
         {
-            //pausePanel.enabled = true;
+            pausePanel.enabled = true;
         }
+
+        pausePanel.Update();
+        if(pausePanel.enabled) return;
 
         if (player != null)
         {
@@ -260,10 +265,10 @@ public class GameScene : Scene
         thirstBar.Draw(spriteBatch);
         healthBar.Draw(spriteBatch);
         oxygenBar.Draw(spriteBatch);
-
         inventoryUI.Draw(spriteBatch);
 
-        // if(settingsPanel.enabled) settingsPanel.Draw(spriteBatch);
+        // Pause panel
+        pausePanel.Draw(spriteBatch);
     }
 
     private void UpdateDiurnalCycle(GameTime gameTime)

@@ -2,10 +2,11 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using EXILION.Scenes;
 
 namespace EXILION.UI;
 
-public class InstructionsPanel
+public class PausePanel : IHasSettings
 {
 
     public Vector2 position;
@@ -35,33 +36,27 @@ public class InstructionsPanel
     private Color borderColor = new Color(46, 15, 74);
 
     // Buttons
-    private Button backButton;
+    private Button resumeButton;
+    private Button settingsButton;
+    private Button quitButton;
 
     // Buttons config
     private Texture2D buttonSprite;
     private SpriteFont font;
 
     private Texture2D pixel;
-
-    // Instructions
-    private SpriteFont instructionsFont;
-    private string instructions =
-            "HOW TO PLAY\n\n" +
-            "WASD - Move\n" +
-            "LShift - Sprint\n" +
-            "Mouse - Aim\n" +
-            "E - Grab Item\n" +
-            "H - Show hitboxes\n" +
-            "ESC - Pause";
-
     public bool enabled = false;
 
-    public InstructionsPanel(Game1 game)
+    // Settings
+
+    private SettingsPanel settingsPanel;
+
+    public PausePanel(Game1 game)
     {
         this.game = game;
 
-        this.Width = game.gameContext.ScaleX(800);
-        this.Height = game.gameContext.ScaleY(500);
+        this.Width = game.gameContext.ScaleX(300);
+        this.Height = game.gameContext.ScaleY(400);
 
         position = new Vector2(
             (game.GraphicsDevice.Viewport.Width - Width) / 2f,
@@ -73,6 +68,13 @@ public class InstructionsPanel
 
     public void LoadContent()
     {
+
+        settingsPanel = new SettingsPanel(game, this, position);
+        settingsPanel.position = new Vector2(
+            (game.GraphicsDevice.Viewport.Width - settingsPanel.Width) / 2f,
+            (game.GraphicsDevice.Viewport.Height - settingsPanel.Height) / 2f
+        );
+
         GraphicsDevice graphicsDevice = game.GraphicsDevice;
         pixel = new Texture2D(graphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
@@ -86,15 +88,45 @@ public class InstructionsPanel
 
         buttonSprite = Assets.Sprites.Button;
         font = Assets.Fonts.PixelArt;
-        instructionsFont = Assets.Fonts.PixelArt;
 
-        backButton = new Button(
-            "Back",
+        int buttonWidth = game.gameContext.ScaleX(200);
+        int buttonHeight = game.gameContext.ScaleY(50);
+
+        int spacing = (Height - buttonHeight * 3) / 4;
+
+        int buttonX = (int)position.X + (Width - buttonWidth) / 2;
+
+        resumeButton = new Button(
+            "Resume",
             new Rectangle(
-                (int)position.X,
-                (int)position.Y,
-                game.gameContext.ScaleX(180),
-                game.gameContext.ScaleY(50)
+                buttonX,
+                (int)position.Y + spacing,
+                buttonWidth,
+                buttonHeight
+            ),
+            buttonSprite,
+            font
+        );
+
+        settingsButton = new Button(
+            "Settings",
+            new Rectangle(
+                buttonX,
+                (int)position.Y + spacing * 2 + buttonHeight,
+                buttonWidth,
+                buttonHeight
+            ),
+            buttonSprite,
+            font
+        );
+
+        quitButton = new Button(
+            "Quit",
+            new Rectangle(
+                buttonX,
+                (int)position.Y + spacing * 3 + buttonHeight * 2,
+                buttonWidth,
+                buttonHeight
             ),
             buttonSprite,
             font
@@ -107,9 +139,22 @@ public class InstructionsPanel
 
         if (!enabled) return;
 
-        if (backButton.isClicked(Mouse.GetState()))
+        settingsPanel.Update();
+        if(settingsPanel.enabled) return;
+
+        if (resumeButton.isClicked(Mouse.GetState()))
         {
             this.enabled = false;
+        }
+
+        if (settingsButton.isClicked(Mouse.GetState()))
+        {
+            settingsPanel.enabled = true;
+        }
+
+        if (quitButton.isClicked(Mouse.GetState()))
+        {
+            game.changeScene(new MainMenu(game));
         }
 
     }
@@ -189,21 +234,11 @@ public class InstructionsPanel
             borderColor
         );
 
-        Vector2 textSize = instructionsFont.MeasureString(instructions);
+        resumeButton.Draw(spriteBatch, 1f);
+        settingsButton.Draw(spriteBatch, 1f);
+        quitButton.Draw(spriteBatch, 1f);
 
-        Vector2 textPosition = new Vector2(
-            bounds.Center.X - textSize.X / 2f,
-            bounds.Center.Y - textSize.Y / 2f
-        );
-
-        spriteBatch.DrawString(
-            instructionsFont,
-            instructions,
-            textPosition,
-            Color.White
-        );
-
-        backButton.Draw(spriteBatch, 1f);
+        settingsPanel.Draw(spriteBatch);
     }
 
     public void initPanelTexture()
@@ -224,6 +259,11 @@ public class InstructionsPanel
         }
 
         panelTexture.SetData(panelColors);
+    }
+
+    public void closeSettings()
+    {
+        settingsPanel.enabled = false;
     }
 
 }
