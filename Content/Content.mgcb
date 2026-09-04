@@ -107,6 +107,7 @@
 /build:Sprites/Sun.png
 
 #begin Sprites/piedra.png
+#begin Sprites/Tileset.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -141,4 +142,5 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/slot.png
+/build:Sprites/Tileset.png
 

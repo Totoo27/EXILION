@@ -64,20 +64,20 @@ public class Game1 : Game
         base.Update(gameTime);
     }
 
-    protected override void Draw(GameTime gameTime)
-    {
-        GraphicsDevice.Clear(Color.Black);
+protected override void Draw(GameTime gameTime)
+{
+    GraphicsDevice.Clear(Color.Black);
 
-        // TODO: Add your drawing code here
+    Matrix transform = sceneManager.CurrentScene?.CameraTransform ?? Matrix.Identity;
 
-        _spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend);
+    _spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend, transformMatrix: transform);
 
-        sceneManager.Draw(_spriteBatch);
+    sceneManager.Draw(_spriteBatch);
 
-        _spriteBatch.End();
+    _spriteBatch.End();
 
-        base.Draw(gameTime);
-    }
+    base.Draw(gameTime);
+}
 
     public void toggleFullScreen()
     {

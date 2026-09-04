@@ -13,6 +13,7 @@ public abstract class Scene
     }
     public virtual void LoadContent() { }
 
+    public virtual Matrix? CameraTransform => null;
     public virtual void Update(GameTime gameTime) { }
 
     public virtual void Draw(SpriteBatch spriteBatch) { }
