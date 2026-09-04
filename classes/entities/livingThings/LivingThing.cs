@@ -3,12 +3,12 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EXILION.Entities.LivingThings;
-public class LivingThing : Entity
+public abstract class LivingThing : Entity
 {
     
     
-    private int maxHealth;
-    private int health;
+    public int maxHealth { get; private set; }
+    protected int health;
     public bool isDead { get; private set; } = false;
     public float speed { get; private set; }
 
@@ -29,10 +29,9 @@ public class LivingThing : Entity
         base.Draw(spriteBatch, pixel);
     }
 
-    public void takeDamage(int damage)
+    public virtual void takeDamage(int damage)
     {
         this.health -= damage;
-        Console.WriteLine("Jugador ha recibido " + damage + ", salud actual: " + this.health + "/" + this.maxHealth);
         if (this.health <= 0)
         {
             this.health = 0;

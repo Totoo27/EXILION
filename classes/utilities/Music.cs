@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Media;
@@ -9,21 +10,46 @@ public static class Music
     
     private static Song currentSong;
 
+    private static bool enabled = true;
+
     public static void Play(Song song)
     {
-        if (currentSong == song)
+        if (!enabled) return;
+
+        if (currentSong == song){
+
+            MediaPlayer.Resume();
             return;
+
+        }
 
         currentSong = song;
 
+
+        Console.WriteLine("Escuchando: " + currentSong);
+
         MediaPlayer.IsRepeating = true;
-        MediaPlayer.Play(song);
+        MediaPlayer.Play(currentSong);
     }
 
     public static void Stop()
     {
         MediaPlayer.Stop();
-        currentSong = null;
+    }
+
+    public static void toggle()
+    {
+        
+        enabled = !enabled;
+
+        if (enabled)
+        {
+            Music.Play(currentSong);
+        } else
+        {
+            MediaPlayer.Pause();
+        }
+
     }
 
 }

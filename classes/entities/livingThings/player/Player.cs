@@ -5,61 +5,85 @@ using Microsoft.Xna.Framework.Input;
 
 namespace EXILION.Entities.LivingThings;
 
-
 public class Player : LivingThing
 {
 
-    public int maxHunger { get; private set; } = 100;
-    public int hunger { get; private set; }
+    public const int maxStat = 100;
+    private int maxOxygen = 100;
 
-    private KeyboardState previousKeyboardState;
+    private float damagedTimer = 0f;
 
-    private float hungerTimer = 0f;
+    private Color damageColor = new Color(230, 180, 180);
+
+    public PlayerStat oxygen {get; private set;}
+    public PlayerStat hunger {get; private set;}
+    public PlayerStat thirst {get; private set;}
+
+    public event Action<int>? OxygenChanged;
+    public event Action<int>? HungerChanged;
+    public event Action<int>? ThirstChanged;
+    public event Action<int>? HealthChanged;
+
 
     public Player(Vector2 position, Sprite sprite, GameContext gameContext)
-    : base(position, sprite, gameContext.ScaleY(100), (float) gameContext.ScaleXY(3), gameContext)
+    : base(position, sprite, 100, (float) gameContext.ScaleXY(3), gameContext)
     {
-        this.hunger = maxHunger;
+
+        hunger = new PlayerStat(maxStat);
+        thirst = new PlayerStat(maxStat);
+        oxygen = new PlayerStat(maxOxygen);
     }
 
-    public async void Update(Vector2 mousePosition, KeyboardState currentKeyboardState, GameTime gameTime)
+    public async void Update(Vector2 mousePosition, InputManager input, GameTime gameTime)
     {
 
         updateHunger(gameTime);
+        updateThirst(gameTime);
+        updateOxygen(gameTime);
 
         float currentSpeed = this.speed;
 
-        if(currentKeyboardState.IsKeyDown(Keys.LeftShift))
+        if(input.IsKeyHeld(Keys.LeftShift))
         {
             currentSpeed *= 2;
         }
 
-        if (currentKeyboardState.IsKeyDown(Keys.Left))
+        if (input.IsKeyHeld(Keys.Left))
         {
             this.position.X -= currentSpeed;
         }
 
-        if (currentKeyboardState.IsKeyDown(Keys.Right))
+        if (input.IsKeyHeld(Keys.Right))
         {
             this.position.X += currentSpeed;
         }
 
-        if (currentKeyboardState.IsKeyDown(Keys.Down))
+        if (input.IsKeyHeld(Keys.Down))
         {
             this.position.Y += currentSpeed;
         }
 
-        if (currentKeyboardState.IsKeyDown(Keys.Up))
+        if (input.IsKeyHeld(Keys.Up))
         {
             this.position.Y -= currentSpeed;
         }
 
-        if (currentKeyboardState.IsKeyDown(Keys.H) && !previousKeyboardState.IsKeyDown(Keys.H))
+        if (input.IsKeyPressed(Keys.H))
         {
             gameContext.showHitboxes = !gameContext.showHitboxes;
         }
 
-        previousKeyboardState = currentKeyboardState;
+        if(damagedTimer > 0f)
+        {
+            damagedTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            if(damagedTimer <= 0f)
+            {
+                color = Color.White;
+            }
+
+        }
+
         base.Update(mousePosition);
     }
 
@@ -71,21 +95,93 @@ public class Player : LivingThing
     public void updateHunger(GameTime gameTime)
     {
 
-        hungerTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+        PlayerStat stat = hunger;
 
-        if (hungerTimer >= 1f)
+        stat.timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        if (stat.timer >= 2.5f)
         {
-            hungerTimer -= 1f;
-            hunger--;
 
-            Console.WriteLine($"Hunger: {hunger}");
+            takeDamage(1);
 
-            if (hunger <= 0)
+            if (stat.value <= 0)
             {
+                stat.value = 0;
                 takeDamage(1);
+                hunger = stat;
             }
+
+            stat.timer = 0f;
+            stat.value--;
+            HungerChanged?.Invoke(stat.value);
+
         }
 
+        hunger = stat;
+
+    }
+
+    public void updateOxygen(GameTime gameTime)
+    {
+
+        PlayerStat stat = oxygen;
+
+        stat.timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        if (stat.timer >= 1f)
+        {
+            if (stat.value <= 0)
+            {
+                stat.value = 0;
+                takeDamage(3);
+                oxygen = stat;
+            }
+
+            stat.timer = 0f;
+            stat.value--;
+            OxygenChanged?.Invoke(stat.value);
+        }
+
+        oxygen = stat;
+
+    }
+
+    public void updateThirst(GameTime gameTime)
+    {
+
+        PlayerStat stat = thirst;
+
+        stat.timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        if (stat.timer >= 2f)
+        {
+            
+            if (stat.value <= 0)
+            {
+                stat.value = 0;
+                takeDamage(1);
+                thirst = stat;
+            }
+
+            stat.timer = 0f;
+            stat.value--;
+            ThirstChanged?.Invoke(stat.value);
+
+        }
+
+        thirst = stat;
+
+    }
+
+    public override void takeDamage(int damage)
+    {
+        base.takeDamage(damage);
+
+        color = damageColor;
+        damagedTimer = 0.3f;
+
+        SFX.Play(Assets.SoundEffects.playerDamage);
+        HealthChanged?.Invoke(this.health);
     }
 
 }
