@@ -2,6 +2,8 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using EXILION.Items;
+using EXILION.Entities.CatchableItems;
 
 namespace EXILION.Entities.LivingThings;
 
@@ -87,5 +89,27 @@ public class Player : LivingThing
         }
 
     }
+
+    public bool TryPickup(CatchableItem item)
+{
+    if (item.Picked) return false;
+
+    int quantityBefore = item.Stack.Quantity;
+    int leftover = inventory.AddItem(item.Stack.Item, quantityBefore);
+    int pickedAmount = quantityBefore - leftover;
+
+    if (pickedAmount <= 0) return false;
+
+    item.Stack.Remove(pickedAmount);
+
+    if (item.Stack.Quantity == 0)
+    {
+        item.MarkPicked();
+    }
+
+    return true;
+}
+
+
 
 }

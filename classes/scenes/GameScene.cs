@@ -1,10 +1,11 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using EXILION.Entities.LivingThings;
+using EXILION.Entities.CatchableItems;
 using EXILION.Items;
 using EXILION.UI;
-using System.Collections.Generic;
 
 namespace EXILION.Scenes;
 public class GameScene : Scene
@@ -14,19 +15,7 @@ public class GameScene : Scene
     Texture2D pixel;
     private InventoryUI inventoryUI;
 
-    
-    //Sistema momentaneo para prueba de Inventory
-     private class GroundItem
-    {
-        public Item Item;
-        public Vector2 Position;
-        public int Quantity;
-        public bool Picked;
-    }
-
-    private const float PickupRange = 50f;
-
-    private List<GroundItem> groundItems;
+    private List<CatchableItem> catchableItems;
 
     public GameScene(Game1 game) : base(game)
     {
@@ -42,20 +31,30 @@ public class GameScene : Scene
         Texture2D texture = Assets.Sprites.Player;
         player = new Player(Vector2.Zero, new Sprite(texture, gameContext.ScaleXY(1)), gameContext);
 
-       inventoryUI = new InventoryUI(
+        inventoryUI = new InventoryUI(
             player.Inventory,
             Assets.Sprites.Slot,
             Assets.Fonts.PixelArt,
             gameContext
         );
 
-        //Borrar en verion futura
-        groundItems = new List<GroundItem>
+        catchableItems = new List<CatchableItem>
         {
-            new GroundItem { Item = ItemRegistry.Madera, Position = new Vector2(100, 100), Quantity = 70 },
-            new GroundItem { Item = ItemRegistry.Piedra, Position = new Vector2(200, 100), Quantity = 3 },
+            new CatchableItem(
+                new ItemStack(ItemRegistry.Madera, 70),
+                new Vector2(100, 100),
+                new Sprite(ItemRegistry.Madera.Icon, gameContext.ScaleXY(1)),
+                gameContext
+            ),
+            new CatchableItem(
+                new ItemStack(ItemRegistry.Piedra, 3),
+                new Vector2(200, 100),
+                new Sprite(ItemRegistry.Piedra.Icon, gameContext.ScaleXY(1)),
+                gameContext
+            ),
         };
     }
+
     public override void Update(GameTime gameTime)
     {
         MouseState mouse = Mouse.GetState();
@@ -65,49 +64,42 @@ public class GameScene : Scene
             Game.changeScene(new MainMenu(Game));
         }
 
-        if(player != null)
+        if (player != null)
         {
             player.Update(mouse.Position.ToVector2(), Game.input, gameTime);
             inventoryUI.Update(Game.input);
+
             if (player.isDead)
             {
                 player = null;
             }
+        }
 
-            if (Game.input.IsKeyPressed(Keys.E))
+        if (player != null && Game.input.IsKeyPressed(Keys.E))
+        {
+            Rectangle playerHitbox = player.GetHitbox();
+
+            foreach (var item in catchableItems)
             {
-                foreach (var groundItem in groundItems)
+                if (item.Picked) continue;
+
+                if (playerHitbox.Intersects(item.GetHitbox()))
                 {
-                    if (groundItem.Picked) continue;
-
-                    float distance = Vector2.Distance(player.position, groundItem.Position);
-                    if (distance <= PickupRange)
-                    {
-                        int leftover = player.Inventory.AddItem(groundItem.Item, groundItem.Quantity);
-                        groundItem.Picked = true;
-
-                        System.Console.WriteLine(
-                            $"Agarraste {groundItem.Quantity - leftover}x {groundItem.Item.Name}. " +
-                            $"Total en inventario: {player.Inventory.GetItemCount(groundItem.Item)}");
-                    }
+                    player.TryPickup(item);
                 }
             }
         }
-
-        
     }
 
     public override void Draw(SpriteBatch spriteBatch)
     {
         player.Draw(spriteBatch, pixel);
-         foreach (var groundItem in groundItems)
+
+        foreach (var item in catchableItems)
         {
-            if (groundItem.Picked) continue;
-            spriteBatch.Draw(groundItem.Item.Icon, groundItem.Position, Color.White);
+            item.Draw(spriteBatch, pixel);
         }
 
         inventoryUI.Draw(spriteBatch);
     }
-
-    
 }
