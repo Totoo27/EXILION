@@ -3,8 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using EXILION.UI;
-using System.Runtime.CompilerServices;
-using System.Dynamic;
 
 namespace EXILION.Scenes;
 

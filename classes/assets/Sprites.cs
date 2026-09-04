@@ -12,6 +12,16 @@ public sealed class Sprites
     public Texture2D Sun { get; private set; }
     public Texture2D Button { get; private set; }
     public Texture2D Player { get; private set; }
+    public Texture2D testBG { get; private set; }
+    public Texture2D testProgress { get; private set; }
+    public Texture2D meter { get; private set; }
+    public Texture2D meterProgress { get; private set; }
+    public Texture2D healthMeter { get; private set; }
+    public Texture2D healthProgress { get; private set; }
+    public Texture2D oxygenMeter { get; private set; }
+    public Texture2D oxygenProgress { get; private set; }
+    public Texture2D hungerIcon { get; private set; }
+    public Texture2D thirstIcon { get; private set; }
 
     public Texture2D Piedra { get; private set; }
     public Texture2D Tronco { get; private set; }
@@ -27,6 +37,18 @@ public sealed class Sprites
         GameTitle = content.Load<Texture2D>("Sprites/ExilionTitle");
         Sun = content.Load<Texture2D>("Sprites/Sun");        
         Button = content.Load<Texture2D>("Sprites/Button");
+
+        // Bars
+        testBG = content.Load<Texture2D>("Sprites/testBG");
+        testProgress = content.Load<Texture2D>("Sprites/testProgress");
+        meter = content.Load<Texture2D>("Sprites/meter");
+        meterProgress = content.Load<Texture2D>("Sprites/meterProgress");
+        hungerIcon = content.Load<Texture2D>("Sprites/hungerMeterIcon");
+        thirstIcon = content.Load<Texture2D>("Sprites/thirstMeterIcon");
+        healthMeter = content.Load<Texture2D>("Sprites/healthMeter");
+        healthProgress = content.Load<Texture2D>("Sprites/healthProgress");
+        oxygenMeter = content.Load<Texture2D>("Sprites/oxygenMeter");
+        oxygenProgress = content.Load<Texture2D>("Sprites/oxygenProgress");
 
         // Player
         Player = content.Load<Texture2D>("Sprites/Player");

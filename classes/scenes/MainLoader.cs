@@ -46,7 +46,8 @@ public class MainLoader : Scene
 
         if(progress >= 1)
         {
-            Game.changeScene(new MainMenu(Game));
+            Game.changeScene(new GameScene(Game));
+            //Game.changeScene(new MainMenu(Game));
         }
     }
 
