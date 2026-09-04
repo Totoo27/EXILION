@@ -59,10 +59,10 @@ public class GameScene : Scene
 
         player = new Player(Vector2.Zero, new Sprite(Assets.Sprites.Player, gameContext.ScaleXY(1)), gameContext);
 
-        Rectangle hungerRectangle = new Rectangle(gameContext.ScaleX(850), gameContext.ScaleY(500), gameContext.ScaleX(96), gameContext.ScaleY(96));
-        Rectangle thirstRectangle = new Rectangle(gameContext.ScaleX(850), gameContext.ScaleY(610), gameContext.ScaleX(96), gameContext.ScaleY(96));
-        Rectangle healthRectangle = new Rectangle(gameContext.ScaleX(950), gameContext.ScaleY(500), gameContext.ScaleX(200), gameContext.ScaleY(200));
-        Rectangle oxygenRectangle = new Rectangle(gameContext.ScaleX(1150), gameContext.ScaleY(468), gameContext.ScaleX(65), gameContext.ScaleY(232));
+        Rectangle hungerRectangle = new Rectangle(gameContext.ScaleX(970), gameContext.ScaleY(560), gameContext.ScaleX(64), gameContext.ScaleY(64));
+        Rectangle thirstRectangle = new Rectangle(gameContext.ScaleX(970), gameContext.ScaleY(640), gameContext.ScaleX(64), gameContext.ScaleY(64));
+        Rectangle healthRectangle = new Rectangle(gameContext.ScaleX(1040), gameContext.ScaleY(550), gameContext.ScaleX(150), gameContext.ScaleY(150));
+        Rectangle oxygenRectangle = new Rectangle(gameContext.ScaleX(1200), gameContext.ScaleY(468), gameContext.ScaleX(65), gameContext.ScaleY(232));
         
         Rectangle oxygenProgressRectangle = new Rectangle(oxygenRectangle.X + gameContext.ScaleX(21), oxygenRectangle.Y + gameContext.ScaleY(70), gameContext.ScaleX(6), gameContext.ScaleY(150));
         
