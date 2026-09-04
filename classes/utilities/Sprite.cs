@@ -23,14 +23,14 @@ public class Sprite
         this.rotation = angle;
     }
 
-    public void Draw(SpriteBatch spriteBatch, Color color)
+    public void Draw(SpriteBatch spriteBatch)
     {
 
         spriteBatch.Draw(
             texture,
             position,
             null,
-            color,
+            Color.White,
             rotation,
             new Vector2(texture.Width / 2f, texture.Height / 2f),
             scale,

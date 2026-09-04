@@ -3,13 +3,12 @@ using Microsoft.Xna.Framework.Graphics;
 
 
 namespace EXILION.Entities;
-public abstract class Entity
+public class Entity
 {
+    public Vector2 position;
     protected Sprite sprite { get; private set;}
 
-    public Vector2 position;
     private Point hitboxSize;
-    protected Color color = Color.White;
 
     protected Rectangle hitbox
     {
@@ -17,8 +16,6 @@ public abstract class Entity
         {
             return new Rectangle((int)position.X - hitboxSize.X / 2, (int)position.Y - hitboxSize.Y / 2, hitboxSize.X, hitboxSize.Y);
         }
-
-        private set{}
     }
 
     protected GameContext gameContext;
@@ -41,7 +38,7 @@ public abstract class Entity
     public void Draw(SpriteBatch spriteBatch, Texture2D pixel)
     {
 
-        sprite.Draw(spriteBatch, color);
+        sprite.Draw(spriteBatch);
         if (gameContext.showHitboxes)
         {
             spriteBatch.Draw(pixel, hitbox, Color.Red);

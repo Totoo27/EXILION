@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using EXILION.Entities.LivingThings;
 using EXILION.Scenes;
-using System;
 
 namespace EXILION;
 
@@ -12,7 +11,6 @@ public class Game1 : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     private SceneManager sceneManager;
-    public InputManager input {get; private set;}
     public GameContext gameContext { get; private set; }
 
     public Game1()
@@ -20,14 +18,8 @@ public class Game1 : Game
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
-        gameContext = new GameContext(this);
-
-        _graphics.PreferredBackBufferWidth = gameContext.ScreenWidth;
-        _graphics.PreferredBackBufferHeight =  gameContext.ScreenHeight;
-
-        _graphics.IsFullScreen = true;
-        _graphics.ApplyChanges();
         
+        gameContext = new GameContext(this);
     }
 
     protected override void Initialize()
@@ -37,8 +29,6 @@ public class Game1 : Game
         base.Initialize();
         sceneManager = new SceneManager();
         sceneManager.ChangeScene(new MainLoader(this));
-
-        input = new InputManager();
     }
 
     protected override void LoadContent()
@@ -51,13 +41,10 @@ public class Game1 : Game
 
     protected override void Update(GameTime gameTime)
     {
-        // TODO: Add your update logic here
-        input.Update();
+        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            Exit();
 
-        if (input.IsKeyPressed(Keys.F11))
-        {
-            toggleFullScreen();
-        }
+        // TODO: Add your update logic here
 
         sceneManager.Update(gameTime);
 
@@ -66,23 +53,17 @@ public class Game1 : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.Black);
+        GraphicsDevice.Clear(Color.CornflowerBlue);
 
         // TODO: Add your drawing code here
 
-        _spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend);
+        _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
         sceneManager.Draw(_spriteBatch);
 
         _spriteBatch.End();
 
         base.Draw(gameTime);
-    }
-
-    public void toggleFullScreen()
-    {
-        _graphics.IsFullScreen = !_graphics.IsFullScreen;
-        _graphics.ApplyChanges();
     }
 
     public void changeScene(Scene scene)
