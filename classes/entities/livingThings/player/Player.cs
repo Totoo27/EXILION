@@ -62,22 +62,22 @@ public class Player : LivingThing
             runningMultiplier = 1f;
         }
 
-        if (input.IsKeyHeld(Keys.Left))
+        if (input.IsKeyHeld(Keys.A))
         {
             this.position.X -= currentSpeed;
         }
 
-        if (input.IsKeyHeld(Keys.Right))
+        if (input.IsKeyHeld(Keys.D))
         {
             this.position.X += currentSpeed;
         }
 
-        if (input.IsKeyHeld(Keys.Down))
+        if (input.IsKeyHeld(Keys.S))
         {
             this.position.Y += currentSpeed;
         }
 
-        if (input.IsKeyHeld(Keys.Up))
+        if (input.IsKeyHeld(Keys.W))
         {
             this.position.Y -= currentSpeed;
         }

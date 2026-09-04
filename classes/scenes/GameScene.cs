@@ -27,6 +27,11 @@ public class GameScene : Scene
     private bool night = false;
     private Color nightColor = new Color(15, 10, 35);
 
+    // Settings
+
+    // private PausePanel PausePanel;
+
+
     // Player
     private Player player;
     private Texture2D pixel;
@@ -179,7 +184,7 @@ public class GameScene : Scene
 
         if (Game.input.IsKeyPressed(Keys.Escape))
         {
-            Game.changeScene(new MainMenu(Game));
+            //pausePanel.enabled = true;
         }
 
         if (player != null)
@@ -230,6 +235,7 @@ public class GameScene : Scene
     public override void Draw(SpriteBatch spriteBatch)
     {
 
+
         // Floor
         mapRenderer.Draw(spriteBatch, world);
 
@@ -241,7 +247,6 @@ public class GameScene : Scene
         
         // Player
         player?.Draw(spriteBatch, pixel);
-        
         
     }
 
@@ -257,6 +262,8 @@ public class GameScene : Scene
         oxygenBar.Draw(spriteBatch);
 
         inventoryUI.Draw(spriteBatch);
+
+        // if(settingsPanel.enabled) settingsPanel.Draw(spriteBatch);
     }
 
     private void UpdateDiurnalCycle(GameTime gameTime)
