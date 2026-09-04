@@ -22,6 +22,13 @@ public sealed class Sprites
     public Texture2D oxygenProgress { get; private set; }
     public Texture2D hungerIcon { get; private set; }
     public Texture2D thirstIcon { get; private set; }
+
+    public Texture2D Piedra { get; private set; }
+    public Texture2D Tronco { get; private set; }
+    public Texture2D Slot { get; private set; }
+    // World
+    public Texture2D Tileset { get; private set; }
+
     public async Task Load(ContentManager content)
     {
 
@@ -45,6 +52,15 @@ public sealed class Sprites
 
         // Player
         Player = content.Load<Texture2D>("Sprites/Player");
+        Slot   = content.Load<Texture2D>("Sprites/slot");
+        
+        //Items
+        Piedra = content.Load<Texture2D>("Sprites/piedra");
+        Tronco = content.Load<Texture2D>("Sprites/tronco");
+        
+
+        // World
+        Tileset = content.Load<Texture2D>("Sprites/Tileset");
 
         await MainLoader.addCompletedTask();
 

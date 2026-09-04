@@ -2,6 +2,8 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using EXILION.Items;
+using EXILION.Entities.CatchableItems;
 
 namespace EXILION.Entities.LivingThings;
 
@@ -23,6 +25,9 @@ public class Player : LivingThing
     public event Action<int>? HungerChanged;
     public event Action<int>? ThirstChanged;
     public event Action<int>? HealthChanged;
+    
+    private Inventory inventory;
+    public Inventory Inventory => inventory;
 
 
     public Player(Vector2 position, Sprite sprite, GameContext gameContext)
@@ -32,6 +37,7 @@ public class Player : LivingThing
         hunger = new PlayerStat(maxStat);
         thirst = new PlayerStat(maxStat);
         oxygen = new PlayerStat(maxOxygen);
+        this.inventory = new Inventory(); 
     }
 
     public async void Update(Vector2 mousePosition, InputManager input, GameTime gameTime)
@@ -183,5 +189,27 @@ public class Player : LivingThing
         SFX.Play(Assets.SoundEffects.playerDamage);
         HealthChanged?.Invoke(this.health);
     }
+
+    public bool TryPickup(CatchableItem item)
+{
+    if (item.Picked) return false;
+
+    int quantityBefore = item.Stack.Quantity;
+    int leftover = inventory.AddItem(item.Stack.Item, quantityBefore);
+    int pickedAmount = quantityBefore - leftover;
+
+    if (pickedAmount <= 0) return false;
+
+    item.Stack.Remove(pickedAmount);
+
+    if (item.Stack.Quantity == 0)
+    {
+        item.MarkPicked();
+    }
+
+    return true;
+}
+
+
 
 }

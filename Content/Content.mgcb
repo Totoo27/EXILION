@@ -209,7 +209,8 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Sun.png
 
-#begin Sprites/testBG.png
+#begin Sprites/piedra.png
+#begin Sprites/Tileset.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -219,9 +220,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/testBG.png
+/build:Sprites/piedra.png
 
-#begin Sprites/testProgress.png
+#begin Sprites/tronco.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -231,9 +232,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/testProgress.png
+/build:Sprites/tronco.png
 
-#begin Sprites/thirstMeterIcon.png
+#begin Sprites/slot.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -244,4 +245,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/thirstMeterIcon.png
+/build:Sprites/slot.png
+/build:Sprites/Tileset.png
 
