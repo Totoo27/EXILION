@@ -95,7 +95,7 @@ public class MainMenu : Scene, IHasSettings
     
 
     }
-    public override void Draw(SpriteBatch spriteBatch)
+    public override void DrawUI(SpriteBatch spriteBatch)
     {
 
         starfield.Draw(spriteBatch);

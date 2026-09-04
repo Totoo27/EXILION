@@ -14,6 +14,7 @@ public class Game1 : Game
     private SceneManager sceneManager;
     public InputManager input {get; private set;}
     public GameContext gameContext { get; private set; }
+    public Camera camera {private set; get;}
 
     public Game1()
     {
@@ -27,6 +28,8 @@ public class Game1 : Game
 
         _graphics.IsFullScreen = true;
         _graphics.ApplyChanges();
+
+        camera = new Camera(GraphicsDevice.Viewport);
         
     }
 
@@ -59,6 +62,9 @@ public class Game1 : Game
             toggleFullScreen();
         }
 
+
+        camera.Update(gameTime);
+
         sceneManager.Update(gameTime);
 
         base.Update(gameTime);
@@ -68,11 +74,18 @@ protected override void Draw(GameTime gameTime)
 {
     GraphicsDevice.Clear(Color.Black);
 
-    Matrix transform = sceneManager.CurrentScene?.CameraTransform ?? Matrix.Identity;
-
-    _spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend, transformMatrix: transform);
+    // Draw the scene with camera transform
+    _spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend, transformMatrix: camera.GetViewMatrix());
 
     sceneManager.Draw(_spriteBatch);
+
+    _spriteBatch.End();
+
+
+    // Fix to camera
+    _spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend);
+
+    sceneManager.DrawUI(_spriteBatch);
 
     _spriteBatch.End();
 

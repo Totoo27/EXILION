@@ -20,9 +20,9 @@ public class GameScene : Scene
     private float timer = 0f;
     private const float TIMER_INTERVAL = 1f;
     private float nightOpacity = 0f;
-    private const int DIURNAL_PRESET_TIME = 200; // in seconds
+    private const int DIURNAL_PRESET_TIME = 50; // in seconds
     private int diurnalCycleTime = DIURNAL_PRESET_TIME; // in seconds
-    private const float MAX_NIGHT_OPACITY = 0.5f;
+    private const float MAX_NIGHT_OPACITY = 0.65f;
     private const float NIGHT_TRANSITION_SPEED = 0.15f;
     private bool night = false;
     private Color nightColor = new Color(15, 10, 35);
@@ -39,20 +39,20 @@ public class GameScene : Scene
     private List<CatchableItem> catchableItems;
     private World.World world;
     private MapRenderer mapRenderer;
-    public Camera camera {private set; get;}
+    private GameContext gameContext;
+    private Camera camera;
 
-    private const int Seed = 12345;
+    private const int Seed = 2345;
 
     public GameScene(Game1 game) : base(game)
     {
         Music.Play(Assets.Songs.StandardGameMusic);
+        gameContext = Game.gameContext;
+        camera = Game.camera;
     }
-
-    public override Matrix? CameraTransform => camera?.GetViewMatrix();
 
     public override void LoadContent()
     {
-        GameContext gameContext = Game.gameContext;
 
         pixel = new Texture2D(Game.GraphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
@@ -136,6 +136,7 @@ public class GameScene : Scene
 
         player.HealthChanged += healthBar.setValue;
         player.HealthChanged += healthBar.setDynamicColor;
+        player.HealthChanged += camera.damageShake;
 
         player.OxygenChanged += oxygenBar.setValue;
         player.OxygenChanged += oxygenBar.setDynamicColor;
@@ -162,9 +163,7 @@ public class GameScene : Scene
                 gameContext
             ),
         };
-    }
 
-    public override void Update(GameTime gameTime)
         int tileSize = (int)gameContext.ScaleXY(64);
 
         world = new World.World(seed: Seed, tileSize: tileSize) { RenderDistanceChunks = 2 };
@@ -172,84 +171,92 @@ public class GameScene : Scene
 
         Texture2D tileset = Assets.Sprites.Tileset;
         mapRenderer = new MapRenderer(tileset, tileSize);
-
-        camera = new Camera(Game.GraphicsDevice.Viewport);
     }
 
-public override void Update(GameTime gameTime)
-{
-    MouseState mouse = Mouse.GetState();
-
-    if (Game.input.IsKeyPressed(Keys.Escape))
+    public override void Update(GameTime gameTime)
     {
-        Game.changeScene(new MainMenu(Game));
-    }
+        MouseState mouse = Mouse.GetState();
 
-    if (player != null)
-    {
-        Vector2 mouseWorldPosition = mouse.Position.ToVector2();
-
-        if (camera != null)
+        if (Game.input.IsKeyPressed(Keys.Escape))
         {
-            Matrix inverseCamera = Matrix.Invert(camera.GetViewMatrix());
-            mouseWorldPosition = Vector2.Transform(mouseWorldPosition, inverseCamera);
+            Game.changeScene(new MainMenu(Game));
         }
 
-        UpdateDiurnalCycle(gameTime);
-        UpdateNightTransition(gameTime);
-
-        if(player != null)
+        if (player != null)
         {
-            player.Update(mouse.Position.ToVector2(), Game.input, gameTime);
+            Vector2 mouseWorldPosition = mouse.Position.ToVector2();
+
+            if (camera != null)
+            {
+                Matrix inverseCamera = Matrix.Invert(camera.GetViewMatrix());
+                mouseWorldPosition = Vector2.Transform(mouseWorldPosition, inverseCamera);
+            }
+
+            UpdateDiurnalCycle(gameTime);
+            UpdateNightTransition(gameTime);
+            
             inventoryUI.Update(Game.input);
 
+            player.Update(mouseWorldPosition, Game.input, gameTime);
+
+            if (player != null && Game.input.IsKeyPressed(Keys.E))
+            {
+                Rectangle playerHitbox = player.GetHitbox();
+
+                foreach (var item in catchableItems)
+                {
+                    if (item.Picked) continue;
+
+                    if (playerHitbox.Intersects(item.GetHitbox()))
+                    {
+                        player.TryPickup(item);
+                    }
+                }
+            }
+        
+            world.UpdateAroundPosition(player.position);
+            camera.Follow(player.position);
+        
             if (player.isDead)
             {
                 player = null;
             }
-        player.Update(mouseWorldPosition, Game.input, gameTime);
-        if (player.isDead)
-        {
-            player = null;
+
         }
 
-        if (player != null && Game.input.IsKeyPressed(Keys.E))
-        {
-            Rectangle playerHitbox = player.GetHitbox();
 
-            foreach (var item in catchableItems)
-            {
-                if (item.Picked) continue;
-
-                if (playerHitbox.Intersects(item.GetHitbox()))
-                {
-                    player.TryPickup(item);
-                }
-            }
-        }
     }
-
-    if (player != null)
-    {
-        world.UpdateAroundPosition(player.position);
-        camera.Follow(player.position);
-    }
-}
 
     public override void Draw(SpriteBatch spriteBatch)
     {
 
-        // Entities
-        player?.Draw(spriteBatch, pixel);
+        // Floor
+        mapRenderer.Draw(spriteBatch, world);
 
+        // Entities
+        foreach (var item in catchableItems)
+        {
+            item.Draw(spriteBatch, pixel);
+        }
+        
+        // Player
+        player?.Draw(spriteBatch, pixel);
+        
+        
+    }
+
+    public override void DrawUI(SpriteBatch spriteBatch)
+    {
         // Night Filter
         if (nightOpacity > 0) spriteBatch.Draw(pixel, new Rectangle(0, 0, Game.GraphicsDevice.Viewport.Width, Game.GraphicsDevice.Viewport.Height), nightColor * nightOpacity);
-        
+
         // UI
         hungerBar.Draw(spriteBatch);
         thirstBar.Draw(spriteBatch);
         healthBar.Draw(spriteBatch);
         oxygenBar.Draw(spriteBatch);
+
+        inventoryUI.Draw(spriteBatch);
     }
 
     private void UpdateDiurnalCycle(GameTime gameTime)
@@ -279,23 +286,13 @@ public override void Update(GameTime gameTime)
 
         if (night)
         {
-            Console.WriteLine("Cambiando a noche");
             nightOpacity += NIGHT_TRANSITION_SPEED * deltaTime;
             if (nightOpacity > MAX_NIGHT_OPACITY) nightOpacity = MAX_NIGHT_OPACITY;
         }
         else
         {
-            Console.WriteLine("Cambiando a dia");
             nightOpacity -= NIGHT_TRANSITION_SPEED * deltaTime;
             if (nightOpacity < 0) nightOpacity = 0;
         }
-
-        foreach (var item in catchableItems)
-        {
-            item.Draw(spriteBatch, pixel);
-        }
-
-        inventoryUI.Draw(spriteBatch);
-        mapRenderer.Draw(spriteBatch, world);
     }
 }

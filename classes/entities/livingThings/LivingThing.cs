@@ -19,11 +19,6 @@ public abstract class LivingThing : Entity
         this.speed = speed;
     }
 
-    public void Update(Vector2 mousePosition)
-    {
-        base.Update(mousePosition);
-    }
-
     public void Draw(SpriteBatch spriteBatch, Texture2D pixel)
     {
         base.Draw(spriteBatch, pixel);

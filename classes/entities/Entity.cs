@@ -33,11 +33,9 @@ public abstract class Entity
 
     public Rectangle GetHitbox() => hitbox;
 
-    public void Update(Vector2 mousePosition)
+    public virtual void Update(Vector2 mousePosition)
     {
-        Vector2 direction = mousePosition - position;
-        float angle = System.MathF.Atan2(direction.Y, direction.X);
-        sprite.Update(angle, position);
+        
     }
 
     public void Draw(SpriteBatch spriteBatch, Texture2D pixel)

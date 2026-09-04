@@ -51,7 +51,7 @@ public class MainLoader : Scene
         }
     }
 
-    public override void Draw(SpriteBatch spriteBatch)
+    public override void DrawUI(SpriteBatch spriteBatch)
     {
         string text = (progress * 100).ToString() + "%";
         Vector2 textSize = font.MeasureString(text);

@@ -24,4 +24,9 @@ public class SceneManager
     {
         CurrentScene?.Draw(spriteBatch);
     }
+
+    public void DrawUI(SpriteBatch spriteBatch)
+    {
+        CurrentScene?.DrawUI(spriteBatch);
+    }
 }

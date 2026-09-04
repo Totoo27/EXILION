@@ -11,12 +11,14 @@ public abstract class Scene
     {
         Game = game;
     }
-    public virtual void LoadContent() { }
+    public abstract void LoadContent();
 
     public virtual Matrix? CameraTransform => null;
-    public virtual void Update(GameTime gameTime) { }
+    public abstract void Update(GameTime gameTime);
 
     public virtual void Draw(SpriteBatch spriteBatch) { }
+
+    public virtual void DrawUI(SpriteBatch spriteBatch) { }
 
     public virtual void UnloadContent() { }
 }

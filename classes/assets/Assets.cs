@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework.Content;
 using System.Threading.Tasks;
+using System;
 
 namespace EXILION;
 public static class Assets
@@ -16,9 +17,13 @@ public static class Assets
         Sprites = new();
         SoundEffects = new();
 
+        Console.WriteLine("Cargando fonts.");
         await Fonts.Load(content);
+        Console.WriteLine("Cargando Canciones.");
         await Songs.Load(content);
+        Console.WriteLine("Cargando Sprites.");
         await Sprites.Load(content);
+        Console.WriteLine("Cargando Efectos.");
         await SoundEffects.Load(content);
 
     }

@@ -12,8 +12,6 @@ public sealed class Sprites
     public Texture2D Sun { get; private set; }
     public Texture2D Button { get; private set; }
     public Texture2D Player { get; private set; }
-    public Texture2D testBG { get; private set; }
-    public Texture2D testProgress { get; private set; }
     public Texture2D meter { get; private set; }
     public Texture2D meterProgress { get; private set; }
     public Texture2D healthMeter { get; private set; }
@@ -39,8 +37,6 @@ public sealed class Sprites
         Button = content.Load<Texture2D>("Sprites/Button");
 
         // Bars
-        testBG = content.Load<Texture2D>("Sprites/testBG");
-        testProgress = content.Load<Texture2D>("Sprites/testProgress");
         meter = content.Load<Texture2D>("Sprites/meter");
         meterProgress = content.Load<Texture2D>("Sprites/meterProgress");
         hungerIcon = content.Load<Texture2D>("Sprites/hungerMeterIcon");
@@ -58,8 +54,7 @@ public sealed class Sprites
         Piedra = content.Load<Texture2D>("Sprites/piedra");
         Tronco = content.Load<Texture2D>("Sprites/tronco");
         
-
-        // World
+        // World Test
         Tileset = content.Load<Texture2D>("Sprites/Tileset");
 
         await MainLoader.addCompletedTask();

@@ -14,12 +14,14 @@ public class Player : LivingThing
     private int maxOxygen = 100;
 
     private float damagedTimer = 0f;
+    private float runningMultiplier = 1f;
 
     private Color damageColor = new Color(230, 180, 180);
 
     public PlayerStat oxygen {get; private set;}
     public PlayerStat hunger {get; private set;}
     public PlayerStat thirst {get; private set;}
+
 
     public event Action<int>? OxygenChanged;
     public event Action<int>? HungerChanged;
@@ -49,9 +51,15 @@ public class Player : LivingThing
 
         float currentSpeed = this.speed;
 
+        // Movement Keys
         if(input.IsKeyHeld(Keys.LeftShift))
         {
             currentSpeed *= 2;
+            runningMultiplier = 0.5f;
+        }
+        else
+        {
+            runningMultiplier = 1f;
         }
 
         if (input.IsKeyHeld(Keys.Left))
@@ -74,10 +82,27 @@ public class Player : LivingThing
             this.position.Y -= currentSpeed;
         }
 
+
+        // Debug keys
+        if (input.IsKeyPressed(Keys.NumPad1))
+        {
+            takeDamage(5);
+        }
+        if (input.IsKeyPressed(Keys.NumPad2))
+        {
+            takeDamage(10);
+        }
+        if (input.IsKeyPressed(Keys.NumPad3))
+        {
+            takeDamage(20);
+        }
+
         if (input.IsKeyPressed(Keys.H))
         {
             gameContext.showHitboxes = !gameContext.showHitboxes;
         }
+
+
 
         if(damagedTimer > 0f)
         {
@@ -90,12 +115,9 @@ public class Player : LivingThing
 
         }
 
-        base.Update(mousePosition);
-    }
-
-    public void Draw(SpriteBatch spriteBatch, Texture2D pixel)
-    {
-        base.Draw(spriteBatch, pixel);
+        Vector2 direction = mousePosition - position;
+        float angle = System.MathF.Atan2(direction.Y, direction.X);
+        sprite.Update(angle, position);
     }
 
     public void updateHunger(GameTime gameTime)
@@ -105,10 +127,8 @@ public class Player : LivingThing
 
         stat.timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        if (stat.timer >= 2.5f)
+        if (stat.timer >= 2.5f * runningMultiplier)
         {
-
-            takeDamage(1);
 
             if (stat.value <= 0)
             {
@@ -134,7 +154,7 @@ public class Player : LivingThing
 
         stat.timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        if (stat.timer >= 1f)
+        if (stat.timer >= 1f * runningMultiplier)
         {
             if (stat.value <= 0)
             {
@@ -159,7 +179,7 @@ public class Player : LivingThing
 
         stat.timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        if (stat.timer >= 2f)
+        if (stat.timer >= 2f * runningMultiplier)
         {
             
             if (stat.value <= 0)
@@ -191,24 +211,24 @@ public class Player : LivingThing
     }
 
     public bool TryPickup(CatchableItem item)
-{
-    if (item.Picked) return false;
-
-    int quantityBefore = item.Stack.Quantity;
-    int leftover = inventory.AddItem(item.Stack.Item, quantityBefore);
-    int pickedAmount = quantityBefore - leftover;
-
-    if (pickedAmount <= 0) return false;
-
-    item.Stack.Remove(pickedAmount);
-
-    if (item.Stack.Quantity == 0)
     {
-        item.MarkPicked();
-    }
+        if (item.Picked) return false;
 
-    return true;
-}
+        int quantityBefore = item.Stack.Quantity;
+        int leftover = inventory.AddItem(item.Stack.Item, quantityBefore);
+        int pickedAmount = quantityBefore - leftover;
+
+        if (pickedAmount <= 0) return false;
+
+        item.Stack.Remove(pickedAmount);
+
+        if (item.Stack.Quantity == 0)
+        {
+            item.MarkPicked();
+        }
+
+        return true;
+    }
 
 
 
