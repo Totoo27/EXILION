@@ -174,7 +174,7 @@ public class SettingsPanel
 
         if (musicButton.isClicked(Mouse.GetState()))
         {
-            Music.toggle();
+            Music.Toggle();
         }
 
         if (SFXButton.isClicked(Mouse.GetState()))

@@ -34,15 +34,20 @@ public class PausePanel : IHasSettings
     private Texture2D borderTexture;
 
     private Color borderColor = new Color(46, 15, 74);
+    private Rectangle innerBounds;
+    private int borderSize;
 
     // Buttons
     private Button resumeButton;
     private Button settingsButton;
     private Button quitButton;
 
-    // Buttons config
+    // Buttons & Text config
     private Texture2D buttonSprite;
     private SpriteFont font;
+    private SpriteFont fontBig;
+    private String pauseText = "PAUSE";
+    private Vector2 textPosition;
 
     private Texture2D pixel;
     public bool enabled = false;
@@ -69,6 +74,8 @@ public class PausePanel : IHasSettings
     public void LoadContent()
     {
 
+        borderSize = game.gameContext.ScaleX(4);
+
         settingsPanel = new SettingsPanel(game, this, position);
         settingsPanel.position = new Vector2(
             (game.GraphicsDevice.Viewport.Width - settingsPanel.Width) / 2f,
@@ -88,7 +95,7 @@ public class PausePanel : IHasSettings
 
         buttonSprite = Assets.Sprites.Button;
         font = Assets.Fonts.PixelArt;
-
+        fontBig = Assets.Fonts.PixelArtBig;
         int buttonWidth = game.gameContext.ScaleX(200);
         int buttonHeight = game.gameContext.ScaleY(50);
 
@@ -132,6 +139,20 @@ public class PausePanel : IHasSettings
             font
         );
 
+        innerBounds = new Rectangle(
+            bounds.X + borderSize,
+            bounds.Y + borderSize,
+            bounds.Width - borderSize * 2,
+            bounds.Height - borderSize * 2
+        );
+
+        Vector2 textSize = fontBig.MeasureString(pauseText);
+        
+        textPosition = new Vector2(
+            bounds.Center.X - textSize.X / 2f,
+            bounds.Y - game.gameContext.ScaleY(35)
+        );
+
     }
 
     public void Update()
@@ -163,15 +184,22 @@ public class PausePanel : IHasSettings
     {
 
         if (!enabled) return;
+        
 
-        int borderSize = game.gameContext.ScaleX(4);
-
-        Rectangle innerBounds = new Rectangle(
-            bounds.X + borderSize,
-            bounds.Y + borderSize,
-            bounds.Width - borderSize * 2,
-            bounds.Height - borderSize * 2
+        // Opaque background
+        spriteBatch.Draw(
+            pixel,
+            new Rectangle(0, 0, game.GraphicsDevice.Viewport.Width, game.GraphicsDevice.Viewport.Height),
+            Color.Black * 0.5f
         );
+
+        spriteBatch.DrawString(
+            fontBig,
+            pauseText,
+            textPosition,
+            Color.White
+        );
+
 
         // Panel
         spriteBatch.Draw(

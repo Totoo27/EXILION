@@ -64,8 +64,8 @@ public class Game1 : Game
 
 
         camera.Update(gameTime);
-
         sceneManager.Update(gameTime);
+        Music.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
 
         base.Update(gameTime);
     }

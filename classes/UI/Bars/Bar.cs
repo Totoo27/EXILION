@@ -44,6 +44,10 @@ public abstract class Bar
 
         SpriteFont font = Assets.Fonts.PixelArt;
 
+        if(textPosition == Vector2.Zero)
+        {
+            showText = false;
+        }
         this.textPosition = new Vector2(rectangle.X + textPosition.X, rectangle.Y + textPosition.Y);
 
     }
@@ -77,7 +81,7 @@ public abstract class Bar
     {
         percentage = Math.Clamp(percentage, 0, 100);
 
-        Color minColor = new Color(100, 0, 20);
+        Color minColor = new Color(150, 0, 20);
         Color midColor = new Color(220, 130, 30);
         Color maxColor = new Color(0, 170, 50);
 
@@ -87,6 +91,9 @@ public abstract class Bar
 
     protected void setTextPercentage(int percentage)
     {
+
+        if(!showText) return;
+        
         text = percentage.ToString(); // + "%";
         Vector2 textSize = font.MeasureString(text);
         textInnerPosition = new Vector2(textPosition.X - textSize.X / 2, textPosition.Y - textSize.Y / 2);
@@ -94,7 +101,7 @@ public abstract class Bar
     private void drawSetoff(SpriteBatch spriteBatch)
     {   
 
-        spriteBatch.DrawString(font, text, textInnerPosition, fontColor);
+        if(showText) spriteBatch.DrawString(font, text, textInnerPosition, fontColor);
         if(setoff != null) spriteBatch.Draw(setoff, rectangle, Color.White);
         
     }
