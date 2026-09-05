@@ -23,6 +23,10 @@ public sealed class Sprites
 
     public Texture2D Piedra { get; private set; }
     public Texture2D Tronco { get; private set; }
+
+    public Texture2D AguaPurificada { get; private set; }
+
+
     public Texture2D Slot { get; private set; }
     // World
     public Texture2D Tileset { get; private set; }
@@ -53,6 +57,7 @@ public sealed class Sprites
         //Items
         Piedra = content.Load<Texture2D>("Sprites/piedra");
         Tronco = content.Load<Texture2D>("Sprites/tronco");
+        AguaPurificada = content.Load<Texture2D>("Sprites/AguaPurificada");
         
         // World Test
         Tileset = content.Load<Texture2D>("Sprites/Tileset");

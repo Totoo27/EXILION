@@ -162,6 +162,24 @@ public class GameScene : Scene
                 new Sprite(ItemRegistry.Piedra.Icon, gameContext.ScaleXY(1)),
                 gameContext
             ),
+            new CatchableItem(
+                new ItemStack(ItemRegistry.AguaPurificada, 1),
+                new Vector2(300, 100),
+                new Sprite(ItemRegistry.AguaPurificada.Icon, gameContext.ScaleXY(1)),
+                gameContext
+            ),
+            new CatchableItem(
+                new ItemStack(ItemRegistry.AguaPurificada, 1),
+                new Vector2(400, 100),
+                new Sprite(ItemRegistry.AguaPurificada.Icon, gameContext.ScaleXY(1)),
+                gameContext
+            ),
+            new CatchableItem(
+                new ItemStack(ItemRegistry.AguaPurificada, 1),
+                new Vector2(500, 100),
+                new Sprite(ItemRegistry.AguaPurificada.Icon, gameContext.ScaleXY(1)),
+                gameContext
+            ),
         };
 
         int tileSize = (int)gameContext.ScaleXY(64);
@@ -213,6 +231,14 @@ public class GameScene : Scene
                     }
                 }
             }
+            if (player != null && Game.input.IsKeyPressed(Keys.L))
+                {
+                    ItemStack selectedStack = player.Inventory.GetSlot(inventoryUI.SelectedSlotIndex);
+                    if (selectedStack != null)
+                    {
+                        player.TryConsume(selectedStack.Item);
+                    }
+                }
         
             world.UpdateAroundPosition(player.position);
             camera.Follow(player.position);

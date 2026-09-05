@@ -230,6 +230,19 @@ public class Player : LivingThing
         return true;
     }
 
+    public bool TryConsume(Item item)
+{
+    if (item is not Consumable consumable) return false;
+
+    PlayerStat stat = thirst;
+    stat.value = Math.Min(stat.value + consumable.ThirstRestore, stat.max);
+    thirst = stat;
+    ThirstChanged?.Invoke(stat.value);
+
+    inventory.RemoveItem(item, 1);
+    return true;
+}
+
 
 
 }

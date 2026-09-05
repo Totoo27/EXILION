@@ -17,5 +17,12 @@ public static class ItemRegistry
         icon: Assets.Sprites.Piedra
     );
 
+    public static readonly Consumable AguaPurificada = new Consumable(
+    id: 3,
+    name: "Agua Purificada",
+    thirstRestore: 10,
+    icon: Assets.Sprites.AguaPurificada
+);
+
 
 }
