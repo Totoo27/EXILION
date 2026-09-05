@@ -9,9 +9,15 @@ namespace EXILION.UI;
 public class InventoryUI
 {
     private const int Columns = 8;
-    private const int Rows = 3;         // fila 0 = hotbar, filas 1-2 = resto del inventario
+    private const int Rows = 3;
     private const int SlotSize = 64;
     private const int SlotPadding = 4;
+
+    private static readonly Keys[] HotbarSelectKeys =
+    {
+        Keys.D1, Keys.D2, Keys.D3, Keys.D4,
+        Keys.D5, Keys.D6, Keys.D7, Keys.D8
+    };
 
     private readonly Inventory inventory;
     private readonly Texture2D slotTexture;
@@ -19,10 +25,10 @@ public class InventoryUI
     private readonly GameContext gameContext;
 
     private bool expanded = false;
-
-    // -1 significa "no se está arrastrando nada"
     private int draggedSlotIndex = -1;
     private Vector2 mousePosition;
+
+    public int SelectedSlotIndex { get; private set; } = 0;
 
     public InventoryUI(Inventory inventory, Texture2D slotTexture, SpriteFont font, GameContext gameContext)
     {
@@ -37,6 +43,14 @@ public class InventoryUI
         if (input.IsKeyPressed(Keys.I))
         {
             expanded = !expanded;
+        }
+
+        for (int i = 0; i < HotbarSelectKeys.Length; i++)
+        {
+            if (input.IsKeyPressed(HotbarSelectKeys[i]))
+            {
+                SelectedSlotIndex = i;
+            }
         }
 
         mousePosition = input.MousePosition;
@@ -75,8 +89,6 @@ public class InventoryUI
             }
         }
 
-        // El ícono que se está arrastrando se dibuja al final, encima de
-        // todo, siguiendo al mouse.
         if (draggedSlotIndex != -1)
         {
             ItemStack draggedStack = inventory.GetSlot(draggedSlotIndex);
@@ -100,10 +112,11 @@ public class InventoryUI
             int slotIndex = row * Columns + col;
             Rectangle slotRect = GetSlotRect(row, col, layout);
 
-            spriteBatch.Draw(slotTexture, slotRect, Color.White);
+            bool isSelected = row == 0 && col == SelectedSlotIndex;
+            Color slotColor = isSelected ? Color.Yellow : Color.White;
 
-            // El slot que se está arrastrando no dibuja su ícono acá
-            // (se dibuja aparte, siguiendo al mouse).
+            spriteBatch.Draw(slotTexture, slotRect, slotColor);
+
             if (slotIndex == draggedSlotIndex) continue;
 
             ItemStack stack = inventory.GetSlot(slotIndex);
@@ -125,9 +138,6 @@ public class InventoryUI
         }
     }
 
-    // Devuelve el índice de slot bajo una posición de pantalla, o -1 si no
-    // hay ningún slot ahí (por ejemplo, si el inventario completo está
-    // cerrado y clickeás donde irían las filas ocultas).
     private int GetSlotIndexAt(Vector2 point)
     {
         Layout layout = GetLayout();
