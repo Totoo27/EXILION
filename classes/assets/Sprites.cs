@@ -38,38 +38,38 @@ public sealed class Sprites
     {
 
         // UI
-        MenuBackground = content.Load<Texture2D>("Sprites/MainMenuBackground");
-        GameTitle = content.Load<Texture2D>("Sprites/ExilionTitle");
-        Sun = content.Load<Texture2D>("Sprites/Sun");        
-        Button = content.Load<Texture2D>("Sprites/Button");
+        MenuBackground = content.Load<Texture2D>("Sprites/UI/MainMenuBackground");
+        GameTitle = content.Load<Texture2D>("Sprites/UI/ExilionTitle");
+        Sun = content.Load<Texture2D>("Sprites/UI/Sun");        
+        Button = content.Load<Texture2D>("Sprites/UI/Button");
 
         // Bars
-        meter = content.Load<Texture2D>("Sprites/meter");
-        meterProgress = content.Load<Texture2D>("Sprites/meterProgress");
-        hungerIcon = content.Load<Texture2D>("Sprites/hungerMeterIcon");
-        thirstIcon = content.Load<Texture2D>("Sprites/thirstMeterIcon");
+        meter = content.Load<Texture2D>("Sprites/UI/HUD/meter");
+        meterProgress = content.Load<Texture2D>("Sprites/UI/HUD/meterProgress");
+        hungerIcon = content.Load<Texture2D>("Sprites/UI/HUD/hungerMeterIcon");
+        thirstIcon = content.Load<Texture2D>("Sprites/UI/HUD/thirstMeterIcon");
 
-        healthMeter = content.Load<Texture2D>("Sprites/healthMeter");
-        healthProgress = content.Load<Texture2D>("Sprites/healthProgress");
+        healthMeter = content.Load<Texture2D>("Sprites/UI/HUD/healthMeter");
+        healthProgress = content.Load<Texture2D>("Sprites/UI/HUD/healthProgress");
 
-        oxygenMeter = content.Load<Texture2D>("Sprites/oxygenMeter");
-        oxygenProgress = content.Load<Texture2D>("Sprites/oxygenProgress");
+        oxygenMeter = content.Load<Texture2D>("Sprites/UI/HUD/oxygenMeter");
+        oxygenProgress = content.Load<Texture2D>("Sprites/UI/HUD/oxygenProgress");
 
-        watchMeter = content.Load<Texture2D>("Sprites/watchMeter");
-        watchProgress = content.Load<Texture2D>("Sprites/watchProgress");
-        watchSetOff = content.Load<Texture2D>("Sprites/watchSetOff");
+        watchMeter = content.Load<Texture2D>("Sprites/UI/HUD/watchMeter");
+        watchProgress = content.Load<Texture2D>("Sprites/UI/HUD/watchProgress");
+        watchSetOff = content.Load<Texture2D>("Sprites/UI/HUD/watchSetOff");
 
         // Player
-        Player = content.Load<Texture2D>("Sprites/Player");
-        Slot   = content.Load<Texture2D>("Sprites/slot");
+        Player = content.Load<Texture2D>("Sprites/Entities/Player");
+        Slot   = content.Load<Texture2D>("Sprites/UI/HUD/slot");
         
         //Items
-        Piedra = content.Load<Texture2D>("Sprites/piedra");
-        Tronco = content.Load<Texture2D>("Sprites/tronco");
-        AguaPurificada = content.Load<Texture2D>("Sprites/AguaPurificada");
+        Piedra = content.Load<Texture2D>("Sprites/Items/piedra");
+        Tronco = content.Load<Texture2D>("Sprites/Items/tronco");
+        AguaPurificada = content.Load<Texture2D>("Sprites/Items/AguaPurificada");
         
         // World Test
-        Tileset = content.Load<Texture2D>("Sprites/Tileset");
+        Tileset = content.Load<Texture2D>("Sprites/Tiles/Tileset");
 
         await MainLoader.addCompletedTask();
 

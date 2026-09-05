@@ -82,7 +82,7 @@
 /processorParam:Quality=Best
 /build:SFX/playerDamage.wav
 
-#begin Sprites/AguaPurificada.png
+#begin Sprites/Entities/Player.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -92,9 +92,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/AguaPurificada.png
+/build:Sprites/Entities/Player.png;Sprites/Entities/Player
 
-#begin Sprites/Button.png
+#begin Sprites/Items/AguaPurificada.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -104,9 +104,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/Button.png
+/build:Sprites/Items/AguaPurificada.png;Sprites/Items/AguaPurificada
 
-#begin Sprites/exilionTitle.png
+#begin Sprites/Items/piedra.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -116,9 +116,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/exilionTitle.png
+/build:Sprites/Items/piedra.png;Sprites/Items/piedra
 
-#begin Sprites/healthMeter.png
+#begin Sprites/Items/tronco.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -128,9 +128,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/healthMeter.png
+/build:Sprites/Items/tronco.png;Sprites/Items/tronco
 
-#begin Sprites/healthProgress.png
+#begin Sprites/Tiles/Tileset.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -140,9 +140,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/healthProgress.png
+/build:Sprites/Tiles/Tileset.png;Sprites/Tiles/Tileset
 
-#begin Sprites/hungerMeterIcon.png
+#begin Sprites/UI/button.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -152,9 +152,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/hungerMeterIcon.png
+/build:Sprites/UI/button.png;Sprites/UI/button
 
-#begin Sprites/MainMenuBackground.png
+#begin Sprites/UI/exilionTitle.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -164,9 +164,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/MainMenuBackground.png
+/build:Sprites/UI/exilionTitle.png;Sprites/UI/exilionTitle
 
-#begin Sprites/meter.png
+#begin Sprites/UI/HUD/healthMeter.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -176,9 +176,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/meter.png
+/build:Sprites/UI/HUD/healthMeter.png;Sprites/UI/HUD/healthMeter
 
-#begin Sprites/meterProgress.png
+#begin Sprites/UI/HUD/healthProgress.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -188,9 +188,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/meterProgress.png
+/build:Sprites/UI/HUD/healthProgress.png;Sprites/UI/HUD/healthProgress
 
-#begin Sprites/oxygenMeter.png
+#begin Sprites/UI/HUD/hungerMeterIcon.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -200,9 +200,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/oxygenMeter.png
+/build:Sprites/UI/HUD/hungerMeterIcon.png;Sprites/UI/HUD/hungerMeterIcon
 
-#begin Sprites/oxygenProgress.png
+#begin Sprites/UI/HUD/meter.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -212,9 +212,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/oxygenProgress.png
+/build:Sprites/UI/HUD/meter.png;Sprites/UI/HUD/meter
 
-#begin Sprites/piedra.png
+#begin Sprites/UI/HUD/meterProgress.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -224,9 +224,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/piedra.png
+/build:Sprites/UI/HUD/meterProgress.png;Sprites/UI/HUD/meterProgress
 
-#begin Sprites/Player.png
+#begin Sprites/UI/HUD/oxygenMeter.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -236,9 +236,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/Player.png
+/build:Sprites/UI/HUD/oxygenMeter.png;Sprites/UI/HUD/oxygenMeter
 
-#begin Sprites/slot.png
+#begin Sprites/UI/HUD/oxygenProgress.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -248,9 +248,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/slot.png
+/build:Sprites/UI/HUD/oxygenProgress.png;Sprites/UI/HUD/oxygenProgress
 
-#begin Sprites/Sun.png
+#begin Sprites/UI/HUD/slot.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -260,9 +260,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/Sun.png
+/build:Sprites/UI/HUD/slot.png;Sprites/UI/HUD/slot
 
-#begin Sprites/thirstMeterIcon.png
+#begin Sprites/UI/HUD/thirstMeterIcon.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -272,9 +272,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/thirstMeterIcon.png
+/build:Sprites/UI/HUD/thirstMeterIcon.png;Sprites/UI/HUD/thirstMeterIcon
 
-#begin Sprites/Tileset.png
+#begin Sprites/UI/HUD/watchMeter.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -284,9 +284,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/Tileset.png
+/build:Sprites/UI/HUD/watchMeter.png;Sprites/UI/HUD/watchMeter
 
-#begin Sprites/tronco.png
+#begin Sprites/UI/HUD/watchProgress.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -296,9 +296,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/tronco.png
+/build:Sprites/UI/HUD/watchProgress.png;Sprites/UI/HUD/watchProgress
 
-#begin Sprites/watchMeter.png
+#begin Sprites/UI/HUD/watchSetOff.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -308,9 +308,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/watchMeter.png
+/build:Sprites/UI/HUD/watchSetOff.png;Sprites/UI/HUD/watchSetOff
 
-#begin Sprites/watchProgress.png
+#begin Sprites/UI/MainMenuBackground.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -320,9 +320,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/watchProgress.png
+/build:Sprites/UI/MainMenuBackground.png;Sprites/UI/MainMenuBackground
 
-#begin Sprites/watchSetOff.png
+#begin Sprites/UI/Sun.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -332,5 +332,5 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/watchSetOff.png
+/build:Sprites/UI/Sun.png;Sprites/UI/Sun
 
