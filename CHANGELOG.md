@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.0](https://github.com/Totoo27/EXILION/compare/v0.1.1...v0.2.0) (2026-09-05)
+
+
+### Features
+
+* add 'pause' text in pause panel ([8124ca8](https://github.com/Totoo27/EXILION/commit/8124ca84c3d3f1c39964ba68bfcca03e2532b475))
+* add song queue to gameScene & transitions between songs ([05f9ee8](https://github.com/Totoo27/EXILION/commit/05f9ee8c4ad9e52ab1d25087b24835b9f3c342bf))
+* add watch position & sprite to HUD ([aae9086](https://github.com/Totoo27/EXILION/commit/aae90863b989c71485526261f9bf8aed336410aa))
+* **HUD:** add toggleHUD key & refactor HUD into another class ([f7545a3](https://github.com/Totoo27/EXILION/commit/f7545a3f6bfe6153fe6d5b23e52d541debfedc04))
+* **HUD:** add watch functionality & change dynamic color (red) ([77fa2c3](https://github.com/Totoo27/EXILION/commit/77fa2c32cb58ecc14059981f4c7a9c4c39c51b30))
+
 ## [0.1.1](https://github.com/Totoo27/EXILION/compare/v0.1.0...v0.1.1) (2026-09-05)
 
 
