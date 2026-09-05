@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Input;
 using EXILION.Entities.LivingThings;
 using EXILION.UI.Bar;
-using System;
 using EXILION.Entities.CatchableItems;
 using EXILION.Items;
 using EXILION.UI;
@@ -42,6 +42,15 @@ public class GameScene : Scene
     private InventoryUI inventoryUI;
     private bool hideHUD = false;
 
+    // Songs queue
+    private List<Song> songsQueue = new List<Song>
+    {
+        Assets.Songs.exiliated,
+        Assets.Songs.drownInInterrogations
+    };
+
+    private int currentSongIndex = 0;
+
     private List<CatchableItem> catchableItems;
     private World.World world;
     private MapRenderer mapRenderer;
@@ -52,7 +61,7 @@ public class GameScene : Scene
 
     public GameScene(Game1 game) : base(game)
     {
-        Music.Play(Assets.Songs.StandardGameMusic);
+        Music.Play(songsQueue[currentSongIndex], 1f);
         gameContext = Game.gameContext;
         camera = Game.camera;
     }
@@ -146,6 +155,8 @@ public class GameScene : Scene
 
         player.OxygenChanged += oxygenBar.setValue;
         player.OxygenChanged += oxygenBar.setDynamicColor;
+
+        Music.musicStop += changeMusic;
 
         inventoryUI = new InventoryUI(
             player.Inventory,
@@ -269,7 +280,6 @@ public class GameScene : Scene
     public override void Draw(SpriteBatch spriteBatch)
     {
 
-
         // Floor
         mapRenderer.Draw(spriteBatch, world);
 
@@ -345,4 +355,12 @@ public class GameScene : Scene
             if (nightOpacity < 0) nightOpacity = 0;
         }
     }
+
+    private void changeMusic()
+    {
+        currentSongIndex++;
+        if (currentSongIndex >= songsQueue.Count) currentSongIndex = 0;
+        Music.Play(songsQueue[currentSongIndex], 3f);
+    }
+
 }

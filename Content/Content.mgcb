@@ -34,6 +34,12 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/PixelArtSmall.spritefont
 
+#begin Music/drownInInterrogations.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/drownInInterrogations.mp3
+
 #begin Music/exiliated.mp3
 /importer:Mp3Importer
 /processor:SongProcessor
