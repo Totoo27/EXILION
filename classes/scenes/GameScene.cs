@@ -27,6 +27,11 @@ public class GameScene : Scene
     private bool night = false;
     private Color nightColor = new Color(15, 10, 35);
 
+    // Settings
+
+    private PausePanel pausePanel;
+
+
     // Player
     private Player player;
     private Texture2D pixel;
@@ -35,6 +40,7 @@ public class GameScene : Scene
     private Bar healthBar;
     private Bar oxygenBar;
     private InventoryUI inventoryUI;
+    private bool hideHUD = false;
 
     private List<CatchableItem> catchableItems;
     private World.World world;
@@ -189,6 +195,8 @@ public class GameScene : Scene
 
         Texture2D tileset = Assets.Sprites.Tileset;
         mapRenderer = new MapRenderer(tileset, tileSize);
+
+        pausePanel = new PausePanel(Game);
     }
 
     public override void Update(GameTime gameTime)
@@ -197,8 +205,11 @@ public class GameScene : Scene
 
         if (Game.input.IsKeyPressed(Keys.Escape))
         {
-            Game.changeScene(new MainMenu(Game));
+            pausePanel.enabled = true;
         }
+
+        pausePanel.Update();
+        if(pausePanel.enabled) return;
 
         if (player != null)
         {
@@ -217,7 +228,7 @@ public class GameScene : Scene
 
             player.Update(mouseWorldPosition, Game.input, gameTime);
 
-            if (player != null && Game.input.IsKeyPressed(Keys.E))
+            if (Game.input.IsKeyPressed(Keys.E))
             {
                 Rectangle playerHitbox = player.GetHitbox();
 
@@ -242,19 +253,21 @@ public class GameScene : Scene
         
             world.UpdateAroundPosition(player.position);
             camera.Follow(player.position);
-        
+
             if (player.isDead)
             {
-                player = null;
+                processPlayerDeath();
             }
 
         }
 
+        
 
     }
 
     public override void Draw(SpriteBatch spriteBatch)
     {
+
 
         // Floor
         mapRenderer.Draw(spriteBatch, world);
@@ -268,7 +281,6 @@ public class GameScene : Scene
         // Player
         player?.Draw(spriteBatch, pixel);
         
-        
     }
 
     public override void DrawUI(SpriteBatch spriteBatch)
@@ -277,12 +289,17 @@ public class GameScene : Scene
         if (nightOpacity > 0) spriteBatch.Draw(pixel, new Rectangle(0, 0, Game.GraphicsDevice.Viewport.Width, Game.GraphicsDevice.Viewport.Height), nightColor * nightOpacity);
 
         // UI
-        hungerBar.Draw(spriteBatch);
-        thirstBar.Draw(spriteBatch);
-        healthBar.Draw(spriteBatch);
-        oxygenBar.Draw(spriteBatch);
+        if (!hideHUD)
+        {
+            hungerBar.Draw(spriteBatch);
+            thirstBar.Draw(spriteBatch);
+            healthBar.Draw(spriteBatch);
+            oxygenBar.Draw(spriteBatch);
+            inventoryUI.Draw(spriteBatch);
+        }
 
-        inventoryUI.Draw(spriteBatch);
+        // Pause panel
+        pausePanel.Draw(spriteBatch);
     }
 
     private void UpdateDiurnalCycle(GameTime gameTime)
@@ -304,6 +321,12 @@ public class GameScene : Scene
 
         }
 
+    }
+
+    private void processPlayerDeath()
+    {
+        player = null;
+        hideHUD = true;
     }
 
     private void UpdateNightTransition(GameTime gameTime)

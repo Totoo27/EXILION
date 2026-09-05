@@ -1,11 +1,14 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
+using EXILION.Scenes;
 
 namespace EXILION.UI;
 
-public class SettingsPanel
+public class PausePanel : IHasSettings
 {
+
     public Vector2 position;
     public int Width { get; private set; }
     public int Height { get; private set; }
@@ -30,38 +33,51 @@ public class SettingsPanel
     private Texture2D panelTexture;
     private Texture2D borderTexture;
 
-    private IHasSettings scene;
-
     private Color borderColor = new Color(46, 15, 74);
 
     // Buttons
-    private Button backButton;
-    private Button fullScreenButton;
-    private Button musicButton;
-    private Button SFXButton;
+    private Button resumeButton;
+    private Button settingsButton;
+    private Button quitButton;
 
     // Buttons config
     private Texture2D buttonSprite;
     private SpriteFont font;
 
+    private Texture2D pixel;
     public bool enabled = false;
 
-    public SettingsPanel(Game1 game, IHasSettings scene, Vector2 position)
+    // Settings
+
+    private SettingsPanel settingsPanel;
+
+    public PausePanel(Game1 game)
     {
         this.game = game;
-        this.scene = scene;
 
-        this.position = position;
+        this.Width = game.gameContext.ScaleX(300);
+        this.Height = game.gameContext.ScaleY(400);
 
-        this.Width = game.gameContext.ScaleX(1000);
-        this.Height = game.gameContext.ScaleY(600);
+        position = new Vector2(
+            (game.GraphicsDevice.Viewport.Width - Width) / 2f,
+            (game.GraphicsDevice.Viewport.Height - Height) / 2f
+        );
 
         LoadContent();
     }
 
     public void LoadContent()
     {
+
+        settingsPanel = new SettingsPanel(game, this, position);
+        settingsPanel.position = new Vector2(
+            (game.GraphicsDevice.Viewport.Width - settingsPanel.Width) / 2f,
+            (game.GraphicsDevice.Viewport.Height - settingsPanel.Height) / 2f
+        );
+
         GraphicsDevice graphicsDevice = game.GraphicsDevice;
+        pixel = new Texture2D(graphicsDevice, 1, 1);
+        pixel.SetData(new[] { Color.White });
 
         panelTexture = new Texture2D(graphicsDevice, 1, 100);
 
@@ -73,49 +89,44 @@ public class SettingsPanel
         buttonSprite = Assets.Sprites.Button;
         font = Assets.Fonts.PixelArt;
 
-        backButton = new Button(
-            "Back",
+        int buttonWidth = game.gameContext.ScaleX(200);
+        int buttonHeight = game.gameContext.ScaleY(50);
+
+        int spacing = (Height - buttonHeight * 3) / 4;
+
+        int buttonX = (int)position.X + (Width - buttonWidth) / 2;
+
+        resumeButton = new Button(
+            "Resume",
             new Rectangle(
-                (int)position.X,
-                (int)position.Y,
-                game.gameContext.ScaleX(180),
-                game.gameContext.ScaleY(50)
+                buttonX,
+                (int)position.Y + spacing,
+                buttonWidth,
+                buttonHeight
             ),
             buttonSprite,
             font
         );
 
-        fullScreenButton = new Button(
-            "FullScreen",
+        settingsButton = new Button(
+            "Settings",
             new Rectangle(
-                (int)position.X,
-                (int)position.Y,
-                game.gameContext.ScaleX(180),
-                game.gameContext.ScaleY(50)
+                buttonX,
+                (int)position.Y + spacing * 2 + buttonHeight,
+                buttonWidth,
+                buttonHeight
             ),
             buttonSprite,
             font
         );
 
-        SFXButton = new Button(
-            "SFX",
+        quitButton = new Button(
+            "Quit",
             new Rectangle(
-                (int)position.X,
-                (int)position.Y,
-                game.gameContext.ScaleX(100),
-                game.gameContext.ScaleY(50)
-            ),
-            buttonSprite,
-            font
-        );
-
-        musicButton = new Button(
-            "Music",
-            new Rectangle(
-                (int)position.X,
-                (int)position.Y,
-                game.gameContext.ScaleX(100),
-                game.gameContext.ScaleY(50)
+                buttonX,
+                (int)position.Y + spacing * 3 + buttonHeight * 2,
+                buttonWidth,
+                buttonHeight
             ),
             buttonSprite,
             font
@@ -125,39 +136,33 @@ public class SettingsPanel
 
     public void Update()
     {
+
         if (!enabled) return;
 
-        updateButtonPosition(SFXButton, game.gameContext.ScaleX(40), game.gameContext.ScaleY(20));
-        updateButtonPosition(musicButton, game.gameContext.ScaleX(40), game.gameContext.ScaleY(80));
-        updateButtonPosition(backButton, game.gameContext.ScaleX(40), Height - game.gameContext.ScaleY(90));
-        updateButtonPosition(fullScreenButton, Width - game.gameContext.ScaleX(200), game.gameContext.ScaleY(20));
+        settingsPanel.Update();
+        if(settingsPanel.enabled) return;
 
-        if (backButton.isClicked(Mouse.GetState()))
+        if (resumeButton.isClicked(Mouse.GetState()))
         {
-            scene.closeSettings();
+            this.enabled = false;
         }
 
-        if (fullScreenButton.isClicked(Mouse.GetState()))
+        if (settingsButton.isClicked(Mouse.GetState()))
         {
-            game.toggleFullScreen();
+            settingsPanel.enabled = true;
         }
 
-        if (musicButton.isClicked(Mouse.GetState()))
+        if (quitButton.isClicked(Mouse.GetState()))
         {
-            Music.toggle();
-        }
-
-        if (SFXButton.isClicked(Mouse.GetState()))
-        {
-            SFX.toggle();
+            game.changeScene(new MainMenu(game));
         }
 
     }
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        if (!enabled)
-            return;
+
+        if (!enabled) return;
 
         int borderSize = game.gameContext.ScaleX(4);
 
@@ -169,6 +174,12 @@ public class SettingsPanel
         );
 
         // Panel
+        spriteBatch.Draw(
+            pixel,
+            innerBounds,
+            Color.Black
+        );
+
         spriteBatch.Draw(
             panelTexture,
             innerBounds,
@@ -223,11 +234,11 @@ public class SettingsPanel
             borderColor
         );
 
+        resumeButton.Draw(spriteBatch, 1f);
+        settingsButton.Draw(spriteBatch, 1f);
+        quitButton.Draw(spriteBatch, 1f);
 
-        SFXButton.Draw(spriteBatch, 1f);
-        musicButton.Draw(spriteBatch, 1f);
-        backButton.Draw(spriteBatch, 1f);
-        fullScreenButton.Draw(spriteBatch, 1f);
+        settingsPanel.Draw(spriteBatch);
     }
 
     public void initPanelTexture()
@@ -250,11 +261,9 @@ public class SettingsPanel
         panelTexture.SetData(panelColors);
     }
 
-    public void updateButtonPosition(Button button, int positionX, int positionY)
+    public void closeSettings()
     {
-        button.position.X = (int)position.X + positionX;
-        button.position.Y = (int)position.Y + positionY;
-        // Cambiar los valores por positionX y positionY
+        settingsPanel.enabled = false;
     }
 
 }

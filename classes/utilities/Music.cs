@@ -25,9 +25,6 @@ public static class Music
 
         currentSong = song;
 
-
-        Console.WriteLine("Escuchando: " + currentSong);
-
         MediaPlayer.IsRepeating = true;
         MediaPlayer.Play(currentSong);
     }
