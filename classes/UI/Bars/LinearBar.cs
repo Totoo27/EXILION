@@ -29,6 +29,16 @@ public class LinearBar : Bar
         fillRectangle = new Rectangle(positionRectangle.X, positionRectangle.Y, positionRectangle.Width, positionRectangle.Height);
         this.vertical = vertical;
         setValue(maxValue);
+        
+    }
+
+    public LinearBar(Texture2D background, Texture2D progress, Rectangle rectangle, Rectangle positionRectangle, bool vertical,  int maxValue)
+    : base(background, progress, null, rectangle, maxValue, Vector2.Zero)
+    {
+        this.positionRectangle = positionRectangle;
+        fillRectangle = new Rectangle(positionRectangle.X, positionRectangle.Y, positionRectangle.Width, positionRectangle.Height);
+        this.vertical = vertical;
+        setValue(maxValue);
     }
 
     public override void setValue(int value)

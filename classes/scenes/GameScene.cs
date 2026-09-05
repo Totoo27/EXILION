@@ -39,6 +39,7 @@ public class GameScene : Scene
     private Bar thirstBar;
     private Bar healthBar;
     private Bar oxygenBar;
+    private Bar watchBar;
     private InventoryUI inventoryUI;
     private bool hideHUD = false;
 
@@ -77,10 +78,12 @@ public class GameScene : Scene
         Rectangle hungerRectangle = new Rectangle(gameContext.ScaleX(970), gameContext.ScaleY(560), gameContext.ScaleX(64), gameContext.ScaleY(64));
         Rectangle thirstRectangle = new Rectangle(gameContext.ScaleX(970), gameContext.ScaleY(640), gameContext.ScaleX(64), gameContext.ScaleY(64));
         Rectangle healthRectangle = new Rectangle(gameContext.ScaleX(1040), gameContext.ScaleY(550), gameContext.ScaleX(150), gameContext.ScaleY(150));
+        Rectangle watchRectangle = new Rectangle(gameContext.ScaleX(1200), gameContext.ScaleY(300), gameContext.ScaleX(60), gameContext.ScaleY(114));
         Rectangle oxygenRectangle = new Rectangle(gameContext.ScaleX(1200), gameContext.ScaleY(468), gameContext.ScaleX(65), gameContext.ScaleY(232));
-        
+
         Rectangle oxygenProgressRectangle = new Rectangle(oxygenRectangle.X + gameContext.ScaleX(21), oxygenRectangle.Y + gameContext.ScaleY(70), gameContext.ScaleX(6), gameContext.ScaleY(150));
-        
+        Rectangle watchProgressRectangle = new Rectangle(watchRectangle.X, watchRectangle.Y + gameContext.ScaleY(48), watchRectangle.Width, gameContext.ScaleY(46));
+
         Vector2 meterTextPosition = new Vector2(hungerRectangle.Width/2, hungerRectangle.Height/2);
 
         hungerBar = new RadialBar(
@@ -135,10 +138,22 @@ public class GameScene : Scene
             new Vector2(oxygenRectangle.Width/2, gameContext.ScaleY(52))
         );
 
+        watchBar = new LinearBar(
+
+            Assets.Sprites.watchMeter,
+            Assets.Sprites.watchProgress,
+            watchRectangle,
+            watchProgressRectangle,
+            true,
+            DIURNAL_PRESET_TIME
+            
+        );
+
         hungerBar.setProgressColor(new Color(148, 55, 24));
         thirstBar.setProgressColor(new Color(79, 165, 184));
         healthBar.setProgressColor(new Color(0, 170, 50));
         oxygenBar.setProgressColor(new Color(0, 170, 50));
+        watchBar.setProgressColor(Color.White);
 
         hungerBar.setFontColor(new Color(42, 168, 65));
         thirstBar.setFontColor(new Color(42, 168, 65));
@@ -307,6 +322,7 @@ public class GameScene : Scene
             healthBar.Draw(spriteBatch);
             oxygenBar.Draw(spriteBatch);
             inventoryUI.Draw(spriteBatch);
+            watchBar.Draw(spriteBatch);
         }
 
         // Pause panel
