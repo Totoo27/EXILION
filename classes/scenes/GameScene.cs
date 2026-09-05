@@ -40,6 +40,7 @@ public class GameScene : Scene
     private Bar healthBar;
     private Bar oxygenBar;
     private InventoryUI inventoryUI;
+    private bool hideHUD = false;
 
     private List<CatchableItem> catchableItems;
     private World.World world;
@@ -209,7 +210,7 @@ public class GameScene : Scene
 
             player.Update(mouseWorldPosition, Game.input, gameTime);
 
-            if (player != null && Game.input.IsKeyPressed(Keys.E))
+            if (Game.input.IsKeyPressed(Keys.E))
             {
                 Rectangle playerHitbox = player.GetHitbox();
 
@@ -226,14 +227,15 @@ public class GameScene : Scene
         
             world.UpdateAroundPosition(player.position);
             camera.Follow(player.position);
-        
+
             if (player.isDead)
             {
-                player = null;
+                processPlayerDeath();
             }
 
         }
 
+        
 
     }
 
@@ -261,11 +263,14 @@ public class GameScene : Scene
         if (nightOpacity > 0) spriteBatch.Draw(pixel, new Rectangle(0, 0, Game.GraphicsDevice.Viewport.Width, Game.GraphicsDevice.Viewport.Height), nightColor * nightOpacity);
 
         // UI
-        hungerBar.Draw(spriteBatch);
-        thirstBar.Draw(spriteBatch);
-        healthBar.Draw(spriteBatch);
-        oxygenBar.Draw(spriteBatch);
-        inventoryUI.Draw(spriteBatch);
+        if (!hideHUD)
+        {
+            hungerBar.Draw(spriteBatch);
+            thirstBar.Draw(spriteBatch);
+            healthBar.Draw(spriteBatch);
+            oxygenBar.Draw(spriteBatch);
+            inventoryUI.Draw(spriteBatch);
+        }
 
         // Pause panel
         pausePanel.Draw(spriteBatch);
@@ -290,6 +295,12 @@ public class GameScene : Scene
 
         }
 
+    }
+
+    private void processPlayerDeath()
+    {
+        player = null;
+        hideHUD = true;
     }
 
     private void UpdateNightTransition(GameTime gameTime)

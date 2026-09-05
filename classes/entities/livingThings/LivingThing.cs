@@ -11,6 +11,7 @@ public abstract class LivingThing : Entity
     protected int health;
     public bool isDead { get; private set; } = false;
     public float speed { get; private set; }
+    public event Action? deathEvent;
 
     public LivingThing(Vector2 position, Sprite sprite, int maxHealth, float speed, GameContext gameContext) : base(position, sprite, gameContext)
     {
@@ -36,8 +37,8 @@ public abstract class LivingThing : Entity
 
     private void die()
     {
-        Console.WriteLine("Living Thing ha muerto");
         isDead = true;
+        deathEvent?.Invoke();
     }
 
 }
