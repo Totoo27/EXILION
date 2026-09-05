@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/Totoo27/EXILION/compare/v0.1.0...v0.1.1) (2026-09-05)
+
+
+### Bug Fixes
+
+* trigger initial release PR ([0ca7311](https://github.com/Totoo27/EXILION/commit/0ca7311eacac24e157b8a768ed20e48922a60969))
+
 ## 0.1.0 (2026-07-14)
 
 
