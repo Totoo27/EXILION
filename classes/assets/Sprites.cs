@@ -22,6 +22,7 @@ public sealed class Sprites
     public Texture2D thirstIcon { get; private set; }
     public Texture2D watchMeter { get; private set; }
     public Texture2D watchProgress { get; private set; }
+    public Texture2D watchSetOff { get; private set; }
 
     public Texture2D Piedra { get; private set; }
     public Texture2D Tronco { get; private set; }
@@ -56,6 +57,7 @@ public sealed class Sprites
 
         watchMeter = content.Load<Texture2D>("Sprites/watchMeter");
         watchProgress = content.Load<Texture2D>("Sprites/watchProgress");
+        watchSetOff = content.Load<Texture2D>("Sprites/watchSetOff");
 
         // Player
         Player = content.Load<Texture2D>("Sprites/Player");

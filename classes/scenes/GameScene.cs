@@ -82,7 +82,7 @@ public class GameScene : Scene
         Rectangle oxygenRectangle = new Rectangle(gameContext.ScaleX(1200), gameContext.ScaleY(468), gameContext.ScaleX(65), gameContext.ScaleY(232));
 
         Rectangle oxygenProgressRectangle = new Rectangle(oxygenRectangle.X + gameContext.ScaleX(21), oxygenRectangle.Y + gameContext.ScaleY(70), gameContext.ScaleX(6), gameContext.ScaleY(150));
-        Rectangle watchProgressRectangle = new Rectangle(watchRectangle.X, watchRectangle.Y + gameContext.ScaleY(48), watchRectangle.Width, gameContext.ScaleY(46));
+        Rectangle watchProgressRectangle = new Rectangle(watchRectangle.X, watchRectangle.Y + gameContext.ScaleY(44), watchRectangle.Width, gameContext.ScaleY(50));
 
         Vector2 meterTextPosition = new Vector2(hungerRectangle.Width/2, hungerRectangle.Height/2);
 
@@ -142,11 +142,12 @@ public class GameScene : Scene
 
             Assets.Sprites.watchMeter,
             Assets.Sprites.watchProgress,
+            Assets.Sprites.watchSetOff,
             watchRectangle,
             watchProgressRectangle,
             true,
             DIURNAL_PRESET_TIME
-            
+
         );
 
         hungerBar.setProgressColor(new Color(148, 55, 24));
@@ -170,6 +171,8 @@ public class GameScene : Scene
 
         player.OxygenChanged += oxygenBar.setValue;
         player.OxygenChanged += oxygenBar.setDynamicColor;
+
+        watchBar.setValue(0);
 
         Music.musicStop += changeMusic;
 
@@ -345,6 +348,8 @@ public class GameScene : Scene
                 night = !night;
 
             }
+
+            watchBar.setValue(DIURNAL_PRESET_TIME - diurnalCycleTime);
 
         }
 

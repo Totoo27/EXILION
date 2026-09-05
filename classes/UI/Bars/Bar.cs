@@ -81,7 +81,7 @@ public abstract class Bar
     {
         percentage = Math.Clamp(percentage, 0, 100);
 
-        Color minColor = new Color(100, 0, 20);
+        Color minColor = new Color(150, 0, 20);
         Color midColor = new Color(220, 130, 30);
         Color maxColor = new Color(0, 170, 50);
 
