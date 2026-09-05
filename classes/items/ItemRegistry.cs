@@ -18,11 +18,11 @@ public static class ItemRegistry
     );
 
     public static readonly Consumable AguaPurificada = new Consumable(
-    id: 3,
-    name: "Agua Purificada",
-    thirstRestore: 10,
-    icon: Assets.Sprites.AguaPurificada
-);
+        id: 3,
+        name: "Agua Purificada",
+        thirstRestore: 10,
+        icon: Assets.Sprites.AguaPurificada
+    );
 
 
 }

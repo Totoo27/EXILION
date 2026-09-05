@@ -56,6 +56,7 @@ public class Button
         if (currentMouse.LeftButton == ButtonState.Released && previousMouse.LeftButton == ButtonState.Pressed && this.bounds.Contains(currentMouse.Position))
         {
             clicked = true;
+            SFX.Play(Assets.SoundEffects.buttonClick);
         }
 
         previousMouse = currentMouse;

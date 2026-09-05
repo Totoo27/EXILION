@@ -242,14 +242,15 @@ public class GameScene : Scene
                     }
                 }
             }
-            if (player != null && Game.input.IsKeyPressed(Keys.L))
+            
+            if (Game.input.IsKeyPressed(Keys.L))
+            {
+                ItemStack selectedStack = player.Inventory.GetSlot(inventoryUI.SelectedSlotIndex);
+                if (selectedStack != null)
                 {
-                    ItemStack selectedStack = player.Inventory.GetSlot(inventoryUI.SelectedSlotIndex);
-                    if (selectedStack != null)
-                    {
-                        player.TryConsume(selectedStack.Item);
-                    }
+                    player.TryConsume(selectedStack.Item);
                 }
+            }
         
             world.UpdateAroundPosition(player.position);
             camera.Follow(player.position);

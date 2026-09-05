@@ -7,14 +7,12 @@ namespace EXILION;
 public sealed class Fonts
 {
 
-    public SpriteFont Arial { get; private set; }
     public SpriteFont PixelArt { get; private set; }
     public SpriteFont PixelArtBig { get; private set; }
     public SpriteFont PixelArtSmall { get; private set; }
     public async Task Load(ContentManager content)
     {
 
-        Arial = content.Load<SpriteFont>("Fonts/Arial");
         PixelArt = content.Load<SpriteFont>("Fonts/PixelArt");
         PixelArtBig = content.Load<SpriteFont>("Fonts/PixelArtBig");
         PixelArtSmall = content.Load<SpriteFont>("Fonts/PixelArtSmall");
