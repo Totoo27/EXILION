@@ -28,9 +28,10 @@
 
 ---
 
-## 🔗 Enlace a la Wiki del Proyecto
+## 🔗 Enlace info
 Puedes acceder a la propuesta detallada del proyecto, minutas de diseño, diagramas de arquitectura y el Documento de Diseño de Juego (GDD) completo a través del siguiente enlace directo:
 👉 **[Wiki del Proyecto EXILION - Propuesta Detallada](https://github.com/Totoo27/EXILION/wiki)** 
+👉 **[Video primer prototipo - EXILION](https://youtu.be/A6OlYRtCE_Q)** 
 
 ---
 
@@ -75,6 +76,6 @@ dotnet run --project EXILION.csproj
 1. Abre la carpeta del proyecto en VS Code.
 2. Abre una terminal integrada (`Ctrl + \``) y ejecuta el comando de la Opción A:
    ```bash
-   dotnet run --project EXILION.csjproj
+   dotnet run --project EXILION.csproj
    ```
 3. *(Alternativamente)* Si usas la extensión **C# Dev Kit**, presiona **F5** seleccionando la configuración de ejecución para .NET.
