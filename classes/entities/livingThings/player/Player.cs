@@ -10,8 +10,8 @@ namespace EXILION.Entities.LivingThings;
 public class Player : LivingThing
 {
 
-    public const int maxStat = 100;
-    private int maxOxygen = 100;
+    public const int maxStat = 5;
+    private int maxOxygen = 10;
 
     private float damagedTimer = 0f;
     private float runningMultiplier = 1f;
@@ -130,15 +130,15 @@ public class Player : LivingThing
         if (stat.timer >= 2.5f * runningMultiplier)
         {
 
+            stat.timer = 0f;
+            stat.value--;
+
             if (stat.value <= 0)
             {
                 stat.value = 0;
                 takeDamage(1);
-                hunger = stat;
             }
 
-            stat.timer = 0f;
-            stat.value--;
             HungerChanged?.Invoke(stat.value);
 
         }
@@ -155,16 +155,17 @@ public class Player : LivingThing
 
         if (stat.timer >= 1f * runningMultiplier)
         {
+            stat.timer = 0f;
+            stat.value--;
+
             if (stat.value <= 0)
             {
                 stat.value = 0;
                 takeDamage(3);
-                oxygen = stat;
             }
 
-            stat.timer = 0f;
-            stat.value--;
             OxygenChanged?.Invoke(stat.value);
+
         }
 
         oxygen = stat;
@@ -180,18 +181,17 @@ public class Player : LivingThing
 
         if (stat.timer >= 2f * runningMultiplier)
         {
-            
+
+            stat.timer = 0f;
+            stat.value--;
+
             if (stat.value <= 0)
             {
                 stat.value = 0;
                 takeDamage(1);
-                thirst = stat;
             }
 
-            stat.timer = 0f;
-            stat.value--;
             ThirstChanged?.Invoke(stat.value);
-
         }
 
         thirst = stat;
