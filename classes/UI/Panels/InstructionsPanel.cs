@@ -109,7 +109,7 @@ public class InstructionsPanel
 
         if (!enabled) return;
 
-        if (backButton.isClicked(Mouse.GetState()))
+        if (backButton.isClicked(game.input.CurrentMouse))
         {
             this.enabled = false;
         }

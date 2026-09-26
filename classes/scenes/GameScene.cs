@@ -37,6 +37,7 @@ public class GameScene : Scene
     private Player player;
     private Texture2D pixel;
     private HUD HUD;
+    private InputManager input;
 
     // Songs queue
     private List<Song> songsQueue = new List<Song>
@@ -57,6 +58,7 @@ public class GameScene : Scene
 
     public GameScene(Game1 game) : base(game)
     {
+        input = Game.input;
         Music.Play(songsQueue[currentSongIndex], 1f);
         gameContext = Game.gameContext;
         camera = Game.camera;
@@ -121,7 +123,7 @@ public class GameScene : Scene
 
     public override void Update(GameTime gameTime)
     {
-        MouseState mouse = Mouse.GetState();
+        MouseState mouse = input.CurrentMouse;
 
         if (Game.input.IsKeyPressed(Keys.Escape))
         {

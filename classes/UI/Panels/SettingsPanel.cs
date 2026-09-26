@@ -148,6 +148,8 @@ public class SettingsPanel
     {
         if (!enabled) return;
 
+        MouseState mouseState = game.input.CurrentMouse;
+
         updateButtonPosition(SFXButton, game.gameContext.ScaleX(40), game.gameContext.ScaleY(20));
         updateButtonPosition(musicButton, game.gameContext.ScaleX(40), game.gameContext.ScaleY(80));
         updateButtonPosition(backButton, game.gameContext.ScaleX(40), Height - game.gameContext.ScaleY(90));
@@ -157,27 +159,27 @@ public class SettingsPanel
         instructionsPanel.Update();
         if(instructionsPanel.enabled) return;
 
-        if (backButton.isClicked(Mouse.GetState()))
+        if (backButton.isClicked(mouseState))
         {
             scene.closeSettings();
         }
 
-        if (fullScreenButton.isClicked(Mouse.GetState()))
+        if (fullScreenButton.isClicked(mouseState))
         {
             game.toggleFullScreen();
         }
 
-        if(instructionsButton.isClicked(Mouse.GetState()))
+        if(instructionsButton.isClicked(mouseState))
         {
             instructionsPanel.enabled = true;
         }
 
-        if (musicButton.isClicked(Mouse.GetState()))
+        if (musicButton.isClicked(mouseState))
         {
             Music.Toggle();
         }
 
-        if (SFXButton.isClicked(Mouse.GetState()))
+        if (SFXButton.isClicked(mouseState))
         {
             SFX.toggle();
         }

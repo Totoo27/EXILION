@@ -149,7 +149,6 @@ public class Player : LivingThing
 
     public void updateOxygen(GameTime gameTime)
     {
-
         PlayerStat stat = oxygen;
 
         stat.timer += (float)gameTime.ElapsedGameTime.TotalSeconds;

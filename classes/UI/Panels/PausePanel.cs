@@ -157,23 +157,24 @@ public class PausePanel : IHasSettings
 
     public void Update()
     {
-
         if (!enabled) return;
+        
+        MouseState mouseState = game.input.CurrentMouse;
 
         settingsPanel.Update();
         if(settingsPanel.enabled) return;
 
-        if (resumeButton.isClicked(Mouse.GetState()))
+        if (resumeButton.isClicked(mouseState))
         {
             this.enabled = false;
         }
 
-        if (settingsButton.isClicked(Mouse.GetState()))
+        if (settingsButton.isClicked(mouseState))
         {
             settingsPanel.enabled = true;
         }
 
-        if (quitButton.isClicked(Mouse.GetState()))
+        if (quitButton.isClicked(mouseState))
         {
             game.changeScene(new MainMenu(game));
         }

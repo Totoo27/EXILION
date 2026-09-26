@@ -31,7 +31,7 @@ public class MainLoader : Scene
 
         font = Game.Content.Load<SpriteFont>("Fonts/PixelArtBig");
         backgroundRect = new Rectangle(0, 0, viewPort.Width, viewPort.Height);
-        backGround = Game.Content.Load<Texture2D>("Sprites/MainMenuBackground");
+        backGround = Game.Content.Load<Texture2D>("Sprites/UI/MainMenuBackground");
     }
 
     public override void Update(GameTime gameTime)

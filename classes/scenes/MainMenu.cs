@@ -113,6 +113,8 @@ public class MainMenu : Scene, IHasSettings
     public override void Update(GameTime gameTime)
     {
 
+        MouseState mouseState = Game.input.CurrentMouse;
+
         if (Game.input.IsKeyPressed(Keys.Escape))
         {
 
@@ -136,19 +138,19 @@ public class MainMenu : Scene, IHasSettings
         if(settingsPanel.enabled) return; // Prevent using Menu buttons while settings is enabled
 
         // Buttons update
-        if (startGame.isClicked(Mouse.GetState()))
+        if (startGame.isClicked(mouseState))
         {
             Game.changeScene(new GameScene(Game));
         }
 
-        if (settings.isClicked(Mouse.GetState()))
+        if (settings.isClicked(mouseState))
         {
             
             settingsPanel.enabled = true;
 
         }
 
-        if (quitGame.isClicked(Mouse.GetState()))
+        if (quitGame.isClicked(mouseState))
         {
             Game.Exit();
         }
