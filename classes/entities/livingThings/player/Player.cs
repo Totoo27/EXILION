@@ -10,8 +10,8 @@ namespace EXILION.Entities.LivingThings;
 public class Player : LivingThing
 {
 
-    public const int maxStat = 5;
-    private int maxOxygen = 10;
+    public const int maxStat = 100;
+    private int maxOxygen = 100;
 
     private float damagedTimer = 0f;
     private float runningMultiplier = 1f;
@@ -33,7 +33,7 @@ public class Player : LivingThing
 
 
     public Player(Vector2 position, Sprite sprite, GameContext gameContext)
-    : base(position, sprite, 100, (float) gameContext.ScaleXY(3), gameContext)
+    : base(position, sprite, 100, 200, gameContext)
     {
 
         hunger = new PlayerStat(maxStat);
@@ -42,7 +42,7 @@ public class Player : LivingThing
         this.inventory = new Inventory(); 
     }
 
-    public async void Update(Vector2 mousePosition, InputManager input, GameTime gameTime)
+    public void Update(Vector2 mousePosition, InputManager input, GameTime gameTime)
     {
 
         updateHunger(gameTime);
@@ -62,26 +62,22 @@ public class Player : LivingThing
             runningMultiplier = 1f;
         }
 
-        if (input.IsKeyHeld(Keys.A))
-        {
-            this.position.X -= currentSpeed;
-        }
+        Vector2 movementDirection = Vector2.Zero;
 
-        if (input.IsKeyHeld(Keys.D))
-        {
-            this.position.X += currentSpeed;
-        }
+        if (input.IsKeyHeld(Keys.A)) movementDirection.X -= 1;
 
-        if (input.IsKeyHeld(Keys.S))
-        {
-            this.position.Y += currentSpeed;
-        }
+        if (input.IsKeyHeld(Keys.D)) movementDirection.X += 1;
 
-        if (input.IsKeyHeld(Keys.W))
-        {
-            this.position.Y -= currentSpeed;
-        }
+        if (input.IsKeyHeld(Keys.W)) movementDirection.Y -= 1;
 
+        if (input.IsKeyHeld(Keys.S)) movementDirection.Y += 1;
+
+        if (movementDirection != Vector2.Zero)
+        {
+            movementDirection.Normalize();
+            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            position += movementDirection * currentSpeed * deltaTime;
+        }
 
         // Debug keys
         if (input.IsKeyPressed(Keys.NumPad1))

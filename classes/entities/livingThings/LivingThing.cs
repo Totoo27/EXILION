@@ -10,10 +10,10 @@ public abstract class LivingThing : Entity
     public int maxHealth { get; private set; }
     protected int health;
     public bool isDead { get; private set; } = false;
-    public float speed { get; private set; }
+    public int speed { get; private set; }
     public event Action? deathEvent;
 
-    public LivingThing(Vector2 position, Sprite sprite, int maxHealth, float speed, GameContext gameContext) : base(position, sprite, gameContext)
+    public LivingThing(Vector2 position, Sprite sprite, int maxHealth, int speed, GameContext gameContext) : base(position, sprite, gameContext)
     {
         this.maxHealth = maxHealth;
         this.health = maxHealth;
