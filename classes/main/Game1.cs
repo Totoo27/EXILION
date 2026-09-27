@@ -95,6 +95,7 @@ public class Game1 : Game
     public void toggleFullScreen()
     {
         _graphics.IsFullScreen = !_graphics.IsFullScreen;
+        camera.updateViewPort(GraphicsDevice.Viewport);
         _graphics.ApplyChanges();
     }
 
