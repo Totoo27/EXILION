@@ -177,6 +177,7 @@ public class PausePanel : IHasSettings
         if (quitButton.isClicked(mouseState))
         {
             game.changeScene(new MainMenu(game));
+            return;
         }
 
     }

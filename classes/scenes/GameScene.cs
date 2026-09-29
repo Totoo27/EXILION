@@ -123,6 +123,8 @@ public class GameScene : Scene
 
     public override void Update(GameTime gameTime)
     {
+        if(stopUpdating) return;
+
         MouseState mouse = input.CurrentMouse;
 
         if (Game.input.IsKeyPressed(Keys.Escape))
@@ -134,8 +136,12 @@ public class GameScene : Scene
             HUD.toggle();
         }
 
-        pausePanel.Update();
-        if(pausePanel.enabled) return;
+        if (pausePanel.enabled)
+        {
+            pausePanel.Update();
+            return;
+        } 
+            
 
         if (player != null)
         {
@@ -216,6 +222,41 @@ public class GameScene : Scene
 
         // Pause panel
         pausePanel.Draw(spriteBatch);
+    }
+
+    public override void UnloadContent()
+    {
+        stopUpdating = true;
+
+        // Events
+        Music.musicStop -= changeMusic;
+        if (player != null) player.HealthChanged -= camera.damageShake;
+
+        // UI
+        HUD = null;
+        pausePanel = null;
+
+        // Entities
+        catchableItems?.Clear();
+        catchableItems = null;
+
+        // World
+        world = null;
+        mapRenderer = null;
+
+        // Player
+        player = null;
+
+        // Utils
+        pixel?.Dispose();
+        pixel = null;
+        gameContext = null;
+        camera = null;
+        input = null;
+
+        // Music queue
+        songsQueue.Clear();
+
     }
 
     private void UpdateDiurnalCycle(GameTime gameTime)

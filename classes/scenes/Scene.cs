@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -6,6 +7,7 @@ namespace EXILION.Scenes;
 public abstract class Scene
 {
     protected Game1 Game;
+    protected bool stopUpdating = false;
 
     protected Scene(Game1 game)
     {
@@ -20,5 +22,5 @@ public abstract class Scene
 
     public virtual void DrawUI(SpriteBatch spriteBatch) { }
 
-    public virtual void UnloadContent() { }
+    public abstract void UnloadContent();
 }

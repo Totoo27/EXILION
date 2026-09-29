@@ -36,6 +36,8 @@ public class MainLoader : Scene
 
     public override void Update(GameTime gameTime)
     {
+        if(stopUpdating) return;
+
         if (!contentLoaded)
         {
             Assets.Load(Game.Content);
@@ -47,6 +49,7 @@ public class MainLoader : Scene
         if(progress >= 1)
         {
             Game.changeScene(new MainMenu(Game));
+            return;
         }
     }
 
@@ -62,6 +65,21 @@ public class MainLoader : Scene
             text,
             textPosition,
             Color.White);
+    }
+
+    public override void UnloadContent()
+    {
+        stopUpdating = true;
+
+        font = null;
+        backGround = null;
+
+        backgroundRect = Rectangle.Empty;
+        textPosition = Vector2.Zero;
+        viewPort = default;
+
+        progress = 0f;
+        contentLoaded = false;
     }
 
     public static async Task addCompletedTask()

@@ -113,6 +113,8 @@ public class MainMenu : Scene, IHasSettings
     public override void Update(GameTime gameTime)
     {
 
+        if(stopUpdating) return;
+
         MouseState mouseState = Game.input.CurrentMouse;
 
         if (Game.input.IsKeyPressed(Keys.Escape))
@@ -141,6 +143,7 @@ public class MainMenu : Scene, IHasSettings
         if (startGame.isClicked(mouseState))
         {
             Game.changeScene(new GameScene(Game));
+            return;
         }
 
         if (settings.isClicked(mouseState))
@@ -155,6 +158,41 @@ public class MainMenu : Scene, IHasSettings
             Game.Exit();
         }
 
+    }
+
+    public override void UnloadContent()
+    {
+        stopUpdating = true;
+
+        // UI
+        settingsPanel = null;
+        startGame = null;
+        settings = null;
+        quitGame = null;
+        starfield = null;
+        title = null;
+        sun = null;
+        buttonSprite = null;
+        font = null;
+
+        // Other references
+        gameContext = null;
+
+        // Reset state
+        titleRect = Rectangle.Empty;
+        sunRect = Rectangle.Empty;
+
+        originalSunPosition = Vector2.Zero;
+        originalTitlePosition = Vector2.Zero;
+        enabledSettingsPosition = Vector2.Zero;
+
+        animationFinished = false;
+        settingsDisableAnimation = false;
+        timer = 0f;
+        titleOpacity = 0f;
+        buttonsOpacity = 0f;
+
+        currentState = TitleAnimationState.WaitingStart;
     }
 
     private void updateTitleAnimation(GameTime gameTime)
