@@ -7,8 +7,9 @@ using System;
 
 namespace EXILION;
 
-public class Game1 : Game
+public class MainGame : Game, IDisplaySettings
 {
+    private static MainGame _instance;
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     private SceneManager sceneManager;
@@ -16,8 +17,9 @@ public class Game1 : Game
     public GameContext gameContext { get; private set; }
     public Camera camera {private set; get;}
 
-    public Game1()
+    public MainGame()
     {
+        _instance = this;
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
@@ -39,9 +41,10 @@ public class Game1 : Game
 
         base.Initialize();
         sceneManager = new SceneManager();
-        sceneManager.ChangeScene(new MainLoader(this));
-
         input = new InputManager();
+
+        SceneManager.ChangeScene(new MainLoader(gameContext, GraphicsDevice, input, Content, camera, this));
+
     }
 
     protected override void LoadContent()
@@ -59,9 +62,8 @@ public class Game1 : Game
 
         if (input.IsKeyPressed(Keys.F11))
         {
-            toggleFullScreen();
+            ToggleFullScreen();
         }
-
 
         camera.Update(gameTime);
         sceneManager.Update(gameTime);
@@ -92,20 +94,17 @@ public class Game1 : Game
         base.Draw(gameTime);
     }
 
-    public void toggleFullScreen()
+    public void ToggleFullScreen()
     {
         _graphics.IsFullScreen = !_graphics.IsFullScreen;
-        camera.updateViewPort(GraphicsDevice.Viewport);
         _graphics.ApplyChanges();
+
+        camera.updateViewPort(GraphicsDevice.Viewport);
     }
 
-    public void changeScene(Scene scene)
+    public static void Exit()
     {
-        sceneManager.ChangeScene(scene);
+        ((Game)_instance).Exit();
     }
 
-    public Scene getScene()
-    {
-       return sceneManager.CurrentScene;
-    }
 }

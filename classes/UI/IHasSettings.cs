@@ -5,4 +5,5 @@ public interface IHasSettings
     
     void closeSettings();
 
+
 }

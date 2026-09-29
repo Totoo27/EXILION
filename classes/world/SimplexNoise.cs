@@ -62,9 +62,8 @@ public static class SimplexNoise
         return t * t * (gx * x + gy * y);
     }
 
-    private static int FastFloor(float x) => x > 0 ? (int)x : (int)x - 1;
+    private static int FastFloor(float x) => (int)MathF.Floor(x);
 
-    // Ruido "fractal" (varias octavas) — esto es lo que realmente vas a usar
     public static float Fractal(float x, float y, int octaves, float persistence, float scale)
     {
         float total = 0f, frequency = scale, amplitude = 1f, maxValue = 0f;

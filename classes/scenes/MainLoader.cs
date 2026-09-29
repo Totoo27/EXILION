@@ -1,6 +1,8 @@
 using System;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EXILION.Scenes;
@@ -21,17 +23,28 @@ public class MainLoader : Scene
     private bool contentLoaded = false;
     private Viewport viewPort;
 
-    public MainLoader(Game1 game) : base(game)
+    private ContentManager Content;
+    private GraphicsDevice GraphicsDevice;
+    private InputManager input;
+    private Camera camera;
+    private IDisplaySettings displaySettings;
+
+    public MainLoader(GameContext gameContext, GraphicsDevice GraphicsDevice, InputManager input, ContentManager Content, Camera camera, IDisplaySettings displaySettings) : base(gameContext)
     {
+        this.GraphicsDevice = GraphicsDevice;
+        viewPort = GraphicsDevice.Viewport;
+        this.Content = Content;
+        this.input = input;
+        this.camera = camera;
+        this.displaySettings = displaySettings;
     }
 
     public override void LoadContent()
     {
-        viewPort = Game.GraphicsDevice.Viewport;
 
-        font = Game.Content.Load<SpriteFont>("Fonts/PixelArtBig");
+        font = Content.Load<SpriteFont>("Fonts/PixelArtBig");
         backgroundRect = new Rectangle(0, 0, viewPort.Width, viewPort.Height);
-        backGround = Game.Content.Load<Texture2D>("Sprites/UI/MainMenuBackground");
+        backGround = Content.Load<Texture2D>("Sprites/UI/MainMenuBackground");
     }
 
     public override void Update(GameTime gameTime)
@@ -40,7 +53,7 @@ public class MainLoader : Scene
 
         if (!contentLoaded)
         {
-            Assets.Load(Game.Content);
+            Assets.Load(Content);
             contentLoaded = true;
         }
 
@@ -48,7 +61,7 @@ public class MainLoader : Scene
 
         if(progress >= 1)
         {
-            Game.changeScene(new MainMenu(Game));
+            SceneManager.ChangeScene(new MainMenu(GameContext, GraphicsDevice, input, displaySettings, camera));
             return;
         }
     }

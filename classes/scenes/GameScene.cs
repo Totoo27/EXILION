@@ -10,6 +10,7 @@ using EXILION.Items;
 using EXILION.UI;
 using EXILION.World;
 using EXILION.UI.HUD;
+using System.Runtime.CompilerServices;
 
 namespace EXILION.Scenes;
 
@@ -51,27 +52,31 @@ public class GameScene : Scene
     private List<CatchableItem> catchableItems;
     private World.World world;
     private MapRenderer mapRenderer;
-    private GameContext gameContext;
+
+
     private Camera camera;
+    private GraphicsDevice graphicsDevice;
+    private IDisplaySettings displaySettings;
 
     private const int Seed = 12345;
 
-    public GameScene(Game1 game) : base(game)
+    public GameScene(GameContext gameContext, InputManager input, Camera camera, GraphicsDevice graphicsDevice, IDisplaySettings displaySettings) : base(gameContext)
     {
-        input = Game.input;
+        this.input = input;
         Music.Play(songsQueue[currentSongIndex], 1f);
-        gameContext = Game.gameContext;
-        camera = Game.camera;
+        this.camera = camera;
+        this.graphicsDevice = graphicsDevice;
+        this.displaySettings = displaySettings;
     }
 
     public override void LoadContent()
     {
 
-        pixel = new Texture2D(Game.GraphicsDevice, 1, 1);
+        pixel = new Texture2D(graphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
 
-        player = new Player(Vector2.Zero, new Sprite(Assets.Sprites.Player, gameContext.ScaleXY(1)), gameContext); 
-        HUD = new HUD(player, Game, DIURNAL_PRESET_TIME);
+        player = new Player(Vector2.Zero, new Sprite(Assets.Sprites.Player, GameContext.ScaleXY(1)), GameContext); 
+        HUD = new HUD(player, GameContext, graphicsDevice, input, DIURNAL_PRESET_TIME);
 
         player.HealthChanged += camera.damageShake;
         Music.musicStop += changeMusic;
@@ -81,36 +86,36 @@ public class GameScene : Scene
             new CatchableItem(
                 new ItemStack(ItemRegistry.Madera, 70),
                 new Vector2(100, 100),
-                new Sprite(ItemRegistry.Madera.Icon, gameContext.ScaleXY(1)),
-                gameContext
+                new Sprite(ItemRegistry.Madera.Icon, GameContext.ScaleXY(1)),
+                GameContext
             ),
             new CatchableItem(
                 new ItemStack(ItemRegistry.Piedra, 3),
                 new Vector2(200, 100),
-                new Sprite(ItemRegistry.Piedra.Icon, gameContext.ScaleXY(1)),
-                gameContext
+                new Sprite(ItemRegistry.Piedra.Icon, GameContext.ScaleXY(1)),
+                GameContext
             ),
             new CatchableItem(
                 new ItemStack(ItemRegistry.AguaPurificada, 1),
                 new Vector2(300, 100),
-                new Sprite(ItemRegistry.AguaPurificada.Icon, gameContext.ScaleXY(1)),
-                gameContext
+                new Sprite(ItemRegistry.AguaPurificada.Icon, GameContext.ScaleXY(1)),
+                GameContext
             ),
             new CatchableItem(
                 new ItemStack(ItemRegistry.AguaPurificada, 1),
                 new Vector2(400, 100),
-                new Sprite(ItemRegistry.AguaPurificada.Icon, gameContext.ScaleXY(1)),
-                gameContext
+                new Sprite(ItemRegistry.AguaPurificada.Icon, GameContext.ScaleXY(1)),
+                GameContext
             ),
             new CatchableItem(
                 new ItemStack(ItemRegistry.AguaPurificada, 1),
                 new Vector2(500, 100),
-                new Sprite(ItemRegistry.AguaPurificada.Icon, gameContext.ScaleXY(1)),
-                gameContext
+                new Sprite(ItemRegistry.AguaPurificada.Icon, GameContext.ScaleXY(1)),
+                GameContext
             ),
         };
 
-        int tileSize = (int)gameContext.ScaleXY(64);
+        int tileSize = (int)GameContext.ScaleXY(64);
 
         world = new World.World(seed: Seed, tileSize: tileSize) { RenderDistanceChunks = 2 };
         world.UpdateAroundPosition(player.position);
@@ -118,7 +123,7 @@ public class GameScene : Scene
         Texture2D tileset = Assets.Sprites.Tileset;
         mapRenderer = new MapRenderer(tileset, tileSize);
 
-        pausePanel = new PausePanel(Game);
+        pausePanel = new PausePanel(GameContext, graphicsDevice, input, camera, displaySettings);
     }
 
     public override void Update(GameTime gameTime)
@@ -127,11 +132,11 @@ public class GameScene : Scene
 
         MouseState mouse = input.CurrentMouse;
 
-        if (Game.input.IsKeyPressed(Keys.Escape))
+        if (input.IsKeyPressed(Keys.Escape))
         {
             pausePanel.enabled = true;
         }
-        if (Game.input.IsKeyPressed(Keys.F1) && player != null)
+        if (input.IsKeyPressed(Keys.F1) && player != null)
         {
             HUD.toggle();
         }
@@ -157,9 +162,9 @@ public class GameScene : Scene
             UpdateNightTransition(gameTime);
 
             HUD.Update();
-            player.Update(mouseWorldPosition, Game.input, gameTime);
+            player.Update(mouseWorldPosition, input, gameTime);
 
-            if (Game.input.IsKeyPressed(Keys.E))
+            if (input.IsKeyPressed(Keys.E))
             {
                 Rectangle playerHitbox = player.GetHitbox();
 
@@ -174,7 +179,7 @@ public class GameScene : Scene
                 }
             }
             
-            if (Game.input.IsKeyPressed(Keys.L))
+            if (input.IsKeyPressed(Keys.L))
             {
                 ItemStack selectedStack = player.Inventory.GetSlot(HUD.getSelectedSlotIndex());
                 if (selectedStack != null)
@@ -215,7 +220,7 @@ public class GameScene : Scene
     public override void DrawUI(SpriteBatch spriteBatch)
     {
         // Night Filter
-        if (nightOpacity > 0) spriteBatch.Draw(pixel, new Rectangle(0, 0, Game.GraphicsDevice.Viewport.Width, Game.GraphicsDevice.Viewport.Height), nightColor * nightOpacity);
+        if (nightOpacity > 0) spriteBatch.Draw(pixel, new Rectangle(0, 0, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height), nightColor * nightOpacity);
 
         // UI
         HUD.Draw(spriteBatch);
@@ -250,7 +255,7 @@ public class GameScene : Scene
         // Utils
         pixel?.Dispose();
         pixel = null;
-        gameContext = null;
+        GameContext = null;
         camera = null;
         input = null;
 

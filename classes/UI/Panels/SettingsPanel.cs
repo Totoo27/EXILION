@@ -10,8 +10,6 @@ public class SettingsPanel
     public int Width { get; private set; }
     public int Height { get; private set; }
 
-    private Game1 game;
-
     public Rectangle bounds
     {
         get
@@ -51,15 +49,24 @@ public class SettingsPanel
 
     public bool enabled = false;
 
-    public SettingsPanel(Game1 game, IHasSettings scene, Vector2 position)
+    private GameContext gameContext;
+    private GraphicsDevice GraphicsDevice;
+    private InputManager input;
+    private IDisplaySettings displaySettings;
+
+    public SettingsPanel(GameContext gameContext, GraphicsDevice GraphicsDevice, InputManager input, IHasSettings scene, IDisplaySettings displaySettings, Vector2 position)
     {
-        this.game = game;
+
+        this.gameContext = gameContext;
+        this.GraphicsDevice = GraphicsDevice;
+        this.input = input;
         this.scene = scene;
+        this.displaySettings = displaySettings;
 
         this.position = position;
 
-        this.Width = game.gameContext.ScaleX(1000);
-        this.Height = game.gameContext.ScaleY(600);
+        this.Width = gameContext.ScaleX(1000);
+        this.Height = gameContext.ScaleY(600);
 
         LoadContent();
     }
@@ -67,8 +74,8 @@ public class SettingsPanel
     public void LoadContent()
     {
 
-        this.instructionsPanel = new InstructionsPanel(game);
-        GraphicsDevice graphicsDevice = game.GraphicsDevice;
+        this.instructionsPanel = new InstructionsPanel(gameContext, GraphicsDevice, input);
+        GraphicsDevice graphicsDevice = GraphicsDevice;
         pixel = new Texture2D(graphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
 
@@ -87,8 +94,8 @@ public class SettingsPanel
             new Rectangle(
                 (int)position.X,
                 (int)position.Y,
-                game.gameContext.ScaleX(180),
-                game.gameContext.ScaleY(50)
+                gameContext.ScaleX(180),
+                gameContext.ScaleY(50)
             ),
             buttonSprite,
             font
@@ -99,8 +106,8 @@ public class SettingsPanel
             new Rectangle(
                 (int)position.X,
                 (int)position.Y,
-                game.gameContext.ScaleX(180),
-                game.gameContext.ScaleY(50)
+                gameContext.ScaleX(180),
+                gameContext.ScaleY(50)
             ),
             buttonSprite,
             font
@@ -111,8 +118,8 @@ public class SettingsPanel
             new Rectangle(
                 (int)position.X,
                 (int)position.Y,
-                game.gameContext.ScaleX(220),
-                game.gameContext.ScaleY(50)
+                gameContext.ScaleX(220),
+                gameContext.ScaleY(50)
             ),
             buttonSprite,
             font
@@ -123,8 +130,8 @@ public class SettingsPanel
             new Rectangle(
                 (int)position.X,
                 (int)position.Y,
-                game.gameContext.ScaleX(100),
-                game.gameContext.ScaleY(50)
+                gameContext.ScaleX(100),
+                gameContext.ScaleY(50)
             ),
             buttonSprite,
             font
@@ -135,8 +142,8 @@ public class SettingsPanel
             new Rectangle(
                 (int)position.X,
                 (int)position.Y,
-                game.gameContext.ScaleX(100),
-                game.gameContext.ScaleY(50)
+                gameContext.ScaleX(100),
+                gameContext.ScaleY(50)
             ),
             buttonSprite,
             font
@@ -148,13 +155,13 @@ public class SettingsPanel
     {
         if (!enabled) return;
 
-        MouseState mouseState = game.input.CurrentMouse;
+        MouseState mouseState = input.CurrentMouse;
 
-        updateButtonPosition(SFXButton, game.gameContext.ScaleX(40), game.gameContext.ScaleY(20));
-        updateButtonPosition(musicButton, game.gameContext.ScaleX(40), game.gameContext.ScaleY(80));
-        updateButtonPosition(backButton, game.gameContext.ScaleX(40), Height - game.gameContext.ScaleY(90));
-        updateButtonPosition(fullScreenButton, Width - game.gameContext.ScaleX(200), game.gameContext.ScaleY(20));
-        updateButtonPosition(instructionsButton, Width - game.gameContext.ScaleX(240), Height - game.gameContext.ScaleY(90));
+        updateButtonPosition(SFXButton, gameContext.ScaleX(40), gameContext.ScaleY(20));
+        updateButtonPosition(musicButton, gameContext.ScaleX(40), gameContext.ScaleY(80));
+        updateButtonPosition(backButton, gameContext.ScaleX(40), Height - gameContext.ScaleY(90));
+        updateButtonPosition(fullScreenButton, Width - gameContext.ScaleX(200), gameContext.ScaleY(20));
+        updateButtonPosition(instructionsButton, Width - gameContext.ScaleX(240), Height - gameContext.ScaleY(90));
 
         instructionsPanel.Update();
         if(instructionsPanel.enabled) return;
@@ -166,7 +173,7 @@ public class SettingsPanel
 
         if (fullScreenButton.isClicked(mouseState))
         {
-            game.toggleFullScreen();
+            displaySettings.ToggleFullScreen();
         }
 
         if(instructionsButton.isClicked(mouseState))
@@ -190,7 +197,7 @@ public class SettingsPanel
     {
         if (!enabled) return;
 
-        int borderSize = game.gameContext.ScaleX(4);
+        int borderSize = gameContext.ScaleX(4);
 
         Rectangle innerBounds = new Rectangle(
             bounds.X + borderSize,

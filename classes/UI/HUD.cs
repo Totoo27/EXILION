@@ -18,12 +18,14 @@ public class HUD
     private bool hideHUD = false;
     private Player player;
     private GameContext gameContext;
-    private Game1 Game;
+    private GraphicsDevice GraphicsDevice;
+    private InputManager input;
     private int DIURNAL_TIME;
-    public HUD(Player player, Game1 game, int DIURNAL_TIME)
+    public HUD(Player player, GameContext gameContext, GraphicsDevice GraphicsDevice, InputManager input, int DIURNAL_TIME)
     {
-        this.Game = game;
-        this.gameContext = Game.gameContext;
+        this.gameContext = gameContext;
+        this.GraphicsDevice = GraphicsDevice;
+        this.input = input;
         this.DIURNAL_TIME = DIURNAL_TIME;
         this.player = player;
         LoadContent();
@@ -49,7 +51,7 @@ public class HUD
             Assets.Sprites.hungerIcon,
             hungerRectangle,
             player.hunger.max,
-            Game.GraphicsDevice,
+            GraphicsDevice,
             meterTextPosition,
             35,
             325
@@ -63,7 +65,7 @@ public class HUD
             Assets.Sprites.thirstIcon,
             thirstRectangle,
             player.thirst.max,
-            Game.GraphicsDevice,
+            GraphicsDevice,
             meterTextPosition,
             35,
             325
@@ -76,7 +78,7 @@ public class HUD
             Assets.Sprites.healthProgress,
             healthRectangle,
             player.maxHealth,
-            Game.GraphicsDevice,
+            GraphicsDevice,
             new Vector2(healthRectangle.Width/2, healthRectangle.Height/2),
             90,
             360
@@ -139,7 +141,7 @@ public class HUD
 
     public void Update()
     {
-        inventoryUI.Update(Game.input);
+        inventoryUI.Update(input);
     }
 
     public void Draw(SpriteBatch spriteBatch)
