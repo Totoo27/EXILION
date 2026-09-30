@@ -101,4 +101,9 @@ public class MainLoader : Scene
         completedTasks++;
     }
 
+    public static void forceCompleteTask()
+    {
+        completedTasks++;
+    }
+
 }

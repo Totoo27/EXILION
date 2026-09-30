@@ -23,6 +23,7 @@ public static class Music
 
     public static void Play(Song song, float fadeDuration = 0f)
     {
+        if(!Assets.AudioAvaible) return;
         if (!enabled) return;
         if (song == null) return;
 
@@ -56,6 +57,8 @@ public static class Music
 
     public static void Update(float deltaTime)
     {
+        if(!Assets.AudioAvaible) return;
+
         if (fadingOut)
         {
             fadeTimer += deltaTime;
@@ -117,6 +120,7 @@ public static class Music
 
     public static void Stop()
     {
+        if(!Assets.AudioAvaible) return;
         MediaPlayer.Stop();
         MediaPlayer.Volume = 1f;
 
@@ -128,6 +132,8 @@ public static class Music
 
     public static void Toggle()
     {
+        if(!Assets.AudioAvaible) return;
+        
         enabled = !enabled;
 
         if (enabled)
