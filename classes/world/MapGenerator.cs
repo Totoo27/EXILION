@@ -17,6 +17,8 @@ public class MapGenerator
     public Chunk GenerateChunk(int chunkX, int chunkY)
     {
         var tiles = new MapTile[Chunk.Size, Chunk.Size];
+
+        //Si el chunk es el número 2 (chunkX = 2) y cada chunk mide 16 tiles de lado (Chunk.Size = 16), entonces ese chunk arranca en el tile número 2 * 16 = 32 del mapa completo.
         int baseX = chunkX * Chunk.Size;
         int baseY = chunkY * Chunk.Size;
 
@@ -24,6 +26,7 @@ public class MapGenerator
         {
             for (int ly = 0; ly < Chunk.Size; ly++)
             {
+                //Acá convertimos la coordenada local a global:
                 int worldX = baseX + lx;
                 int worldY = baseY + ly;
 
@@ -34,7 +37,8 @@ public class MapGenerator
                 float moisture = SimplexNoise.Fractal(
                     worldX + _moistOffsetX, worldY + _moistOffsetY,
                     octaves: 4, persistence: 0.5f, scale: 0.05f);
-
+                
+                //lo normaliza a valores entre 0 y 1 asi classifybiome es mas legible
                 elevation = (elevation + 1f) / 2f;
                 moisture = (moisture + 1f) / 2f;
 
