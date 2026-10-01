@@ -23,6 +23,7 @@ public static class SimplexNoise
         for (int i = 0; i < 256; i++) Perm[i] = Perm[i + 256] = p[i];
     }
 
+    //calcula un valor suave en un punto dividiendo el espacio en triángulos y combinando "flechitas de dirección" fijas (pero mezcladas de forma determinística) en las 3 puntas de cada triángulo;
     public static float Noise(float x, float y)
     {
         const float F2 = 0.3660254f; // (sqrt(3)-1)/2
@@ -61,10 +62,11 @@ public static class SimplexNoise
         var (gx, gy) = grads[gi];
         return t * t * (gx * x + gy * y);
     }
-
+    //si es negativo redondea para abajao(si es -3,7 redondea a -4)
     private static int FastFloor(float x) => x > 0 ? (int)x : (int)x - 1;
 
     // Ruido "fractal" (varias octavas) — esto es lo que realmente vas a usar
+    //pinta por capas el mapa, cada vez mas a detalle(1ra capa pinta montañas grandes, 2da hace montañas mas chicas dentro de las montañas, 3ra capa hace piedritas y asi sucesivamente segun el numero que diga octaves)
     public static float Fractal(float x, float y, int octaves, float persistence, float scale)
     {
         float total = 0f, frequency = scale, amplitude = 1f, maxValue = 0f;
@@ -72,8 +74,8 @@ public static class SimplexNoise
         {
             total += Noise(x * frequency, y * frequency) * amplitude;
             maxValue += amplitude;
-            amplitude *= persistence;
-            frequency *= 2f;
+            amplitude *= persistence; //la próxima capa va a pesar la mitad que la anterior
+            frequency *= 2f; //la próxima capa va a tener el doble de detalle/variación que la anterior (como hacer zoom in)
         }
         return total / maxValue; // normalizado entre -1 y 1
     }
