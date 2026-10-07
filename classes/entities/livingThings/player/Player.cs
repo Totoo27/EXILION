@@ -34,6 +34,7 @@ public class Player : LivingThing
     private const int handHitboxSize = 20;
     private Hand rightHand = new Hand(Assets.Sprites.playerHand, handHitboxSize);
     private Hand leftHand = new Hand(Assets.Sprites.playerHand, handHitboxSize);
+    private bool IsLeftNext = false;
 
 
     public Player(Vector2 position, Sprite sprite, GameContext gameContext)
@@ -102,7 +103,19 @@ public class Player : LivingThing
             gameContext.showHitboxes = !gameContext.showHitboxes;
         }
 
-
+        if (input.IsLeftMousePressed())
+        {
+            if(rightHand.CanAttack && !leftHand.IsAttacking && !IsLeftNext)
+            {
+                rightHand.Attack();
+                IsLeftNext = true;
+            } 
+            else if(leftHand.CanAttack && !rightHand.IsAttacking && IsLeftNext)
+            {
+                leftHand.Attack();
+                IsLeftNext = false;
+            }
+        }
 
         if(damagedTimer > 0f)
         {
