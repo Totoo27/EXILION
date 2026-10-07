@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using EXILION.Items;
 
 namespace EXILION.Entities.LivingThings;
 
@@ -12,6 +13,9 @@ public class Hand
         Extending,
         Retracting
     }
+
+    private Item? itemInHand;
+    private Sprite? itemSprite;
 
     private const float SideDistance = 35f;
     private const float ForwardDistance = 20f;
@@ -67,7 +71,7 @@ public class Hand
 
         Angle = MathF.Atan2(this.direction.Y, this.direction.X);
         sprite.Update(Angle, Position);
-
+        itemSprite?.Update(Angle, Position);
 
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
         UpdateAttack(deltaTime);
@@ -142,9 +146,18 @@ public class Hand
         return 1f - MathF.Pow(1f - value, 3f);
     }
 
+    public void updateItemInHand(Item? item)
+    {
+
+        itemInHand = item;
+        itemSprite = item != null ? new Sprite(item.Icon, 0.8f) : null;
+
+    }
+
     public void Draw(SpriteBatch spriteBatch)
     {
         sprite.Draw(spriteBatch, Color.White);
+        itemSprite?.Draw(spriteBatch, Color.White);
     }
 
 }

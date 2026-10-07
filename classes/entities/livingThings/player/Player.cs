@@ -22,7 +22,6 @@ public class Player : LivingThing
     public PlayerStat hunger {get; private set;}
     public PlayerStat thirst {get; private set;}
 
-
     public event Action<int>? OxygenChanged;
     public event Action<int>? HungerChanged;
     public event Action<int>? ThirstChanged;
@@ -32,8 +31,8 @@ public class Player : LivingThing
     public Inventory Inventory => inventory;
 
     private const int handHitboxSize = 20;
-    private Hand rightHand = new Hand(Assets.Sprites.playerHand, handHitboxSize);
-    private Hand leftHand = new Hand(Assets.Sprites.playerHand, handHitboxSize);
+    public Hand rightHand { get; private set; } = new Hand(Assets.Sprites.playerHand, handHitboxSize);
+    public Hand leftHand { get; private set; } = new Hand(Assets.Sprites.playerHand, handHitboxSize);
     private bool IsLeftNext = false;
 
 

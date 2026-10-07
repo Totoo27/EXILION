@@ -5,11 +5,11 @@ namespace EXILION.Entities.LivingThings;
 
 public class Inventory
 {
-     public const int DefaultStacksAmount = 24;
+    public const int DefaultStacksAmount = 24;
 
-     public int Capacity { get; private set; }
+    public int Capacity { get; private set; }
 
-     private readonly ItemStack[] slots;
+    private readonly ItemStack[] slots;
 
     public Inventory(int capacity = DefaultStacksAmount)
     {
@@ -81,7 +81,6 @@ public class Inventory
         return slots[index];
     }
 
-
     public void MoveItem(int from, int to)
     {
         if (from < 0 || from >= slots.Length) return;
@@ -104,19 +103,14 @@ public class Inventory
         {
             int leftover = destination.Add(source.Quantity);
 
-            slots[from] = leftover == 0
-                ? null
-                : new ItemStack(source.Item, leftover);
+            slots[from] = leftover == 0 ? null : new ItemStack(source.Item, leftover);
 
             return;
         }
-
         
         slots[from] = destination;
         slots[to] = source;
     }
-
-    
 
 
 }

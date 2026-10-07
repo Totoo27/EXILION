@@ -175,6 +175,7 @@ public class GameScene : Scene
                     if (playerHitbox.Intersects(item.GetHitbox()))
                     {
                         player.TryPickup(item);
+                        HUD.inventoryUI.slotChanged?.Invoke(player.Inventory.GetSlot(HUD.getSelectedSlotIndex())?.Item);
                     }
                 }
             }
