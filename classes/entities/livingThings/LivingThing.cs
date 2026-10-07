@@ -20,11 +20,6 @@ public abstract class LivingThing : Entity
         this.speed = speed;
     }
 
-    public void Draw(SpriteBatch spriteBatch, Texture2D pixel)
-    {
-        base.Draw(spriteBatch, pixel);
-    }
-
     public virtual void takeDamage(int damage)
     {
         this.health -= damage;

@@ -31,6 +31,10 @@ public class Player : LivingThing
     private Inventory inventory;
     public Inventory Inventory => inventory;
 
+    private const int handHitboxSize = 20;
+    private Hand rightHand = new Hand(Assets.Sprites.playerHand, handHitboxSize);
+    private Hand leftHand = new Hand(Assets.Sprites.playerHand, handHitboxSize);
+
 
     public Player(Vector2 position, Sprite sprite, GameContext gameContext)
     : base(position, sprite, 100, 200, gameContext)
@@ -113,6 +117,8 @@ public class Player : LivingThing
 
         Vector2 direction = mousePosition - position;
         float angle = System.MathF.Atan2(direction.Y, direction.X);
+        rightHand.Update(position, direction, false, gameTime);
+        leftHand.Update(position, direction, true, gameTime);
         sprite.Update(angle, position);
     }
 
@@ -224,6 +230,21 @@ public class Player : LivingThing
 
         SFX.Play(Assets.SoundEffects.pickUpItem);
         return true;
+    }
+
+    public override void Draw(SpriteBatch spriteBatch, Texture2D pixel)
+    {
+
+        leftHand.Draw(spriteBatch);
+        rightHand.Draw(spriteBatch);
+
+        sprite.Draw(spriteBatch, color);
+
+        if (gameContext.showHitboxes)
+        {
+            spriteBatch.Draw(pixel, hitbox, Color.Red);
+        }
+        
     }
 
     public bool TryConsume(Item item)

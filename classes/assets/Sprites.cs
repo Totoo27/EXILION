@@ -12,6 +12,7 @@ public sealed class Sprites
     public Texture2D Sun { get; private set; }
     public Texture2D Button { get; private set; }
     public Texture2D Player { get; private set; }
+    public Texture2D playerHand { get; private set; }
     public Texture2D meter { get; private set; }
     public Texture2D meterProgress { get; private set; }
     public Texture2D healthMeter { get; private set; }
@@ -61,6 +62,7 @@ public sealed class Sprites
 
         // Player
         Player = content.Load<Texture2D>("Sprites/Entities/Player");
+        playerHand = content.Load<Texture2D>("Sprites/Entities/playerHand");
         Slot   = content.Load<Texture2D>("Sprites/UI/HUD/slot");
         
         //Items
