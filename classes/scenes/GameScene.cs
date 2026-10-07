@@ -4,13 +4,11 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Input;
 using EXILION.Entities.LivingThings;
-using EXILION.UI.Bar;
 using EXILION.Entities.CatchableItems;
 using EXILION.Items;
 using EXILION.UI;
 using EXILION.World;
 using EXILION.UI.HUD;
-using System.Runtime.CompilerServices;
 
 namespace EXILION.Scenes;
 
@@ -85,7 +83,7 @@ public class GameScene : Scene
         catchableItems = new List<CatchableItem>
         {
             new CatchableItem(
-                new ItemStack(ItemRegistry.Madera, 70),
+                new ItemStack(ItemRegistry.Madera, 64),
                 new Vector2(100, 100),
                 new Sprite(ItemRegistry.Madera.Icon, GameContext.ScaleXY(1)),
                 GameContext
@@ -180,15 +178,6 @@ public class GameScene : Scene
 
                 }
             }
-            
-            if (input.IsKeyPressed(Keys.L))
-            {
-                ItemStack selectedStack = player.Inventory.GetSlot(HUD.getSelectedSlotIndex());
-                if (selectedStack != null)
-                {
-                    player.TryConsume(selectedStack.Item);
-                }
-            }
         
             world.UpdateAroundPosition(player.position);
             camera.Follow(player.position);
@@ -237,7 +226,11 @@ public class GameScene : Scene
 
         // Events
         Music.musicStop -= changeMusic;
-        if (player != null) player.HealthChanged -= camera.damageShake;
+        if (player != null)
+        {
+            player.Inventory.UpdateInventoryUI -= HUD.inventoryUI.UpdateHandItem;
+            player.HealthChanged -= camera.damageShake;  
+        } 
 
         // UI
         HUD = null;

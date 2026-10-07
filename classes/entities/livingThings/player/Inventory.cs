@@ -22,6 +22,7 @@ public class Inventory
 
      public int AddItem(Item item, int amount)
     {
+        
         for (int i = 0; i < slots.Length && amount > 0; i++)
         {
             if (slots[i] != null && slots[i].CanStackWith(item))
@@ -56,8 +57,7 @@ public class Inventory
             removed += taken;
             amount -= taken;
 
-            if (slots[i].Quantity == 0)
-                slots[i] = null;
+            if (slots[i].Quantity == 0) slots[i] = null;
         }
 
         UpdateInventoryUI?.Invoke();

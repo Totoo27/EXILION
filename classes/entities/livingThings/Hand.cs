@@ -16,11 +16,21 @@ public class Hand
         Retracting
     }
 
+    public event Action<bool>? ConsumableOnHand;
     private Item? itemInHand;
     private Sprite? itemSprite;
 
-    private const float SideDistance = 35f;
-    private const float ForwardDistance = 20f;
+    private const float DefaultSideDistance = 32f;
+    private const float DefaultForwardDistance = 20f;
+    private const float EatingSideDistance = 15f;
+    private const float EatingForwardDistance = 26f;
+    private float sideDistance = DefaultSideDistance;
+    private float forwardDistance = DefaultForwardDistance;
+
+    private const float ConsumableItemSideOffset = -15f;
+    private const float ConsumableItemForwardOffset = 8f;
+    private float itemSideOffset = 0;
+    private float itemForwardOffset = 0;
 
     private const float AttackDistance = 45f;
     private const float AttackDuration = 0.12f;
@@ -42,6 +52,7 @@ public class Hand
     public bool IsAttacking => state != HandState.Idle;
     public bool CanAttack => state == HandState.Idle && itemInHand is not Consumable;
     public bool hasItem => itemInHand != null;
+    public bool hasConsumable => itemInHand != null && itemInHand is Consumable;
 
     public Rectangle Hitbox
     {
@@ -72,12 +83,19 @@ public class Hand
         }
 
         Angle = MathF.Atan2(this.direction.Y, this.direction.X);
-        itemSprite?.Update(Angle, Position);
-        sprite.Update(Angle, Position);
-
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
         UpdateAttack(deltaTime);
         UpdatePosition(isLeft);
+
+        sprite.Update(Angle, Position);
+
+        
+
+        Vector2 perpendicular = new Vector2(-this.direction.Y, this.direction.X);
+
+        Vector2 itemPosition = Position + this.direction * itemForwardOffset + perpendicular * itemSideOffset;
+
+        itemSprite?.Update(Angle, itemPosition);
     }
 
     public bool DoAction(Player player)
@@ -127,9 +145,9 @@ public class Hand
     {
         Vector2 perpendicular = new Vector2(-direction.Y, direction.X);
 
-        float sideOffset = isLeft ? -SideDistance : SideDistance;
+        float sideOffset = isLeft ? -sideDistance : sideDistance;
 
-        Vector2 basePosition = ownerPosition + direction * ForwardDistance + perpendicular * sideOffset;
+        Vector2 basePosition = ownerPosition + direction * forwardDistance + perpendicular * sideOffset;
         Vector2 attackOffset = Vector2.Zero;
 
         if (state == HandState.Extending)
@@ -156,8 +174,29 @@ public class Hand
 
     public void updateItemInHand(Item? item)
     {
+        if(item == itemInHand) return;
+
+        ConsumableOnHand?.Invoke(item is Consumable);
+
         itemInHand = item;
         itemSprite = item != null ? new Sprite(item.Icon, 0.8f) : null;
+    }
+
+    public void ToggleEating(bool eating)
+    {
+        if(eating)
+        {
+            sideDistance = EatingSideDistance;
+            forwardDistance = EatingForwardDistance;
+            itemSideOffset = ConsumableItemSideOffset;
+            itemForwardOffset = ConsumableItemForwardOffset;
+            return;
+        }
+
+        sideDistance = DefaultSideDistance;
+        forwardDistance = DefaultForwardDistance;
+        itemSideOffset = 0;
+        itemForwardOffset = 0;
     }
 
     public void Draw(SpriteBatch spriteBatch, Color color)

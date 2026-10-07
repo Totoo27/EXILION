@@ -45,6 +45,9 @@ public class Player : LivingThing
         thirst = new PlayerStat(maxStat);
         oxygen = new PlayerStat(maxOxygen);
         this.inventory = new Inventory(); 
+
+        rightHand.ConsumableOnHand += rightHand.ToggleEating;
+        rightHand.ConsumableOnHand += leftHand.ToggleEating;
     }
 
     public void Update(Vector2 mousePosition, InputManager input, GameTime gameTime)
