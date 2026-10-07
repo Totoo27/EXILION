@@ -5,8 +5,10 @@ using EXILION.Items;
 
 namespace EXILION.Entities.LivingThings;
 
+
 public class Hand
 {
+    #nullable enable
     private enum HandState
     {
         Idle,
@@ -38,8 +40,8 @@ public class Hand
     public float Angle { get; private set; }
 
     public bool IsAttacking => state != HandState.Idle;
-
-    public bool CanAttack => state == HandState.Idle;
+    public bool CanAttack => state == HandState.Idle && itemInHand is not Consumable;
+    public bool hasItem => itemInHand != null;
 
     public Rectangle Hitbox
     {
@@ -70,12 +72,23 @@ public class Hand
         }
 
         Angle = MathF.Atan2(this.direction.Y, this.direction.X);
-        sprite.Update(Angle, Position);
         itemSprite?.Update(Angle, Position);
+        sprite.Update(Angle, Position);
 
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
         UpdateAttack(deltaTime);
         UpdatePosition(isLeft);
+    }
+
+    public bool DoAction(Player player)
+    {
+        if(itemInHand is Consumable)
+        {
+            player.TryConsume(itemInHand);
+            return true;
+        }
+
+        return false;
     }
 
     public bool Attack()
@@ -117,23 +130,18 @@ public class Hand
         float sideOffset = isLeft ? -SideDistance : SideDistance;
 
         Vector2 basePosition = ownerPosition + direction * ForwardDistance + perpendicular * sideOffset;
-
         Vector2 attackOffset = Vector2.Zero;
 
         if (state == HandState.Extending)
         {
             float progress = attackTimer / AttackDuration;
-
             float easedProgress = EaseOut(progress);
-
             attackOffset = direction * AttackDistance * easedProgress;
         }
         else if (state == HandState.Retracting)
         {
             float progress = attackTimer / AttackDuration;
-
             float easedProgress = EaseOut(progress);
-
             attackOffset = direction * AttackDistance * (1f - easedProgress);
         }
 
@@ -148,10 +156,8 @@ public class Hand
 
     public void updateItemInHand(Item? item)
     {
-
         itemInHand = item;
         itemSprite = item != null ? new Sprite(item.Icon, 0.8f) : null;
-
     }
 
     public void Draw(SpriteBatch spriteBatch)

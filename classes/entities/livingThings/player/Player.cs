@@ -4,12 +4,13 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using EXILION.Items;
 using EXILION.Entities.CatchableItems;
+using EXILION.UI;
 
 namespace EXILION.Entities.LivingThings;
 
 public class Player : LivingThing
 {
-
+    #nullable enable
     public const int maxStat = 100;
     private int maxOxygen = 100;
 
@@ -104,6 +105,13 @@ public class Player : LivingThing
 
         if (input.IsLeftMousePressed())
         {
+
+            if (rightHand.hasItem)
+            {
+                if(rightHand.DoAction(this)) return;
+            }
+
+            // Hit with raw hand
             if(rightHand.CanAttack && !leftHand.IsAttacking && !IsLeftNext)
             {
                 rightHand.Attack();
@@ -270,6 +278,7 @@ public class Player : LivingThing
         SFX.Play(Assets.SoundEffects.drink);
 
         inventory.RemoveItem(item, 1);
+        
         return true;
     }
 

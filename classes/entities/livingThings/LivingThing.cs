@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace EXILION.Entities.LivingThings;
 public abstract class LivingThing : Entity
 {
-    
+    #nullable enable
     
     public int maxHealth { get; private set; }
     protected int health;

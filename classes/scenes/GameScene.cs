@@ -80,6 +80,7 @@ public class GameScene : Scene
 
         player.HealthChanged += camera.damageShake;
         Music.musicStop += changeMusic;
+        player.Inventory.UpdateInventoryUI += HUD.inventoryUI.UpdateHandItem;
 
         catchableItems = new List<CatchableItem>
         {
@@ -170,13 +171,13 @@ public class GameScene : Scene
 
                 foreach (var item in catchableItems)
                 {
-                    if (item.Picked) continue;
 
+                    if (item.Picked) continue;
                     if (playerHitbox.Intersects(item.GetHitbox()))
                     {
                         player.TryPickup(item);
-                        HUD.inventoryUI.slotChanged?.Invoke(player.Inventory.GetSlot(HUD.getSelectedSlotIndex())?.Item);
                     }
+
                 }
             }
             

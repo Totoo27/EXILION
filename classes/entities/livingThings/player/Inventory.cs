@@ -1,12 +1,15 @@
 using System.Collections.Generic;
 using EXILION.Items;
+using System;
 
 namespace EXILION.Entities.LivingThings;
 
 public class Inventory
 {
+    #nullable enable
     public const int DefaultStacksAmount = 24;
 
+    public event Action? UpdateInventoryUI;
     public int Capacity { get; private set; }
 
     private readonly ItemStack[] slots;
@@ -37,6 +40,7 @@ public class Inventory
             }
         }
 
+        UpdateInventoryUI?.Invoke();
         return amount;
     }
 
@@ -56,6 +60,7 @@ public class Inventory
                 slots[i] = null;
         }
 
+        UpdateInventoryUI?.Invoke();
         return removed;
     }
 
@@ -110,6 +115,7 @@ public class Inventory
         
         slots[from] = destination;
         slots[to] = source;
+        UpdateInventoryUI?.Invoke();
     }
 
 

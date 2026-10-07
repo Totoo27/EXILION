@@ -6,8 +6,9 @@ namespace EXILION;
 
 public static class Music
 {
-    private static Song currentSong;
-    private static Song nextSong;
+    #nullable enable
+    private static Song? currentSong;
+    private static Song? nextSong;
 
     private static bool enabled = true;
     private static bool fadeInOut = true;
@@ -138,7 +139,7 @@ public static class Music
 
         if (enabled)
         {
-            Music.Play(currentSong);
+            if(currentSong != null) Music.Play(currentSong);
         }
         else
         {
