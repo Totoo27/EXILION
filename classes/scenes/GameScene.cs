@@ -101,7 +101,7 @@ public class GameScene : Scene
                 GameContext
             ),
             new CatchableItem(
-                new ItemStack(ItemRegistry.AguaPurificada, 1),
+                new ItemStack(ItemRegistry.CarneCocinada, 1),
                 new Vector2(400, 100),
                 new Sprite(ItemRegistry.AguaPurificada.Icon, GameContext.ScaleXY(1)),
                 GameContext

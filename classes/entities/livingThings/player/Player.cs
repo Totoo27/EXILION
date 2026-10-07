@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Input;
 using EXILION.Items;
 using EXILION.Entities.CatchableItems;
 using EXILION.UI;
+using Microsoft.Xna.Framework.Audio;
 
 namespace EXILION.Entities.LivingThings;
 
@@ -274,12 +275,44 @@ public class Player : LivingThing
     {
         if (item is not Consumable consumable) return false;
 
-        PlayerStat stat = thirst;
-        stat.value = Math.Min(stat.value + consumable.ThirstRestore, stat.max);
-        thirst = stat;
-        ThirstChanged?.Invoke(stat.value);
-        SFX.Play(Assets.SoundEffects.drink);
+        PlayerStat stat;
+        SoundEffect sfx;
 
+        switch (consumable.statType)
+        {
+            case StatType.Thirst:
+                stat = thirst;
+                stat.value = Math.Min(stat.value + consumable.statRestore, stat.max);
+                thirst = stat;
+                ThirstChanged?.Invoke(thirst.value);
+
+                sfx = Assets.SoundEffects.drink;
+            break;
+
+            case StatType.Hunger:
+                stat = hunger;
+                stat.value = Math.Min(stat.value + consumable.statRestore, stat.max);
+                hunger = stat;
+                HungerChanged?.Invoke(hunger.value);
+
+                sfx = Assets.SoundEffects.drink;
+            break;
+
+            case StatType.Oxygen:
+                stat = oxygen;
+                stat.value = Math.Min(stat.value + consumable.statRestore, stat.max);
+                oxygen = stat;
+                OxygenChanged?.Invoke(oxygen.value);
+
+                sfx = Assets.SoundEffects.drink;
+            break;
+
+            default:
+                sfx = Assets.SoundEffects.playerDamage;
+            break;
+        }
+
+        SFX.Play(sfx);
         inventory.RemoveItem(item, 1);
         
         return true;
