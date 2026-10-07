@@ -160,10 +160,10 @@ public class Hand
         itemSprite = item != null ? new Sprite(item.Icon, 0.8f) : null;
     }
 
-    public void Draw(SpriteBatch spriteBatch)
+    public void Draw(SpriteBatch spriteBatch, Color color)
     {
-        sprite.Draw(spriteBatch, Color.White);
-        itemSprite?.Draw(spriteBatch, Color.White);
+        sprite.Draw(spriteBatch, color);
+        itemSprite?.Draw(spriteBatch, color);
     }
 
 }

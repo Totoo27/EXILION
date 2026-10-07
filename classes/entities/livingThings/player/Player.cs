@@ -255,8 +255,8 @@ public class Player : LivingThing
     public override void Draw(SpriteBatch spriteBatch, Texture2D pixel)
     {
 
-        leftHand.Draw(spriteBatch);
-        rightHand.Draw(spriteBatch);
+        leftHand.Draw(spriteBatch, color);
+        rightHand.Draw(spriteBatch, color);
 
         sprite.Draw(spriteBatch, color);
 
