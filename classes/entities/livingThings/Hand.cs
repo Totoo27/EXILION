@@ -40,13 +40,13 @@ public class Hand
 
     // Attack properties
     private const float DefaultAttackDistance = 35f;
+    private const float ToolAttackDistance = 18f;
     private const float DefaultAttackDuration = 0.14f;
     private float CurrentAttackDuration => itemInHand is Tool tool ? 1f / tool.AttackSpeed : DefaultAttackDuration;
     public const float DefaultDamage = 5f;
     public AttackHitbox? CurrentHitbox { get; private set; }
 
     private const float ToolAttackRotation = MathHelper.PiOver2; // 90 grados
-    private float attackRotation;
 
     private int HitboxSize;
 
@@ -190,8 +190,12 @@ public class Hand
 
         float sideOffset = isLeft ? -sideDistance : sideDistance;
 
-        Vector2 basePosition = ownerPosition + direction * forwardDistance + perpendicular * sideOffset;
+        Vector2 basePosition =
+            ownerPosition
+            + direction * forwardDistance
+            + perpendicular * sideOffset;
 
+        // Movimiento normal de la mano
         Vector2 attackOffset = Vector2.Zero;
 
         if (itemInHand is not Tool)
@@ -210,8 +214,33 @@ public class Hand
 
         Position = basePosition + attackOffset;
 
-        // Actualizar posición y ángulo del objeto equipado.
-        ItemPosition = Position + direction * itemForwardOffset + perpendicular * itemSideOffset;
+        // Posición base del item, relativa a la mano
+        ItemPosition = Position
+            + direction * itemForwardOffset
+            + perpendicular * itemSideOffset;
+
+        // Desplazamiento independiente del item durante el ataque
+        if (itemInHand is Tool)
+        {
+            Vector2 toolAttackOffset = Vector2.Zero;
+
+            if (state == HandState.Extending)
+            {
+                float progress = attackTimer / CurrentAttackDuration;
+                toolAttackOffset =
+                    direction * ToolAttackDistance * EaseOut(progress);
+            }
+            else if (state == HandState.Retracting)
+            {
+                float progress = attackTimer / CurrentAttackDuration;
+                toolAttackOffset =
+                    direction * ToolAttackDistance * (1f - EaseOut(progress));
+            }
+
+            ItemPosition += toolAttackOffset;
+        }
+
+        // Rotación del item
         ItemAngle = Angle;
 
         if (itemInHand is Tool)
