@@ -14,7 +14,7 @@ public class HUD
     private RadialBar healthBar;
     private LinearBar oxygenBar;
     private LinearBar watchBar;
-    private InventoryUI inventoryUI;
+    public InventoryUI inventoryUI { get; private set; }
     private bool hideHUD = false;
     private Player player;
     private GameContext gameContext;
@@ -135,6 +135,9 @@ public class HUD
 
         player.OxygenChanged += oxygenBar.setValue;
         player.OxygenChanged += oxygenBar.setDynamicColor;
+
+        player.rightHand.updateItemInHand(player.Inventory.GetSlot(0)?.Item);
+        inventoryUI.slotChanged += player.rightHand.updateItemInHand;
 
         watchBar.setValue(0);
     }

@@ -38,7 +38,7 @@ public abstract class Entity
         
     }
 
-    public void Draw(SpriteBatch spriteBatch, Texture2D pixel)
+    public virtual void Draw(SpriteBatch spriteBatch, Texture2D pixel)
     {
 
         sprite.Draw(spriteBatch, color);

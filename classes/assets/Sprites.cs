@@ -7,11 +7,17 @@ namespace EXILION;
 public sealed class Sprites
 {
 
+    // UI
     public Texture2D MenuBackground { get; private set; }
     public Texture2D GameTitle { get; private set; }
     public Texture2D Sun { get; private set; }
     public Texture2D Button { get; private set; }
+
+    // Player
     public Texture2D Player { get; private set; }
+    public Texture2D playerHand { get; private set; }
+
+    // HUD
     public Texture2D meter { get; private set; }
     public Texture2D meterProgress { get; private set; }
     public Texture2D healthMeter { get; private set; }
@@ -24,13 +30,16 @@ public sealed class Sprites
     public Texture2D watchProgress { get; private set; }
     public Texture2D watchSetOff { get; private set; }
 
+    // Items
     public Texture2D Piedra { get; private set; }
     public Texture2D Tronco { get; private set; }
-
     public Texture2D AguaPurificada { get; private set; }
+    public Texture2D CarneCocinada { get; private set; }
+    public Texture2D OxigenoEmbotellado { get; private set; }
 
-
+    // Inventory
     public Texture2D Slot { get; private set; }
+
     // World
     public Texture2D Tileset { get; private set; }
 
@@ -61,12 +70,15 @@ public sealed class Sprites
 
         // Player
         Player = content.Load<Texture2D>("Sprites/Entities/Player");
+        playerHand = content.Load<Texture2D>("Sprites/Entities/playerHand");
         Slot   = content.Load<Texture2D>("Sprites/UI/HUD/slot");
         
         //Items
         Piedra = content.Load<Texture2D>("Sprites/Items/piedra");
         Tronco = content.Load<Texture2D>("Sprites/Items/tronco");
         AguaPurificada = content.Load<Texture2D>("Sprites/Items/AguaPurificada");
+        CarneCocinada = content.Load<Texture2D>("Sprites/Items/CarneCocinada");
+        OxigenoEmbotellado = content.Load<Texture2D>("Sprites/Items/OxigenoEmbotellado");
         
         // World Test
         Tileset = content.Load<Texture2D>("Sprites/Tiles/Tileset");

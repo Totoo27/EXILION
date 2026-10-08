@@ -1,15 +1,18 @@
 using System.Collections.Generic;
 using EXILION.Items;
+using System;
 
 namespace EXILION.Entities.LivingThings;
 
 public class Inventory
 {
-     public const int DefaultStacksAmount = 24;
+    #nullable enable
+    public const int DefaultStacksAmount = 24;
 
-     public int Capacity { get; private set; }
+    public event Action? UpdateInventoryUI;
+    public int Capacity { get; private set; }
 
-     private readonly ItemStack[] slots;
+    private readonly ItemStack[] slots;
 
     public Inventory(int capacity = DefaultStacksAmount)
     {
@@ -19,6 +22,7 @@ public class Inventory
 
      public int AddItem(Item item, int amount)
     {
+        
         for (int i = 0; i < slots.Length && amount > 0; i++)
         {
             if (slots[i] != null && slots[i].CanStackWith(item))
@@ -37,6 +41,7 @@ public class Inventory
             }
         }
 
+        UpdateInventoryUI?.Invoke();
         return amount;
     }
 
@@ -52,10 +57,10 @@ public class Inventory
             removed += taken;
             amount -= taken;
 
-            if (slots[i].Quantity == 0)
-                slots[i] = null;
+            if (slots[i].Quantity == 0) slots[i] = null;
         }
 
+        UpdateInventoryUI?.Invoke();
         return removed;
     }
 
@@ -81,7 +86,6 @@ public class Inventory
         return slots[index];
     }
 
-
     public void MoveItem(int from, int to)
     {
         if (from < 0 || from >= slots.Length) return;
@@ -104,19 +108,15 @@ public class Inventory
         {
             int leftover = destination.Add(source.Quantity);
 
-            slots[from] = leftover == 0
-                ? null
-                : new ItemStack(source.Item, leftover);
+            slots[from] = leftover == 0 ? null : new ItemStack(source.Item, leftover);
 
             return;
         }
-
         
         slots[from] = destination;
         slots[to] = source;
+        UpdateInventoryUI?.Invoke();
     }
-
-    
 
 
 }

@@ -4,12 +4,14 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using EXILION.Items;
 using EXILION.Entities.CatchableItems;
+using EXILION.UI;
+using Microsoft.Xna.Framework.Audio;
 
 namespace EXILION.Entities.LivingThings;
 
 public class Player : LivingThing
 {
-
+    #nullable enable
     public const int maxStat = 100;
     private int maxOxygen = 100;
 
@@ -22,7 +24,6 @@ public class Player : LivingThing
     public PlayerStat hunger {get; private set;}
     public PlayerStat thirst {get; private set;}
 
-
     public event Action<int>? OxygenChanged;
     public event Action<int>? HungerChanged;
     public event Action<int>? ThirstChanged;
@@ -30,6 +31,11 @@ public class Player : LivingThing
     
     private Inventory inventory;
     public Inventory Inventory => inventory;
+
+    private const int handHitboxSize = 20;
+    public Hand rightHand { get; private set; } = new Hand(Assets.Sprites.playerHand, handHitboxSize);
+    public Hand leftHand { get; private set; } = new Hand(Assets.Sprites.playerHand, handHitboxSize);
+    private bool IsLeftNext = false;
 
 
     public Player(Vector2 position, Sprite sprite, GameContext gameContext)
@@ -40,6 +46,9 @@ public class Player : LivingThing
         thirst = new PlayerStat(maxStat);
         oxygen = new PlayerStat(maxOxygen);
         this.inventory = new Inventory(); 
+
+        rightHand.ConsumableOnHand += rightHand.ToggleEating;
+        rightHand.ConsumableOnHand += leftHand.ToggleEating;
     }
 
     public void Update(Vector2 mousePosition, InputManager input, GameTime gameTime)
@@ -98,7 +107,26 @@ public class Player : LivingThing
             gameContext.showHitboxes = !gameContext.showHitboxes;
         }
 
+        if (input.IsLeftMousePressed())
+        {
 
+            if (rightHand.hasItem)
+            {
+                if(rightHand.DoAction(this)) return;
+            }
+
+            // Hit with raw hand
+            if(rightHand.CanAttack && !leftHand.IsAttacking && !IsLeftNext)
+            {
+                rightHand.Attack();
+                IsLeftNext = true;
+            } 
+            else if(leftHand.CanAttack && !rightHand.IsAttacking && IsLeftNext)
+            {
+                leftHand.Attack();
+                IsLeftNext = false;
+            }
+        }
 
         if(damagedTimer > 0f)
         {
@@ -113,6 +141,8 @@ public class Player : LivingThing
 
         Vector2 direction = mousePosition - position;
         float angle = System.MathF.Atan2(direction.Y, direction.X);
+        rightHand.Update(position, direction, false, gameTime);
+        leftHand.Update(position, direction, true, gameTime);
         sprite.Update(angle, position);
     }
 
@@ -226,17 +256,65 @@ public class Player : LivingThing
         return true;
     }
 
+    public override void Draw(SpriteBatch spriteBatch, Texture2D pixel)
+    {
+
+        leftHand.Draw(spriteBatch, color);
+        rightHand.Draw(spriteBatch, color);
+
+        sprite.Draw(spriteBatch, color);
+
+        if (gameContext.showHitboxes)
+        {
+            spriteBatch.Draw(pixel, hitbox, Color.Red);
+        }
+        
+    }
+
     public bool TryConsume(Item item)
     {
         if (item is not Consumable consumable) return false;
 
-        PlayerStat stat = thirst;
-        stat.value = Math.Min(stat.value + consumable.ThirstRestore, stat.max);
-        thirst = stat;
-        ThirstChanged?.Invoke(stat.value);
-        SFX.Play(Assets.SoundEffects.drink);
+        PlayerStat stat;
+        SoundEffect sfx;
 
+        switch (consumable.statType)
+        {
+            case StatType.Thirst:
+                stat = thirst;
+                stat.value = Math.Min(stat.value + consumable.statRestore, stat.max);
+                thirst = stat;
+                ThirstChanged?.Invoke(thirst.value);
+
+                sfx = Assets.SoundEffects.drink;
+            break;
+
+            case StatType.Hunger:
+                stat = hunger;
+                stat.value = Math.Min(stat.value + consumable.statRestore, stat.max);
+                hunger = stat;
+                HungerChanged?.Invoke(hunger.value);
+
+                sfx = Assets.SoundEffects.eat;
+            break;
+
+            case StatType.Oxygen:
+                stat = oxygen;
+                stat.value = Math.Min(stat.value + consumable.statRestore, stat.max);
+                oxygen = stat;
+                OxygenChanged?.Invoke(oxygen.value);
+
+                sfx = Assets.SoundEffects.bottleBreath;
+            break;
+
+            default:
+                sfx = Assets.SoundEffects.playerDamage;
+            break;
+        }
+
+        SFX.Play(sfx);
         inventory.RemoveItem(item, 1);
+        
         return true;
     }
 

@@ -2,12 +2,14 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using EXILION.Entities.LivingThings;
+using System;
 using EXILION.Items;
 
 namespace EXILION.UI;
 
 public class InventoryUI
 {
+    #nullable enable
     private const int Columns = 8;
     private const int Rows = 3;
     private const int SlotSize = 64;
@@ -29,6 +31,7 @@ public class InventoryUI
     private Vector2 mousePosition;
 
     public int SelectedSlotIndex { get; private set; } = 0;
+    public event Action<Item>? slotChanged;
 
     public InventoryUI(Inventory inventory, Texture2D slotTexture, SpriteFont font, GameContext gameContext)
     {
@@ -50,6 +53,7 @@ public class InventoryUI
             if (input.IsKeyPressed(HotbarSelectKeys[i]))
             {
                 SelectedSlotIndex = i;
+                UpdateHandItem();
             }
         }
 
@@ -168,6 +172,11 @@ public class InventoryUI
         return new Rectangle(slotX, y, layout.SlotSize, layout.SlotSize);
     }
 
+    public void UpdateHandItem()
+    {
+        slotChanged?.Invoke(inventory.GetSlot(SelectedSlotIndex)?.Item);
+    }
+
     private readonly struct Layout
     {
         public readonly int SlotSize;
@@ -198,4 +207,5 @@ public class InventoryUI
 
         return new Layout(slotSize, padding, startX, hotbarY);
     }
+
 }

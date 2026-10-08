@@ -52,6 +52,12 @@
 /processorParam:Quality=Best
 /build:Music/menuMusic.mp3
 
+#begin SFX/bottleBreath.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/bottleBreath.wav
+
 #begin SFX/buttonClick.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
@@ -70,6 +76,12 @@
 /processorParam:Quality=Best
 /build:SFX/drink.wav
 
+#begin SFX/eat.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/eat.wav
+
 #begin SFX/pickUpItem.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
@@ -81,6 +93,24 @@
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:SFX/playerDamage.wav
+
+#begin SFX/Swings/swing1.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/Swings/swing1.wav
+
+#begin SFX/Swings/swing2.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/Swings/swing2.wav
+
+#begin SFX/Swings/swing3.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/Swings/swing3.wav
 
 #begin Sprites/Entities/Player.png
 /importer:TextureImporter
@@ -94,6 +124,18 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Entities/Player.png;Sprites/Entities/Player
 
+#begin Sprites/Entities/playerHand.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Entities/playerHand.png
+
 #begin Sprites/Items/AguaPurificada.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -105,6 +147,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/AguaPurificada.png;Sprites/Items/AguaPurificada
+
+#begin Sprites/Items/CarneCocinada.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/CarneCocinada.png
+
+#begin Sprites/Items/OxigenoEmbotellado.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/OxigenoEmbotellado.png
 
 #begin Sprites/Items/piedra.png
 /importer:TextureImporter

@@ -4,13 +4,11 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Input;
 using EXILION.Entities.LivingThings;
-using EXILION.UI.Bar;
 using EXILION.Entities.CatchableItems;
 using EXILION.Items;
 using EXILION.UI;
 using EXILION.World;
 using EXILION.UI.HUD;
-using System.Runtime.CompilerServices;
 
 namespace EXILION.Scenes;
 
@@ -80,11 +78,12 @@ public class GameScene : Scene
 
         player.HealthChanged += camera.damageShake;
         Music.musicStop += changeMusic;
+        player.Inventory.UpdateInventoryUI += HUD.inventoryUI.UpdateHandItem;
 
         catchableItems = new List<CatchableItem>
         {
             new CatchableItem(
-                new ItemStack(ItemRegistry.Madera, 70),
+                new ItemStack(ItemRegistry.Madera, 64),
                 new Vector2(100, 100),
                 new Sprite(ItemRegistry.Madera.Icon, GameContext.ScaleXY(1)),
                 GameContext
@@ -96,21 +95,21 @@ public class GameScene : Scene
                 GameContext
             ),
             new CatchableItem(
-                new ItemStack(ItemRegistry.AguaPurificada, 1),
+                new ItemStack(ItemRegistry.AguaPurificada, 2),
                 new Vector2(300, 100),
                 new Sprite(ItemRegistry.AguaPurificada.Icon, GameContext.ScaleXY(1)),
                 GameContext
             ),
             new CatchableItem(
-                new ItemStack(ItemRegistry.AguaPurificada, 1),
+                new ItemStack(ItemRegistry.CarneCocinada, 2),
                 new Vector2(400, 100),
-                new Sprite(ItemRegistry.AguaPurificada.Icon, GameContext.ScaleXY(1)),
+                new Sprite(ItemRegistry.CarneCocinada.Icon, GameContext.ScaleXY(1)),
                 GameContext
             ),
             new CatchableItem(
-                new ItemStack(ItemRegistry.AguaPurificada, 1),
+                new ItemStack(ItemRegistry.OxigenoEmbotellado, 2),
                 new Vector2(500, 100),
-                new Sprite(ItemRegistry.AguaPurificada.Icon, GameContext.ScaleXY(1)),
+                new Sprite(ItemRegistry.OxigenoEmbotellado.Icon, GameContext.ScaleXY(1)),
                 GameContext
             ),
         };
@@ -170,21 +169,13 @@ public class GameScene : Scene
 
                 foreach (var item in catchableItems)
                 {
-                    if (item.Picked) continue;
 
+                    if (item.Picked) continue;
                     if (playerHitbox.Intersects(item.GetHitbox()))
                     {
                         player.TryPickup(item);
                     }
-                }
-            }
-            
-            if (input.IsKeyPressed(Keys.L))
-            {
-                ItemStack selectedStack = player.Inventory.GetSlot(HUD.getSelectedSlotIndex());
-                if (selectedStack != null)
-                {
-                    player.TryConsume(selectedStack.Item);
+
                 }
             }
         
@@ -235,7 +226,11 @@ public class GameScene : Scene
 
         // Events
         Music.musicStop -= changeMusic;
-        if (player != null) player.HealthChanged -= camera.damageShake;
+        if (player != null)
+        {
+            player.Inventory.UpdateInventoryUI -= HUD.inventoryUI.UpdateHandItem;
+            player.HealthChanged -= camera.damageShake;  
+        } 
 
         // UI
         HUD = null;
