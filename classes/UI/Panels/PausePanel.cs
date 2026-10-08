@@ -13,8 +13,6 @@ public class PausePanel : IHasSettings
     public int Width { get; private set; }
     public int Height { get; private set; }
 
-    private Game1 game;
-
     public Rectangle bounds
     {
         get
@@ -52,20 +50,30 @@ public class PausePanel : IHasSettings
     private Texture2D pixel;
     public bool enabled = false;
 
+    private GameContext gameContext;
+    private GraphicsDevice GraphicsDevice;
+    private InputManager input;
+    private Camera camera;
+    private IDisplaySettings displaySettings;
+
     // Settings
 
     private SettingsPanel settingsPanel;
 
-    public PausePanel(Game1 game)
+    public PausePanel(GameContext gameContext, GraphicsDevice GraphicsDevice, InputManager input, Camera camera, IDisplaySettings displaySettings)
     {
-        this.game = game;
+        this.gameContext = gameContext;
+        this.GraphicsDevice = GraphicsDevice;
+        this.input = input;
+        this.camera = camera;
+        this.displaySettings = displaySettings;
 
-        this.Width = game.gameContext.ScaleX(300);
-        this.Height = game.gameContext.ScaleY(400);
+        this.Width = this.gameContext.ScaleX(300);
+        this.Height = this.gameContext.ScaleY(400);
 
         position = new Vector2(
-            (game.GraphicsDevice.Viewport.Width - Width) / 2f,
-            (game.GraphicsDevice.Viewport.Height - Height) / 2f
+            (GraphicsDevice.Viewport.Width - Width) / 2f,
+            (GraphicsDevice.Viewport.Height - Height) / 2f
         );
 
         LoadContent();
@@ -74,30 +82,29 @@ public class PausePanel : IHasSettings
     public void LoadContent()
     {
 
-        borderSize = game.gameContext.ScaleX(4);
+        borderSize = gameContext.ScaleX(4);
 
-        settingsPanel = new SettingsPanel(game, this, position);
+        settingsPanel = new SettingsPanel(gameContext, GraphicsDevice, input, this, displaySettings, position);
         settingsPanel.position = new Vector2(
-            (game.GraphicsDevice.Viewport.Width - settingsPanel.Width) / 2f,
-            (game.GraphicsDevice.Viewport.Height - settingsPanel.Height) / 2f
+            (GraphicsDevice.Viewport.Width - settingsPanel.Width) / 2f,
+            (GraphicsDevice.Viewport.Height - settingsPanel.Height) / 2f
         );
 
-        GraphicsDevice graphicsDevice = game.GraphicsDevice;
-        pixel = new Texture2D(graphicsDevice, 1, 1);
+        pixel = new Texture2D(GraphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
 
-        panelTexture = new Texture2D(graphicsDevice, 1, 100);
+        panelTexture = new Texture2D(GraphicsDevice, 1, 100);
 
         initPanelTexture();
 
-        borderTexture = new Texture2D(graphicsDevice, 1, 1);
+        borderTexture = new Texture2D(GraphicsDevice, 1, 1);
         borderTexture.SetData(new[] { Color.White });
 
         buttonSprite = Assets.Sprites.Button;
         font = Assets.Fonts.PixelArt;
         fontBig = Assets.Fonts.PixelArtBig;
-        int buttonWidth = game.gameContext.ScaleX(200);
-        int buttonHeight = game.gameContext.ScaleY(50);
+        int buttonWidth = gameContext.ScaleX(200);
+        int buttonHeight = gameContext.ScaleY(50);
 
         int spacing = (Height - buttonHeight * 3) / 4;
 
@@ -150,32 +157,34 @@ public class PausePanel : IHasSettings
         
         textPosition = new Vector2(
             bounds.Center.X - textSize.X / 2f,
-            bounds.Y - game.gameContext.ScaleY(35)
+            bounds.Y - gameContext.ScaleY(35)
         );
 
     }
 
     public void Update()
     {
-
         if (!enabled) return;
+        
+        MouseState mouseState = input.CurrentMouse;
 
         settingsPanel.Update();
         if(settingsPanel.enabled) return;
 
-        if (resumeButton.isClicked(Mouse.GetState()))
+        if (resumeButton.isClicked(mouseState))
         {
             this.enabled = false;
         }
 
-        if (settingsButton.isClicked(Mouse.GetState()))
+        if (settingsButton.isClicked(mouseState))
         {
             settingsPanel.enabled = true;
         }
 
-        if (quitButton.isClicked(Mouse.GetState()))
+        if (quitButton.isClicked(mouseState))
         {
-            game.changeScene(new MainMenu(game));
+            SceneManager.ChangeScene(new MainMenu(gameContext, GraphicsDevice, input, displaySettings, camera));
+            return;
         }
 
     }
@@ -189,7 +198,7 @@ public class PausePanel : IHasSettings
         // Opaque background
         spriteBatch.Draw(
             pixel,
-            new Rectangle(0, 0, game.GraphicsDevice.Viewport.Width, game.GraphicsDevice.Viewport.Height),
+            new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height),
             Color.Black * 0.5f
         );
 

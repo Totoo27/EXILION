@@ -12,7 +12,6 @@ public class MainMenu : Scene, IHasSettings
     private Button startGame;
     private Button settings;
     private Button quitGame;
-    private GameContext gameContext;
 
     private Rectangle titleRect;
     private Rectangle sunRect;
@@ -52,22 +51,30 @@ public class MainMenu : Scene, IHasSettings
     private TitleAnimationState currentState = TitleAnimationState.WaitingStart;
 
     private Starfield starfield;
+
+    private GraphicsDevice GraphicsDevice;
+    private InputManager input;
+    private Camera camera;
+    private IDisplaySettings displaySettings;
     
 
-    public MainMenu(Game1 game) : base(game)
+    public MainMenu(GameContext gameContext, GraphicsDevice graphicsDevice, InputManager input, IDisplaySettings displaySettings, Camera camera) : base(gameContext)
     {
         Music.Play(Assets.Songs.MenuMusic);
-        this.gameContext = game.gameContext;
+        this.GraphicsDevice = graphicsDevice;
+        this.displaySettings = displaySettings;
+        this.input = input;
+        this.camera = camera;
     }
 
     public override void LoadContent()
     {
 
-        settingsPanel = new SettingsPanel(Game, this, new Vector2(Game.GraphicsDevice.Viewport.Width, 0));
+        settingsPanel = new SettingsPanel(GameContext, GraphicsDevice, input, this, displaySettings, new Vector2(GraphicsDevice.Viewport.Width, 0));
         settingsPanel.position.Y = getHalfScreenPositionY(settingsPanel.Height);
 
         // Stars
-        starfield = new Starfield(Game.GraphicsDevice, 200);
+        starfield = new Starfield(GraphicsDevice, 200);
 
         // Sprites        
         title = Assets.Sprites.GameTitle;
@@ -79,19 +86,19 @@ public class MainMenu : Scene, IHasSettings
 
         // Buttons
         
-        startGame = new Button("Start Game", new Rectangle((int)getHalfScreenPositionX(500), gameContext.ScaleY(400), gameContext.ScaleX(500), gameContext.ScaleY(80)), buttonSprite, Assets.Fonts.PixelArtBig);
-        settings = new Button("Settings", new Rectangle((int)getHalfScreenPositionX(280), gameContext.ScaleY(520), gameContext.ScaleX(280), gameContext.ScaleY(50)), buttonSprite, font);
-        quitGame = new Button("Quit Game", new Rectangle((int)getHalfScreenPositionX(280), gameContext.ScaleY(610), gameContext.ScaleX(280), gameContext.ScaleY(50)), buttonSprite, font);
+        startGame = new Button("Start Game", new Rectangle((int)getHalfScreenPositionX(500), GameContext.ScaleY(400), GameContext.ScaleX(500), GameContext.ScaleY(80)), buttonSprite, Assets.Fonts.PixelArtBig);
+        settings = new Button("Settings", new Rectangle((int)getHalfScreenPositionX(280), GameContext.ScaleY(520), GameContext.ScaleX(280), GameContext.ScaleY(50)), buttonSprite, font);
+        quitGame = new Button("Quit Game", new Rectangle((int)getHalfScreenPositionX(280), GameContext.ScaleY(610), GameContext.ScaleX(280), GameContext.ScaleY(50)), buttonSprite, font);
         
         // Set original positions
-        originalTitlePosition = new Vector2(getHalfScreenPositionX(900), gameContext.ScaleY(-30));
-        originalSunPosition = new Vector2(getHalfScreenPositionX(900) + gameContext.ScaleX(410), gameContext.ScaleY(20));
+        originalTitlePosition = new Vector2(getHalfScreenPositionX(900), GameContext.ScaleY(-30));
+        originalSunPosition = new Vector2(getHalfScreenPositionX(900) + GameContext.ScaleX(410), GameContext.ScaleY(20));
 
         enabledSettingsPosition = new Vector2(getHalfScreenPositionX(settingsPanel.Width), getHalfScreenPositionY(settingsPanel.Height));
 
         // Rect initializations
-        titleRect = new Rectangle((int)originalTitlePosition.X, (int)getHalfScreenPositionY(384), gameContext.ScaleX(900), gameContext.ScaleY(384));
-        sunRect = new Rectangle((int)originalSunPosition.X, gameContext.ScaleY(-300), gameContext.ScaleX(300), gameContext.ScaleY(300));
+        titleRect = new Rectangle((int)originalTitlePosition.X, (int)getHalfScreenPositionY(384), GameContext.ScaleX(900), GameContext.ScaleY(384));
+        sunRect = new Rectangle((int)originalSunPosition.X, GameContext.ScaleY(-300), GameContext.ScaleX(300), GameContext.ScaleY(300));
     
 
     }
@@ -113,7 +120,11 @@ public class MainMenu : Scene, IHasSettings
     public override void Update(GameTime gameTime)
     {
 
-        if (Game.input.IsKeyPressed(Keys.Escape))
+        if(stopUpdating) return;
+
+        MouseState mouseState = input.CurrentMouse;
+
+        if (input.IsKeyPressed(Keys.Escape))
         {
 
             if (settingsPanel.enabled)
@@ -121,7 +132,7 @@ public class MainMenu : Scene, IHasSettings
                 settingsDisableAnimation = true;
             } else
             {
-                Game.Exit();
+                MainGame.Exit();
             }
             
         }
@@ -136,23 +147,59 @@ public class MainMenu : Scene, IHasSettings
         if(settingsPanel.enabled) return; // Prevent using Menu buttons while settings is enabled
 
         // Buttons update
-        if (startGame.isClicked(Mouse.GetState()))
+        if (startGame.isClicked(mouseState))
         {
-            Game.changeScene(new GameScene(Game));
+            SceneManager.ChangeScene(new GameScene(GameContext, input, camera, GraphicsDevice, displaySettings));
+            return;
         }
 
-        if (settings.isClicked(Mouse.GetState()))
+        if (settings.isClicked(mouseState))
         {
             
             settingsPanel.enabled = true;
 
         }
 
-        if (quitGame.isClicked(Mouse.GetState()))
+        if (quitGame.isClicked(mouseState))
         {
-            Game.Exit();
+            MainGame.Exit();
         }
 
+    }
+
+    public override void UnloadContent()
+    {
+        stopUpdating = true;
+
+        // UI
+        settingsPanel = null;
+        startGame = null;
+        settings = null;
+        quitGame = null;
+        starfield = null;
+        title = null;
+        sun = null;
+        buttonSprite = null;
+        font = null;
+
+        // Other references
+        GameContext = null;
+
+        // Reset state
+        titleRect = Rectangle.Empty;
+        sunRect = Rectangle.Empty;
+
+        originalSunPosition = Vector2.Zero;
+        originalTitlePosition = Vector2.Zero;
+        enabledSettingsPosition = Vector2.Zero;
+
+        animationFinished = false;
+        settingsDisableAnimation = false;
+        timer = 0f;
+        titleOpacity = 0f;
+        buttonsOpacity = 0f;
+
+        currentState = TitleAnimationState.WaitingStart;
     }
 
     private void updateTitleAnimation(GameTime gameTime)
@@ -179,10 +226,10 @@ public class MainMenu : Scene, IHasSettings
 
             case TitleAnimationState.MovingSun:
 
-                int destinationPos = titleRect.Y + gameContext.ScaleY(60);
+                int destinationPos = titleRect.Y + GameContext.ScaleY(60);
                 if(sunRect.Y < destinationPos) 
                     {
-                        int velocity = gameContext.ScaleY(getEasingSpeed(35, sunRect.Y, destinationPos));
+                        int velocity = GameContext.ScaleY(getEasingSpeed(35, sunRect.Y, destinationPos));
 
                         sunRect.Y += velocity;
                     }
@@ -207,7 +254,7 @@ public class MainMenu : Scene, IHasSettings
             case TitleAnimationState.MovingTitle:
                 if (titleRect.Y > originalTitlePosition.Y && sunRect.Y > originalSunPosition.Y)
                     {
-                        int velocity = gameContext.ScaleY(getEasingSpeed(20, sunRect.Y, (int)originalSunPosition.Y));
+                        int velocity = GameContext.ScaleY(getEasingSpeed(20, sunRect.Y, (int)originalSunPosition.Y));
 
                         sunRect.Y -= velocity;
                         titleRect.Y -= velocity;
@@ -252,7 +299,7 @@ public class MainMenu : Scene, IHasSettings
         if (positionX > enabledSettingsPosition.X && !settingsDisableAnimation)
         {
 
-            int speed = gameContext.ScaleX(getEasingSpeed(10, (int)positionX, (int)enabledSettingsPosition.X));
+            int speed = GameContext.ScaleX(getEasingSpeed(10, (int)positionX, (int)enabledSettingsPosition.X));
 
             // Settings move to center
             settingsPanel.position.X -= speed;
@@ -266,9 +313,9 @@ public class MainMenu : Scene, IHasSettings
 
         }
 
-        if(settingsDisableAnimation && positionX < Game.GraphicsDevice.Viewport.Width)
+        if(settingsDisableAnimation && positionX < GraphicsDevice.Viewport.Width)
         {
-            int speed = gameContext.ScaleX(getEasingSpeed(10, (int)positionX, Game.GraphicsDevice.Viewport.Width));
+            int speed = GameContext.ScaleX(getEasingSpeed(10, (int)positionX, GraphicsDevice.Viewport.Width));
 
             // Settings move to center
             settingsPanel.position.X += speed;
@@ -294,7 +341,7 @@ public class MainMenu : Scene, IHasSettings
             throw new Exception("size cannot be negative");
         }
 
-        float positionX = (Game.GraphicsDevice.Viewport.Width - gameContext.ScaleX(size)) / 2;
+        float positionX = (GraphicsDevice.Viewport.Width - GameContext.ScaleX(size)) / 2;
         return positionX;
     }
 
@@ -305,7 +352,7 @@ public class MainMenu : Scene, IHasSettings
             throw new Exception("size cannot be negative");
         }
 
-        float positionY = (Game.GraphicsDevice.Viewport.Height - gameContext.ScaleY(size)) / 2;
+        float positionY = (GraphicsDevice.Viewport.Height - GameContext.ScaleY(size)) / 2;
         return positionY;
     }
 

@@ -14,7 +14,7 @@ public class Camera
 
     private Random random = new Random();
 
-    private readonly Viewport _viewport;
+    private Viewport _viewport;
 
     public Camera(Viewport viewport)
     {
@@ -63,6 +63,11 @@ public class Camera
                 _viewport.Height / 2f,
                 0f
             );
+    }
+
+    public void updateViewPort(Viewport viewport)
+    {
+        _viewport = viewport;
     }
 
     public void damageShake(int damage)

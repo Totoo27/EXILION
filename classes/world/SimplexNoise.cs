@@ -62,11 +62,9 @@ public static class SimplexNoise
         var (gx, gy) = grads[gi];
         return t * t * (gx * x + gy * y);
     }
-    //si es negativo redondea para abajao(si es -3,7 redondea a -4)
-    private static int FastFloor(float x) => x > 0 ? (int)x : (int)x - 1;
 
-    // Ruido "fractal" (varias octavas) — esto es lo que realmente vas a usar
-    //pinta por capas el mapa, cada vez mas a detalle(1ra capa pinta montañas grandes, 2da hace montañas mas chicas dentro de las montañas, 3ra capa hace piedritas y asi sucesivamente segun el numero que diga octaves)
+    private static int FastFloor(float x) => (int)MathF.Floor(x);
+
     public static float Fractal(float x, float y, int octaves, float persistence, float scale)
     {
         float total = 0f, frequency = scale, amplitude = 1f, maxValue = 0f;

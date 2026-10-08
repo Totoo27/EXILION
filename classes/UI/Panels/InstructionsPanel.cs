@@ -12,8 +12,6 @@ public class InstructionsPanel
     public int Width { get; private set; }
     public int Height { get; private set; }
 
-    private Game1 game;
-
     public Rectangle bounds
     {
         get
@@ -58,16 +56,22 @@ public class InstructionsPanel
 
     public bool enabled = false;
 
-    public InstructionsPanel(Game1 game)
-    {
-        this.game = game;
+    private GameContext gameContext;
+    private GraphicsDevice GraphicsDevice;
+    private InputManager input;
 
-        this.Width = game.gameContext.ScaleX(800);
-        this.Height = game.gameContext.ScaleY(500);
+    public InstructionsPanel(GameContext gameContext, GraphicsDevice graphicsDevice, InputManager input)
+    {
+        this.gameContext = gameContext;
+        this.GraphicsDevice = graphicsDevice;
+        this.input = input;
+
+        this.Width = gameContext.ScaleX(800);
+        this.Height = gameContext.ScaleY(500);
 
         position = new Vector2(
-            (game.GraphicsDevice.Viewport.Width - Width) / 2f,
-            (game.GraphicsDevice.Viewport.Height - Height) / 2f
+            (GraphicsDevice.Viewport.Width - Width) / 2f,
+            (GraphicsDevice.Viewport.Height - Height) / 2f
         );
 
         LoadContent();
@@ -75,7 +79,7 @@ public class InstructionsPanel
 
     public void LoadContent()
     {
-        GraphicsDevice graphicsDevice = game.GraphicsDevice;
+        GraphicsDevice graphicsDevice = GraphicsDevice;
         pixel = new Texture2D(graphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
 
@@ -95,8 +99,8 @@ public class InstructionsPanel
             new Rectangle(
                 (int)position.X,
                 (int)position.Y,
-                game.gameContext.ScaleX(180),
-                game.gameContext.ScaleY(50)
+                gameContext.ScaleX(180),
+                gameContext.ScaleY(50)
             ),
             buttonSprite,
             font
@@ -109,7 +113,7 @@ public class InstructionsPanel
 
         if (!enabled) return;
 
-        if (backButton.isClicked(Mouse.GetState()))
+        if (backButton.isClicked(input.CurrentMouse))
         {
             this.enabled = false;
         }
@@ -121,7 +125,7 @@ public class InstructionsPanel
 
         if (!enabled) return;
 
-        int borderSize = game.gameContext.ScaleX(4);
+        int borderSize = gameContext.ScaleX(4);
 
         Rectangle innerBounds = new Rectangle(
             bounds.X + borderSize,

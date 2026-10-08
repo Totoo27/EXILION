@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Input;
 using EXILION.Entities.LivingThings;
-using EXILION.UI.Bar;
 using EXILION.Entities.CatchableItems;
 using EXILION.Items;
 using EXILION.UI;
@@ -37,6 +36,7 @@ public class GameScene : Scene
     private Player player;
     private Texture2D pixel;
     private HUD HUD;
+    private InputManager input;
 
     // Songs queue
     private List<Song> songsQueue = new List<Song>
@@ -50,65 +50,71 @@ public class GameScene : Scene
     private List<CatchableItem> catchableItems;
     private World.World world;
     private MapRenderer mapRenderer;
-    private GameContext gameContext;
+
+
     private Camera camera;
+    private GraphicsDevice graphicsDevice;
+    private IDisplaySettings displaySettings;
 
     private const int Seed = 12345;
 
-    public GameScene(Game1 game) : base(game)
+    public GameScene(GameContext gameContext, InputManager input, Camera camera, GraphicsDevice graphicsDevice, IDisplaySettings displaySettings) : base(gameContext)
     {
+        this.input = input;
         Music.Play(songsQueue[currentSongIndex], 1f);
-        gameContext = Game.gameContext;
-        camera = Game.camera;
+        this.camera = camera;
+        this.graphicsDevice = graphicsDevice;
+        this.displaySettings = displaySettings;
     }
 
     public override void LoadContent()
     {
 
-        pixel = new Texture2D(Game.GraphicsDevice, 1, 1);
+        pixel = new Texture2D(graphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
 
-        player = new Player(Vector2.Zero, new Sprite(Assets.Sprites.Player, gameContext.ScaleXY(1)), gameContext); 
-        HUD = new HUD(player, Game, DIURNAL_PRESET_TIME);
+        player = new Player(Vector2.Zero, new Sprite(Assets.Sprites.Player, GameContext.ScaleXY(1)), GameContext); 
+        HUD = new HUD(player, GameContext, graphicsDevice, input, DIURNAL_PRESET_TIME);
 
         player.HealthChanged += camera.damageShake;
         Music.musicStop += changeMusic;
+        player.Inventory.UpdateInventoryUI += HUD.inventoryUI.UpdateHandItem;
 
         catchableItems = new List<CatchableItem>
         {
             new CatchableItem(
-                new ItemStack(ItemRegistry.Madera, 70),
+                new ItemStack(ItemRegistry.Madera, 64),
                 new Vector2(100, 100),
-                new Sprite(ItemRegistry.Madera.Icon, gameContext.ScaleXY(1)),
-                gameContext
+                new Sprite(ItemRegistry.Madera.Icon, GameContext.ScaleXY(1)),
+                GameContext
             ),
             new CatchableItem(
                 new ItemStack(ItemRegistry.Piedra, 3),
                 new Vector2(200, 100),
-                new Sprite(ItemRegistry.Piedra.Icon, gameContext.ScaleXY(1)),
-                gameContext
+                new Sprite(ItemRegistry.Piedra.Icon, GameContext.ScaleXY(1)),
+                GameContext
             ),
             new CatchableItem(
-                new ItemStack(ItemRegistry.AguaPurificada, 1),
+                new ItemStack(ItemRegistry.AguaPurificada, 2),
                 new Vector2(300, 100),
-                new Sprite(ItemRegistry.AguaPurificada.Icon, gameContext.ScaleXY(1)),
-                gameContext
+                new Sprite(ItemRegistry.AguaPurificada.Icon, GameContext.ScaleXY(1)),
+                GameContext
             ),
             new CatchableItem(
-                new ItemStack(ItemRegistry.AguaPurificada, 1),
+                new ItemStack(ItemRegistry.CarneCocinada, 2),
                 new Vector2(400, 100),
-                new Sprite(ItemRegistry.AguaPurificada.Icon, gameContext.ScaleXY(1)),
-                gameContext
+                new Sprite(ItemRegistry.CarneCocinada.Icon, GameContext.ScaleXY(1)),
+                GameContext
             ),
             new CatchableItem(
-                new ItemStack(ItemRegistry.AguaPurificada, 1),
+                new ItemStack(ItemRegistry.OxigenoEmbotellado, 2),
                 new Vector2(500, 100),
-                new Sprite(ItemRegistry.AguaPurificada.Icon, gameContext.ScaleXY(1)),
-                gameContext
+                new Sprite(ItemRegistry.OxigenoEmbotellado.Icon, GameContext.ScaleXY(1)),
+                GameContext
             ),
         };
 
-        int tileSize = (int)gameContext.ScaleXY(64);
+        int tileSize = (int)GameContext.ScaleXY(64);
 
         world = new World.World(seed: Seed, tileSize: tileSize) { RenderDistanceChunks = 2 };
         world.UpdateAroundPosition(player.position);
@@ -116,24 +122,30 @@ public class GameScene : Scene
         Texture2D tileset = Assets.Sprites.Tileset;
         mapRenderer = new MapRenderer(tileset, tileSize);
 
-        pausePanel = new PausePanel(Game);
+        pausePanel = new PausePanel(GameContext, graphicsDevice, input, camera, displaySettings);
     }
 
     public override void Update(GameTime gameTime)
     {
-        MouseState mouse = Mouse.GetState();
+        if(stopUpdating) return;
 
-        if (Game.input.IsKeyPressed(Keys.Escape))
+        MouseState mouse = input.CurrentMouse;
+
+        if (input.IsKeyPressed(Keys.Escape))
         {
             pausePanel.enabled = true;
         }
-        if (Game.input.IsKeyPressed(Keys.F1) && player != null)
+        if (input.IsKeyPressed(Keys.F1) && player != null)
         {
             HUD.toggle();
         }
 
-        pausePanel.Update();
-        if(pausePanel.enabled) return;
+        if (pausePanel.enabled)
+        {
+            pausePanel.Update();
+            return;
+        } 
+            
 
         if (player != null)
         {
@@ -149,29 +161,21 @@ public class GameScene : Scene
             UpdateNightTransition(gameTime);
 
             HUD.Update();
-            player.Update(mouseWorldPosition, Game.input, gameTime);
+            player.Update(mouseWorldPosition, input, gameTime);
 
-            if (Game.input.IsKeyPressed(Keys.E))
+            if (input.IsKeyPressed(Keys.E))
             {
                 Rectangle playerHitbox = player.GetHitbox();
 
                 foreach (var item in catchableItems)
                 {
-                    if (item.Picked) continue;
 
+                    if (item.Picked) continue;
                     if (playerHitbox.Intersects(item.GetHitbox()))
                     {
                         player.TryPickup(item);
                     }
-                }
-            }
-            
-            if (Game.input.IsKeyPressed(Keys.L))
-            {
-                ItemStack selectedStack = player.Inventory.GetSlot(HUD.getSelectedSlotIndex());
-                if (selectedStack != null)
-                {
-                    player.TryConsume(selectedStack.Item);
+
                 }
             }
         
@@ -207,13 +211,52 @@ public class GameScene : Scene
     public override void DrawUI(SpriteBatch spriteBatch)
     {
         // Night Filter
-        if (nightOpacity > 0) spriteBatch.Draw(pixel, new Rectangle(0, 0, Game.GraphicsDevice.Viewport.Width, Game.GraphicsDevice.Viewport.Height), nightColor * nightOpacity);
+        if (nightOpacity > 0) spriteBatch.Draw(pixel, new Rectangle(0, 0, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height), nightColor * nightOpacity);
 
         // UI
         HUD.Draw(spriteBatch);
 
         // Pause panel
         pausePanel.Draw(spriteBatch);
+    }
+
+    public override void UnloadContent()
+    {
+        stopUpdating = true;
+
+        // Events
+        Music.musicStop -= changeMusic;
+        if (player != null)
+        {
+            player.Inventory.UpdateInventoryUI -= HUD.inventoryUI.UpdateHandItem;
+            player.HealthChanged -= camera.damageShake;  
+        } 
+
+        // UI
+        HUD = null;
+        pausePanel = null;
+
+        // Entities
+        catchableItems?.Clear();
+        catchableItems = null;
+
+        // World
+        world = null;
+        mapRenderer = null;
+
+        // Player
+        player = null;
+
+        // Utils
+        pixel?.Dispose();
+        pixel = null;
+        GameContext = null;
+        camera = null;
+        input = null;
+
+        // Music queue
+        songsQueue.Clear();
+
     }
 
     private void UpdateDiurnalCycle(GameTime gameTime)
