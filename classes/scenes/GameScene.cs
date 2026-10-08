@@ -112,6 +112,12 @@ public class GameScene : Scene
                 new Sprite(ItemRegistry.OxigenoEmbotellado.Icon, GameContext.ScaleXY(1)),
                 GameContext
             ),
+            new CatchableItem(
+                new ItemStack(ItemRegistry.HachaTest, 1),
+                new Vector2(600, 100),
+                new Sprite(ItemRegistry.HachaTest.Icon, GameContext.ScaleXY(1)),
+                GameContext
+            ),
         };
 
         int tileSize = (int)GameContext.ScaleXY(64);

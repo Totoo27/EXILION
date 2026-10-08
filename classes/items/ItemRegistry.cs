@@ -41,4 +41,14 @@ public static class ItemRegistry
         icon: Assets.Sprites.OxigenoEmbotellado
     );
 
+    public static readonly Tool HachaTest = new Tool(
+        id: 6,
+        name: "Hacha de prueba",
+        attackSpeed: 3f,
+        damage: 10f,
+        hitboxWidth: 20f,
+        hitboxHeight: 40f,
+        icon: Assets.Sprites.testAxe
+    );
+
 }

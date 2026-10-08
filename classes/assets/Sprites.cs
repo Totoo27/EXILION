@@ -36,6 +36,8 @@ public sealed class Sprites
     public Texture2D AguaPurificada { get; private set; }
     public Texture2D CarneCocinada { get; private set; }
     public Texture2D OxigenoEmbotellado { get; private set; }
+    // Tools
+    public Texture2D testAxe { get; private set; }
 
     // Inventory
     public Texture2D Slot { get; private set; }
@@ -79,6 +81,8 @@ public sealed class Sprites
         AguaPurificada = content.Load<Texture2D>("Sprites/Items/AguaPurificada");
         CarneCocinada = content.Load<Texture2D>("Sprites/Items/CarneCocinada");
         OxigenoEmbotellado = content.Load<Texture2D>("Sprites/Items/OxigenoEmbotellado");
+        // Tools
+         testAxe = content.Load<Texture2D>("Sprites/Items/testAxe");
         
         // World Test
         Tileset = content.Load<Texture2D>("Sprites/Tiles/Tileset");

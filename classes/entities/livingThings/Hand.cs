@@ -20,6 +20,7 @@ public class Hand
     private Item? itemInHand;
     private Sprite? itemSprite;
 
+    // Hand distance Offset
     private const float DefaultSideDistance = 32f;
     private const float DefaultForwardDistance = 20f;
     private const float EatingSideDistance = 15f;
@@ -27,13 +28,18 @@ public class Hand
     private float sideDistance = DefaultSideDistance;
     private float forwardDistance = DefaultForwardDistance;
 
+    // Carrying item offset
     private const float ConsumableItemSideOffset = -15f;
     private const float ConsumableItemForwardOffset = 8f;
     private float itemSideOffset = 0;
     private float itemForwardOffset = 0;
 
-    private const float AttackDistance = 35f;
-    private const float AttackDuration = 0.14f;
+    // Attack properties
+    private const float DefaultAttackDistance = 35f;
+    private const float DefaultAttackDuration = 0.14f;
+    private float CurrentAttackDuration => itemInHand is Tool tool ? 1f / tool.AttackSpeed : DefaultAttackDuration;
+    public const float DefaultDamage = 5f;
+    public AttackHitbox? CurrentHitbox { get; private set; }
 
     private int HitboxSize;
 
@@ -86,10 +92,9 @@ public class Hand
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
         UpdateAttack(deltaTime);
         UpdatePosition(isLeft);
+        UpdateHitbox();
 
         sprite.Update(Angle, Position);
-        Console.WriteLine(Angle);
-        
 
         Vector2 perpendicular = new Vector2(-this.direction.Y, this.direction.X);
 
@@ -104,6 +109,11 @@ public class Hand
         {
             player.TryConsume(itemInHand);
             return true;
+        }
+
+        if(itemInHand is Tool)
+        {
+            return Attack();
         }
 
         return false;
@@ -126,7 +136,7 @@ public class Hand
 
         attackTimer += deltaTime;
 
-        if (attackTimer >= AttackDuration)
+        if (attackTimer >= CurrentAttackDuration)
         {
             attackTimer = 0f;
 
@@ -142,6 +152,35 @@ public class Hand
         }
     }
 
+    private void UpdateHitbox()
+    {
+        if (state == HandState.Idle)
+        {
+            CurrentHitbox = null;
+            return;
+        }
+
+        if(itemInHand is Tool tool)
+        {
+            CurrentHitbox = new AttackHitbox(
+                Position,
+                tool.HitboxWidth,
+                tool.HitboxHeight,
+                Angle
+            );
+        } else
+        {
+            CurrentHitbox = new AttackHitbox(
+                Position,
+                20f,
+                20f,
+                Angle
+            );
+        }
+        
+
+    }
+
     private void UpdatePosition(bool isLeft)
     {
         Vector2 perpendicular = new Vector2(-direction.Y, direction.X);
@@ -153,15 +192,15 @@ public class Hand
 
         if (state == HandState.Extending)
         {
-            float progress = attackTimer / AttackDuration;
+            float progress = attackTimer / CurrentAttackDuration;
             float easedProgress = EaseOut(progress);
-            attackOffset = direction * AttackDistance * easedProgress;
+            attackOffset = direction * DefaultAttackDistance * easedProgress;
         }
         else if (state == HandState.Retracting)
         {
-            float progress = attackTimer / AttackDuration;
+            float progress = attackTimer / CurrentAttackDuration;
             float easedProgress = EaseOut(progress);
-            attackOffset = direction * AttackDistance * (1f - easedProgress);
+            attackOffset = direction * DefaultAttackDistance * (1f - easedProgress);
         }
 
         Position = basePosition + attackOffset;
@@ -179,8 +218,10 @@ public class Hand
 
         ConsumableOnHand?.Invoke(item is Consumable);
 
+        float ItemScale = item is Tool ? 1.5f : 0.8f;
+
         itemInHand = item;
-        itemSprite = item != null ? new Sprite(item.Icon, 0.8f) : null;
+        itemSprite = item != null ? new Sprite(item.Icon, ItemScale) : null;
     }
 
     public void ToggleEating(bool eating)
@@ -204,6 +245,14 @@ public class Hand
     {
         sprite.Draw(spriteBatch, color);
         itemSprite?.Draw(spriteBatch, color);
+
+        if(CurrentHitbox != null)
+        {
+            Texture2D hitboxTexture = new Texture2D(spriteBatch.GraphicsDevice, 1, 1);
+            hitboxTexture.SetData(new[] { Color.White });
+
+            spriteBatch.Draw(hitboxTexture, CurrentHitbox?.Position ?? Vector2.Zero, null, Color.Red * 0.5f, CurrentHitbox?.Rotation ?? 0f, new Vector2(0.5f, 0.5f), new Vector2(CurrentHitbox?.Width ?? 0f, CurrentHitbox?.Height ?? 0f), SpriteEffects.None, 0f);
+        }
     }
 
 }
