@@ -16,21 +16,25 @@ public class Hand
         Retracting
     }
 
-    public event Action<bool>? ConsumableOnHand;
+    public event Action<Item>? UpdateHandsOffset;
     private Item? itemInHand;
     private Sprite? itemSprite;
+    private Vector2 ItemPosition;
+    private float ItemAngle;
 
     // Hand distance Offset
     private const float DefaultSideDistance = 32f;
     private const float DefaultForwardDistance = 20f;
-    private const float EatingSideDistance = 15f;
-    private const float EatingForwardDistance = 26f;
+    private const float TwoHandedSideDistance = 16f;
+    private const float TwoHandedForwardDistance = 26f;
     private float sideDistance = DefaultSideDistance;
     private float forwardDistance = DefaultForwardDistance;
 
     // Carrying item offset
     private const float ConsumableItemSideOffset = -15f;
     private const float ConsumableItemForwardOffset = 8f;
+    private const float ToolItemSideOffset = -8f;
+    private const float ToolItemForwardOffset = 15f;
     private float itemSideOffset = 0;
     private float itemForwardOffset = 0;
 
@@ -40,6 +44,9 @@ public class Hand
     private float CurrentAttackDuration => itemInHand is Tool tool ? 1f / tool.AttackSpeed : DefaultAttackDuration;
     public const float DefaultDamage = 5f;
     public AttackHitbox? CurrentHitbox { get; private set; }
+
+    private const float ToolAttackRotation = MathHelper.PiOver2; // 90 grados
+    private float attackRotation;
 
     private int HitboxSize;
 
@@ -90,17 +97,14 @@ public class Hand
 
         Angle = MathF.Atan2(this.direction.Y, this.direction.X) - MathF.PI/2f;
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
         UpdateAttack(deltaTime);
         UpdatePosition(isLeft);
-        UpdateHitbox();
+        UpdateHitbox(ItemPosition, ItemAngle);
 
+        // Sprite updates
         sprite.Update(Angle, Position);
-
-        Vector2 perpendicular = new Vector2(-this.direction.Y, this.direction.X);
-
-        Vector2 itemPosition = Position + this.direction * itemForwardOffset + perpendicular * itemSideOffset;
-
-        itemSprite?.Update(Angle, itemPosition);
+        itemSprite?.Update(ItemAngle, ItemPosition);
     }
 
     public bool DoAction(Player player)
@@ -152,7 +156,7 @@ public class Hand
         }
     }
 
-    private void UpdateHitbox()
+    private void UpdateHitbox(Vector2 ItemPosition, float ItemAngle)
     {
         if (state == HandState.Idle)
         {
@@ -163,10 +167,10 @@ public class Hand
         if(itemInHand is Tool tool)
         {
             CurrentHitbox = new AttackHitbox(
-                Position,
+                ItemPosition,
                 tool.HitboxWidth,
                 tool.HitboxHeight,
-                Angle
+                ItemAngle
             );
         } else
         {
@@ -177,7 +181,6 @@ public class Hand
                 Angle
             );
         }
-        
 
     }
 
@@ -188,22 +191,44 @@ public class Hand
         float sideOffset = isLeft ? -sideDistance : sideDistance;
 
         Vector2 basePosition = ownerPosition + direction * forwardDistance + perpendicular * sideOffset;
+
         Vector2 attackOffset = Vector2.Zero;
 
-        if (state == HandState.Extending)
+        if (itemInHand is not Tool)
         {
-            float progress = attackTimer / CurrentAttackDuration;
-            float easedProgress = EaseOut(progress);
-            attackOffset = direction * DefaultAttackDistance * easedProgress;
-        }
-        else if (state == HandState.Retracting)
-        {
-            float progress = attackTimer / CurrentAttackDuration;
-            float easedProgress = EaseOut(progress);
-            attackOffset = direction * DefaultAttackDistance * (1f - easedProgress);
+            if (state == HandState.Extending)
+            {
+                float progress = attackTimer / CurrentAttackDuration;
+                attackOffset = direction * DefaultAttackDistance * EaseOut(progress);
+            }
+            else if (state == HandState.Retracting)
+            {
+                float progress = attackTimer / CurrentAttackDuration;
+                attackOffset = direction * DefaultAttackDistance * (1f - EaseOut(progress));
+            }
         }
 
         Position = basePosition + attackOffset;
+
+        // Actualizar posición y ángulo del objeto equipado.
+        ItemPosition = Position + direction * itemForwardOffset + perpendicular * itemSideOffset;
+        ItemAngle = Angle;
+
+        if (itemInHand is Tool)
+        {
+            ItemAngle += 3 * MathF.PI / 2f;
+
+            if (state == HandState.Extending)
+            {
+                float progress = attackTimer / CurrentAttackDuration;
+                ItemAngle -= ToolAttackRotation * EaseOut(progress);
+            }
+            else if (state == HandState.Retracting)
+            {
+                float progress = attackTimer / CurrentAttackDuration;
+                ItemAngle -= ToolAttackRotation * (1f - EaseOut(progress));
+            }
+        }
     }
 
     private float EaseOut(float value)
@@ -216,7 +241,7 @@ public class Hand
     {
         if(item == itemInHand) return;
 
-        ConsumableOnHand?.Invoke(item is Consumable);
+        UpdateHandsOffset?.Invoke(item);
 
         float ItemScale = item is Tool ? 1.5f : 0.8f;
 
@@ -224,21 +249,36 @@ public class Hand
         itemSprite = item != null ? new Sprite(item.Icon, ItemScale) : null;
     }
 
-    public void ToggleEating(bool eating)
+    public void ManageOffsets(Item? item)
     {
-        if(eating)
+
+        if(item == null)
         {
-            sideDistance = EatingSideDistance;
-            forwardDistance = EatingForwardDistance;
+            sideDistance = DefaultSideDistance;
+            forwardDistance = DefaultForwardDistance;
+            itemSideOffset = 0;
+            itemForwardOffset = 0;  
+            return; 
+        }
+
+        sideDistance = TwoHandedSideDistance;
+        forwardDistance = TwoHandedForwardDistance;
+
+        if(item is Consumable)
+        {
             itemSideOffset = ConsumableItemSideOffset;
             itemForwardOffset = ConsumableItemForwardOffset;
             return;
         }
 
-        sideDistance = DefaultSideDistance;
-        forwardDistance = DefaultForwardDistance;
-        itemSideOffset = 0;
-        itemForwardOffset = 0;
+        if(item is Tool)
+        {
+            itemSideOffset = ToolItemSideOffset;
+            itemForwardOffset = ToolItemForwardOffset;
+            return;
+        }
+
+        
     }
 
     public void Draw(SpriteBatch spriteBatch, Color color)
