@@ -20,7 +20,7 @@ public static class ItemRegistry
     public static readonly Consumable AguaPurificada = new Consumable(
         id: 3,
         name: "Agua Purificada",
-        statRestore: 10,
+        statRestore: 20,
         statType: Entities.LivingThings.StatType.Thirst,
         icon: Assets.Sprites.AguaPurificada
     );
@@ -28,9 +28,17 @@ public static class ItemRegistry
     public static readonly Consumable CarneCocinada = new Consumable(
         id: 4,
         name: "Carne Cocinada",
-        statRestore: 35,
+        statRestore: 20,
         statType: Entities.LivingThings.StatType.Hunger,
-        icon: Assets.Sprites.AguaPurificada
+        icon: Assets.Sprites.CarneCocinada
+    );
+
+    public static readonly Consumable OxigenoEmbotellado = new Consumable(
+        id: 5,
+        name: "Oxígeno Embotellado",
+        statRestore: 20,
+        statType: Entities.LivingThings.StatType.Oxygen,
+        icon: Assets.Sprites.OxigenoEmbotellado
     );
 
 }

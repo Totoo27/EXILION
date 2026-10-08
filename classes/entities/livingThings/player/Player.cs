@@ -295,7 +295,7 @@ public class Player : LivingThing
                 hunger = stat;
                 HungerChanged?.Invoke(hunger.value);
 
-                sfx = Assets.SoundEffects.drink;
+                sfx = Assets.SoundEffects.eat;
             break;
 
             case StatType.Oxygen:
@@ -304,7 +304,7 @@ public class Player : LivingThing
                 oxygen = stat;
                 OxygenChanged?.Invoke(oxygen.value);
 
-                sfx = Assets.SoundEffects.drink;
+                sfx = Assets.SoundEffects.bottleBreath;
             break;
 
             default:

@@ -32,8 +32,8 @@ public class Hand
     private float itemSideOffset = 0;
     private float itemForwardOffset = 0;
 
-    private const float AttackDistance = 45f;
-    private const float AttackDuration = 0.12f;
+    private const float AttackDistance = 35f;
+    private const float AttackDuration = 0.14f;
 
     private int HitboxSize;
 
@@ -82,13 +82,13 @@ public class Hand
             this.direction = Vector2.Normalize(direction);
         }
 
-        Angle = MathF.Atan2(this.direction.Y, this.direction.X);
+        Angle = MathF.Atan2(this.direction.Y, this.direction.X) - MathF.PI/2f;
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
         UpdateAttack(deltaTime);
         UpdatePosition(isLeft);
 
         sprite.Update(Angle, Position);
-
+        Console.WriteLine(Angle);
         
 
         Vector2 perpendicular = new Vector2(-this.direction.Y, this.direction.X);
@@ -115,6 +115,7 @@ public class Hand
 
         state = HandState.Extending;
         attackTimer = 0f;
+        SFX.Play(Assets.SoundEffects.swings[Random.Shared.Next(Assets.SoundEffects.swings.Length)]);
 
         return true;
     }

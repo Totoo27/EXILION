@@ -95,21 +95,21 @@ public class GameScene : Scene
                 GameContext
             ),
             new CatchableItem(
-                new ItemStack(ItemRegistry.AguaPurificada, 1),
+                new ItemStack(ItemRegistry.AguaPurificada, 2),
                 new Vector2(300, 100),
                 new Sprite(ItemRegistry.AguaPurificada.Icon, GameContext.ScaleXY(1)),
                 GameContext
             ),
             new CatchableItem(
-                new ItemStack(ItemRegistry.CarneCocinada, 1),
+                new ItemStack(ItemRegistry.CarneCocinada, 2),
                 new Vector2(400, 100),
-                new Sprite(ItemRegistry.AguaPurificada.Icon, GameContext.ScaleXY(1)),
+                new Sprite(ItemRegistry.CarneCocinada.Icon, GameContext.ScaleXY(1)),
                 GameContext
             ),
             new CatchableItem(
-                new ItemStack(ItemRegistry.AguaPurificada, 1),
+                new ItemStack(ItemRegistry.OxigenoEmbotellado, 2),
                 new Vector2(500, 100),
-                new Sprite(ItemRegistry.AguaPurificada.Icon, GameContext.ScaleXY(1)),
+                new Sprite(ItemRegistry.OxigenoEmbotellado.Icon, GameContext.ScaleXY(1)),
                 GameContext
             ),
         };
