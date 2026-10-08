@@ -23,6 +23,7 @@ public static class SimplexNoise
         for (int i = 0; i < 256; i++) Perm[i] = Perm[i + 256] = p[i];
     }
 
+    //calcula un valor suave en un punto dividiendo el espacio en triángulos y combinando "flechitas de dirección" fijas (pero mezcladas de forma determinística) en las 3 puntas de cada triángulo;
     public static float Noise(float x, float y)
     {
         const float F2 = 0.3660254f; // (sqrt(3)-1)/2
@@ -71,8 +72,8 @@ public static class SimplexNoise
         {
             total += Noise(x * frequency, y * frequency) * amplitude;
             maxValue += amplitude;
-            amplitude *= persistence;
-            frequency *= 2f;
+            amplitude *= persistence; //la próxima capa va a pesar la mitad que la anterior
+            frequency *= 2f; //la próxima capa va a tener el doble de detalle/variación que la anterior (como hacer zoom in)
         }
         return total / maxValue; // normalizado entre -1 y 1
     }
