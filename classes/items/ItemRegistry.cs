@@ -7,7 +7,8 @@ public static class ItemRegistry
         id: 1,
         type: ItemType.RESOURCES,
         name: "Madera",
-        icon: Assets.Sprites.Tronco
+        icon: Assets.Sprites.Tronco,
+        twoHanded: true
     );
 
     public static readonly Item Piedra = new Item(

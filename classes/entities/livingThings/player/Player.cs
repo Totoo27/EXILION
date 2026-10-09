@@ -49,6 +49,7 @@ public class Player : LivingThing
 
         rightHand.UpdateHandsOffset += rightHand.ManageOffsets;
         rightHand.UpdateHandsOffset += leftHand.ManageOffsets;
+        rightHand.ToolAttack += leftHand.StartToolAttack;
     }
 
     public void Update(Vector2 mousePosition, InputManager input, GameTime gameTime)
@@ -259,8 +260,8 @@ public class Player : LivingThing
     public override void Draw(SpriteBatch spriteBatch, Texture2D pixel)
     {
 
-        leftHand.Draw(spriteBatch, color);
-        rightHand.Draw(spriteBatch, color);
+        leftHand.Draw(spriteBatch, color, gameContext.showHitboxes);
+        rightHand.Draw(spriteBatch, color, gameContext.showHitboxes);
 
         sprite.Draw(spriteBatch, color);
 

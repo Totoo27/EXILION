@@ -10,13 +10,15 @@ public class Item
     public string Name { get; }
     public ItemType Type { get; }
     public Texture2D Icon { get; }       
+    public bool TwoHanded { get; set; }
 
-    public Item(int id, string name, ItemType type, Texture2D icon = null)
+    public Item(int id, string name, ItemType type, Texture2D icon = null, bool twoHanded = false)
     {
         Id = id;
         Name = name;
         Type = type;
         Icon = icon;
+        TwoHanded = twoHanded;
     }
 
      public int GetMaxStackSize() => MaxStackSize;

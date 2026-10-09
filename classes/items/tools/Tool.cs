@@ -10,7 +10,7 @@ public class Tool : Item
     public float HitboxHeight { get; private set; }
 
     public Tool(int id, string name, float attackSpeed, float damage, float hitboxWidth, float hitboxHeight, Texture2D icon = null)
-    : base(id, name, ItemType.TOOLS, icon)
+    : base(id, name, ItemType.TOOLS, icon, true)
     {
         AttackSpeed = attackSpeed;
         Damage = damage;

@@ -16,7 +16,8 @@ public class Hand
         Retracting
     }
 
-    public event Action<Item>? UpdateHandsOffset;
+    public event Action<Item?>? UpdateHandsOffset;
+    public event Action<float>? ToolAttack;
     private Item? itemInHand;
     private Sprite? itemSprite;
     private Vector2 ItemPosition;
@@ -31,18 +32,21 @@ public class Hand
     private float forwardDistance = DefaultForwardDistance;
 
     // Carrying item offset
-    private const float ConsumableItemSideOffset = -15f;
-    private const float ConsumableItemForwardOffset = 8f;
-    private const float ToolItemSideOffset = -8f;
+    private const float TwoHandedItemSideOffset = -15f;
+    private const float TwoHandedItemForwardOffset = 8f;
+    private const float ToolItemSideOffset = -6f;
     private const float ToolItemForwardOffset = 15f;
     private float itemSideOffset = 0;
     private float itemForwardOffset = 0;
+    private bool isSupportingToolAttack;
 
     // Attack properties
     private const float DefaultAttackDistance = 35f;
-    private const float ToolAttackDistance = 18f;
+    private const float HandWithToolAttackDistance = 28f;
+    private const float ToolForwardAttackDistance = 13f;
+    private const float ToolSideAttackDistance = -15f;
     private const float DefaultAttackDuration = 0.14f;
-    private float CurrentAttackDuration => itemInHand is Tool tool ? 1f / tool.AttackSpeed : DefaultAttackDuration;
+    private float CurrentAttackDuration = DefaultAttackDuration;
     public const float DefaultDamage = 5f;
     public AttackHitbox? CurrentHitbox { get; private set; }
 
@@ -63,7 +67,7 @@ public class Hand
     public float Angle { get; private set; }
 
     public bool IsAttacking => state != HandState.Idle;
-    public bool CanAttack => state == HandState.Idle && itemInHand is not Consumable;
+    public bool CanAttack => state == HandState.Idle && (itemInHand is Tool || itemInHand?.TwoHanded != true);
     public bool hasItem => itemInHand != null;
     public bool hasConsumable => itemInHand != null && itemInHand is Consumable;
 
@@ -117,10 +121,31 @@ public class Hand
 
         if(itemInHand is Tool)
         {
-            return Attack();
+
+            if (!Attack()) return false;
+
+            ToolAttack?.Invoke(CurrentAttackDuration);
+            return true;
+
         }
 
+        if(itemInHand?.TwoHanded == true) return true; // Avoid attacking with two-handed on the left hand
+
         return false;
+    }
+
+    public void StartToolAttack(float attackDuration)
+    {
+
+        if (state != HandState.Idle) return;
+
+        isSupportingToolAttack = true;
+        CurrentAttackDuration = attackDuration;
+
+        state = HandState.Extending;
+        attackTimer = 0f;
+
+
     }
 
     public bool Attack()
@@ -152,13 +177,15 @@ public class Hand
             else if (state == HandState.Retracting)
             {
                 state = HandState.Idle;
+                CurrentAttackDuration = isSupportingToolAttack ? DefaultAttackDuration : CurrentAttackDuration;
+                isSupportingToolAttack = false;
             }
         }
     }
 
     private void UpdateHitbox(Vector2 ItemPosition, float ItemAngle)
     {
-        if (state == HandState.Idle)
+        if (state == HandState.Idle || isSupportingToolAttack)
         {
             CurrentHitbox = null;
             return;
@@ -174,6 +201,7 @@ public class Hand
             );
         } else
         {
+            
             CurrentHitbox = new AttackHitbox(
                 Position,
                 20f,
@@ -189,37 +217,31 @@ public class Hand
         Vector2 perpendicular = new Vector2(-direction.Y, direction.X);
 
         float sideOffset = isLeft ? -sideDistance : sideDistance;
+        float attackDistance = itemInHand is Tool || isSupportingToolAttack ? (isLeft ? -HandWithToolAttackDistance/2 : HandWithToolAttackDistance) : DefaultAttackDistance;
 
-        Vector2 basePosition =
-            ownerPosition
-            + direction * forwardDistance
-            + perpendicular * sideOffset;
+        Vector2 basePosition = ownerPosition + direction * forwardDistance + perpendicular * sideOffset;
 
         // Movimiento normal de la mano
         Vector2 attackOffset = Vector2.Zero;
 
-        if (itemInHand is not Tool)
+        if (state == HandState.Extending)
         {
-            if (state == HandState.Extending)
-            {
-                float progress = attackTimer / CurrentAttackDuration;
-                attackOffset = direction * DefaultAttackDistance * EaseOut(progress);
-            }
-            else if (state == HandState.Retracting)
-            {
-                float progress = attackTimer / CurrentAttackDuration;
-                attackOffset = direction * DefaultAttackDistance * (1f - EaseOut(progress));
-            }
+            float progress = attackTimer / CurrentAttackDuration;
+            attackOffset = direction * attackDistance * EaseOut(progress);
         }
+        else if (state == HandState.Retracting)
+        {
+            float progress = attackTimer / CurrentAttackDuration;
+            attackOffset = direction * attackDistance * (1f - EaseOut(progress));
+        }
+
 
         Position = basePosition + attackOffset;
 
-        // Posición base del item, relativa a la mano
-        ItemPosition = Position
-            + direction * itemForwardOffset
-            + perpendicular * itemSideOffset;
+        // Item Position Offset
 
-        // Desplazamiento independiente del item durante el ataque
+        ItemPosition = Position + direction * itemForwardOffset + perpendicular * itemSideOffset;
+
         if (itemInHand is Tool)
         {
             Vector2 toolAttackOffset = Vector2.Zero;
@@ -227,20 +249,17 @@ public class Hand
             if (state == HandState.Extending)
             {
                 float progress = attackTimer / CurrentAttackDuration;
-                toolAttackOffset =
-                    direction * ToolAttackDistance * EaseOut(progress);
+                toolAttackOffset = direction * ToolForwardAttackDistance * EaseOut(progress) + perpendicular * ToolSideAttackDistance * EaseOut(progress);
             }
             else if (state == HandState.Retracting)
             {
                 float progress = attackTimer / CurrentAttackDuration;
-                toolAttackOffset =
-                    direction * ToolAttackDistance * (1f - EaseOut(progress));
+                toolAttackOffset = direction * ToolForwardAttackDistance * (1f - EaseOut(progress)) + perpendicular * ToolSideAttackDistance * (1f - EaseOut(progress));
             }
 
-            ItemPosition += toolAttackOffset;
+            ItemPosition += toolAttackOffset - attackOffset;
         }
 
-        // Rotación del item
         ItemAngle = Angle;
 
         if (itemInHand is Tool)
@@ -272,7 +291,9 @@ public class Hand
 
         UpdateHandsOffset?.Invoke(item);
 
-        float ItemScale = item is Tool ? 1.5f : 0.8f;
+        // Tool management
+        float ItemScale = item is Tool ? 2.5f : 0.8f;
+        CurrentAttackDuration = item is Tool tool ? 1f / tool.AttackSpeed : DefaultAttackDuration;
 
         itemInHand = item;
         itemSprite = item != null ? new Sprite(item.Icon, ItemScale) : null;
@@ -281,7 +302,7 @@ public class Hand
     public void ManageOffsets(Item? item)
     {
 
-        if(item == null)
+        if(item == null || !item.TwoHanded)
         {
             sideDistance = DefaultSideDistance;
             forwardDistance = DefaultForwardDistance;
@@ -290,14 +311,12 @@ public class Hand
             return; 
         }
 
-        sideDistance = TwoHandedSideDistance;
-        forwardDistance = TwoHandedForwardDistance;
-
-        if(item is Consumable)
+        if(item.TwoHanded)
         {
-            itemSideOffset = ConsumableItemSideOffset;
-            itemForwardOffset = ConsumableItemForwardOffset;
-            return;
+            sideDistance = TwoHandedSideDistance;
+            forwardDistance = TwoHandedForwardDistance;
+            itemSideOffset = TwoHandedItemSideOffset;
+            itemForwardOffset = TwoHandedItemForwardOffset;
         }
 
         if(item is Tool)
@@ -307,15 +326,14 @@ public class Hand
             return;
         }
 
-        
     }
 
-    public void Draw(SpriteBatch spriteBatch, Color color)
+    public void Draw(SpriteBatch spriteBatch, Color color, bool showHitboxes)
     {
         sprite.Draw(spriteBatch, color);
         itemSprite?.Draw(spriteBatch, color);
 
-        if(CurrentHitbox != null)
+        if(CurrentHitbox != null && showHitboxes)
         {
             Texture2D hitboxTexture = new Texture2D(spriteBatch.GraphicsDevice, 1, 1);
             hitboxTexture.SetData(new[] { Color.White });
