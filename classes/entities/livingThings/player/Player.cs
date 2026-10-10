@@ -108,7 +108,7 @@ public class Player : LivingThing
             gameContext.showHitboxes = !gameContext.showHitboxes;
         }
 
-        if (input.IsLeftMousePressed())
+        if (input.IsLeftMousePressed() && !input.IsMouseCaptured)
         {
 
             if (rightHand.hasItem)
