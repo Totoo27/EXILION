@@ -27,9 +27,10 @@ public class GameScene : Scene
     private bool night = false;
     private Color nightColor = new Color(15, 10, 35);
 
-    // Settings
+    // Panels
 
     private PausePanel pausePanel;
+    private DeathPanel deathPanel;
 
 
     // Player
@@ -73,12 +74,13 @@ public class GameScene : Scene
         pixel = new Texture2D(graphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
 
-        player = new Player(Vector2.Zero, new Sprite(Assets.Sprites.Player, GameContext.ScaleXY(1)), GameContext); 
-        HUD = new HUD(player, GameContext, graphicsDevice, input, DIURNAL_PRESET_TIME);
+        pausePanel = new PausePanel(GameContext, graphicsDevice, input, camera, displaySettings);
+        deathPanel = new DeathPanel(GameContext, graphicsDevice, input, camera, displaySettings);
 
-        player.HealthChanged += camera.damageShake;
+        deathPanel.Respawn += processPlayerSpawn;
+
+        processPlayerSpawn();
         Music.musicStop += changeMusic;
-        player.Inventory.UpdateInventoryUI += HUD.inventoryUI.UpdateHandItem;
 
         catchableItems = new List<CatchableItem>
         {
@@ -127,8 +129,6 @@ public class GameScene : Scene
 
         Texture2D tileset = Assets.Sprites.Tileset;
         mapRenderer = new MapRenderer(tileset, tileSize);
-
-        pausePanel = new PausePanel(GameContext, graphicsDevice, input, camera, displaySettings);
     }
 
     public override void Update(GameTime gameTime)
@@ -136,6 +136,12 @@ public class GameScene : Scene
         if(stopUpdating) return;
 
         MouseState mouse = input.CurrentMouse;
+
+        if(deathPanel.enabled)
+        {
+            deathPanel.Update();
+            return;
+        }
 
         if (input.IsKeyPressed(Keys.Escape))
         {
@@ -152,8 +158,8 @@ public class GameScene : Scene
             return;
         } 
             
-
-        if (player != null)
+        
+        if(player != null)
         {
             Vector2 mouseWorldPosition = mouse.Position.ToVector2();
 
@@ -220,10 +226,11 @@ public class GameScene : Scene
         if (nightOpacity > 0) spriteBatch.Draw(pixel, new Rectangle(0, 0, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height), nightColor * nightOpacity);
 
         // UI
-        HUD.Draw(spriteBatch);
+        HUD?.Draw(spriteBatch);
 
-        // Pause panel
+        // Panels
         pausePanel.Draw(spriteBatch);
+        deathPanel.Draw(spriteBatch);
     }
 
     public override void UnloadContent()
@@ -232,15 +239,17 @@ public class GameScene : Scene
 
         // Events
         Music.musicStop -= changeMusic;
+        deathPanel.Respawn -= processPlayerSpawn;
         if (player != null)
         {
             player.Inventory.UpdateInventoryUI -= HUD.inventoryUI.UpdateHandItem;
-            player.HealthChanged -= camera.damageShake;  
+            player.HealthChanged -= camera.damageShake;
         } 
 
         // UI
         HUD = null;
         pausePanel = null;
+        deathPanel = null;
 
         // Entities
         catchableItems?.Clear();
@@ -290,8 +299,23 @@ public class GameScene : Scene
 
     private void processPlayerDeath()
     {
-        player = null;
         HUD.hide();
+
+        player.HealthChanged -= camera.damageShake;
+        player.Inventory.UpdateInventoryUI -= HUD.inventoryUI.UpdateHandItem;
+
+        HUD = null;
+        player = null;
+        deathPanel.enabled = true;
+    }
+
+    private void processPlayerSpawn()
+    {
+        player = new Player(Vector2.Zero, new Sprite(Assets.Sprites.Player, GameContext.ScaleXY(1)), GameContext); 
+        HUD = new HUD(player, GameContext, graphicsDevice, input, DIURNAL_PRESET_TIME);
+
+        player.HealthChanged += camera.damageShake;
+        player.Inventory.UpdateInventoryUI += HUD.inventoryUI.UpdateHandItem;
     }
 
     private void UpdateNightTransition(GameTime gameTime)
