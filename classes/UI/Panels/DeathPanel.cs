@@ -52,7 +52,7 @@ public class DeathPanel
 
     // Events
 
-    public event Action? Respawn;
+    public event Action<bool>? Respawn;
 
     public DeathPanel(GameContext gameContext, GraphicsDevice GraphicsDevice, InputManager input, Camera camera, IDisplaySettings displaySettings)
     {
@@ -139,7 +139,7 @@ public class DeathPanel
 
         if (respawnButton.isClicked(mouseState))
         {
-            Respawn?.Invoke();
+            Respawn?.Invoke(true);
             enabled = false;
         }
 

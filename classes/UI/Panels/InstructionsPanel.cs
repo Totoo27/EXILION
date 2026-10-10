@@ -49,7 +49,7 @@ public class InstructionsPanel
             "LShift - Sprint\n" +
             "Mouse - Aim\n" +
             "E - Grab Item\n" +
-            "L - Consume Item\n" +
+            "G - Manual Save\n" +
             "Numbers - select Hotbar\n" +
             "H - Show hitboxes\n" +
             "ESC - Pause";

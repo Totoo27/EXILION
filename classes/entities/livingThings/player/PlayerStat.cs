@@ -1,5 +1,3 @@
-using System;
-
 namespace EXILION.Entities.LivingThings;
 public struct PlayerStat
 {

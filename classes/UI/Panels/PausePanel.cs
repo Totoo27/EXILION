@@ -135,7 +135,7 @@ public class PausePanel : IHasSettings
         );
 
         quitButton = new Button(
-            "Quit",
+            "Save & Quit",
             new Rectangle(
                 buttonX,
                 (int)position.Y + spacing * 3 + buttonHeight * 2,
@@ -183,6 +183,7 @@ public class PausePanel : IHasSettings
 
         if (quitButton.isClicked(mouseState))
         {
+            if(SceneManager.CurrentScene is GameScene scene) scene.saveGame();
             SceneManager.ChangeScene(new MainMenu(gameContext, GraphicsDevice, input, displaySettings, camera));
             return;
         }

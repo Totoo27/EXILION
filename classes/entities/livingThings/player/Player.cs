@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using EXILION.Items;
 using EXILION.Entities.CatchableItems;
-using EXILION.UI;
+using EXILION.Saving;
 using Microsoft.Xna.Framework.Audio;
 
 namespace EXILION.Entities.LivingThings;
@@ -50,6 +50,35 @@ public class Player : LivingThing
         rightHand.UpdateHandsOffset += rightHand.ManageOffsets;
         rightHand.UpdateHandsOffset += leftHand.ManageOffsets;
         rightHand.ToolAttack += leftHand.StartToolAttack;
+    }
+
+    public void Restore(PlayerSaveData saveData)
+    {
+        this.position = new Vector2(saveData.PositionX, saveData.PositionY);
+        this.health = saveData.Health;
+        this.hunger = saveData.Hunger;
+        this.thirst = saveData.Thirst;
+        this.oxygen = saveData.Oxygen;
+
+        inventory.Restore(saveData.Inventory);
+    }
+
+    public PlayerSaveData GetSaveData()
+    {
+        
+        return new PlayerSaveData
+        {
+            PositionX = this.position.X,
+            PositionY = this.position.Y,
+
+            Health = this.health,
+            Hunger = this.hunger,
+            Thirst = this.thirst,
+            Oxygen = this.oxygen,
+
+            Inventory = inventory.GetSaveData()
+        };
+
     }
 
     public void Update(Vector2 mousePosition, InputManager input, GameTime gameTime)

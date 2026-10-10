@@ -1,6 +1,7 @@
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System;
 
 namespace EXILION.Saving;
 
@@ -10,7 +11,8 @@ public class WorldSaveService
 
     private readonly JsonSerializerOptions options = new()
     {
-        WriteIndented = true
+        WriteIndented = true,
+        IncludeFields = true
     };
 
     public async Task SaveAsync(string path, WorldSaveData saveData)
@@ -20,6 +22,8 @@ public class WorldSaveService
         if (!string.IsNullOrEmpty(directory))
         {
             Directory.CreateDirectory(directory);
+            Console.WriteLine($"Directorio de trabajo: {Environment.CurrentDirectory}");
+            Console.WriteLine($"Ruta del guardado: {Path.GetFullPath(path)}");
         }
 
         string json = JsonSerializer.Serialize(saveData, options);
