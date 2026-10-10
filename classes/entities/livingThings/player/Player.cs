@@ -60,20 +60,11 @@ public class Player : LivingThing
         updateOxygen(gameTime);
 
         float currentSpeed = this.speed;
-
-        // Movement Keys
-        if(input.IsKeyHeld(Keys.LeftShift))
-        {
-            currentSpeed *= 2;
-            runningMultiplier = 0.5f;
-        }
-        else
-        {
-            runningMultiplier = 1f;
-        }
+        runningMultiplier = 1f;
 
         Vector2 movementDirection = Vector2.Zero;
 
+        // Movement Keys
         if (input.IsKeyHeld(Keys.A)) movementDirection.X -= 1;
 
         if (input.IsKeyHeld(Keys.D)) movementDirection.X += 1;
@@ -82,11 +73,20 @@ public class Player : LivingThing
 
         if (input.IsKeyHeld(Keys.S)) movementDirection.Y += 1;
 
+
         if (movementDirection != Vector2.Zero)
         {
+            // Sprint
+            if(input.IsKeyHeld(Keys.LeftShift))
+            {
+                currentSpeed *= 2;
+                runningMultiplier = 0.5f;
+            }
+
             movementDirection.Normalize();
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             position += movementDirection * currentSpeed * deltaTime;
+
         }
 
         // Debug keys
@@ -318,7 +318,5 @@ public class Player : LivingThing
         
         return true;
     }
-
-
 
 }
