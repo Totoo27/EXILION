@@ -47,8 +47,9 @@ public class Player : LivingThing
         oxygen = new PlayerStat(maxOxygen);
         this.inventory = new Inventory(); 
 
-        rightHand.ConsumableOnHand += rightHand.ToggleEating;
-        rightHand.ConsumableOnHand += leftHand.ToggleEating;
+        rightHand.UpdateHandsOffset += rightHand.ManageOffsets;
+        rightHand.UpdateHandsOffset += leftHand.ManageOffsets;
+        rightHand.ToolAttack += leftHand.StartToolAttack;
     }
 
     public void Update(Vector2 mousePosition, InputManager input, GameTime gameTime)
@@ -59,20 +60,11 @@ public class Player : LivingThing
         updateOxygen(gameTime);
 
         float currentSpeed = this.speed;
-
-        // Movement Keys
-        if(input.IsKeyHeld(Keys.LeftShift))
-        {
-            currentSpeed *= 2;
-            runningMultiplier = 0.5f;
-        }
-        else
-        {
-            runningMultiplier = 1f;
-        }
+        runningMultiplier = 1f;
 
         Vector2 movementDirection = Vector2.Zero;
 
+        // Movement Keys
         if (input.IsKeyHeld(Keys.A)) movementDirection.X -= 1;
 
         if (input.IsKeyHeld(Keys.D)) movementDirection.X += 1;
@@ -81,11 +73,20 @@ public class Player : LivingThing
 
         if (input.IsKeyHeld(Keys.S)) movementDirection.Y += 1;
 
+
         if (movementDirection != Vector2.Zero)
         {
+            // Sprint
+            if(input.IsKeyHeld(Keys.LeftShift))
+            {
+                currentSpeed *= 2;
+                runningMultiplier = 0.5f;
+            }
+
             movementDirection.Normalize();
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             position += movementDirection * currentSpeed * deltaTime;
+
         }
 
         // Debug keys
@@ -107,7 +108,7 @@ public class Player : LivingThing
             gameContext.showHitboxes = !gameContext.showHitboxes;
         }
 
-        if (input.IsLeftMousePressed())
+        if (input.IsLeftMousePressed() && !input.IsMouseCaptured)
         {
 
             if (rightHand.hasItem)
@@ -259,8 +260,8 @@ public class Player : LivingThing
     public override void Draw(SpriteBatch spriteBatch, Texture2D pixel)
     {
 
-        leftHand.Draw(spriteBatch, color);
-        rightHand.Draw(spriteBatch, color);
+        leftHand.Draw(spriteBatch, color, gameContext.showHitboxes);
+        rightHand.Draw(spriteBatch, color, gameContext.showHitboxes);
 
         sprite.Draw(spriteBatch, color);
 
@@ -317,7 +318,5 @@ public class Player : LivingThing
         
         return true;
     }
-
-
 
 }

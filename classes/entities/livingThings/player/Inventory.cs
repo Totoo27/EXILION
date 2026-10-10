@@ -101,6 +101,7 @@ public class Inventory
         {
             slots[to] = source;
             slots[from] = null;
+            UpdateInventoryUI?.Invoke();
             return;
         }
 
@@ -109,7 +110,7 @@ public class Inventory
             int leftover = destination.Add(source.Quantity);
 
             slots[from] = leftover == 0 ? null : new ItemStack(source.Item, leftover);
-
+            UpdateInventoryUI?.Invoke();
             return;
         }
         

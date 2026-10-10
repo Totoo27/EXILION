@@ -31,7 +31,7 @@ public class InventoryUI
     private Vector2 mousePosition;
 
     public int SelectedSlotIndex { get; private set; } = 0;
-    public event Action<Item>? slotChanged;
+    public event Action<Item?>? slotChanged;
 
     public InventoryUI(Inventory inventory, Texture2D slotTexture, SpriteFont font, GameContext gameContext)
     {
@@ -43,6 +43,10 @@ public class InventoryUI
 
     public void Update(InputManager input)
     {
+
+        mousePosition = input.MousePosition;
+        input.IsMouseCaptured = GetSlotIndexAt(mousePosition) != -1 || draggedSlotIndex != -1;
+
         if (input.IsKeyPressed(Keys.I))
         {
             expanded = !expanded;

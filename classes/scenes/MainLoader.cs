@@ -97,7 +97,7 @@ public class MainLoader : Scene
 
     public static async Task addCompletedTask()
     {
-        await Task.Delay(500);
+        await Task.Delay(5);
         completedTasks++;
     }
 

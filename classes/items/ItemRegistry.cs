@@ -7,7 +7,8 @@ public static class ItemRegistry
         id: 1,
         type: ItemType.RESOURCES,
         name: "Madera",
-        icon: Assets.Sprites.Tronco
+        icon: Assets.Sprites.Tronco,
+        twoHanded: true
     );
 
     public static readonly Item Piedra = new Item(
@@ -39,6 +40,16 @@ public static class ItemRegistry
         statRestore: 20,
         statType: Entities.LivingThings.StatType.Oxygen,
         icon: Assets.Sprites.OxigenoEmbotellado
+    );
+
+    public static readonly Tool HachaTest = new Tool(
+        id: 6,
+        name: "Hacha de prueba",
+        attackSpeed: 3f,
+        damage: 10f,
+        hitboxWidth: 20f,
+        hitboxHeight: 40f,
+        icon: Assets.Sprites.testAxe
     );
 
 }
