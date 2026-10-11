@@ -120,7 +120,7 @@ public class Inventory
         return GetItemCount(item) >= amount;
     }
 
-    public ItemStack GetSlot(int index)
+    public ItemStack? GetSlot(int index)
     {
         if (index < 0 || index >= slots.Length) return null;
         return slots[index];

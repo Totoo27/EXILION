@@ -187,7 +187,7 @@ public class GameScene : Scene
         catchableItems.Add(
             new CatchableItem(
                 new ItemStack(ItemRegistry.Piedra, 3),
-                new Vector2(200, 100),
+                new Vector2(125, 100),
                 new Sprite(ItemRegistry.Piedra.Icon, GameContext.ScaleXY(1)),
                 GameContext
             )
@@ -399,6 +399,24 @@ public class GameScene : Scene
     private void processPlayerDeath()
     {
         HUD.hide();
+
+        // Drop inventory items
+        Inventory inventory = player.Inventory;
+
+        for(int i = 0; i < inventory.Capacity; i++)
+        {
+            ItemStack itemStack = inventory.GetSlot(i);
+            if(itemStack == null) continue;
+
+            catchableItems.Add(
+                new CatchableItem(
+                    itemStack,
+                    player.position,
+                    new Sprite(itemStack.Item.Icon, GameContext.ScaleXY(1)),
+                    GameContext
+                )
+            );
+        }
 
         player.HealthChanged -= camera.damageShake;
         player.Inventory.UpdateInventoryUI -= HUD.inventoryUI.UpdateHandItem;
