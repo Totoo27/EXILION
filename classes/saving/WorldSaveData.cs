@@ -9,8 +9,8 @@ public class WorldSaveData
     public string WorldId { get; set; } = string.Empty;
     public string WorldName { get; set; } = string.Empty;
     public int WorldSeed { get; set; }
-
-    public double WorldTime { get; set; }
+    public int WorldTime { get; set; }
+    public bool IsNight { get; set; }
 
     public PlayerSaveData Player { get; set; } = new();
 

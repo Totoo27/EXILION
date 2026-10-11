@@ -128,6 +128,12 @@ public class GameScene : Scene
     private void loadGame()
     {
 
+        diurnalCycleTime = saveData.WorldTime;
+        night = saveData.IsNight;
+        if (night)
+        {
+            nightOpacity = 1f;
+        }
         Seed = saveData.WorldSeed;
         processPlayerSpawn(false);
         
@@ -152,6 +158,10 @@ public class GameScene : Scene
 
     public void saveGame()
     {
+
+        saveData.WorldTime = diurnalCycleTime;
+        saveData.IsNight = night;
+
         saveData.Player = player.GetSaveData();
         saveData.CatchableItems.Clear();
         foreach (var catchableItem in catchableItems)
@@ -406,9 +416,11 @@ public class GameScene : Scene
             player.Restore(saveData.Player);
         }
 
-        Console.WriteLine(player);
-
         HUD = new HUD(player, GameContext, graphicsDevice, input, DIURNAL_PRESET_TIME);
+
+        // update stats from beggining
+        HUD.setTime(DIURNAL_PRESET_TIME - diurnalCycleTime);
+        player.ForceUpdateStats();
 
         player.HealthChanged += camera.damageShake;
         player.Inventory.UpdateInventoryUI += HUD.inventoryUI.UpdateHandItem;

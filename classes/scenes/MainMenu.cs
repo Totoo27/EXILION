@@ -149,7 +149,7 @@ public class MainMenu : Scene, IHasSettings
         // Buttons update
         if (startGame.isClicked(mouseState))
         {
-            SceneManager.ChangeScene(new GameScene(GameContext, input, camera, GraphicsDevice, displaySettings, "Saves/testSave.json"));
+            SceneManager.ChangeScene(new GameScene(GameContext, input, camera, GraphicsDevice, displaySettings, "Saves/testSave1.json"));
             return;
         }
 

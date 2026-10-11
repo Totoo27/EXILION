@@ -254,6 +254,14 @@ public class Player : LivingThing
 
     }
 
+    public void ForceUpdateStats()
+    {   
+        HealthChanged?.Invoke(health);
+        OxygenChanged?.Invoke(oxygen.value);
+        HungerChanged?.Invoke(hunger.value);
+        ThirstChanged?.Invoke(thirst.value);
+    }
+
     public override void takeDamage(int damage)
     {
         base.takeDamage(damage);
@@ -265,6 +273,22 @@ public class Player : LivingThing
         HealthChanged?.Invoke(this.health);
     }
 
+    public override void Draw(SpriteBatch spriteBatch, Texture2D pixel)
+    {
+
+        leftHand.Draw(spriteBatch, color, gameContext.showHitboxes);
+        rightHand.Draw(spriteBatch, color, gameContext.showHitboxes);
+
+        sprite.Draw(spriteBatch, color);
+
+        if (gameContext.showHitboxes)
+        {
+            spriteBatch.Draw(pixel, hitbox, Color.Red);
+        }
+        
+    }
+
+    // Item usage
     public bool TryPickup(CatchableItem item)
     {
         if (item.Picked) return false;
@@ -284,21 +308,6 @@ public class Player : LivingThing
 
         SFX.Play(Assets.SoundEffects.pickUpItem);
         return true;
-    }
-
-    public override void Draw(SpriteBatch spriteBatch, Texture2D pixel)
-    {
-
-        leftHand.Draw(spriteBatch, color, gameContext.showHitboxes);
-        rightHand.Draw(spriteBatch, color, gameContext.showHitboxes);
-
-        sprite.Draw(spriteBatch, color);
-
-        if (gameContext.showHitboxes)
-        {
-            spriteBatch.Draw(pixel, hitbox, Color.Red);
-        }
-        
     }
 
     public bool TryConsume(Item item)
