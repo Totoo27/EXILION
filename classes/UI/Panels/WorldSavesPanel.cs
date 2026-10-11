@@ -1,11 +1,17 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using EXILION.Saving;
+using System;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using EXILION.Scenes;
 
 namespace EXILION.UI;
 
 public class WorldSavesPanel
 {
+    #nullable enable
     public Vector2 position;
     public int Width { get; private set; }
     public int Height { get; private set; }
@@ -28,12 +34,14 @@ public class WorldSavesPanel
     private Texture2D panelTexture;
     private Texture2D borderTexture;
 
-    private IHasWorldSaves scene;
+    private readonly IHasWorldSaves scene;
 
     private Color borderColor = new Color(46, 15, 74);
 
     // Buttons
+
     private Button backButton;
+    private Button newWorldButton;
 
     // Buttons config
     private Texture2D buttonSprite;
@@ -46,24 +54,37 @@ public class WorldSavesPanel
     private GraphicsDevice GraphicsDevice;
     private InputManager input;
 
-    public WorldSavesPanel(GameContext gameContext, GraphicsDevice GraphicsDevice, InputManager input, IHasWorldSaves scene, Vector2 position)
-    {
+    // World saving management
 
+    private int HoveredWorld;
+    private readonly WorldSaveService saveService = new();
+    private List<WorldSaveData> worlds = new();
+    private bool isLoadingWorlds = false;
+    private bool isCreatingWorld = false;
+    private Camera camera;
+    private IDisplaySettings displaySettings;
+
+    public WorldSavesPanel(GameContext gameContext, GraphicsDevice GraphicsDevice, InputManager input, IHasWorldSaves scene, Vector2 position, Camera camera, IDisplaySettings displaySettings)
+    {
         this.gameContext = gameContext;
         this.GraphicsDevice = GraphicsDevice;
         this.input = input;
         this.scene = scene;
-
         this.position = position;
+        this.camera = camera;
+        this.displaySettings = displaySettings;
 
-        this.Width = gameContext.ScaleX(1000);
-        this.Height = gameContext.ScaleY(600);
+        Width = gameContext.ScaleX(1000);
+        Height = gameContext.ScaleY(600);
 
         LoadContent();
     }
 
     public void LoadContent()
     {
+
+        _ = RefreshWorldsAsync();
+
         GraphicsDevice graphicsDevice = GraphicsDevice;
         pixel = new Texture2D(graphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
@@ -89,6 +110,18 @@ public class WorldSavesPanel
             buttonSprite,
             font
         );
+
+        newWorldButton = new Button(
+            "Create new world",
+            new Rectangle(
+                (int)position.X,
+                (int)position.Y,
+                gameContext.ScaleX(220),
+                gameContext.ScaleY(50)
+            ),
+            buttonSprite,
+            font
+        );
     }
 
     public void Update()
@@ -97,13 +130,89 @@ public class WorldSavesPanel
 
         MouseState mouseState = input.CurrentMouse;
 
-        updateButtonPosition(backButton, gameContext.ScaleX(40), Height - gameContext.ScaleY(90));
+        updateButtonPosition(backButton, gameContext.ScaleX(40), gameContext.ScaleY(40));
+        updateButtonPosition(newWorldButton, Width - gameContext.ScaleX(260), gameContext.ScaleY(40));
 
         if (backButton.isClicked(mouseState))
         {
             scene.closeWorldSaves();
         }
 
+        if (!isCreatingWorld && newWorldButton.isClicked(mouseState))
+        {
+            _ = LoadAndStartWorldAsync();
+        }
+
+        if (isCreatingWorld || isLoadingWorlds) return;
+
+        int rowHeight = gameContext.ScaleY(100);
+        int startX = bounds.X + gameContext.ScaleX(40);
+        int startY = bounds.Y + gameContext.ScaleY(120);
+
+        for (int i = 0; i < worlds.Count; i++)
+        {
+            Rectangle rowBounds = new Rectangle(startX, startY + i * rowHeight, bounds.Width - gameContext.ScaleX(80), rowHeight - gameContext.ScaleY(10));
+            if (rowBounds.Contains(mouseState.Position))
+            {
+                HoveredWorld = i;
+                if(mouseState.LeftButton == ButtonState.Pressed)
+                {
+                    _ = LoadAndStartWorldAsync(worlds[i]);
+                }
+                break;
+            } else
+            {
+                HoveredWorld = -1;
+            }
+        }
+
+    }
+
+    private async Task LoadAndStartWorldAsync(WorldSaveData? world = null)
+    {
+        if (isCreatingWorld) return;
+        isCreatingWorld = true;
+
+        bool isNewWorld = world == null;
+
+        try
+        {
+
+            if(isNewWorld)
+            {
+                string worldName = "Nuevo mundo";
+                int seed = Random.Shared.Next();
+                world = await saveService.CreateWorldAsync(worldName, seed);
+            }
+
+            string path = saveService.GetWorldPath(world.WorldId);
+            SceneManager.ChangeScene(new GameScene(gameContext, input, camera, GraphicsDevice, displaySettings, path));
+        }
+        catch (Exception ex)
+        {
+            if(isNewWorld) Console.WriteLine($"Error al crear el mundo: {ex.Message}");
+            else Console.WriteLine($"Error al cargar el mundo: {ex.Message}");
+        }
+        finally
+        {
+            isCreatingWorld = false;
+        }
+    }
+
+    public async Task RefreshWorldsAsync()
+    {
+        if (isLoadingWorlds)return;
+
+        isLoadingWorlds = true;
+
+        try
+        {
+            worlds = await saveService.GetAllWorldsAsync();
+        }
+        finally
+        {
+            isLoadingWorlds = false;
+        }
     }
 
     public void Draw(SpriteBatch spriteBatch)
@@ -181,6 +290,49 @@ public class WorldSavesPanel
         );
 
         backButton.Draw(spriteBatch, 1f);
+        newWorldButton.Draw(spriteBatch, 1f);
+
+        int rowHeight = gameContext.ScaleY(100);
+        int startX = bounds.X + gameContext.ScaleX(40);
+        int startY = bounds.Y + gameContext.ScaleY(120);
+
+        for (int i = 0; i < worlds.Count; i++)
+        {
+            WorldSaveData world = worlds[i];
+
+            Rectangle rowBounds = new Rectangle(
+                startX,
+                startY + i * rowHeight,
+                bounds.Width - gameContext.ScaleX(80),
+                rowHeight - gameContext.ScaleY(10)
+            );
+
+            spriteBatch.Draw(
+                pixel,
+                rowBounds,
+                HoveredWorld == i ? new Color(35, 25, 45) : new Color(55, 45, 65)
+            );
+
+            spriteBatch.DrawString(
+                font,
+                world.WorldName,
+                new Vector2(
+                    rowBounds.X + gameContext.ScaleX(15),
+                    rowBounds.Y + gameContext.ScaleY(10)
+                ),
+                Color.White
+            );
+
+            spriteBatch.DrawString(
+                font,
+                $"Seed: {world.WorldSeed}",
+                new Vector2(
+                    rowBounds.X + gameContext.ScaleX(15),
+                    rowBounds.Y + gameContext.ScaleY(45)
+                ),
+                Color.LightGray
+            );
+        }
 
     }
 

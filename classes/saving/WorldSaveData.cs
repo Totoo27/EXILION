@@ -8,6 +8,7 @@ public class WorldSaveData
 
     public string WorldId { get; set; } = string.Empty;
     public string WorldName { get; set; } = string.Empty;
+    public bool IsNewWorld { get; set; } = true;
     public int WorldSeed { get; set; }
     public int WorldTime { get; set; }
     public bool IsNight { get; set; }

@@ -76,7 +76,7 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
         settingsPanel = new SettingsPanel(GameContext, GraphicsDevice, input, this, displaySettings, new Vector2(GraphicsDevice.Viewport.Width, 0));
         settingsPanel.position.Y = getHalfScreenPositionY(settingsPanel.Height);
 
-        worldSavesPanel = new WorldSavesPanel(GameContext, GraphicsDevice, input, this, new Vector2(0, GraphicsDevice.Viewport.Height));
+        worldSavesPanel = new WorldSavesPanel(GameContext, GraphicsDevice, input, this, new Vector2(0, GraphicsDevice.Viewport.Height), camera, displaySettings);
         worldSavesPanel.position.X = getHalfScreenPositionX(settingsPanel.Width);
 
         // Stars

@@ -64,8 +64,8 @@ public class GameScene : Scene
     private WorldSaveService saveService = new WorldSaveService();
     private string path;
     private bool isNewGame;
-
-    private int Seed = 12345;
+    private bool isLoaded = false;
+    private int Seed;
 
     public GameScene(GameContext gameContext, InputManager input, Camera camera, GraphicsDevice graphicsDevice, IDisplaySettings displaySettings, string path) : base(gameContext)
     {
@@ -74,28 +74,17 @@ public class GameScene : Scene
         this.graphicsDevice = graphicsDevice;
         this.displaySettings = displaySettings;
         this.path = path;
-        isNewGame = !saveService.Exists(path);
-        Console.WriteLine(isNewGame);
-        if (isNewGame)
-        {
-            saveData = new WorldSaveData
-            {
-                WorldSeed = Seed,
-                WorldName = "Test"
-            };
 
-            saveService.SaveAsync(path, saveData).Wait();
-        } else
-        {
-            saveData = saveService.LoadAsync(path).Result;
-        }
-
+        saveData = saveService.LoadAsync(path).Result;
+        isNewGame = saveData.IsNewWorld;
 
         Music.Play(songsQueue[currentSongIndex], 1f);
     }
 
     public override void LoadContent()
     {
+        // Init Seed
+        Seed = saveData.WorldSeed;
 
         pixel = new Texture2D(graphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
@@ -111,6 +100,7 @@ public class GameScene : Scene
         if (isNewGame)
         {
             startNewGame();
+            saveGame();
         }
         else
         {
@@ -123,6 +113,8 @@ public class GameScene : Scene
         world.UpdateAroundPosition(player.position);
         Texture2D tileset = Assets.Sprites.Tileset;
         mapRenderer = new MapRenderer(tileset, tileSize);
+
+        isLoaded = true;
     }
 
     private void loadGame()
@@ -159,6 +151,7 @@ public class GameScene : Scene
     public void saveGame()
     {
 
+        saveData.IsNewWorld = false;
         saveData.WorldTime = diurnalCycleTime;
         saveData.IsNight = night;
 
@@ -228,7 +221,7 @@ public class GameScene : Scene
 
     public override void Update(GameTime gameTime)
     {
-        if(stopUpdating) return;
+        if(stopUpdating || !isLoaded) return;
 
         MouseState mouse = input.CurrentMouse;
 
@@ -304,6 +297,7 @@ public class GameScene : Scene
 
     public override void Draw(SpriteBatch spriteBatch)
     {
+        if(!isLoaded) return;
 
         // Floor
         mapRenderer.Draw(spriteBatch, world);
@@ -321,6 +315,8 @@ public class GameScene : Scene
 
     public override void DrawUI(SpriteBatch spriteBatch)
     {
+
+        if(!isLoaded) return;
         // Night Filter
         if (nightOpacity > 0) spriteBatch.Draw(pixel, new Rectangle(0, 0, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height), nightColor * nightOpacity);
 
