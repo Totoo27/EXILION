@@ -6,7 +6,7 @@ using EXILION.UI;
 
 namespace EXILION.Scenes;
 
-public class MainMenu : Scene, IHasSettings
+public class MainMenu : Scene, IHasSettings, IHasWorldSaves
 {
     private SpriteFont font;
     private Button startGame;
@@ -27,11 +27,14 @@ public class MainMenu : Scene, IHasSettings
     // Settings
 
     private SettingsPanel settingsPanel;
+    private WorldSavesPanel worldSavesPanel;
     private Vector2 enabledSettingsPosition;
+    private Vector2 enabledWorldSavesPosition;
 
     // ---- Animation
     private bool animationFinished = false;
     private bool settingsDisableAnimation = false;
+    private bool worldSavesDisableAnimation = false;
     private float timer = 0;
 
 
@@ -69,9 +72,12 @@ public class MainMenu : Scene, IHasSettings
 
     public override void LoadContent()
     {
-
+        // Init Panels
         settingsPanel = new SettingsPanel(GameContext, GraphicsDevice, input, this, displaySettings, new Vector2(GraphicsDevice.Viewport.Width, 0));
         settingsPanel.position.Y = getHalfScreenPositionY(settingsPanel.Height);
+
+        worldSavesPanel = new WorldSavesPanel(GameContext, GraphicsDevice, input, this, new Vector2(0, GraphicsDevice.Viewport.Height));
+        worldSavesPanel.position.X = getHalfScreenPositionX(settingsPanel.Width);
 
         // Stars
         starfield = new Starfield(GraphicsDevice, 200);
@@ -90,11 +96,12 @@ public class MainMenu : Scene, IHasSettings
         settings = new Button("Settings", new Rectangle((int)getHalfScreenPositionX(280), GameContext.ScaleY(520), GameContext.ScaleX(280), GameContext.ScaleY(50)), buttonSprite, font);
         quitGame = new Button("Quit Game", new Rectangle((int)getHalfScreenPositionX(280), GameContext.ScaleY(610), GameContext.ScaleX(280), GameContext.ScaleY(50)), buttonSprite, font);
         
-        // Set original positions
+        // Set original & enabled positions
         originalTitlePosition = new Vector2(getHalfScreenPositionX(900), GameContext.ScaleY(-30));
         originalSunPosition = new Vector2(getHalfScreenPositionX(900) + GameContext.ScaleX(410), GameContext.ScaleY(20));
 
         enabledSettingsPosition = new Vector2(getHalfScreenPositionX(settingsPanel.Width), getHalfScreenPositionY(settingsPanel.Height));
+        enabledWorldSavesPosition = new Vector2(getHalfScreenPositionX(settingsPanel.Width), getHalfScreenPositionY(settingsPanel.Height));
 
         // Rect initializations
         titleRect = new Rectangle((int)originalTitlePosition.X, (int)getHalfScreenPositionY(384), GameContext.ScaleX(900), GameContext.ScaleY(384));
@@ -114,6 +121,7 @@ public class MainMenu : Scene, IHasSettings
         quitGame.Draw(spriteBatch, buttonsOpacity);
 
         settingsPanel.Draw(spriteBatch);
+        worldSavesPanel.Draw(spriteBatch);
 
     }
 
@@ -127,9 +135,10 @@ public class MainMenu : Scene, IHasSettings
         if (input.IsKeyPressed(Keys.Escape))
         {
 
-            if (settingsPanel.enabled)
+            if (settingsPanel.enabled || worldSavesPanel.enabled)
             {
                 settingsDisableAnimation = true;
+                worldSavesDisableAnimation = true;
             } else
             {
                 MainGame.Exit();
@@ -141,6 +150,9 @@ public class MainMenu : Scene, IHasSettings
         updateTitleAnimation(gameTime);
         if(!animationFinished) return; // Prevent any logic before the animation ends
 
+        worldSavesPanel.Update();
+        updateWorldSavesAnimation();
+        if(worldSavesPanel.enabled) return; // Prevent using Menu buttons while worldSaves panel is enabled
 
         settingsPanel.Update();
         updateSettingsAnimation();
@@ -149,15 +161,14 @@ public class MainMenu : Scene, IHasSettings
         // Buttons update
         if (startGame.isClicked(mouseState))
         {
-            SceneManager.ChangeScene(new GameScene(GameContext, input, camera, GraphicsDevice, displaySettings, "Saves/testSave1.json"));
+            worldSavesPanel.enabled = true;
+            //SceneManager.ChangeScene(new GameScene(GameContext, input, camera, GraphicsDevice, displaySettings, "Saves/testSave1.json"));
             return;
         }
 
         if (settings.isClicked(mouseState))
         {
-            
             settingsPanel.enabled = true;
-
         }
 
         if (quitGame.isClicked(mouseState))
@@ -195,6 +206,7 @@ public class MainMenu : Scene, IHasSettings
 
         animationFinished = false;
         settingsDisableAnimation = false;
+        worldSavesDisableAnimation = false;
         timer = 0f;
         titleOpacity = 0f;
         buttonsOpacity = 0f;
@@ -285,8 +297,52 @@ public class MainMenu : Scene, IHasSettings
 
     public void closeSettings()
     {
-        
        settingsDisableAnimation = true;
+    }
+
+    public void closeWorldSaves()
+    {
+        worldSavesDisableAnimation = true;
+    }
+
+    private void updateWorldSavesAnimation()
+    {
+        if(!worldSavesPanel.enabled) return;
+
+        float positionY = worldSavesPanel.position.Y;
+
+        if (positionY > enabledWorldSavesPosition.Y && !worldSavesDisableAnimation)
+        {
+
+            int speed = GameContext.ScaleY(getEasingSpeed(10, (int)positionY, (int)enabledWorldSavesPosition.Y));
+
+            worldSavesPanel.position.Y -= speed;
+
+            titleRect.Y -= speed;
+            sunRect.Y -= speed;
+            startGame.position.Y -= speed;
+            settings.position.Y -= speed;
+            quitGame.position.Y -= speed;
+
+        }
+
+        if(worldSavesDisableAnimation && positionY < GraphicsDevice.Viewport.Height)
+        {
+            int speed = GameContext.ScaleY(getEasingSpeed(10, (int)positionY, GraphicsDevice.Viewport.Height));
+
+            worldSavesPanel.position.Y += speed;
+
+            titleRect.Y += speed;
+            sunRect.Y += speed;
+            startGame.position.Y += speed;
+            settings.position.Y += speed;
+            quitGame.position.Y += speed;
+
+        } else if(worldSavesDisableAnimation)
+        {
+            worldSavesDisableAnimation = false;
+            worldSavesPanel.enabled = false;
+        }
 
     }
 
@@ -334,6 +390,7 @@ public class MainMenu : Scene, IHasSettings
         }
 
     }
+
     private float getHalfScreenPositionX(int size)
     {
         if(size <= 0)
