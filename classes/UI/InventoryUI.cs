@@ -23,6 +23,8 @@ public class InventoryUI
 
     private readonly Inventory inventory;
     private readonly Texture2D slotTexture;
+
+    private readonly Texture2D craftingMenuTexture;
     private readonly SpriteFont font;
     private readonly GameContext gameContext;
 
@@ -33,10 +35,11 @@ public class InventoryUI
     public int SelectedSlotIndex { get; private set; } = 0;
     public event Action<Item?>? slotChanged;
 
-    public InventoryUI(Inventory inventory, Texture2D slotTexture, SpriteFont font, GameContext gameContext)
+    public InventoryUI(Inventory inventory, Texture2D slotTexture, Texture2D craftingMenuTexture, SpriteFont font, GameContext gameContext)
     {
         this.inventory = inventory;
         this.slotTexture = slotTexture;
+        this.craftingMenuTexture = craftingMenuTexture;
         this.font = font;
         this.gameContext = gameContext;
     }
@@ -94,7 +97,9 @@ public class InventoryUI
             for (int row = 1; row < Rows; row++)
             {
                 DrawRow(spriteBatch, row, layout);
+
             }
+            DrawCraftingButton(spriteBatch, layout);
         }
 
         if (draggedSlotIndex != -1)
@@ -111,6 +116,24 @@ public class InventoryUI
                 spriteBatch.Draw(draggedStack.Item.Icon, dragRect, Color.White);
             }
         }
+    }
+
+    private Rectangle GetCraftingButtonRect(Layout layout)
+    {
+        // Columna "Columns" = una más que la última: arranca justo después del último slot, con el padding incluido
+        Rectangle anchor = GetSlotRect(Rows - 1, Columns, layout);
+
+        return new Rectangle(
+            anchor.X,
+            anchor.Y,
+            gameContext.ScaleX(craftingMenuTexture.Width),
+            gameContext.ScaleY(craftingMenuTexture.Height)
+        );
+    }
+
+    private void DrawCraftingButton(SpriteBatch spriteBatch, Layout layout)
+    {
+        spriteBatch.Draw(craftingMenuTexture, GetCraftingButtonRect(layout), Color.White);
     }
 
     private void DrawRow(SpriteBatch spriteBatch, int row, Layout layout)

@@ -29,6 +29,7 @@ public sealed class Sprites
     public Texture2D watchMeter { get; private set; }
     public Texture2D watchProgress { get; private set; }
     public Texture2D watchSetOff { get; private set; }
+    public Texture2D craftingMenu { get; private set; }
 
     // Items
     public Texture2D Piedra { get; private set; }
@@ -47,7 +48,6 @@ public sealed class Sprites
 
     public async Task Load(ContentManager content)
     {
-
         // UI
         MenuBackground = content.Load<Texture2D>("Sprites/UI/MainMenuBackground");
         GameTitle = content.Load<Texture2D>("Sprites/UI/ExilionTitle");
@@ -69,11 +69,14 @@ public sealed class Sprites
         watchMeter = content.Load<Texture2D>("Sprites/UI/HUD/watchMeter");
         watchProgress = content.Load<Texture2D>("Sprites/UI/HUD/watchProgress");
         watchSetOff = content.Load<Texture2D>("Sprites/UI/HUD/watchSetOff");
+      
+      
 
         // Player
         Player = content.Load<Texture2D>("Sprites/Entities/Player");
         playerHand = content.Load<Texture2D>("Sprites/Entities/playerHand");
         Slot   = content.Load<Texture2D>("Sprites/UI/HUD/slot");
+          craftingMenu = content.Load<Texture2D>("Sprites/UI/HUD/craftingMenu");
         
         //Items
         Piedra = content.Load<Texture2D>("Sprites/Items/piedra");

@@ -111,6 +111,7 @@ public class HUD
         inventoryUI = new InventoryUI(
             player.Inventory,
             Assets.Sprites.Slot,
+            Assets.Sprites.craftingMenu,
             Assets.Fonts.PixelArt,
             gameContext
         );
