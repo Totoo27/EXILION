@@ -7,12 +7,15 @@ namespace EXILION.World;
 public class MapRenderer
 {
     private readonly Texture2D _tileset;
+    private readonly Texture2D _objectsTexture;
     private readonly int _tileSize;
     private readonly Dictionary<TileType, Rectangle> _sourceRects;
+    private readonly List<WorldObject> _visibleObjects = new();
 
-    public MapRenderer(Texture2D tileset, int tileSize)
+    public MapRenderer(Texture2D tileset, Texture2D objectsTexture, int tileSize)
     {
         _tileset = tileset;
+        _objectsTexture = objectsTexture;
         _tileSize = tileSize;
 
         _sourceRects = new Dictionary<TileType, Rectangle>
@@ -45,6 +48,40 @@ public class MapRenderer
                     spriteBatch.Draw(_tileset, dest, _sourceRects[chunk.Tiles[lx, ly].Type], Color.White);
                 }
             }
+        }
+    }
+
+    // inFrontOfPlayer = false: objetos que quedan DETRÁS del jugador (se dibujan antes que él)
+    // inFrontOfPlayer = true:  objetos que quedan DELANTE del jugador (se dibujan después)
+    public void DrawObjects(SpriteBatch spriteBatch, World world, float playerY, bool inFrontOfPlayer)
+    {
+        _visibleObjects.Clear();
+
+        foreach (var chunk in world.LoadedChunks)
+        {
+            foreach (var obj in chunk.Objects)
+            {
+                bool isInFront = obj.TileY * _tileSize > playerY;
+                if (isInFront == inFrontOfPlayer) _visibleObjects.Add(obj);
+            }
+        }
+
+        // de arriba hacia abajo, así los de más abajo tapan a los de más arriba
+        _visibleObjects.Sort((a, b) => a.TileY.CompareTo(b.TileY));
+
+        foreach (var obj in _visibleObjects)
+        {
+            var def = obj.Definition;
+
+            float footX = obj.TileX * _tileSize;
+            float footY = obj.TileY * _tileSize;
+
+            float width = def.DrawWidthTiles * _tileSize;
+            float height = width * def.Source.Height / def.Source.Width;
+
+            // el punto (TileX, TileY) son los "pies" del objeto: base centrada del sprite
+            var dest = new Rectangle((int)(footX - width / 2f), (int)(footY - height), (int)width, (int)height);
+            spriteBatch.Draw(_objectsTexture, dest, def.Source, Color.White);
         }
     }
 }

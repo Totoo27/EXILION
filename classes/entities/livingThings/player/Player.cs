@@ -20,36 +20,39 @@ public class Player : LivingThing
         this.hunger = maxHunger;
     }
 
-    public async void Update(Vector2 mousePosition, InputManager input, GameTime gameTime)
+    // NUEVO: recibe el mundo para poder preguntarle si puede avanzar
+    public async void Update(Vector2 mousePosition, InputManager input, GameTime gameTime, EXILION.World.World world)
     {
 
         updateHunger(gameTime);
 
         float currentSpeed = this.speed;
+        float collisionRadius = hitbox.Width / 2f; // NUEVO
 
         if(input.IsKeyHeld(Keys.LeftShift))
         {
             currentSpeed *= 2;
         }
 
-        if (input.IsKeyHeld(Keys.Left))
+        // NUEVO: primero se calcula cuánto querés moverte...
+        Vector2 delta = Vector2.Zero;
+
+        if (input.IsKeyHeld(Keys.Left))  delta.X -= currentSpeed;
+        if (input.IsKeyHeld(Keys.Right)) delta.X += currentSpeed;
+        if (input.IsKeyHeld(Keys.Down))  delta.Y += currentSpeed;
+        if (input.IsKeyHeld(Keys.Up))    delta.Y -= currentSpeed;
+
+        // NUEVO: ...y después se mueve cada eje solo si ese lugar es caminable
+        Vector2 nextX = new Vector2(this.position.X + delta.X, this.position.Y);
+        if (world == null || world.IsWalkable(nextX, collisionRadius))
         {
-            this.position.X -= currentSpeed;
+            this.position.X = nextX.X;
         }
 
-        if (input.IsKeyHeld(Keys.Right))
+        Vector2 nextY = new Vector2(this.position.X, this.position.Y + delta.Y);
+        if (world == null || world.IsWalkable(nextY, collisionRadius))
         {
-            this.position.X += currentSpeed;
-        }
-
-        if (input.IsKeyHeld(Keys.Down))
-        {
-            this.position.Y += currentSpeed;
-        }
-
-        if (input.IsKeyHeld(Keys.Up))
-        {
-            this.position.Y -= currentSpeed;
+            this.position.Y = nextY.Y;
         }
 
         if (input.IsKeyPressed(Keys.H))

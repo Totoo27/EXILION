@@ -36,52 +36,59 @@ public class GameScene : Scene
         int tileSize = (int)gameContext.ScaleXY(64);
 
         world = new World.World(seed: Seed, tileSize: tileSize) { RenderDistanceChunks = 2 };
+
+        player.position = world.FindSpawnPosition();   // NUEVO: arranca en un lugar caminable
         world.UpdateAroundPosition(player.position);
 
-        Texture2D tileset = Assets.Sprites.Tileset;
-        mapRenderer = new MapRenderer(tileset, tileSize);
+        // NUEVO: el renderer ahora recibe también la textura de objetos
+        mapRenderer = new MapRenderer(Assets.Sprites.Tileset, Assets.Sprites.Objects, tileSize);
 
         camera = new Camera(Game.GraphicsDevice.Viewport);
     }
 
-public override void Update(GameTime gameTime)
-{
-    MouseState mouse = Mouse.GetState();
-
-    if (Game.input.IsKeyPressed(Keys.Escape))
+    public override void Update(GameTime gameTime)
     {
-        Game.changeScene(new MainMenu(Game));
-    }
+        MouseState mouse = Mouse.GetState();
 
-    if (player != null)
-    {
-        Vector2 mouseWorldPosition = mouse.Position.ToVector2();
-
-        if (camera != null)
+        if (Game.input.IsKeyPressed(Keys.Escape))
         {
-            Matrix inverseCamera = Matrix.Invert(camera.GetViewMatrix());
-            mouseWorldPosition = Vector2.Transform(mouseWorldPosition, inverseCamera);
+            Game.changeScene(new MainMenu(Game));
         }
 
-        player.Update(mouseWorldPosition, Game.input, gameTime);
-        if (player.isDead)
+        if (player != null)
         {
-            player = null;
+            Vector2 mouseWorldPosition = mouse.Position.ToVector2();
+
+            if (camera != null)
+            {
+                Matrix inverseCamera = Matrix.Invert(camera.GetViewMatrix());
+                mouseWorldPosition = Vector2.Transform(mouseWorldPosition, inverseCamera);
+            }
+
+            player.Update(mouseWorldPosition, Game.input, gameTime, world);   // NUEVO: pasa el mundo
+            if (player.isDead)
+            {
+                player = null;
+            }
+        }
+
+        if (player != null)
+        {
+            world.UpdateAroundPosition(player.position);
+            camera.Follow(player.position);
         }
     }
-
-    if (player != null)
-    {
-        world.UpdateAroundPosition(player.position);
-        camera.Follow(player.position);
-    }
-}
 
     public override void Draw(SpriteBatch spriteBatch)
     {
-        mapRenderer.Draw(spriteBatch, world);
+        float playerY = player != null ? player.position.Y : float.MaxValue;   // NUEVO
+
+        mapRenderer.Draw(spriteBatch, world);                                  // terreno
+        mapRenderer.DrawObjects(spriteBatch, world, playerY, false);           // NUEVO: objetos detrás del jugador
 
         if (player != null)
             player.Draw(spriteBatch, pixel);
+
+        mapRenderer.DrawObjects(spriteBatch, world, playerY, true);            // NUEVO: objetos delante del jugador
     }
 }

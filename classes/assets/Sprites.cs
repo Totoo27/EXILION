@@ -15,6 +15,7 @@ public sealed class Sprites
 
     // World
     public Texture2D Tileset { get; private set; }
+    public Texture2D Objects { get; private set; } 
 
     public async Task Load(ContentManager content)
     {
@@ -30,6 +31,7 @@ public sealed class Sprites
 
         // World
         Tileset = content.Load<Texture2D>("Sprites/Tileset");
+        Objects = content.Load<Texture2D>("Sprites/Objects"); 
 
         await MainLoader.addCompletedTask();
 
