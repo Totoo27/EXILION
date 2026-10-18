@@ -127,7 +127,7 @@ public class WorldSavesPanel
 
     public void Update()
     {
-        if (!enabled) return;
+        if (!enabled || isLoadingWorlds) return;
 
         MouseState mouseState = input.CurrentMouse;
 
@@ -154,6 +154,14 @@ public class WorldSavesPanel
             int startY = (spacing + worldSaveRows[i].bounds.Height) * i + bounds.Y + startOffset;
 
             worldSaveRows[i].UpdatePositionY(startY);
+
+            if (worldSaveRows[i].isDeleteClicked(input.CurrentMouse))
+            {
+                saveService.DeleteWorld(worlds[i].WorldId);
+                _ = RefreshWorldsAsync();
+                break;
+            }
+
             if (worldSaveRows[i].isClicked(input.CurrentMouse))
             {
                 _ = LoadAndStartWorldAsync(worlds[i]);
@@ -196,9 +204,11 @@ public class WorldSavesPanel
 
     public async Task RefreshWorldsAsync()
     {
-        if (isLoadingWorlds)return;
+        if (isLoadingWorlds) return;
 
         isLoadingWorlds = true;
+        worlds.Clear();
+        worldSaveRows.Clear();
 
         try
         {
@@ -225,7 +235,7 @@ public class WorldSavesPanel
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        if (!enabled) return;
+        if (!enabled || isLoadingWorlds) return;
 
         int borderSize = gameContext.ScaleX(4);
 

@@ -147,6 +147,7 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
         }
 
         starfield.Update(gameTime);
+
         updateTitleAnimation(gameTime);
         if(!animationFinished) return; // Prevent any logic before the animation ends
 
@@ -162,7 +163,6 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
         if (startGame.isClicked(mouseState))
         {
             worldSavesPanel.enabled = true;
-            //SceneManager.ChangeScene(new GameScene(GameContext, input, camera, GraphicsDevice, displaySettings, "Saves/testSave1.json"));
             return;
         }
 
@@ -184,6 +184,7 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
 
         // UI
         settingsPanel = null;
+        worldSavesPanel = null;
         startGame = null;
         settings = null;
         quitGame = null;
@@ -325,7 +326,7 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
             quitGame.position.Y -= speed;
 
         }
-
+        
         if(worldSavesDisableAnimation && positionY < GraphicsDevice.Viewport.Height)
         {
             int speed = GameContext.ScaleY(getEasingSpeed(10, (int)positionY, GraphicsDevice.Viewport.Height));
