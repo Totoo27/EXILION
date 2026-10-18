@@ -112,148 +112,26 @@ public class GameScene : Scene
         // Load world seed
         int tileSize = (int)GameContext.ScaleXY(64);
         world = new World.World(seed: Seed, tileSize: tileSize) { RenderDistanceChunks = 2 };
+
+        player.position = world.FindSpawnPosition();   // NUEVO: arranca en un lugar caminable
         world.UpdateAroundPosition(player.position);
-        Texture2D tileset = Assets.Sprites.Tileset;
-        mapRenderer = new MapRenderer(tileset, tileSize);
+
+        // NUEVO: el renderer ahora recibe también la textura de objetos
+        mapRenderer = new MapRenderer(Assets.Sprites.Tileset, Assets.Sprites.Objects, tileSize);
 
         isLoaded = true;
     }
 
-    private void loadGame()
-    {
-
-        diurnalCycleTime = saveData.WorldTime;
-        night = saveData.IsNight;
-        if (night)
-        {
-            nightOpacity = 1f;
-        }
-        Seed = saveData.WorldSeed;
-        processPlayerSpawn(false);
-        
-        foreach(var catchableItem in saveData.CatchableItems)
-        {
-
-            var item = ItemRegistry.GetById(catchableItem.ItemId);
-            if (item == null) continue;
-
-            catchableItems.Add(
-
-                new CatchableItem(
-                    new ItemStack(item, catchableItem.Quantity),
-                    new Vector2(catchableItem.PositionX, catchableItem.PositionY),
-                    new Sprite(item.Icon, GameContext.ScaleXY(1)),
-                    GameContext
-                )
-
-            );
-        }
-    }
-
-    public void saveGame()
-    {
-
-        saveData.IsNewWorld = false;
-        saveData.WorldTime = diurnalCycleTime;
-        saveData.IsNight = night;
-
-        saveData.Player = player.GetSaveData();
-        saveData.CatchableItems.Clear();
-        foreach (var catchableItem in catchableItems)
-        {
-            saveData.CatchableItems.Add(catchableItem.GetSaveData());
-        }
-
-        saveService.SaveAsync(path, saveData).Wait();
-    }
-
-    private void startNewGame()
-    {
-        processPlayerSpawn(true);
-        
-        catchableItems.Add(
-            new CatchableItem(
-                new ItemStack(ItemRegistry.Madera, 64),
-                new Vector2(100, 100),
-                new Sprite(ItemRegistry.Madera.Icon, GameContext.ScaleXY(1)),
-                GameContext
-            )
-        );
-        catchableItems.Add(
-            new CatchableItem(
-                new ItemStack(ItemRegistry.Piedra, 3),
-                new Vector2(125, 100),
-                new Sprite(ItemRegistry.Piedra.Icon, GameContext.ScaleXY(1)),
-                GameContext
-            )
-        );
-        catchableItems.Add(
-            new CatchableItem(
-                new ItemStack(ItemRegistry.AguaPurificada, 2),
-                new Vector2(300, 100),
-                new Sprite(ItemRegistry.AguaPurificada.Icon, GameContext.ScaleXY(1)),
-                GameContext
-            )
-        );
-        catchableItems.Add(
-            new CatchableItem(
-                new ItemStack(ItemRegistry.CarneCocinada, 2),
-                new Vector2(400, 100),
-                new Sprite(ItemRegistry.CarneCocinada.Icon, GameContext.ScaleXY(1)),
-                GameContext
-            )
-        );
-        catchableItems.Add(
-            new CatchableItem(
-                new ItemStack(ItemRegistry.OxigenoEmbotellado, 2),
-                new Vector2(500, 100),
-                new Sprite(ItemRegistry.OxigenoEmbotellado.Icon, GameContext.ScaleXY(1)),
-                GameContext
-            )
-        );
-        catchableItems.Add(
-            new CatchableItem(
-                new ItemStack(ItemRegistry.HachaTest, 1),
-                new Vector2(600, 100),
-                new Sprite(ItemRegistry.HachaTest.Icon, GameContext.ScaleXY(1)),
-                GameContext
-            )
-        );
-    }
-
     public override void Update(GameTime gameTime)
     {
-        if(stopUpdating || !isLoaded) return;
+        MouseState mouse = Mouse.GetState();
 
-        MouseState mouse = input.CurrentMouse;
-
-        if(deathPanel.enabled)
+        if (Game.input.IsKeyPressed(Keys.Escape))
         {
-            deathPanel.Update();
-            return;
+            Game.changeScene(new MainMenu(Game));
         }
 
-        if (input.IsKeyPressed(Keys.Escape))
-        {
-            pausePanel.enabled = true;
-        }
-        if (input.IsKeyPressed(Keys.F1) && player != null)
-        {
-            HUD.toggle();
-        }
-        if (input.IsKeyPressed(Keys.G))
-        {
-            saveGame();
-        }
-
-        if (pausePanel.enabled)
-        {
-            pausePanel.Update();
-            return;
-        } 
-            
-        
-        if(player != null)
+        if (player != null)
         {
             Vector2 mouseWorldPosition = mouse.Position.ToVector2();
 
@@ -263,46 +141,26 @@ public class GameScene : Scene
                 mouseWorldPosition = Vector2.Transform(mouseWorldPosition, inverseCamera);
             }
 
-            UpdateDiurnalCycle(gameTime);
-            UpdateNightTransition(gameTime);
-
-            HUD.Update();
-            player.Update(mouseWorldPosition, input, gameTime);
-
-            if (input.IsKeyPressed(Keys.E))
-            {
-                Rectangle playerHitbox = player.GetHitbox();
-
-                for (int i = catchableItems.Count - 1; i >= 0; i--)
-                {
-                    CatchableItem item = catchableItems[i];
-
-                    if (playerHitbox.Intersects(item.GetHitbox()))
-                    {
-                        player.TryPickup(item);
-                        if (item.Picked) catchableItems.RemoveAt(i);
-                    }
-                }
-            }
-        
-            world.UpdateAroundPosition(player.position);
-            camera.Follow(player.position);
-
+            player.Update(mouseWorldPosition, Game.input, gameTime, world);   // NUEVO: pasa el mundo
             if (player.isDead)
             {
-                processPlayerDeath();
+                player = null;
             }
-
         }
 
+        if (player != null)
+        {
+            world.UpdateAroundPosition(player.position);
+            camera.Follow(player.position);
+        }
     }
 
     public override void Draw(SpriteBatch spriteBatch)
     {
-        if(!isLoaded) return;
+        float playerY = player != null ? player.position.Y : float.MaxValue;   // NUEVO
 
-        // Floor
-        mapRenderer.Draw(spriteBatch, world);
+        mapRenderer.Draw(spriteBatch, world);                                  // terreno
+        mapRenderer.DrawObjects(spriteBatch, world, playerY, false);           // NUEVO: objetos detrás del jugador
 
         // Entities
         foreach (var item in catchableItems)
@@ -337,91 +195,9 @@ public class GameScene : Scene
         // Events
         Music.musicStop -= changeMusic;
         deathPanel.Respawn -= processPlayerSpawn;
-        if (player != null)
-        {
-            player.Inventory.UpdateInventoryUI -= HUD.inventoryUI.UpdateHandItem;
-            player.HealthChanged -= camera.damageShake;
-        } 
+        if (player != null) player.Draw(spriteBatch, pixel);
 
-        // UI
-        HUD = null;
-        pausePanel = null;
-        deathPanel = null;
-
-        // Entities
-        catchableItems?.Clear();
-        catchableItems = null;
-
-        // World
-        world = null;
-        mapRenderer = null;
-
-        // Player
-        player = null;
-
-        // Utils
-        pixel?.Dispose();
-        pixel = null;
-        GameContext = null;
-        camera = null;
-        input = null;
-
-        // Music queue
-        songsQueue.Clear();
-
-    }
-
-    private void UpdateDiurnalCycle(GameTime gameTime)
-    {
-        timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-        if (timer >= TIMER_INTERVAL)
-        {
-            timer = 0f;
-            diurnalCycleTime--;
-
-            if (diurnalCycleTime <= 0)
-            {
-
-                diurnalCycleTime = DIURNAL_PRESET_TIME;
-                night = !night;
-
-            }
-
-            HUD.setTime(DIURNAL_PRESET_TIME - diurnalCycleTime);
-
-        }
-
-    }
-
-    private void processPlayerDeath()
-    {
-        HUD.hide();
-
-        // Drop inventory items
-        Inventory inventory = player.Inventory;
-
-        for(int i = 0; i < inventory.Capacity; i++)
-        {
-            ItemStack itemStack = inventory.GetSlot(i);
-            if(itemStack == null) continue;
-
-            catchableItems.Add(
-                new CatchableItem(
-                    itemStack,
-                    player.position,
-                    new Sprite(itemStack.Item.Icon, GameContext.ScaleXY(1)),
-                    GameContext
-                )
-            );
-        }
-
-        player.HealthChanged -= camera.damageShake;
-        player.Inventory.UpdateInventoryUI -= HUD.inventoryUI.UpdateHandItem;
-
-        HUD = null;
-        player = null;
-        deathPanel.enabled = true;
+        mapRenderer.DrawObjects(spriteBatch, world, playerY, true);
     }
 
     private void processPlayerSpawn(bool isNewGame)

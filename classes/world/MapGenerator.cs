@@ -1,12 +1,16 @@
+using System.Collections.Generic;
+
 namespace EXILION.World;
 
 public class MapGenerator
 {
+    private readonly int _seed;
     private readonly float _elevOffsetX, _elevOffsetY;
     private readonly float _moistOffsetX, _moistOffsetY;
 
     public MapGenerator(int seed)
     {
+        _seed = seed;
         var rng = new System.Random(seed);
         _elevOffsetX = (float)rng.NextDouble() * 10000f;
         _elevOffsetY = (float)rng.NextDouble() * 10000f;
@@ -17,8 +21,7 @@ public class MapGenerator
     public Chunk GenerateChunk(int chunkX, int chunkY)
     {
         var tiles = new MapTile[Chunk.Size, Chunk.Size];
-
-        //Si el chunk es el número 2 (chunkX = 2) y cada chunk mide 16 tiles de lado (Chunk.Size = 16), entonces ese chunk arranca en el tile número 2 * 16 = 32 del mapa completo.
+        var objects = new List<WorldObject>();
         int baseX = chunkX * Chunk.Size;
         int baseY = chunkY * Chunk.Size;
 
@@ -30,28 +33,56 @@ public class MapGenerator
                 int worldX = baseX + lx;
                 int worldY = baseY + ly;
 
-                float elevation = SimplexNoise.Fractal(
-                    worldX + _elevOffsetX, worldY + _elevOffsetY,
-                    octaves: 5, persistence: 0.5f, scale: 0.03f);
+                tiles[lx, ly] = GetTile(worldX, worldY);
 
-                float moisture = SimplexNoise.Fractal(
-                    worldX + _moistOffsetX, worldY + _moistOffsetY,
-                    octaves: 4, persistence: 0.5f, scale: 0.05f);
-                
-                //lo normaliza a valores entre 0 y 1 asi classifybiome es mas legible
-                elevation = (elevation + 1f) / 2f;
-                moisture = (moisture + 1f) / 2f;
-
-                tiles[lx, ly] = new MapTile
-                {
-                    Elevation = elevation,
-                    Moisture = moisture,
-                    Type = ClassifyBiome(elevation, moisture)
-                };
+                WorldObject obj = TryGetObject(worldX, worldY, tiles[lx, ly].Type);
+                if (obj != null) objects.Add(obj);
             }
         }
 
-        return new Chunk(chunkX, chunkY, tiles);
+        return new Chunk(chunkX, chunkY, tiles, objects);
+    }
+
+    // Terreno de UN tile, dadas sus coordenadas globales
+    public MapTile GetTile(int worldX, int worldY)
+    {
+        float elevation = SimplexNoise.Fractal(
+            worldX + _elevOffsetX, worldY + _elevOffsetY,
+            octaves: 5, persistence: 0.5f, scale: 0.03f);
+
+        float moisture = SimplexNoise.Fractal(
+            worldX + _moistOffsetX, worldY + _moistOffsetY,
+            octaves: 4, persistence: 0.5f, scale: 0.05f);
+
+        elevation = (elevation + 1f) / 2f;
+        moisture = (moisture + 1f) / 2f;
+
+        return new MapTile
+        {
+            Elevation = elevation,
+            Moisture = moisture,
+            Type = ClassifyBiome(elevation, moisture)
+        };
+    }
+
+    // ¿Aparece un objeto en este tile? Devuelve null si no
+    public WorldObject TryGetObject(int worldX, int worldY, TileType biome)
+    {
+        var rules = ObjectProperties.GetSpawnRules(biome);
+
+        for (int i = 0; i < rules.Length; i++)
+        {
+            float roll = WorldHash.Value01(_seed, worldX, worldY, 100 + i);
+            if (roll < rules[i].Chance)
+            {
+                // posición dentro del tile, para que no queden en grilla perfecta
+                float offsetX = 0.2f + 0.6f * WorldHash.Value01(_seed, worldX, worldY, 200);
+                float offsetY = 0.2f + 0.6f * WorldHash.Value01(_seed, worldX, worldY, 201);
+                return new WorldObject(rules[i].Type, worldX + offsetX, worldY + offsetY);
+            }
+        }
+
+        return null;
     }
 
     private TileType ClassifyBiome(float elevation, float moisture)

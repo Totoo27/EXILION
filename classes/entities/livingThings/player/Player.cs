@@ -6,6 +6,7 @@ using EXILION.Items;
 using EXILION.Entities.CatchableItems;
 using EXILION.Saving;
 using Microsoft.Xna.Framework.Audio;
+using EXILION.World;
 
 namespace EXILION.Entities.LivingThings;
 
@@ -52,36 +53,8 @@ public class Player : LivingThing
         rightHand.ToolAttack += leftHand.StartToolAttack;
     }
 
-    public void Restore(PlayerSaveData saveData)
-    {
-        this.position = new Vector2(saveData.PositionX, saveData.PositionY);
-        this.health = saveData.Health;
-        this.hunger = saveData.Hunger;
-        this.thirst = saveData.Thirst;
-        this.oxygen = saveData.Oxygen;
-
-        inventory.Restore(saveData.Inventory);
-    }
-
-    public PlayerSaveData GetSaveData()
-    {
-        
-        return new PlayerSaveData
-        {
-            PositionX = this.position.X,
-            PositionY = this.position.Y,
-
-            Health = this.health,
-            Hunger = this.hunger,
-            Thirst = this.thirst,
-            Oxygen = this.oxygen,
-
-            Inventory = inventory.GetSaveData()
-        };
-
-    }
-
-    public void Update(Vector2 mousePosition, InputManager input, GameTime gameTime)
+    // NUEVO: recibe el mundo para poder preguntarle si puede avanzar
+    public async void Update(Vector2 mousePosition, InputManager input, GameTime gameTime, World world)
     {
 
         updateHunger(gameTime);
@@ -89,6 +62,7 @@ public class Player : LivingThing
         updateOxygen(gameTime);
 
         float currentSpeed = this.speed;
+        float collisionRadius = hitbox.Width / 2f; // NUEVO
         runningMultiplier = 1f;
 
         Vector2 movementDirection = Vector2.Zero;
@@ -118,55 +92,25 @@ public class Player : LivingThing
 
         }
 
-        // Debug keys
-        if (input.IsKeyPressed(Keys.NumPad1))
-        {
-            takeDamage(5);
-        }
-        if (input.IsKeyPressed(Keys.NumPad2))
-        {
-            takeDamage(10);
-        }
-        if (input.IsKeyPressed(Keys.NumPad3))
-        {
-            takeDamage(20);
-        }
+        // NUEVO: primero se calcula cuánto querés moverte...
+        Vector2 delta = Vector2.Zero;
 
-        if (input.IsKeyPressed(Keys.H))
+        if (input.IsKeyHeld(Keys.Left))  delta.X -= currentSpeed;
+        if (input.IsKeyHeld(Keys.Right)) delta.X += currentSpeed;
+        if (input.IsKeyHeld(Keys.Down))  delta.Y += currentSpeed;
+        if (input.IsKeyHeld(Keys.Up))    delta.Y -= currentSpeed;
+
+        // NUEVO: ...y después se mueve cada eje solo si ese lugar es caminable
+        Vector2 nextX = new Vector2(this.position.X + delta.X, this.position.Y);
+        if (world == null || world.IsWalkable(nextX, collisionRadius))
         {
-            gameContext.showHitboxes = !gameContext.showHitboxes;
+            this.position.X = nextX.X;
         }
 
-        if (input.IsLeftMousePressed() && !input.IsMouseCaptured)
+        Vector2 nextY = new Vector2(this.position.X, this.position.Y + delta.Y);
+        if (world == null || world.IsWalkable(nextY, collisionRadius))
         {
-
-            if (rightHand.hasItem)
-            {
-                if(rightHand.DoAction(this)) return;
-            }
-
-            // Hit with raw hand
-            if(rightHand.CanAttack && !leftHand.IsAttacking && !IsLeftNext)
-            {
-                rightHand.Attack();
-                IsLeftNext = true;
-            } 
-            else if(leftHand.CanAttack && !rightHand.IsAttacking && IsLeftNext)
-            {
-                leftHand.Attack();
-                IsLeftNext = false;
-            }
-        }
-
-        if(damagedTimer > 0f)
-        {
-            damagedTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            if(damagedTimer <= 0f)
-            {
-                color = Color.White;
-            }
-
+            this.position.Y = nextY.Y;
         }
 
         Vector2 direction = mousePosition - position;
