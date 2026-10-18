@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using EXILION.Items;
+using EXILION.Saving;
 
 namespace EXILION.Entities.CatchableItems;
 
@@ -25,5 +26,16 @@ public class CatchableItem : Entity
     {
         if (Picked) return;
         base.Draw(spriteBatch, pixel);
+    }
+
+    public CatchableItemSaveData GetSaveData()
+    {
+        return new CatchableItemSaveData
+        {
+            PositionX = position.X,
+            PositionY = position.Y,
+            ItemId = Stack.Item.Id,
+            Quantity = Stack.Quantity
+        };
     }
 }

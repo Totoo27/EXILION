@@ -1,8 +1,11 @@
+using System.Collections.Generic;
+
 namespace EXILION.Items;
 
-//Clase temporal para prueba de Invetory
 public static class ItemRegistry
 {
+    #nullable enable
+
     public static readonly Item Madera = new Item(
         id: 1,
         type: ItemType.RESOURCES,
@@ -51,5 +54,21 @@ public static class ItemRegistry
         hitboxHeight: 40f,
         icon: Assets.Sprites.testAxe
     );
+
+    private static readonly Dictionary<int, Item> items = new()
+    {
+        { Madera.Id, Madera },
+        { Piedra.Id, Piedra },
+        { AguaPurificada.Id, AguaPurificada },
+        { CarneCocinada.Id, CarneCocinada },
+        { OxigenoEmbotellado.Id, OxigenoEmbotellado },
+        { HachaTest.Id, HachaTest }
+    };
+
+    public static Item? GetById(int id)
+    {
+        items.TryGetValue(id, out Item? item);
+        return item;
+    }
 
 }
