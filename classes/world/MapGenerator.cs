@@ -29,6 +29,7 @@ public class MapGenerator
         {
             for (int ly = 0; ly < Chunk.Size; ly++)
             {
+                //Acá convertimos la coordenada local a global:
                 int worldX = baseX + lx;
                 int worldY = baseY + ly;
 

@@ -2,12 +2,14 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EXILION.Scenes;
+
 public class SceneManager
 {
-    public Scene CurrentScene { get; private set; }
+    public static Scene CurrentScene { get; private set; }
 
-    public void ChangeScene(Scene scene)
+    public static void ChangeScene(Scene scene)
     {
+        
         CurrentScene?.UnloadContent();
 
         CurrentScene = scene;
@@ -23,5 +25,10 @@ public class SceneManager
     public void Draw(SpriteBatch spriteBatch)
     {
         CurrentScene?.Draw(spriteBatch);
+    }
+
+    public void DrawUI(SpriteBatch spriteBatch)
+    {
+        CurrentScene?.DrawUI(spriteBatch);
     }
 }

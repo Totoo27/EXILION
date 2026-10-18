@@ -1,2 +1,2 @@
-﻿using var game = new EXILION.Game1();
+﻿using var game = new EXILION.MainGame();
 game.Run();
