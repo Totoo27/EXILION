@@ -53,22 +53,20 @@ public class PausePanel : IHasSettings
     private GameContext gameContext;
     private GraphicsDevice GraphicsDevice;
     private InputManager input;
-    private Camera camera;
     private IDisplaySettings displaySettings;
-    private GameWindow gameWindow;
+    private IGameData GameData;
 
     // Settings
 
     private SettingsPanel settingsPanel;
 
-    public PausePanel(GameContext gameContext, GraphicsDevice GraphicsDevice, InputManager input, Camera camera, IDisplaySettings displaySettings, GameWindow gameWindow)
+    public PausePanel(IGameData gameData)
     {
-        this.gameContext = gameContext;
-        this.GraphicsDevice = GraphicsDevice;
-        this.input = input;
-        this.camera = camera;
-        this.displaySettings = displaySettings;
-        this.gameWindow = gameWindow;
+        GameData = gameData;
+        this.gameContext = gameData.GetGameContext();
+        this.GraphicsDevice = gameData.GetGraphicsDevice();
+        this.input = gameData.GetInput();
+        this.displaySettings = gameData.GetDisplaySettings();
 
         this.Width = this.gameContext.ScaleX(300);
         this.Height = this.gameContext.ScaleY(400);
@@ -186,7 +184,7 @@ public class PausePanel : IHasSettings
         if (quitButton.isClicked(mouseState))
         {
             if(SceneManager.CurrentScene is GameScene scene) scene.saveGame();
-            SceneManager.ChangeScene(new MainMenu(gameContext, GraphicsDevice, input, displaySettings, camera, gameWindow));
+            SceneManager.ChangeScene(new MainMenu(GameData));
             return;
         }
 

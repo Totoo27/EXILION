@@ -57,8 +57,6 @@ public class GameScene : Scene
 
     private Camera camera;
     private GraphicsDevice graphicsDevice;
-    private IDisplaySettings displaySettings;
-    private GameWindow gameWindow;
 
     // World Saving
     private WorldSaveData saveData;
@@ -68,14 +66,12 @@ public class GameScene : Scene
     private bool isLoaded = false;
     private int Seed;
 
-    public GameScene(GameContext gameContext, InputManager input, Camera camera, GraphicsDevice graphicsDevice, IDisplaySettings displaySettings, string path, GameWindow gameWindow) : base(gameContext)
+    public GameScene(IGameData gameData, string path) : base(gameData)
     {
-        this.input = input;
-        this.camera = camera;
-        this.graphicsDevice = graphicsDevice;
-        this.displaySettings = displaySettings;
+        this.input = gameData.GetInput();
+        this.camera = gameData.GetCamera();
+        this.graphicsDevice = gameData.GetGraphicsDevice();
         this.path = path;
-        this.gameWindow = gameWindow;
 
         saveData = saveService.LoadAsync(path).Result;
         isNewGame = saveData.IsNewWorld;
@@ -91,8 +87,8 @@ public class GameScene : Scene
         pixel = new Texture2D(graphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
 
-        pausePanel = new PausePanel(GameContext, graphicsDevice, input, camera, displaySettings, gameWindow);
-        deathPanel = new DeathPanel(GameContext, graphicsDevice, input, camera, displaySettings, gameWindow);
+        pausePanel = new PausePanel(GameData);
+        deathPanel = new DeathPanel(GameData);
 
         deathPanel.Respawn += processPlayerSpawn;
         Music.musicStop += changeMusic;
@@ -109,14 +105,10 @@ public class GameScene : Scene
             loadGame();
         }
 
-        // Load world seed
         int tileSize = (int)GameContext.ScaleXY(64);
         world = new World.World(seed: Seed, tileSize: tileSize) { RenderDistanceChunks = 2 };
 
-        player.position = world.FindSpawnPosition();   // NUEVO: arranca en un lugar caminable
         world.UpdateAroundPosition(player.position);
-
-        // NUEVO: el renderer ahora recibe también la textura de objetos
         mapRenderer = new MapRenderer(Assets.Sprites.Tileset, Assets.Sprites.Objects, tileSize);
 
         isLoaded = true;
@@ -444,6 +436,8 @@ public class GameScene : Scene
 
         player.HealthChanged += camera.damageShake;
         player.Inventory.UpdateInventoryUI += HUD.inventoryUI.UpdateHandItem;
+
+        if(isNewGame) player.position = world.FindSpawnPosition();
     }
 
     private void UpdateNightTransition(GameTime gameTime)

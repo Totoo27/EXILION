@@ -77,8 +77,6 @@ public sealed class WorldCreationPanel : IDisposable
 
         nameInput.Clear();
         seedInput.Clear();
-
-        // Evita que el clic que abrió el panel cuente como nuevo clic.
         previousMouse = Mouse.GetState();
 
         Layout();
@@ -99,7 +97,6 @@ public sealed class WorldCreationPanel : IDisposable
         Unsubscribe();
     }
 
-    /// <summary>Llamar desde ReportError cuando la creación falla, para permitir reintentar.</summary>
     public void ReportError(string message)
     {
         IsBusy = false;
@@ -110,7 +107,7 @@ public sealed class WorldCreationPanel : IDisposable
     {
         if (!IsOpen) return;
 
-        Layout(); // Respeta cambios de resolución.
+        Layout();
 
         bool leftClicked = mouse.LeftButton == ButtonState.Pressed
                         && previousMouse.LeftButton == ButtonState.Released;
