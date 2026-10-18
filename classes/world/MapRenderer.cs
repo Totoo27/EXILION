@@ -50,9 +50,6 @@ public class MapRenderer
             }
         }
     }
-
-    // inFrontOfPlayer = false: objetos que quedan DETRÁS del jugador (se dibujan antes que él)
-    // inFrontOfPlayer = true:  objetos que quedan DELANTE del jugador (se dibujan después)
     public void DrawObjects(SpriteBatch spriteBatch, World world, float playerY, bool inFrontOfPlayer)
     {
         _visibleObjects.Clear();

@@ -62,8 +62,6 @@ public sealed class Sprites
         thirstIcon = content.Load<Texture2D>("Sprites/UI/HUD/thirstMeterIcon");
 
         // World
-        Tileset = content.Load<Texture2D>("Sprites/Tileset");
-        Objects = content.Load<Texture2D>("Sprites/Objects"); 
         healthMeter = content.Load<Texture2D>("Sprites/UI/HUD/healthMeter");
         healthProgress = content.Load<Texture2D>("Sprites/UI/HUD/healthProgress");
 
@@ -91,6 +89,7 @@ public sealed class Sprites
         
         // World Test
         Tileset = content.Load<Texture2D>("Sprites/Tiles/Tileset");
+        Objects = content.Load<Texture2D>("Sprites/Objects"); 
 
         await MainLoader.addCompletedTask();
 
