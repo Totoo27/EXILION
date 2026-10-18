@@ -58,6 +58,7 @@ public class GameScene : Scene
     private Camera camera;
     private GraphicsDevice graphicsDevice;
     private IDisplaySettings displaySettings;
+    private GameWindow gameWindow;
 
     // World Saving
     private WorldSaveData saveData;
@@ -67,13 +68,14 @@ public class GameScene : Scene
     private bool isLoaded = false;
     private int Seed;
 
-    public GameScene(GameContext gameContext, InputManager input, Camera camera, GraphicsDevice graphicsDevice, IDisplaySettings displaySettings, string path) : base(gameContext)
+    public GameScene(GameContext gameContext, InputManager input, Camera camera, GraphicsDevice graphicsDevice, IDisplaySettings displaySettings, string path, GameWindow gameWindow) : base(gameContext)
     {
         this.input = input;
         this.camera = camera;
         this.graphicsDevice = graphicsDevice;
         this.displaySettings = displaySettings;
         this.path = path;
+        this.gameWindow = gameWindow;
 
         saveData = saveService.LoadAsync(path).Result;
         isNewGame = saveData.IsNewWorld;
@@ -89,8 +91,8 @@ public class GameScene : Scene
         pixel = new Texture2D(graphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
 
-        pausePanel = new PausePanel(GameContext, graphicsDevice, input, camera, displaySettings);
-        deathPanel = new DeathPanel(GameContext, graphicsDevice, input, camera, displaySettings);
+        pausePanel = new PausePanel(GameContext, graphicsDevice, input, camera, displaySettings, gameWindow);
+        deathPanel = new DeathPanel(GameContext, graphicsDevice, input, camera, displaySettings, gameWindow);
 
         deathPanel.Respawn += processPlayerSpawn;
         Music.musicStop += changeMusic;

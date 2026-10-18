@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -65,7 +66,7 @@ public class WorldSaveRow
 
         this.font = Assets.Fonts.PixelArt;
 
-        deleteSize = gameContext.ScaleXY(40);
+        deleteSize = gameContext.ScaleXY(30);
     }
 
     public void UpdatePositionY(int positionY)
@@ -73,51 +74,37 @@ public class WorldSaveRow
         this.position.Y = positionY;
     }
 
-    public bool isDeleteClicked(MouseState currentMouse)
+    public int isClicked(MouseState currentMouse)
     {
-        bool clicked = false;
-        isDeleteHovered = deleteBounds.Contains(new Point(currentMouse.Position.X, currentMouse.Position.Y));
+        int clickType = 0;
 
-        if (isDeleteHovered)
-        {
-            deleteColor = hoveredDeleteColor;
-        } else
-        {
-            deleteColor = baseDeleteColor;
-        }
+        Point mousePosition = currentMouse.Position;
 
-        if (currentMouse.LeftButton == ButtonState.Released && previousMouse.LeftButton == ButtonState.Pressed && deleteBounds.Contains(new Point(currentMouse.Position.X, currentMouse.Position.Y)))
+        isHovered = bounds.Contains(mousePosition);
+        isDeleteHovered = deleteBounds.Contains(mousePosition);
+
+        deleteColor = isDeleteHovered ? hoveredDeleteColor : baseDeleteColor;
+        color = isHovered ? hoveredColor : baseColor;
+
+        bool leftClickReleased =
+            currentMouse.LeftButton == ButtonState.Released &&
+            previousMouse.LeftButton == ButtonState.Pressed;
+
+        if (leftClickReleased)
         {
-            clicked = true;
+            if (isDeleteHovered)
+            {
+                clickType = 2;
+            }
+            else if (isHovered)
+            {
+                clickType = 1;
+            }
         }
 
         previousMouse = currentMouse;
 
-        return clicked;
-    }
-
-    public bool isClicked(MouseState currentMouse)
-    {
-        bool clicked = false;
-        isHovered = bounds.Contains(new Point(currentMouse.Position.X, currentMouse.Position.Y));
-
-        if (isHovered)
-        {
-            color = hoveredColor;
-        } else
-        {
-            color = baseColor;
-        }
-
-        if (currentMouse.LeftButton == ButtonState.Released && previousMouse.LeftButton == ButtonState.Pressed && bounds.Contains(new Point(currentMouse.Position.X, currentMouse.Position.Y)))
-        {
-            clicked = true;
-        }
-
-        previousMouse = currentMouse;
-
-        return clicked;
-
+        return clickType;
     }
 
     public void Draw(SpriteBatch spriteBatch, Texture2D pixel)

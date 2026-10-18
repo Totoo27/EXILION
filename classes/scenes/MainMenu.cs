@@ -59,15 +59,17 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
     private InputManager input;
     private Camera camera;
     private IDisplaySettings displaySettings;
+    private GameWindow gameWindow;
     
 
-    public MainMenu(GameContext gameContext, GraphicsDevice graphicsDevice, InputManager input, IDisplaySettings displaySettings, Camera camera) : base(gameContext)
+    public MainMenu(GameContext gameContext, GraphicsDevice graphicsDevice, InputManager input, IDisplaySettings displaySettings, Camera camera, GameWindow gameWindow) : base(gameContext)
     {
         Music.Play(Assets.Songs.MenuMusic);
         this.GraphicsDevice = graphicsDevice;
         this.displaySettings = displaySettings;
         this.input = input;
         this.camera = camera;
+        this.gameWindow = gameWindow;
     }
 
     public override void LoadContent()
@@ -76,7 +78,7 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
         settingsPanel = new SettingsPanel(GameContext, GraphicsDevice, input, this, displaySettings, new Vector2(GraphicsDevice.Viewport.Width, 0));
         settingsPanel.position.Y = getHalfScreenPositionY(settingsPanel.Height);
 
-        worldSavesPanel = new WorldSavesPanel(GameContext, GraphicsDevice, input, this, new Vector2(0, GraphicsDevice.Viewport.Height), camera, displaySettings);
+        worldSavesPanel = new WorldSavesPanel(GameContext, GraphicsDevice, input, this, new Vector2(0, GraphicsDevice.Viewport.Height), camera, displaySettings, gameWindow);
         worldSavesPanel.position.X = getHalfScreenPositionX(settingsPanel.Width);
 
         // Stars
@@ -184,7 +186,6 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
 
         // UI
         settingsPanel = null;
-        worldSavesPanel = null;
         startGame = null;
         settings = null;
         quitGame = null;

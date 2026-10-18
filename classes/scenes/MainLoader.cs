@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace EXILION.Scenes;
 
@@ -28,8 +29,9 @@ public class MainLoader : Scene
     private InputManager input;
     private Camera camera;
     private IDisplaySettings displaySettings;
+    private GameWindow gameWindow;
 
-    public MainLoader(GameContext gameContext, GraphicsDevice GraphicsDevice, InputManager input, ContentManager Content, Camera camera, IDisplaySettings displaySettings) : base(gameContext)
+    public MainLoader(GameContext gameContext, GraphicsDevice GraphicsDevice, InputManager input, ContentManager Content, Camera camera, IDisplaySettings displaySettings, GameWindow gameWindow) : base(gameContext)
     {
         this.GraphicsDevice = GraphicsDevice;
         viewPort = GraphicsDevice.Viewport;
@@ -37,6 +39,7 @@ public class MainLoader : Scene
         this.input = input;
         this.camera = camera;
         this.displaySettings = displaySettings;
+        this.gameWindow = gameWindow;
     }
 
     public override void LoadContent()
@@ -61,7 +64,7 @@ public class MainLoader : Scene
 
         if(progress >= 1)
         {
-            SceneManager.ChangeScene(new MainMenu(GameContext, GraphicsDevice, input, displaySettings, camera));
+            SceneManager.ChangeScene(new MainMenu(GameContext, GraphicsDevice, input, displaySettings, camera, gameWindow));
             return;
         }
     }

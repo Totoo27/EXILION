@@ -43,7 +43,7 @@ public class MainGame : Game, IDisplaySettings
         sceneManager = new SceneManager();
         input = new InputManager();
 
-        SceneManager.ChangeScene(new MainLoader(gameContext, GraphicsDevice, input, Content, camera, this));
+        SceneManager.ChangeScene(new MainLoader(gameContext, GraphicsDevice, input, Content, camera, this, this.Window));
 
     }
 

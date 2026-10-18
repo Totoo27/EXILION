@@ -49,18 +49,20 @@ public class DeathPanel
     private InputManager input;
     private Camera camera;
     private IDisplaySettings displaySettings;
+    private GameWindow gameWindow;
 
     // Events
 
     public event Action<bool>? Respawn;
 
-    public DeathPanel(GameContext gameContext, GraphicsDevice GraphicsDevice, InputManager input, Camera camera, IDisplaySettings displaySettings)
+    public DeathPanel(GameContext gameContext, GraphicsDevice GraphicsDevice, InputManager input, Camera camera, IDisplaySettings displaySettings, GameWindow gameWindow)
     {
         this.gameContext = gameContext;
         this.GraphicsDevice = GraphicsDevice;
         this.input = input;
         this.camera = camera;
         this.displaySettings = displaySettings;
+        this.gameWindow = gameWindow;
 
         this.Width = this.gameContext.ScaleX(300);
         this.Height = this.gameContext.ScaleY(400);
@@ -145,7 +147,7 @@ public class DeathPanel
 
         if (quitButton.isClicked(mouseState))
         {
-            SceneManager.ChangeScene(new MainMenu(gameContext, GraphicsDevice, input, displaySettings, camera));
+            SceneManager.ChangeScene(new MainMenu(gameContext, GraphicsDevice, input, displaySettings, camera, gameWindow));
             return;
         }
 

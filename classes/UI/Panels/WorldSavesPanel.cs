@@ -56,7 +56,6 @@ public class WorldSavesPanel
 
     // World saving management
 
-    private int HoveredWorld;
     private readonly WorldSaveService saveService = new();
     private List<WorldSaveData> worlds = new();
     private List<WorldSaveRow> worldSaveRows = new();
@@ -64,8 +63,10 @@ public class WorldSavesPanel
     private bool isCreatingWorld = false;
     private Camera camera;
     private IDisplaySettings displaySettings;
+    private GameWindow gameWindow;
+    private readonly WorldCreationPanel creationPanel;
 
-    public WorldSavesPanel(GameContext gameContext, GraphicsDevice GraphicsDevice, InputManager input, IHasWorldSaves scene, Vector2 position, Camera camera, IDisplaySettings displaySettings)
+    public WorldSavesPanel(GameContext gameContext, GraphicsDevice GraphicsDevice, InputManager input, IHasWorldSaves scene, Vector2 position, Camera camera, IDisplaySettings displaySettings, GameWindow window)
     {
         this.gameContext = gameContext;
         this.GraphicsDevice = GraphicsDevice;
@@ -74,12 +75,18 @@ public class WorldSavesPanel
         this.position = position;
         this.camera = camera;
         this.displaySettings = displaySettings;
+        this.gameWindow = window;
 
         Width = gameContext.ScaleX(1000);
         Height = gameContext.ScaleY(600);
 
         LoadContent();
+
+        creationPanel = new WorldCreationPanel(gameContext, GraphicsDevice, gameWindow);
+        creationPanel.CreateRequested += OnCreateRequested;
+        creationPanel.Cancelled += OnCreationCancelled;
     }
+
 
     public void LoadContent()
     {
@@ -131,6 +138,12 @@ public class WorldSavesPanel
 
         MouseState mouseState = input.CurrentMouse;
 
+        if (creationPanel.IsOpen)
+        {
+            creationPanel.Update(mouseState);
+            return;
+        }
+
         updateButtonPosition(backButton, gameContext.ScaleX(40), gameContext.ScaleY(40));
         updateButtonPosition(newWorldButton, Width - gameContext.ScaleX(260), gameContext.ScaleY(40));
 
@@ -139,62 +152,77 @@ public class WorldSavesPanel
             scene.closeWorldSaves();
         }
 
-        if (!isCreatingWorld && newWorldButton.isClicked(mouseState))
+        if (newWorldButton.isClicked(mouseState))
         {
-            _ = LoadAndStartWorldAsync();
+            creationPanel.Open(bounds);
+            return;
         }
 
         if (isCreatingWorld || isLoadingWorlds) return;
 
+        const int worldDelete = 2;
+        const int loadWorld = 1;
+
         for (int i = 0; i < worldSaveRows.Count; i++)
         {
-
             int startOffset = gameContext.ScaleY(120);
             int spacing = gameContext.ScaleY(10);
             int startY = (spacing + worldSaveRows[i].bounds.Height) * i + bounds.Y + startOffset;
 
             worldSaveRows[i].UpdatePositionY(startY);
+            int value = worldSaveRows[i].isClicked(input.CurrentMouse);
 
-            if (worldSaveRows[i].isDeleteClicked(input.CurrentMouse))
+            if (value == worldDelete)
             {
                 saveService.DeleteWorld(worlds[i].WorldId);
                 _ = RefreshWorldsAsync();
                 break;
             }
 
-            if (worldSaveRows[i].isClicked(input.CurrentMouse))
+            if (value == loadWorld)
             {
-                _ = LoadAndStartWorldAsync(worlds[i]);
-            };
-
+                LoadWorld(worlds[i]);
+            }
         }
-
     }
 
-    private async Task LoadAndStartWorldAsync(WorldSaveData? world = null)
+    private async void LoadWorld(WorldSaveData world)
     {
         if (isCreatingWorld) return;
-        isCreatingWorld = true;
-
-        bool isNewWorld = world == null;
-
         try
         {
-
-            if(isNewWorld)
-            {
-                string worldName = "Nuevo mundo";
-                int seed = Random.Shared.Next();
-                world = await saveService.CreateWorldAsync(worldName, seed);
-            }
-
             string path = saveService.GetWorldPath(world.WorldId);
-            SceneManager.ChangeScene(new GameScene(gameContext, input, camera, GraphicsDevice, displaySettings, path));
+            SceneManager.ChangeScene(new GameScene(gameContext, input, camera, GraphicsDevice, displaySettings, path, gameWindow));
         }
         catch (Exception ex)
         {
-            if(isNewWorld) Console.WriteLine($"Error al crear el mundo: {ex.Message}");
-            else Console.WriteLine($"Error al cargar el mundo: {ex.Message}");
+            Console.WriteLine($"Error al cargar el mundo: {ex.Message}");
+        }
+    }
+
+    private void OnCreateRequested(string worldName, int seed)
+    {
+        _ = CreateAndStartWorldAsync(worldName, seed);
+    }
+
+    private void OnCreationCancelled()
+    {
+    }
+    private async Task CreateAndStartWorldAsync(string worldName, int seed)
+    {
+        if (isCreatingWorld) return;
+        isCreatingWorld = true;
+        try
+        {
+            WorldSaveData world = await saveService.CreateWorldAsync(worldName, seed);
+            string path = saveService.GetWorldPath(world.WorldId);
+            SceneManager.ChangeScene(new GameScene(gameContext, input, camera, GraphicsDevice, displaySettings, path, gameWindow));
+            creationPanel.Close();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al crear el mundo: {ex.Message}");
+            creationPanel.ReportError("Could not create the world. Try again.");
         }
         finally
         {
@@ -314,6 +342,8 @@ public class WorldSavesPanel
         {
             worldSaveRows[i].Draw(spriteBatch, pixel);
         }
+
+        creationPanel.Draw(spriteBatch);
 
     }
 
