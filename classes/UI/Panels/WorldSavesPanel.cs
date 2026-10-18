@@ -59,6 +59,7 @@ public class WorldSavesPanel
     private int HoveredWorld;
     private readonly WorldSaveService saveService = new();
     private List<WorldSaveData> worlds = new();
+    private List<WorldSaveRow> worldSaveRows = new();
     private bool isLoadingWorlds = false;
     private bool isCreatingWorld = false;
     private Camera camera;
@@ -145,25 +146,19 @@ public class WorldSavesPanel
 
         if (isCreatingWorld || isLoadingWorlds) return;
 
-        int rowHeight = gameContext.ScaleY(100);
-        int startX = bounds.X + gameContext.ScaleX(40);
-        int startY = bounds.Y + gameContext.ScaleY(120);
-
-        for (int i = 0; i < worlds.Count; i++)
+        for (int i = 0; i < worldSaveRows.Count; i++)
         {
-            Rectangle rowBounds = new Rectangle(startX, startY + i * rowHeight, bounds.Width - gameContext.ScaleX(80), rowHeight - gameContext.ScaleY(10));
-            if (rowBounds.Contains(mouseState.Position))
+
+            int startOffset = gameContext.ScaleY(120);
+            int spacing = gameContext.ScaleY(10);
+            int startY = (spacing + worldSaveRows[i].bounds.Height) * i + bounds.Y + startOffset;
+
+            worldSaveRows[i].UpdatePositionY(startY);
+            if (worldSaveRows[i].isClicked(input.CurrentMouse))
             {
-                HoveredWorld = i;
-                if(mouseState.LeftButton == ButtonState.Pressed)
-                {
-                    _ = LoadAndStartWorldAsync(worlds[i]);
-                }
-                break;
-            } else
-            {
-                HoveredWorld = -1;
-            }
+                _ = LoadAndStartWorldAsync(worlds[i]);
+            };
+
         }
 
     }
@@ -208,6 +203,19 @@ public class WorldSavesPanel
         try
         {
             worlds = await saveService.GetAllWorldsAsync();
+
+            for(int i = 0; i<worlds.Count; i++)
+            {
+                worldSaveRows.Add(new WorldSaveRow(
+                    bounds.Width - gameContext.ScaleX(80),
+                    gameContext.ScaleY(100),
+                    gameContext,
+                    worlds[i].WorldName,
+                    worlds[i].WorldSeed
+                ));
+
+                worldSaveRows[i].position = new Vector2(gameContext.ScaleX(40) + bounds.X, bounds.Y);
+            }
         }
         finally
         {
@@ -292,46 +300,9 @@ public class WorldSavesPanel
         backButton.Draw(spriteBatch, 1f);
         newWorldButton.Draw(spriteBatch, 1f);
 
-        int rowHeight = gameContext.ScaleY(100);
-        int startX = bounds.X + gameContext.ScaleX(40);
-        int startY = bounds.Y + gameContext.ScaleY(120);
-
-        for (int i = 0; i < worlds.Count; i++)
+        for (int i = 0; i < worldSaveRows.Count; i++)
         {
-            WorldSaveData world = worlds[i];
-
-            Rectangle rowBounds = new Rectangle(
-                startX,
-                startY + i * rowHeight,
-                bounds.Width - gameContext.ScaleX(80),
-                rowHeight - gameContext.ScaleY(10)
-            );
-
-            spriteBatch.Draw(
-                pixel,
-                rowBounds,
-                HoveredWorld == i ? new Color(35, 25, 45) : new Color(55, 45, 65)
-            );
-
-            spriteBatch.DrawString(
-                font,
-                world.WorldName,
-                new Vector2(
-                    rowBounds.X + gameContext.ScaleX(15),
-                    rowBounds.Y + gameContext.ScaleY(10)
-                ),
-                Color.White
-            );
-
-            spriteBatch.DrawString(
-                font,
-                $"Seed: {world.WorldSeed}",
-                new Vector2(
-                    rowBounds.X + gameContext.ScaleX(15),
-                    rowBounds.Y + gameContext.ScaleY(45)
-                ),
-                Color.LightGray
-            );
+            worldSaveRows[i].Draw(spriteBatch, pixel);
         }
 
     }
