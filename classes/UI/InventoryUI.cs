@@ -98,8 +98,14 @@ public class InventoryUI
             if (craftingButtonRect.Contains(mousePosition))
             {
                 craftingUI.Toggle();
+                
             }
         }
+
+        if(expanded== false && craftingUI.visible==true)
+                {
+                    craftingUI.Toggle();
+                }
         
     }
 

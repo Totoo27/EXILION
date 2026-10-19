@@ -115,7 +115,7 @@ public class HUD
             Assets.Sprites.craftingMenu,
             Assets.Fonts.PixelArt,
             gameContext,
-            craftingUI = new CraftingUI(gameContext)
+            craftingUI = new CraftingUI(gameContext, Assets.Fonts.PixelArt)
         );
 
         hungerBar.setProgressColor(new Color(148, 55, 24));
