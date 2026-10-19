@@ -10,6 +10,8 @@ namespace EXILION.UI;
 public class InventoryUI
 {
     #nullable enable
+
+    private readonly CraftingUI craftingUI;
     private const int Columns = 8;
     private const int Rows = 3;
     private const int SlotSize = 64;
@@ -24,6 +26,7 @@ public class InventoryUI
     private readonly Inventory inventory;
     private readonly Texture2D slotTexture;
 
+
     private readonly Texture2D craftingMenuTexture;
     private readonly SpriteFont font;
     private readonly GameContext gameContext;
@@ -35,13 +38,15 @@ public class InventoryUI
     public int SelectedSlotIndex { get; private set; } = 0;
     public event Action<Item?>? slotChanged;
 
-    public InventoryUI(Inventory inventory, Texture2D slotTexture, Texture2D craftingMenuTexture, SpriteFont font, GameContext gameContext)
+    public InventoryUI(Inventory inventory, Texture2D slotTexture, Texture2D craftingMenuTexture, SpriteFont font, GameContext gameContext,CraftingUI craftingUI)
     {
         this.inventory = inventory;
         this.slotTexture = slotTexture;
         this.craftingMenuTexture = craftingMenuTexture;
         this.font = font;
         this.gameContext = gameContext;
+        this.craftingUI = craftingUI;
+        
     }
 
     public void Update(InputManager input)
@@ -84,6 +89,18 @@ public class InventoryUI
             }
             draggedSlotIndex = -1;
         }
+
+        if (expanded && input.IsLeftMousePressed())
+        {
+            Layout layout = GetLayout();
+            Rectangle craftingButtonRect = GetCraftingButtonRect(layout);
+
+            if (craftingButtonRect.Contains(mousePosition))
+            {
+                craftingUI.Toggle();
+            }
+        }
+        
     }
 
     public void Draw(SpriteBatch spriteBatch)
@@ -118,23 +135,7 @@ public class InventoryUI
         }
     }
 
-    private Rectangle GetCraftingButtonRect(Layout layout)
-    {
-        // Columna "Columns" = una más que la última: arranca justo después del último slot, con el padding incluido
-        Rectangle anchor = GetSlotRect(Rows - 1, Columns, layout);
-
-        return new Rectangle(
-            anchor.X,
-            anchor.Y,
-            gameContext.ScaleX(craftingMenuTexture.Width),
-            gameContext.ScaleY(craftingMenuTexture.Height)
-        );
-    }
-
-    private void DrawCraftingButton(SpriteBatch spriteBatch, Layout layout)
-    {
-        spriteBatch.Draw(craftingMenuTexture, GetCraftingButtonRect(layout), Color.White);
-    }
+    
 
     private void DrawRow(SpriteBatch spriteBatch, int row, Layout layout)
     {
@@ -234,5 +235,24 @@ public class InventoryUI
 
         return new Layout(slotSize, padding, startX, hotbarY);
     }
+
+    private Rectangle GetCraftingButtonRect(Layout layout)
+    {
+        Rectangle anchor = GetSlotRect(Rows - 1, Columns, layout);
+
+        return new Rectangle(
+            anchor.X,
+            anchor.Y,
+            gameContext.ScaleX(craftingMenuTexture.Width),
+            gameContext.ScaleY(craftingMenuTexture.Height)
+        );
+    }
+
+    private void DrawCraftingButton(SpriteBatch spriteBatch, Layout layout)
+    {
+        spriteBatch.Draw(craftingMenuTexture, GetCraftingButtonRect(layout), Color.White);
+    }
+
+    
 
 }
