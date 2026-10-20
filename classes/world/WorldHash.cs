@@ -12,7 +12,7 @@ public static class WorldHash
             h += (uint)salt * 2246822519u;
             h = (h ^ (h >> 13)) * 1274126177u;
             h ^= h >> 16;
-            return (h & 0xFFFFFF) / (float)0x1000000; // número entre 0 y 1
+            return (h & 0xFFFFFF) / (float)0x1000000; // Da siempre el mismo valor entre 0 y 1 para estas coordenadas.
         }
     }
 }

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace EXILION.World;
 
 public class MapGenerator
@@ -21,7 +19,6 @@ public class MapGenerator
     public Chunk GenerateChunk(int chunkX, int chunkY)
     {
         var tiles = new MapTile[Chunk.Size, Chunk.Size];
-        var objects = new List<WorldObject>();
         int baseX = chunkX * Chunk.Size;
         int baseY = chunkY * Chunk.Size;
 
@@ -34,15 +31,13 @@ public class MapGenerator
 
                 tiles[lx, ly] = GetTile(worldX, worldY);
 
-                WorldObject obj = TryGetObject(worldX, worldY, tiles[lx, ly].Type);
-                if (obj != null) objects.Add(obj);
             }
         }
 
-        return new Chunk(chunkX, chunkY, tiles, objects);
+        return new Chunk(chunkX, chunkY, tiles, new System.Collections.Generic.List<WorldObject>());
     }
 
-    // Terreno de UN tile, dadas sus coordenadas globales
+    // Decide qué terreno hay en un tile según su lugar en el mapa.
     public MapTile GetTile(int worldX, int worldY)
     {
         float elevation = SimplexNoise.Fractal(
@@ -62,26 +57,6 @@ public class MapGenerator
             Moisture = moisture,
             Type = ClassifyBiome(elevation, moisture)
         };
-    }
-
-    // ¿Aparece un objeto en este tile? Devuelve null si no
-    public WorldObject TryGetObject(int worldX, int worldY, TileType biome)
-    {
-        var rules = ObjectProperties.GetSpawnRules(biome);
-
-        for (int i = 0; i < rules.Length; i++)
-        {
-            float roll = WorldHash.Value01(_seed, worldX, worldY, 100 + i);
-            if (roll < rules[i].Chance)
-            {
-                // posición dentro del tile, para que no queden en grilla perfecta
-                float offsetX = 0.2f + 0.6f * WorldHash.Value01(_seed, worldX, worldY, 200);
-                float offsetY = 0.2f + 0.6f * WorldHash.Value01(_seed, worldX, worldY, 201);
-                return new WorldObject(rules[i].Type, worldX + offsetX, worldY + offsetY);
-            }
-        }
-
-        return null;
     }
 
     private TileType ClassifyBiome(float elevation, float moisture)

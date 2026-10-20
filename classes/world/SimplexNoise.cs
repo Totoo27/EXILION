@@ -25,8 +25,8 @@ public static class SimplexNoise
 
     public static float Noise(float x, float y)
     {
-        const float F2 = 0.3660254f; // (sqrt(3)-1)/2
-        const float G2 = 0.2113249f; // (3-sqrt(3))/6
+        const float F2 = 0.3660254f; // Estos valores ayudan a repartir el ruido en una cuadrícula triangular.
+        const float G2 = 0.2113249f; // Se usan para volver de esa cuadrícula a las coordenadas normales.
 
         float s = (x + y) * F2;
         int i = FastFloor(x + s);
@@ -64,7 +64,7 @@ public static class SimplexNoise
 
     private static int FastFloor(float x) => x > 0 ? (int)x : (int)x - 1;
 
-    // Ruido "fractal" (varias octavas) — esto es lo que realmente vas a usar
+    // Combina varias capas de ruido para crear cambios grandes y pequeños en el terreno.
     public static float Fractal(float x, float y, int octaves, float persistence, float scale)
     {
         float total = 0f, frequency = scale, amplitude = 1f, maxValue = 0f;
@@ -75,6 +75,6 @@ public static class SimplexNoise
             amplitude *= persistence;
             frequency *= 2f;
         }
-        return total / maxValue; // normalizado entre -1 y 1
+        return total / maxValue; // Deja el resultado dentro de un rango fácil de comparar.
     }
 }

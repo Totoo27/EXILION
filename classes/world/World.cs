@@ -7,14 +7,17 @@ namespace EXILION.World;
 public class World
 {
     private readonly MapGenerator _generator;
+    private readonly WorldObjectGenerator _objectGenerator;
     private readonly Dictionary<(int, int), Chunk> _loadedChunks = new();
 
     public int TileSize { get; }
     public int RenderDistanceChunks { get; set; } = 2;
+    public WorldObjectStateStore ObjectStates { get; } = new();
 
     public World(int seed, int tileSize)
     {
         _generator = new MapGenerator(seed);
+        _objectGenerator = new WorldObjectGenerator(seed);
         TileSize = tileSize;
     }
 
@@ -34,7 +37,9 @@ public class World
 
                 if (!_loadedChunks.ContainsKey(key))
                 {
-                    _loadedChunks[key] = _generator.GenerateChunk(key.Item1, key.Item2);
+                    var chunk = _generator.GenerateChunk(key.Item1, key.Item2);
+                    PopulateObjects(chunk);
+                    _loadedChunks[key] = chunk;
                 }
             }
         }
@@ -47,10 +52,10 @@ public class World
         foreach (var key in toRemove) _loadedChunks.Remove(key);
     }
 
-    // ¿Puede estar parado acá un jugador de este radio (en píxeles)?
+    // Comprueba que el jugador quepa en esta posición sin pisar agua.
     public bool IsWalkable(Vector2 worldPosition, float radius = 0f)
     {
-        // las 4 esquinas del cuadrado del jugador tienen que estar sobre tiles caminables
+        // Revisamos las cuatro esquinas para que el jugador no quede medio metido en el agua.
         if (!IsTileWalkable(worldPosition.X - radius, worldPosition.Y - radius)) return false;
         if (!IsTileWalkable(worldPosition.X + radius, worldPosition.Y - radius)) return false;
         if (!IsTileWalkable(worldPosition.X - radius, worldPosition.Y + radius)) return false;
@@ -59,7 +64,7 @@ public class World
         return true;
     }
 
-    // ¿El tile que está bajo este punto (en píxeles) es caminable?
+    // Busca el tile que hay debajo de este punto y comprueba si se puede caminar por él.
     private bool IsTileWalkable(float pixelX, float pixelY)
     {
         int tileX = (int)MathF.Floor(pixelX / TileSize);
@@ -76,13 +81,13 @@ public class World
             return TileProperties.IsWalkable(chunk.Tiles[localX, localY].Type);
         }
 
-        return true; // si el chunk todavía no está cargado, dejamos pasar en vez de trabar
+        return true; // Si todavía no cargamos esta parte del mapa, dejamos pasar al jugador.
     }
 
-    // Busca el tile caminable más cercano al origen, para que el jugador no arranque en el agua
+    // Encuentra un lugar seco cerca del inicio para que el jugador no aparezca en el agua.
     public Vector2 FindSpawnPosition()
     {
-        UpdateAroundPosition(Vector2.Zero); // asegura que haya chunks cargados cerca del origen
+        UpdateAroundPosition(Vector2.Zero); // Primero cargamos el mapa que rodea el punto de inicio.
 
         Vector2 best = Vector2.Zero;
         float bestDistance = float.MaxValue;
@@ -95,7 +100,7 @@ public class World
                 {
                     if (!TileProperties.IsWalkable(chunk.Tiles[lx, ly].Type)) continue;
 
-                    // centro de este tile, en píxeles
+                    // Usamos el centro del tile como posible lugar de aparición.
                     float px = (chunk.ChunkX * Chunk.Size + lx + 0.5f) * TileSize;
                     float py = (chunk.ChunkY * Chunk.Size + ly + 0.5f) * TileSize;
 
@@ -113,4 +118,31 @@ public class World
     }
 
     public IEnumerable<Chunk> LoadedChunks => _loadedChunks.Values;
+
+    public IReadOnlyList<WorldObjectState> CaptureObjectStates() => ObjectStates.CaptureSnapshot();
+
+    public void RestoreObjectStates(IEnumerable<WorldObjectState> states)
+    {
+        ObjectStates.RestoreSnapshot(states);
+
+        // Si ya hay partes del mapa cargadas, aplicamos los cambios guardados ahora mismo.
+        foreach (var chunk in _loadedChunks.Values)
+        {
+            chunk.Objects.Clear();
+            PopulateObjects(chunk);
+        }
+    }
+
+    private void PopulateObjects(Chunk chunk)
+    {
+        foreach (var spawn in _objectGenerator.Generate(chunk))
+        {
+            ObjectStates.TryGet(spawn.Id, out var savedState);
+            var obj = new WorldObject(spawn.Id, spawn.Type, spawn.TileX, spawn.TileY,
+                savedState, ObjectStates.Record);
+
+            if (!obj.IsDestroyed && !obj.IsCollected)
+                chunk.Objects.Add(obj);
+        }
+    }
 }

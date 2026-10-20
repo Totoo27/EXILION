@@ -51,8 +51,7 @@ public class MapRenderer
         }
     }
 
-    // inFrontOfPlayer = false: objetos que quedan DETRÁS del jugador (se dibujan antes que él)
-    // inFrontOfPlayer = true:  objetos que quedan DELANTE del jugador (se dibujan después)
+    // Dibujamos primero lo que queda detrás del jugador y después lo que queda delante.
     public void DrawObjects(SpriteBatch spriteBatch, World world, float playerY, bool inFrontOfPlayer)
     {
         _visibleObjects.Clear();
@@ -66,7 +65,7 @@ public class MapRenderer
             }
         }
 
-        // de arriba hacia abajo, así los de más abajo tapan a los de más arriba
+        // Al dibujar de arriba hacia abajo, los objetos más bajos pueden tapar a los otros.
         _visibleObjects.Sort((a, b) => a.TileY.CompareTo(b.TileY));
 
         foreach (var obj in _visibleObjects)
@@ -79,7 +78,7 @@ public class MapRenderer
             float width = def.DrawWidthTiles * _tileSize;
             float height = width * def.Source.Height / def.Source.Width;
 
-            // el punto (TileX, TileY) son los "pies" del objeto: base centrada del sprite
+            // Tomamos este punto como los pies del objeto y apoyamos ahí el dibujo.
             var dest = new Rectangle((int)(footX - width / 2f), (int)(footY - height), (int)width, (int)height);
             spriteBatch.Draw(_objectsTexture, dest, def.Source, Color.White);
         }

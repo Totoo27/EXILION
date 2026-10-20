@@ -5,8 +5,10 @@ namespace EXILION.World;
 public class ObjectDefinition
 {
     public ObjectType Type { get; init; }
-    public bool BlocksMovement { get; init; }   // ¿se puede caminar a través?
-    public float CollisionRadius { get; init; } // radio de colisión, en tiles
-    public Rectangle Source { get; init; }      // recorte dentro de Objects.png
-    public float DrawWidthTiles { get; init; }  // ancho al dibujar, en tiles
+    public bool BlocksMovement { get; init; }   // Indica si el jugador puede atravesarlo.
+    public float CollisionRadius { get; init; } // Qué tan grande es su zona de choque, medida en tiles.
+    public int? MaxHealth { get; init; }
+    public bool CanBeCollected { get; init; }
+    public Rectangle Source { get; init; }      // Qué parte de la imagen Objects.png usamos.
+    public float DrawWidthTiles { get; init; }  // Qué ancho tendrá al aparecer en el mundo.
 }
