@@ -7,16 +7,19 @@ using System;
 
 namespace EXILION;
 
-public class Game1 : Game
+public class MainGame : Game, IDisplaySettings
 {
+    private static MainGame _instance;
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     private SceneManager sceneManager;
     public InputManager input {get; private set;}
     public GameContext gameContext { get; private set; }
+    public Camera camera {private set; get;}
 
-    public Game1()
+    public MainGame()
     {
+        _instance = this;
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
@@ -27,6 +30,8 @@ public class Game1 : Game
 
         _graphics.IsFullScreen = true;
         _graphics.ApplyChanges();
+
+        camera = new Camera(GraphicsDevice.Viewport);
         
     }
 
@@ -36,9 +41,10 @@ public class Game1 : Game
 
         base.Initialize();
         sceneManager = new SceneManager();
-        sceneManager.ChangeScene(new MainLoader(this));
-
         input = new InputManager();
+
+        SceneManager.ChangeScene(new MainLoader(gameContext, GraphicsDevice, input, Content, camera, this, this.Window));
+
     }
 
     protected override void LoadContent()
@@ -56,37 +62,49 @@ public class Game1 : Game
 
         if (input.IsKeyPressed(Keys.F11))
         {
-            toggleFullScreen();
+            ToggleFullScreen();
         }
 
+        camera.Update(gameTime);
         sceneManager.Update(gameTime);
+        Music.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
 
         base.Update(gameTime);
     }
 
-protected override void Draw(GameTime gameTime)
-{
-    GraphicsDevice.Clear(Color.Black);
+    protected override void Draw(GameTime gameTime)
+    {
+        GraphicsDevice.Clear(Color.Black);
 
-    Matrix transform = sceneManager.CurrentScene?.CameraTransform ?? Matrix.Identity;
+        // Draw the scene with camera transform
+        _spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend, transformMatrix: camera.GetViewMatrix());
 
-    _spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend, transformMatrix: transform);
+        sceneManager.Draw(_spriteBatch);
 
-    sceneManager.Draw(_spriteBatch);
+        _spriteBatch.End();
 
-    _spriteBatch.End();
 
-    base.Draw(gameTime);
-}
+        // Fix to camera
+        _spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend);
 
-    public void toggleFullScreen()
+        sceneManager.DrawUI(_spriteBatch);
+
+        _spriteBatch.End();
+
+        base.Draw(gameTime);
+    }
+
+    public void ToggleFullScreen()
     {
         _graphics.IsFullScreen = !_graphics.IsFullScreen;
         _graphics.ApplyChanges();
+
+        camera.updateViewPort(GraphicsDevice.Viewport);
     }
 
-    public void changeScene(Scene scene)
+    public static void Exit()
     {
-        sceneManager.ChangeScene(scene);
+        ((Game)_instance).Exit();
     }
+
 }

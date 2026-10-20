@@ -5,8 +5,8 @@ namespace EXILION;
 public sealed class GameContext
 {
 
-    public Game1 Game { get; private set; }
-    public GameContext(Game1 game)
+    public MainGame Game { get; private set; }
+    public GameContext(MainGame game)
     {
         this.Game = game;
     }

@@ -1,40 +1,116 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Input;
 using EXILION.Entities.LivingThings;
+using EXILION.Entities.CatchableItems;
+using EXILION.Items;
+using EXILION.UI;
 using EXILION.World;
+using EXILION.UI.HUD;
+using EXILION.Saving;
+using System;
 
 namespace EXILION.Scenes;
 
 public class GameScene : Scene
 {
-    Player player;
-    Texture2D pixel;
 
-    World.World world;
-    MapRenderer mapRenderer;
-    Camera camera;
+    // Game stats
 
-    private const int Seed = 12345;
+    private float timer = 0f;
+    private const float TIMER_INTERVAL = 1f;
+    private float nightOpacity = 0f;
+    private const int DIURNAL_PRESET_TIME = 200; // in seconds
+    private int diurnalCycleTime = DIURNAL_PRESET_TIME; // in seconds
+    private const float MAX_NIGHT_OPACITY = 0.65f;
+    private const float NIGHT_TRANSITION_SPEED = 0.15f;
+    private bool night = false;
+    private Color nightColor = new Color(15, 10, 35);
 
-    public GameScene(Game1 game) : base(game)
+    // Panels
+
+    private PausePanel pausePanel;
+    private DeathPanel deathPanel;
+
+
+    // Player
+    private Player player;
+    private Texture2D pixel;
+    private HUD HUD;
+    private InputManager input;
+
+    // Songs queue
+    private List<Song> songsQueue = new List<Song>
     {
-    }
+        Assets.Songs.exiliated,
+        Assets.Songs.drownInInterrogations
+    };
 
-    public override Matrix? CameraTransform => camera?.GetViewMatrix();
+    private int currentSongIndex = 0;
+
+    private List<CatchableItem> catchableItems;
+    private World.World world;
+    private MapRenderer mapRenderer;
+
+
+    private Camera camera;
+    private GraphicsDevice graphicsDevice;
+    private IDisplaySettings displaySettings;
+    private GameWindow gameWindow;
+
+    // World Saving
+    private WorldSaveData saveData;
+    private WorldSaveService saveService = new WorldSaveService();
+    private string path;
+    private bool isNewGame;
+    private bool isLoaded = false;
+    private int Seed;
+
+    public GameScene(GameContext gameContext, InputManager input, Camera camera, GraphicsDevice graphicsDevice, IDisplaySettings displaySettings, string path, GameWindow gameWindow) : base(gameContext)
+    {
+        this.input = input;
+        this.camera = camera;
+        this.graphicsDevice = graphicsDevice;
+        this.displaySettings = displaySettings;
+        this.path = path;
+        this.gameWindow = gameWindow;
+
+        saveData = saveService.LoadAsync(path).Result;
+        isNewGame = saveData.IsNewWorld;
+
+        Music.Play(songsQueue[currentSongIndex], 1f);
+    }
 
     public override void LoadContent()
     {
-        GameContext gameContext = Game.gameContext;
+        // Init Seed
+        Seed = saveData.WorldSeed;
 
-        pixel = new Texture2D(Game.GraphicsDevice, 1, 1);
+        pixel = new Texture2D(graphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
 
-        Texture2D texture = Assets.Sprites.Player;
-        player = new Player(Vector2.Zero, new Sprite(texture, gameContext.ScaleXY(1)), gameContext);
+        pausePanel = new PausePanel(GameContext, graphicsDevice, input, camera, displaySettings, gameWindow);
+        deathPanel = new DeathPanel(GameContext, graphicsDevice, input, camera, displaySettings, gameWindow);
 
-        int tileSize = (int)gameContext.ScaleXY(64);
+        deathPanel.Respawn += processPlayerSpawn;
+        Music.musicStop += changeMusic;
 
+        catchableItems = new List<CatchableItem>();
+
+        if (isNewGame)
+        {
+            startNewGame();
+            saveGame();
+        }
+        else
+        {
+            loadGame();
+        }
+
+        // Load world seed
+        int tileSize = (int)GameContext.ScaleXY(64);
         world = new World.World(seed: Seed, tileSize: tileSize) { RenderDistanceChunks = 2 };
 
         player.position = world.FindSpawnPosition();   // NUEVO: arranca en un lugar caminable
@@ -43,7 +119,7 @@ public class GameScene : Scene
         // NUEVO: el renderer ahora recibe también la textura de objetos
         mapRenderer = new MapRenderer(Assets.Sprites.Tileset, Assets.Sprites.Objects, tileSize);
 
-        camera = new Camera(Game.GraphicsDevice.Viewport);
+        isLoaded = true;
     }
 
     public override void Update(GameTime gameTime)
@@ -86,9 +162,83 @@ public class GameScene : Scene
         mapRenderer.Draw(spriteBatch, world);                                  // terreno
         mapRenderer.DrawObjects(spriteBatch, world, playerY, false);           // NUEVO: objetos detrás del jugador
 
-        if (player != null)
-            player.Draw(spriteBatch, pixel);
-
-        mapRenderer.DrawObjects(spriteBatch, world, playerY, true);            // NUEVO: objetos delante del jugador
+        // Entities
+        foreach (var item in catchableItems)
+        {
+            item.Draw(spriteBatch, pixel);
+        }
+        
+        // Player
+        player?.Draw(spriteBatch, pixel);
+        
     }
+
+    public override void DrawUI(SpriteBatch spriteBatch)
+    {
+
+        if(!isLoaded) return;
+        // Night Filter
+        if (nightOpacity > 0) spriteBatch.Draw(pixel, new Rectangle(0, 0, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height), nightColor * nightOpacity);
+
+        // UI
+        HUD?.Draw(spriteBatch);
+
+        // Panels
+        pausePanel.Draw(spriteBatch);
+        deathPanel.Draw(spriteBatch);
+    }
+
+    public override void UnloadContent()
+    {
+        stopUpdating = true;
+
+        // Events
+        Music.musicStop -= changeMusic;
+        deathPanel.Respawn -= processPlayerSpawn;
+        if (player != null) player.Draw(spriteBatch, pixel);
+
+        mapRenderer.DrawObjects(spriteBatch, world, playerY, true);
+    }
+
+    private void processPlayerSpawn(bool isNewGame)
+    {
+        player = new Player(Vector2.Zero, new Sprite(Assets.Sprites.Player, GameContext.ScaleXY(1)), GameContext); 
+        if (!isNewGame)
+        {
+            player.Restore(saveData.Player);
+        }
+
+        HUD = new HUD(player, GameContext, graphicsDevice, input, DIURNAL_PRESET_TIME);
+
+        // update stats from beggining
+        HUD.setTime(DIURNAL_PRESET_TIME - diurnalCycleTime);
+        player.ForceUpdateStats();
+
+        player.HealthChanged += camera.damageShake;
+        player.Inventory.UpdateInventoryUI += HUD.inventoryUI.UpdateHandItem;
+    }
+
+    private void UpdateNightTransition(GameTime gameTime)
+    {
+        float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        if (night)
+        {
+            nightOpacity += NIGHT_TRANSITION_SPEED * deltaTime;
+            if (nightOpacity > MAX_NIGHT_OPACITY) nightOpacity = MAX_NIGHT_OPACITY;
+        }
+        else
+        {
+            nightOpacity -= NIGHT_TRANSITION_SPEED * deltaTime;
+            if (nightOpacity < 0) nightOpacity = 0;
+        }
+    }
+
+    private void changeMusic()
+    {
+        currentSongIndex++;
+        if (currentSongIndex >= songsQueue.Count) currentSongIndex = 0;
+        Music.Play(songsQueue[currentSongIndex], 3f);
+    }
+
 }

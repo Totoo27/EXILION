@@ -3,36 +3,26 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EXILION.Entities.LivingThings;
-public class LivingThing : Entity
+public abstract class LivingThing : Entity
 {
+    #nullable enable
     
-    
-    private int maxHealth;
-    private int health;
+    public int maxHealth { get; private set; }
+    protected int health;
     public bool isDead { get; private set; } = false;
-    public float speed { get; private set; }
+    public int speed { get; private set; }
+    public event Action? deathEvent;
 
-    public LivingThing(Vector2 position, Sprite sprite, int maxHealth, float speed, GameContext gameContext) : base(position, sprite, gameContext)
+    public LivingThing(Vector2 position, Sprite sprite, int maxHealth, int speed, GameContext gameContext) : base(position, sprite, gameContext)
     {
         this.maxHealth = maxHealth;
         this.health = maxHealth;
         this.speed = speed;
     }
 
-    public void Update(Vector2 mousePosition)
-    {
-        base.Update(mousePosition);
-    }
-
-    public void Draw(SpriteBatch spriteBatch, Texture2D pixel)
-    {
-        base.Draw(spriteBatch, pixel);
-    }
-
-    public void takeDamage(int damage)
+    public virtual void takeDamage(int damage)
     {
         this.health -= damage;
-        Console.WriteLine("Jugador ha recibido " + damage + ", salud actual: " + this.health + "/" + this.maxHealth);
         if (this.health <= 0)
         {
             this.health = 0;
@@ -42,8 +32,8 @@ public class LivingThing : Entity
 
     private void die()
     {
-        Console.WriteLine("Living Thing ha muerto");
         isDead = true;
+        deathEvent?.Invoke();
     }
 
 }
