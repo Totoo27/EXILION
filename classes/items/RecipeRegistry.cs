@@ -15,9 +15,21 @@ public static class RecipeRegistry
         amount: 1
     );
 
+    public static readonly Recipe Axe2 = new Recipe(
+        id: 2,
+        result: ItemRegistry.HachaTest,
+        ingredients: new List<Ingredient>
+        {
+            new Ingredient(ItemRegistry.Madera, 2),
+            new Ingredient(ItemRegistry.Piedra, 3)
+        },
+        amount: 1
+    );
+
     public static readonly IReadOnlyList<Recipe> All = new List<Recipe>
     {
-        AxeRecipe
+        AxeRecipe,
+        Axe2
     };
 
      private static readonly Dictionary<int, Recipe> recipesById = new Dictionary<int, Recipe>();

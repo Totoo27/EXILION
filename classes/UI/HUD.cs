@@ -115,7 +115,7 @@ public class HUD
             Assets.Sprites.craftingMenu,
             Assets.Fonts.PixelArt,
             gameContext,
-            craftingUI = new CraftingUI(gameContext, Assets.Fonts.PixelArt)
+           craftingUI = new CraftingUI(gameContext, Assets.Fonts.PixelArt, player)
         );
 
         hungerBar.setProgressColor(new Color(148, 55, 24));
@@ -148,6 +148,7 @@ public class HUD
     public void Update()
     {
         inventoryUI.Update(input);
+        craftingUI.Update(input);
     }
 
     public void Draw(SpriteBatch spriteBatch)
