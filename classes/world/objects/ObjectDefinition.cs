@@ -1,12 +1,32 @@
 using Microsoft.Xna.Framework;
+using System;
+using System.Collections.Generic;
+using EXILION.Items;
 
 namespace EXILION.World;
 
 public class ObjectDefinition
 {
     public ObjectType Type { get; init; }
-    public bool BlocksMovement { get; init; }   // ¿se puede caminar a través?
-    public float CollisionRadius { get; init; } // radio de colisión, en tiles
-    public Rectangle Source { get; init; }      // recorte dentro de Objects.png
-    public float DrawWidthTiles { get; init; }  // ancho al dibujar, en tiles
+    public bool BlocksMovement { get; init; }   // Indica si el jugador puede atravesarlo.
+    public float CollisionRadius { get; init; } // Qué tan grande es su zona de choque, medida en tiles.
+    public int? MaxHealth { get; init; }
+    public bool HandCanBreak { get; init; }
+    public IReadOnlyList<Item> BreakableByItems { get; init; } = Array.Empty<Item>();
+    public IReadOnlyList<ObjectDrop> Drops { get; init; } = new List<ObjectDrop>();
+    public Rectangle Source { get; init; }      // Qué parte de la imagen Objects.png usamos.
+    public float DrawWidthTiles { get; init; }  // Qué ancho tendrá al aparecer en el mundo.
+
+    public bool CanBeBrokenBy(Item item)
+    {
+        foreach (var allowedItem in BreakableByItems)
+        {
+            if (allowedItem.Id == item.Id)
+                return true;
+        }
+
+        return false;
+    }
 }
+
+public sealed record ObjectDrop(Item Item, int Quantity);

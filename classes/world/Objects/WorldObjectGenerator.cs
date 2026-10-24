@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 
 namespace EXILION.World;
-
-/// <summary>Decide qué objetos aparecen en cada parte del mapa usando la seed del mundo.</summary>
 public sealed class WorldObjectGenerator
 {
     private readonly int _seed;

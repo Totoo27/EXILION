@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Input;
 using EXILION.Entities.LivingThings;
 using EXILION.Entities.CatchableItems;
+using EXILION.Entities;
 using EXILION.Items;
 using EXILION.UI;
 using EXILION.World;
@@ -95,6 +96,10 @@ public class GameScene : Scene
 
         catchableItems = new List<CatchableItem>();
 
+        int tileSize = (int)GameContext.ScaleXY(64);
+        world = new World.World(seed: Seed, tileSize: tileSize) { RenderDistanceChunks = 2 };
+        world.ObjectDestroyed += dropWorldObjectItems;
+
         if (isNewGame)
         {
             startNewGame();
@@ -105,13 +110,27 @@ public class GameScene : Scene
             loadGame();
         }
 
-        int tileSize = (int)GameContext.ScaleXY(64);
-        world = new World.World(seed: Seed, tileSize: tileSize) { RenderDistanceChunks = 2 };
-
         world.UpdateAroundPosition(player.position);
         mapRenderer = new MapRenderer(Assets.Sprites.Tileset, Assets.Sprites.Objects, tileSize);
 
         isLoaded = true;
+    }
+
+    private void dropWorldObjectItems(WorldObject worldObject)
+    {
+        Vector2 dropPosition = new Vector2(worldObject.TileX * world.TileSize, worldObject.TileY * world.TileSize);
+        foreach (var drop in worldObject.Definition.Drops)
+        {
+            if (drop.Quantity <= 0) continue;
+            catchableItems.Add(
+                new CatchableItem(
+                    new ItemStack(drop.Item, drop.Quantity),
+                    dropPosition,
+                    new Sprite(drop.Item.Icon, GameContext.ScaleXY(1)),
+                    GameContext
+                )
+            );
+        }
     }
 
     private void loadGame()
@@ -263,6 +282,7 @@ public class GameScene : Scene
 
             HUD.Update();
             player.Update(mouseWorldPosition, input, gameTime, world);
+            ApplyPlayerAttackHits();
 
             if (input.IsKeyPressed(Keys.E))
             {
@@ -292,6 +312,18 @@ public class GameScene : Scene
 
     }
 
+    private void ApplyPlayerAttackHits()
+    {
+        ApplyHandAttackHits(player.rightHand);
+        ApplyHandAttackHits(player.leftHand);
+    }
+
+    private void ApplyHandAttackHits(Hand hand)
+    {
+        if (hand.CurrentHitbox is not AttackHitbox hitbox) return;
+        world.DamageObjects(hitbox, hand.AttackDamage, hand.HeldItem, hand.RegisterHit);
+    }
+
     public override void Draw(SpriteBatch spriteBatch)
     {
         float playerY = player != null ? player.position.Y : float.MaxValue;
@@ -299,15 +331,21 @@ public class GameScene : Scene
         mapRenderer?.Draw(spriteBatch, world);
 
         // Entities
-        foreach (var item in catchableItems)
+        if(catchableItems != null)
         {
-            item.Draw(spriteBatch, pixel);
+            foreach (var item in catchableItems)
+            {
+                item.Draw(spriteBatch, pixel);
+            }
         }
+        
         
         // Player & objects
         mapRenderer?.DrawObjects(spriteBatch, world, playerY, false);
         player?.Draw(spriteBatch, pixel);
         mapRenderer?.DrawObjects(spriteBatch, world, playerY, true);
+        if (GameContext?.showHitboxes == true)
+            mapRenderer?.DrawObjectHitboxes(spriteBatch, world, pixel);
         
     }
 

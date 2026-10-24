@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using EXILION.Entities;
+using EXILION.Items;
 
 namespace EXILION.World;
 
@@ -13,6 +15,7 @@ public class World
     public int TileSize { get; }
     public int RenderDistanceChunks { get; set; } = 2;
     public WorldObjectStateStore ObjectStates { get; } = new();
+    public event Action<WorldObject> ObjectDestroyed;
 
     public World(int seed, int tileSize)
     {
@@ -61,7 +64,77 @@ public class World
         if (!IsTileWalkable(worldPosition.X - radius, worldPosition.Y + radius)) return false;
         if (!IsTileWalkable(worldPosition.X + radius, worldPosition.Y + radius)) return false;
 
-        return true;
+        return !IntersectsBlockingObject(worldPosition, radius);
+    }
+
+    private bool IntersectsBlockingObject(Vector2 position, float playerRadius)
+    {
+        foreach (var chunk in _loadedChunks.Values)
+        {
+            foreach (var obj in chunk.Objects)
+            {
+                if (obj.IsDestroyed) continue;
+                var definition = obj.Definition;
+                if (!definition.BlocksMovement) continue;
+
+                float objectRadius = definition.CollisionRadius * TileSize;
+                float objectX = obj.TileX * TileSize;
+                float objectY = obj.TileY * TileSize;
+
+                // The player hitbox is an axis-aligned square; find its nearest point to the object's circle.
+                float nearestX = MathHelper.Clamp(objectX, position.X - playerRadius, position.X + playerRadius);
+                float nearestY = MathHelper.Clamp(objectY, position.Y - playerRadius, position.Y + playerRadius);
+                float dx = objectX - nearestX;
+                float dy = objectY - nearestY;
+
+                if (dx * dx + dy * dy < objectRadius * objectRadius)
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void DamageObjects(AttackHitbox attackHitbox, int damage, Item heldItem,
+        Func<WorldObjectId, bool> registerHit)
+    {
+        if (damage <= 0) return;
+
+        float halfWidth = attackHitbox.Width / 2f;
+        float halfHeight = attackHitbox.Height / 2f;
+        float cos = MathF.Cos(attackHitbox.Rotation);
+        float sin = MathF.Sin(attackHitbox.Rotation);
+
+        foreach (var chunk in _loadedChunks.Values)
+        {
+            foreach (var obj in chunk.Objects)
+            {
+                if (obj.IsDestroyed || obj.CurrentHealth == null) continue;
+
+                float centerX = obj.TileX * TileSize;
+                float centerY = obj.TileY * TileSize;
+                float deltaX = centerX - attackHitbox.Position.X;
+                float deltaY = centerY - attackHitbox.Position.Y;
+
+                // Rotate the object's center into the attack rectangle's local space.
+                float localX = deltaX * cos + deltaY * sin;
+                float localY = -deltaX * sin + deltaY * cos;
+                float nearestX = MathHelper.Clamp(localX, -halfWidth, halfWidth);
+                float nearestY = MathHelper.Clamp(localY, -halfHeight, halfHeight);
+                float distanceX = localX - nearestX;
+                float distanceY = localY - nearestY;
+                float objectRadius = obj.Definition.CollisionRadius * TileSize;
+
+                if (distanceX * distanceX + distanceY * distanceY > objectRadius * objectRadius)
+                    continue;
+
+                if (!registerHit(obj.Id)) continue;
+
+                bool isAllowedTool = heldItem != null && obj.Definition.CanBeBrokenBy(heldItem);
+                bool isAllowed = heldItem == null ? obj.Definition.HandCanBreak : isAllowedTool;
+                obj.ApplyDamage(isAllowed ? damage : 1, allowDrops: isAllowed);
+            }
+        }
     }
 
     // Busca el tile que hay debajo de este punto y comprueba si se puede caminar por él.
@@ -139,9 +212,9 @@ public class World
         {
             ObjectStates.TryGet(spawn.Id, out var savedState);
             var obj = new WorldObject(spawn.Id, spawn.Type, spawn.TileX, spawn.TileY,
-                savedState, ObjectStates.Record);
+                savedState, ObjectStates.Record, obj => ObjectDestroyed?.Invoke(obj));
 
-            if (!obj.IsDestroyed && !obj.IsCollected)
+            if (!obj.IsDestroyed)
                 chunk.Objects.Add(obj);
         }
     }

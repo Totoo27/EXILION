@@ -2,6 +2,8 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using EXILION.Items;
+using EXILION.World;
+using System.Collections.Generic;
 
 namespace EXILION.Entities.LivingThings;
 
@@ -47,7 +49,7 @@ public class Hand
     private const float ToolSideAttackDistance = -15f;
     private const float DefaultAttackDuration = 0.14f;
     private float CurrentAttackDuration = DefaultAttackDuration;
-    public const float DefaultDamage = 5f;
+    public const float DefaultDamage = 3f;
     public AttackHitbox? CurrentHitbox { get; private set; }
 
     private const float ToolAttackRotation = MathHelper.PiOver2; // 90 grados
@@ -55,6 +57,7 @@ public class Hand
     private int HitboxSize;
 
     private HandState state = HandState.Idle;
+    private readonly HashSet<WorldObjectId> hitObjectsThisAttack = new();
 
     private float attackTimer = 0f;
 
@@ -70,6 +73,8 @@ public class Hand
     public bool CanAttack => state == HandState.Idle && (itemInHand is Tool || itemInHand?.TwoHanded != true);
     public bool hasItem => itemInHand != null;
     public bool hasConsumable => itemInHand != null && itemInHand is Consumable;
+    public Item? HeldItem => itemInHand;
+    public int AttackDamage => itemInHand is Tool tool ? Math.Max(1, (int)MathF.Ceiling(tool.Damage)) : (int)DefaultDamage;
 
     public Rectangle Hitbox
     {
@@ -152,12 +157,15 @@ public class Hand
     {
         if (!CanAttack) return false;
 
+        hitObjectsThisAttack.Clear();
         state = HandState.Extending;
         attackTimer = 0f;
         SFX.Play(Assets.SoundEffects.swings[Random.Shared.Next(Assets.SoundEffects.swings.Length)]);
 
         return true;
     }
+
+    public bool RegisterHit(WorldObjectId objectId) => hitObjectsThisAttack.Add(objectId);
 
     private void UpdateAttack(float deltaTime)
     {

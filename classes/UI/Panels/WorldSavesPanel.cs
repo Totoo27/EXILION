@@ -210,6 +210,7 @@ public class WorldSavesPanel
     {
         if (isCreatingWorld) return;
         isCreatingWorld = true;
+        
         try
         {
             WorldSaveData world = await saveService.CreateWorldAsync(worldName, seed);

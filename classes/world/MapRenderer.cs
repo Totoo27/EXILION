@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 
 namespace EXILION.World;
@@ -59,6 +60,7 @@ public class MapRenderer
         {
             foreach (var obj in chunk.Objects)
             {
+                if (obj.IsDestroyed) continue;
                 bool isInFront = obj.TileY * _tileSize > playerY;
                 if (isInFront == inFrontOfPlayer) _visibleObjects.Add(obj);
             }
@@ -80,6 +82,37 @@ public class MapRenderer
             // Tomamos este punto como los pies del objeto y apoyamos ahí el dibujo.
             var dest = new Rectangle((int)(footX - width / 2f), (int)(footY - height), (int)width, (int)height);
             spriteBatch.Draw(_objectsTexture, dest, def.Source, Color.White);
+        }
+    }
+
+    public void DrawObjectHitboxes(SpriteBatch spriteBatch, World world, Texture2D pixel)
+    {
+        const int segments = 32;
+        float thickness = Math.Max(1f, _tileSize * 0.025f);
+
+        foreach (var chunk in world.LoadedChunks)
+        {
+            foreach (var obj in chunk.Objects)
+            {
+                if (obj.IsDestroyed) continue;
+                float radius = obj.Definition.CollisionRadius * _tileSize;
+                if (radius <= 0f) continue;
+
+                Vector2 center = new Vector2(obj.TileX * _tileSize, obj.TileY * _tileSize);
+                Color color = obj.Definition.BlocksMovement ? Color.Red : Color.Yellow;
+
+                for (int i = 0; i < segments; i++)
+                {
+                    float startAngle = MathHelper.TwoPi * i / segments;
+                    float endAngle = MathHelper.TwoPi * (i + 1) / segments;
+                    Vector2 start = center + new Vector2(MathF.Cos(startAngle), MathF.Sin(startAngle)) * radius;
+                    Vector2 end = center + new Vector2(MathF.Cos(endAngle), MathF.Sin(endAngle)) * radius;
+                    Vector2 edge = end - start;
+
+                    spriteBatch.Draw(pixel, start, null, color, MathF.Atan2(edge.Y, edge.X), Vector2.Zero,
+                        new Vector2(edge.Length(), thickness), SpriteEffects.None, 0f);
+                }
+            }
         }
     }
 }
