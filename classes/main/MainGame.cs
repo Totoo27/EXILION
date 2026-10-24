@@ -7,7 +7,7 @@ using System;
 
 namespace EXILION;
 
-public class MainGame : Game, IDisplaySettings
+public class MainGame : Game, IDisplaySettings, IGameData
 {
     private static MainGame _instance;
     private GraphicsDeviceManager _graphics;
@@ -43,7 +43,7 @@ public class MainGame : Game, IDisplaySettings
         sceneManager = new SceneManager();
         input = new InputManager();
 
-        SceneManager.ChangeScene(new MainLoader(gameContext, GraphicsDevice, input, Content, camera, this));
+        SceneManager.ChangeScene(new MainLoader(this));
 
     }
 
@@ -106,5 +106,13 @@ public class MainGame : Game, IDisplaySettings
     {
         ((Game)_instance).Exit();
     }
+
+    public GameContext GetGameContext() => gameContext;
+    public GameWindow GetGameWindow() => Window;
+    public InputManager GetInput() => input;
+    public Camera GetCamera() => camera;
+    public GraphicsDevice GetGraphicsDevice() => GraphicsDevice;
+    public Microsoft.Xna.Framework.Content.ContentManager GetContentManager() => Content;
+    public IDisplaySettings GetDisplaySettings() => this;
 
 }

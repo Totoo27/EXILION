@@ -45,6 +45,7 @@ public sealed class Sprites
 
     // World
     public Texture2D Tileset { get; private set; }
+    public Texture2D Objects { get; private set; } 
 
     public async Task Load(ContentManager content)
     {
@@ -60,6 +61,7 @@ public sealed class Sprites
         hungerIcon = content.Load<Texture2D>("Sprites/UI/HUD/hungerMeterIcon");
         thirstIcon = content.Load<Texture2D>("Sprites/UI/HUD/thirstMeterIcon");
 
+        // World
         healthMeter = content.Load<Texture2D>("Sprites/UI/HUD/healthMeter");
         healthProgress = content.Load<Texture2D>("Sprites/UI/HUD/healthProgress");
 
@@ -84,11 +86,13 @@ public sealed class Sprites
         AguaPurificada = content.Load<Texture2D>("Sprites/Items/AguaPurificada");
         CarneCocinada = content.Load<Texture2D>("Sprites/Items/CarneCocinada");
         OxigenoEmbotellado = content.Load<Texture2D>("Sprites/Items/OxigenoEmbotellado");
+      
         // Tools
-         testAxe = content.Load<Texture2D>("Sprites/Items/testAxe");
+        testAxe = content.Load<Texture2D>("Sprites/Items/testAxe");
         
         // World Test
         Tileset = content.Load<Texture2D>("Sprites/Tiles/Tileset");
+        Objects = content.Load<Texture2D>("Sprites/Objects"); 
 
         await MainLoader.addCompletedTask();
 

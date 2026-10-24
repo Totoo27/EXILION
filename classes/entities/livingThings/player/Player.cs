@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using EXILION.Items;
 using EXILION.Entities.CatchableItems;
-using EXILION.UI;
+using EXILION.Saving;
 using Microsoft.Xna.Framework.Audio;
 
 namespace EXILION.Entities.LivingThings;
@@ -52,98 +52,139 @@ public class Player : LivingThing
         rightHand.ToolAttack += leftHand.StartToolAttack;
     }
 
-    public void Update(Vector2 mousePosition, InputManager input, GameTime gameTime)
+    public void Restore(PlayerSaveData saveData)
     {
+        this.position = new Vector2(saveData.PositionX, saveData.PositionY);
+        this.health = saveData.Health;
+        this.hunger = saveData.Hunger;
+        this.thirst = saveData.Thirst;
+        this.oxygen = saveData.Oxygen;
 
+        inventory.Restore(saveData.Inventory);
+    }
+
+    public PlayerSaveData GetSaveData()
+    {
+        
+        return new PlayerSaveData
+        {
+            PositionX = this.position.X,
+            PositionY = this.position.Y,
+
+            Health = this.health,
+            Hunger = this.hunger,
+            Thirst = this.thirst,
+            Oxygen = this.oxygen,
+
+            Inventory = inventory.GetSaveData()
+        };
+
+    }
+
+    public void Update(Vector2 mousePosition, InputManager input, GameTime gameTime, World.World world)
+    {
         updateHunger(gameTime);
         updateThirst(gameTime);
         updateOxygen(gameTime);
 
+        // Movement
+
         float currentSpeed = this.speed;
+        float collisionRadius = hitbox.Width / 2f;
+        float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
         runningMultiplier = 1f;
 
-        Vector2 movementDirection = Vector2.Zero;
+        Vector2 delta = Vector2.Zero;
 
-        // Movement Keys
-        if (input.IsKeyHeld(Keys.A)) movementDirection.X -= 1;
-
-        if (input.IsKeyHeld(Keys.D)) movementDirection.X += 1;
-
-        if (input.IsKeyHeld(Keys.W)) movementDirection.Y -= 1;
-
-        if (input.IsKeyHeld(Keys.S)) movementDirection.Y += 1;
-
-
-        if (movementDirection != Vector2.Zero)
+        if (input.IsKeyHeld(Keys.LeftShift))
         {
-            // Sprint
-            if(input.IsKeyHeld(Keys.LeftShift))
-            {
-                currentSpeed *= 2;
-                runningMultiplier = 0.5f;
-            }
-
-            movementDirection.Normalize();
-            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            position += movementDirection * currentSpeed * deltaTime;
-
+            currentSpeed *= 2f;
         }
 
-        // Debug keys
-        if (input.IsKeyPressed(Keys.NumPad1))
+        if (input.IsKeyHeld(Keys.A)) delta.X -= 1f;
+        if (input.IsKeyHeld(Keys.D)) delta.X += 1f;
+        if (input.IsKeyHeld(Keys.S)) delta.Y += 1f;
+        if (input.IsKeyHeld(Keys.W)) delta.Y -= 1f;
+        if (delta != Vector2.Zero)
         {
-            takeDamage(5);
+            delta.Normalize();
         }
-        if (input.IsKeyPressed(Keys.NumPad2))
+
+        delta *= currentSpeed * deltaTime;
+
+        if (delta != Vector2.Zero && currentSpeed == speed * 2f)
         {
-            takeDamage(10);
+            runningMultiplier = 0.5f;
         }
-        if (input.IsKeyPressed(Keys.NumPad3))
+
+        Vector2 nextX = new Vector2(
+            position.X + delta.X,
+            position.Y
+        );
+
+        if (world == null || world.IsWalkable(nextX, collisionRadius))
         {
-            takeDamage(20);
+            position.X = nextX.X;
         }
+
+        Vector2 nextY = new Vector2(
+            position.X,
+            position.Y + delta.Y
+        );
+
+        if (world == null || world.IsWalkable(nextY, collisionRadius))
+        {
+            position.Y = nextY.Y;
+        }
+
+        // Debug
 
         if (input.IsKeyPressed(Keys.H))
         {
             gameContext.showHitboxes = !gameContext.showHitboxes;
         }
 
+        // Hands
+
         if (input.IsLeftMousePressed() && !input.IsMouseCaptured)
         {
-
             if (rightHand.hasItem)
             {
-                if(rightHand.DoAction(this)) return;
+                if (rightHand.DoAction(this)) return;
             }
 
             // Hit with raw hand
-            if(rightHand.CanAttack && !leftHand.IsAttacking && !IsLeftNext)
+            if (rightHand.CanAttack && !leftHand.IsAttacking && !IsLeftNext)
             {
                 rightHand.Attack();
                 IsLeftNext = true;
-            } 
-            else if(leftHand.CanAttack && !rightHand.IsAttacking && IsLeftNext)
+            }
+            else if (leftHand.CanAttack && !rightHand.IsAttacking && IsLeftNext)
             {
                 leftHand.Attack();
                 IsLeftNext = false;
             }
         }
 
-        if(damagedTimer > 0f)
-        {
-            damagedTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+        // Damage timer
 
-            if(damagedTimer <= 0f)
+        if (damagedTimer > 0f)
+        {
+            damagedTimer -= deltaTime;
+
+            if (damagedTimer <= 0f)
             {
                 color = Color.White;
             }
-
         }
 
         Vector2 direction = mousePosition - position;
-        float angle = System.MathF.Atan2(direction.Y, direction.X);
+        float angle = MathF.Atan2(direction.Y, direction.X);
+
         rightHand.Update(position, direction, false, gameTime);
         leftHand.Update(position, direction, true, gameTime);
+
         sprite.Update(angle, position);
     }
 
@@ -225,6 +266,14 @@ public class Player : LivingThing
 
     }
 
+    public void ForceUpdateStats()
+    {   
+        HealthChanged?.Invoke(health);
+        OxygenChanged?.Invoke(oxygen.value);
+        HungerChanged?.Invoke(hunger.value);
+        ThirstChanged?.Invoke(thirst.value);
+    }
+
     public override void takeDamage(int damage)
     {
         base.takeDamage(damage);
@@ -236,6 +285,22 @@ public class Player : LivingThing
         HealthChanged?.Invoke(this.health);
     }
 
+    public override void Draw(SpriteBatch spriteBatch, Texture2D pixel)
+    {
+
+        leftHand.Draw(spriteBatch, color, gameContext.showHitboxes);
+        rightHand.Draw(spriteBatch, color, gameContext.showHitboxes);
+
+        sprite.Draw(spriteBatch, color);
+
+        if (gameContext.showHitboxes)
+        {
+            spriteBatch.Draw(pixel, hitbox, Color.Red);
+        }
+        
+    }
+
+    // Item usage
     public bool TryPickup(CatchableItem item)
     {
         if (item.Picked) return false;
@@ -255,21 +320,6 @@ public class Player : LivingThing
 
         SFX.Play(Assets.SoundEffects.pickUpItem);
         return true;
-    }
-
-    public override void Draw(SpriteBatch spriteBatch, Texture2D pixel)
-    {
-
-        leftHand.Draw(spriteBatch, color, gameContext.showHitboxes);
-        rightHand.Draw(spriteBatch, color, gameContext.showHitboxes);
-
-        sprite.Draw(spriteBatch, color);
-
-        if (gameContext.showHitboxes)
-        {
-            spriteBatch.Draw(pixel, hitbox, Color.Red);
-        }
-        
     }
 
     public bool TryConsume(Item item)

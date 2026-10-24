@@ -1,3 +1,4 @@
+
 using System;
 
 public static class SimplexNoise
@@ -20,14 +21,16 @@ public static class SimplexNoise
 
     static SimplexNoise()
     {
-        for (int i = 0; i < 256; i++) Perm[i] = Perm[i + 256] = p[i];
+        for (int i = 0; i < 256; i++)
+            Perm[i] = Perm[i + 256] = p[i];
     }
 
-    //calcula un valor suave en un punto dividiendo el espacio en triángulos y combinando "flechitas de dirección" fijas (pero mezcladas de forma determinística) en las 3 puntas de cada triángulo;
+    // Calcula un valor suave en un punto mediante una cuadrícula triangular
+    // y combina gradientes determinísticos en los tres vértices del triángulo.
     public static float Noise(float x, float y)
     {
-        const float F2 = 0.3660254f; // (sqrt(3)-1)/2
-        const float G2 = 0.2113249f; // (3-sqrt(3))/6
+        const float F2 = 0.3660254f; // Factor para transformar a coordenadas triangulares.
+        const float G2 = 0.2113249f; // Factor para volver a las coordenadas normales.
 
         float s = (x + y) * F2;
         int i = FastFloor(x + s);
@@ -37,7 +40,16 @@ public static class SimplexNoise
         float x0 = x - X0, y0 = y - Y0;
 
         int i1, j1;
-        if (x0 > y0) { i1 = 1; j1 = 0; } else { i1 = 0; j1 = 1; }
+        if (x0 > y0)
+        {
+            i1 = 1;
+            j1 = 0;
+        }
+        else
+        {
+            i1 = 0;
+            j1 = 1;
+        }
 
         float x1 = x0 - i1 + G2, y1 = y0 - j1 + G2;
         float x2 = x0 - 1f + 2f * G2, y2 = y0 - 1f + 2f * G2;
@@ -53,28 +65,38 @@ public static class SimplexNoise
     private static float Corner(int ii, int jj, float x, float y)
     {
         float t = 0.5f - x * x - y * y;
-        if (t < 0) return 0;
+        if (t < 0)
+            return 0;
+
         t *= t;
+
         int gi = Perm[ii + Perm[jj]] % 8;
+
         (float gx, float gy)[] grads = {
-            (1,1),(-1,1),(1,-1),(-1,-1),(1,0),(-1,0),(0,1),(0,-1)
+            (1,1), (-1,1), (1,-1), (-1,-1),
+            (1,0), (-1,0), (0,1), (0,-1)
         };
+
         var (gx, gy) = grads[gi];
         return t * t * (gx * x + gy * y);
     }
 
     private static int FastFloor(float x) => (int)MathF.Floor(x);
 
+    // Combina varias capas de ruido para crear cambios grandes y pequeños en el terreno.
     public static float Fractal(float x, float y, int octaves, float persistence, float scale)
     {
         float total = 0f, frequency = scale, amplitude = 1f, maxValue = 0f;
+
         for (int i = 0; i < octaves; i++)
         {
             total += Noise(x * frequency, y * frequency) * amplitude;
             maxValue += amplitude;
-            amplitude *= persistence; //la próxima capa va a pesar la mitad que la anterior
-            frequency *= 2f; //la próxima capa va a tener el doble de detalle/variación que la anterior (como hacer zoom in)
+
+            amplitude *= persistence; // Cada capa pesa menos que la anterior.
+            frequency *= 2f; // Cada capa agrega variaciones de mayor frecuencia.
         }
-        return total / maxValue; // normalizado entre -1 y 1
+
+        return maxValue > 0f ? total / maxValue : 0f;
     }
 }

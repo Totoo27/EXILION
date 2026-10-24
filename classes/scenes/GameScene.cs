@@ -9,6 +9,8 @@ using EXILION.Items;
 using EXILION.UI;
 using EXILION.World;
 using EXILION.UI.HUD;
+using EXILION.Saving;
+using System;
 
 namespace EXILION.Scenes;
 
@@ -55,85 +57,168 @@ public class GameScene : Scene
 
     private Camera camera;
     private GraphicsDevice graphicsDevice;
-    private IDisplaySettings displaySettings;
 
-    private const int Seed = 12345;
+    // World Saving
+    private WorldSaveData saveData;
+    private WorldSaveService saveService = new WorldSaveService();
+    private string path;
+    private bool isNewGame;
+    private bool isLoaded = false;
+    private int Seed;
 
-    public GameScene(GameContext gameContext, InputManager input, Camera camera, GraphicsDevice graphicsDevice, IDisplaySettings displaySettings) : base(gameContext)
+    public GameScene(IGameData gameData, string path) : base(gameData)
     {
-        this.input = input;
+        this.input = gameData.GetInput();
+        this.camera = gameData.GetCamera();
+        this.graphicsDevice = gameData.GetGraphicsDevice();
+        this.path = path;
+
+        saveData = saveService.LoadAsync(path).Result;
+        isNewGame = saveData.IsNewWorld;
+
         Music.Play(songsQueue[currentSongIndex], 1f);
-        this.camera = camera;
-        this.graphicsDevice = graphicsDevice;
-        this.displaySettings = displaySettings;
     }
 
     public override void LoadContent()
     {
+        // Init Seed
+        Seed = saveData.WorldSeed;
 
         pixel = new Texture2D(graphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
 
-        pausePanel = new PausePanel(GameContext, graphicsDevice, input, camera, displaySettings);
-        deathPanel = new DeathPanel(GameContext, graphicsDevice, input, camera, displaySettings);
+        pausePanel = new PausePanel(GameData);
+        deathPanel = new DeathPanel(GameData);
 
         deathPanel.Respawn += processPlayerSpawn;
-
-        processPlayerSpawn();
         Music.musicStop += changeMusic;
 
-        catchableItems = new List<CatchableItem>
+        catchableItems = new List<CatchableItem>();
+
+        if (isNewGame)
         {
+            startNewGame();
+            saveGame();
+        }
+        else
+        {
+            loadGame();
+        }
+
+        int tileSize = (int)GameContext.ScaleXY(64);
+        world = new World.World(seed: Seed, tileSize: tileSize) { RenderDistanceChunks = 2 };
+
+        world.UpdateAroundPosition(player.position);
+        mapRenderer = new MapRenderer(Assets.Sprites.Tileset, Assets.Sprites.Objects, tileSize);
+
+        isLoaded = true;
+    }
+
+    private void loadGame()
+    {
+
+        diurnalCycleTime = saveData.WorldTime;
+        night = saveData.IsNight;
+        if (night)
+        {
+            nightOpacity = 1f;
+        }
+        Seed = saveData.WorldSeed;
+        processPlayerSpawn(false);
+        
+        foreach(var catchableItem in saveData.CatchableItems)
+        {
+
+            var item = ItemRegistry.GetById(catchableItem.ItemId);
+            if (item == null) continue;
+
+            catchableItems.Add(
+
+                new CatchableItem(
+                    new ItemStack(item, catchableItem.Quantity),
+                    new Vector2(catchableItem.PositionX, catchableItem.PositionY),
+                    new Sprite(item.Icon, GameContext.ScaleXY(1)),
+                    GameContext
+                )
+
+            );
+        }
+    }
+
+    public void saveGame()
+    {
+
+        saveData.IsNewWorld = false;
+        saveData.WorldTime = diurnalCycleTime;
+        saveData.IsNight = night;
+
+        saveData.Player = player.GetSaveData();
+        saveData.CatchableItems.Clear();
+        foreach (var catchableItem in catchableItems)
+        {
+            saveData.CatchableItems.Add(catchableItem.GetSaveData());
+        }
+
+        saveService.SaveAsync(path, saveData).Wait();
+    }
+
+    private void startNewGame()
+    {
+        processPlayerSpawn(true);
+        
+        catchableItems.Add(
             new CatchableItem(
                 new ItemStack(ItemRegistry.Madera, 64),
                 new Vector2(100, 100),
                 new Sprite(ItemRegistry.Madera.Icon, GameContext.ScaleXY(1)),
                 GameContext
-            ),
+            )
+        );
+        catchableItems.Add(
             new CatchableItem(
                 new ItemStack(ItemRegistry.Piedra, 3),
-                new Vector2(200, 100),
+                new Vector2(125, 100),
                 new Sprite(ItemRegistry.Piedra.Icon, GameContext.ScaleXY(1)),
                 GameContext
-            ),
+            )
+        );
+        catchableItems.Add(
             new CatchableItem(
                 new ItemStack(ItemRegistry.AguaPurificada, 2),
                 new Vector2(300, 100),
                 new Sprite(ItemRegistry.AguaPurificada.Icon, GameContext.ScaleXY(1)),
                 GameContext
-            ),
+            )
+        );
+        catchableItems.Add(
             new CatchableItem(
                 new ItemStack(ItemRegistry.CarneCocinada, 2),
                 new Vector2(400, 100),
                 new Sprite(ItemRegistry.CarneCocinada.Icon, GameContext.ScaleXY(1)),
                 GameContext
-            ),
+            )
+        );
+        catchableItems.Add(
             new CatchableItem(
                 new ItemStack(ItemRegistry.OxigenoEmbotellado, 2),
                 new Vector2(500, 100),
                 new Sprite(ItemRegistry.OxigenoEmbotellado.Icon, GameContext.ScaleXY(1)),
                 GameContext
-            ),
+            )
+        );
+        catchableItems.Add(
             new CatchableItem(
                 new ItemStack(ItemRegistry.HachaTest, 1),
                 new Vector2(600, 100),
                 new Sprite(ItemRegistry.HachaTest.Icon, GameContext.ScaleXY(1)),
                 GameContext
-            ),
-        };
-
-        int tileSize = (int)GameContext.ScaleXY(64);
-
-        world = new World.World(seed: Seed, tileSize: tileSize) { RenderDistanceChunks = 2 };
-        world.UpdateAroundPosition(player.position);
-
-        Texture2D tileset = Assets.Sprites.Tileset;
-        mapRenderer = new MapRenderer(tileset, tileSize);
+            )
+        );
     }
 
     public override void Update(GameTime gameTime)
     {
-        if(stopUpdating) return;
+        if(stopUpdating || !isLoaded) return;
 
         MouseState mouse = input.CurrentMouse;
 
@@ -150,6 +235,10 @@ public class GameScene : Scene
         if (input.IsKeyPressed(Keys.F1) && player != null)
         {
             HUD.toggle();
+        }
+        if (input.IsKeyPressed(Keys.G))
+        {
+            saveGame();
         }
 
         if (pausePanel.enabled)
@@ -173,21 +262,21 @@ public class GameScene : Scene
             UpdateNightTransition(gameTime);
 
             HUD.Update();
-            player.Update(mouseWorldPosition, input, gameTime);
+            player.Update(mouseWorldPosition, input, gameTime, world);
 
             if (input.IsKeyPressed(Keys.E))
             {
                 Rectangle playerHitbox = player.GetHitbox();
 
-                foreach (var item in catchableItems)
+                for (int i = catchableItems.Count - 1; i >= 0; i--)
                 {
+                    CatchableItem item = catchableItems[i];
 
-                    if (item.Picked) continue;
                     if (playerHitbox.Intersects(item.GetHitbox()))
                     {
                         player.TryPickup(item);
+                        if (item.Picked) catchableItems.RemoveAt(i);
                     }
-
                 }
             }
         
@@ -205,9 +294,9 @@ public class GameScene : Scene
 
     public override void Draw(SpriteBatch spriteBatch)
     {
+        float playerY = player != null ? player.position.Y : float.MaxValue;
 
-        // Floor
-        mapRenderer.Draw(spriteBatch, world);
+        mapRenderer?.Draw(spriteBatch, world);
 
         // Entities
         foreach (var item in catchableItems)
@@ -215,13 +304,17 @@ public class GameScene : Scene
             item.Draw(spriteBatch, pixel);
         }
         
-        // Player
+        // Player & objects
+        mapRenderer?.DrawObjects(spriteBatch, world, playerY, false);
         player?.Draw(spriteBatch, pixel);
+        mapRenderer?.DrawObjects(spriteBatch, world, playerY, true);
         
     }
 
     public override void DrawUI(SpriteBatch spriteBatch)
     {
+
+        if(!isLoaded) return;
         // Night Filter
         if (nightOpacity > 0) spriteBatch.Draw(pixel, new Rectangle(0, 0, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height), nightColor * nightOpacity);
 
@@ -301,6 +394,24 @@ public class GameScene : Scene
     {
         HUD.hide();
 
+        // Drop inventory items
+        Inventory inventory = player.Inventory;
+
+        for(int i = 0; i < inventory.Capacity; i++)
+        {
+            ItemStack itemStack = inventory.GetSlot(i);
+            if(itemStack == null) continue;
+
+            catchableItems.Add(
+                new CatchableItem(
+                    itemStack,
+                    player.position,
+                    new Sprite(itemStack.Item.Icon, GameContext.ScaleXY(1)),
+                    GameContext
+                )
+            );
+        }
+
         player.HealthChanged -= camera.damageShake;
         player.Inventory.UpdateInventoryUI -= HUD.inventoryUI.UpdateHandItem;
 
@@ -309,13 +420,24 @@ public class GameScene : Scene
         deathPanel.enabled = true;
     }
 
-    private void processPlayerSpawn()
+    private void processPlayerSpawn(bool isNewGame)
     {
         player = new Player(Vector2.Zero, new Sprite(Assets.Sprites.Player, GameContext.ScaleXY(1)), GameContext); 
+        if (!isNewGame)
+        {
+            player.Restore(saveData.Player);
+        }
+
         HUD = new HUD(player, GameContext, graphicsDevice, input, DIURNAL_PRESET_TIME);
+
+        // update stats from beggining
+        HUD.setTime(DIURNAL_PRESET_TIME - diurnalCycleTime);
+        player.ForceUpdateStats();
 
         player.HealthChanged += camera.damageShake;
         player.Inventory.UpdateInventoryUI += HUD.inventoryUI.UpdateHandItem;
+
+        if(isNewGame) player.position = world.FindSpawnPosition();
     }
 
     private void UpdateNightTransition(GameTime gameTime)
