@@ -12,7 +12,7 @@ public sealed class WorldCreationPanel : IDisposable
 {
     #nullable enable
     public const int MaxNameLength = 32;
-    public const int MaxSeedLength = 11; // limited by -2147483648
+    public const int MaxSeedLength = 11; // limited by -2147483648"
 
     private readonly GameContext gameContext;
     private readonly GameWindow window;
@@ -32,10 +32,7 @@ public sealed class WorldCreationPanel : IDisposable
     private bool isSubscribed;
     private bool disposed;
 
-    /// <summary>Se dispara al confirmar con datos válidos. El receptor debe llamar a ReportError si falla.</summary>
     public event Action<string, int>? CreateRequested;
-
-    /// <summary>Se dispara cuando el usuario cancela. El panel ya está cerrado.</summary>
     public event Action? Cancelled;
 
     public bool IsOpen { get; private set; }
@@ -80,8 +77,6 @@ public sealed class WorldCreationPanel : IDisposable
 
         nameInput.Clear();
         seedInput.Clear();
-
-        // Evita que el clic que abrió el panel cuente como nuevo clic.
         previousMouse = Mouse.GetState();
 
         Layout();
@@ -102,7 +97,6 @@ public sealed class WorldCreationPanel : IDisposable
         Unsubscribe();
     }
 
-    /// <summary>Llamar desde ReportError cuando la creación falla, para permitir reintentar.</summary>
     public void ReportError(string message)
     {
         IsBusy = false;
@@ -113,7 +107,7 @@ public sealed class WorldCreationPanel : IDisposable
     {
         if (!IsOpen) return;
 
-        Layout(); // Respeta cambios de resolución.
+        Layout();
 
         bool leftClicked = mouse.LeftButton == ButtonState.Pressed
                         && previousMouse.LeftButton == ButtonState.Released;

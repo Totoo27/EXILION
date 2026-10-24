@@ -50,8 +50,7 @@ public class MapRenderer
             }
         }
     }
-
-    // Dibujamos primero lo que queda detrás del jugador y después lo que queda delante.
+  
     public void DrawObjects(SpriteBatch spriteBatch, World world, float playerY, bool inFrontOfPlayer)
     {
         _visibleObjects.Clear();

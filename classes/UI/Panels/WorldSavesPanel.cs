@@ -61,21 +61,19 @@ public class WorldSavesPanel
     private List<WorldSaveRow> worldSaveRows = new();
     private bool isLoadingWorlds = false;
     private bool isCreatingWorld = false;
-    private Camera camera;
-    private IDisplaySettings displaySettings;
     private GameWindow gameWindow;
     private readonly WorldCreationPanel creationPanel;
+    private readonly IGameData GameData;
 
-    public WorldSavesPanel(GameContext gameContext, GraphicsDevice GraphicsDevice, InputManager input, IHasWorldSaves scene, Vector2 position, Camera camera, IDisplaySettings displaySettings, GameWindow window)
+    public WorldSavesPanel(IGameData gameData, IHasWorldSaves scene, Vector2 position)
     {
-        this.gameContext = gameContext;
-        this.GraphicsDevice = GraphicsDevice;
-        this.input = input;
+        GameData = gameData;
+        this.gameContext = gameData.GetGameContext();
+        this.GraphicsDevice = gameData.GetGraphicsDevice();
+        this.input = gameData.GetInput();
         this.scene = scene;
         this.position = position;
-        this.camera = camera;
-        this.displaySettings = displaySettings;
-        this.gameWindow = window;
+        this.gameWindow = gameData.GetGameWindow();
 
         Width = gameContext.ScaleX(1000);
         Height = gameContext.ScaleY(600);
@@ -192,7 +190,7 @@ public class WorldSavesPanel
         try
         {
             string path = saveService.GetWorldPath(world.WorldId);
-            SceneManager.ChangeScene(new GameScene(gameContext, input, camera, GraphicsDevice, displaySettings, path, gameWindow));
+            SceneManager.ChangeScene(new GameScene(GameData, path));
         }
         catch (Exception ex)
         {
@@ -216,7 +214,7 @@ public class WorldSavesPanel
         {
             WorldSaveData world = await saveService.CreateWorldAsync(worldName, seed);
             string path = saveService.GetWorldPath(world.WorldId);
-            SceneManager.ChangeScene(new GameScene(gameContext, input, camera, GraphicsDevice, displaySettings, path, gameWindow));
+            SceneManager.ChangeScene(new GameScene(GameData, path));
             creationPanel.Close();
         }
         catch (Exception ex)

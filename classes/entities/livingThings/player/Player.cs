@@ -6,7 +6,6 @@ using EXILION.Items;
 using EXILION.Entities.CatchableItems;
 using EXILION.Saving;
 using Microsoft.Xna.Framework.Audio;
-using EXILION.World;
 
 namespace EXILION.Entities.LivingThings;
 
@@ -53,70 +52,139 @@ public class Player : LivingThing
         rightHand.ToolAttack += leftHand.StartToolAttack;
     }
 
-    // NUEVO: recibe el mundo para poder preguntarle si puede avanzar
-    public async void Update(Vector2 mousePosition, InputManager input, GameTime gameTime, World world)
+    public void Restore(PlayerSaveData saveData)
     {
+        this.position = new Vector2(saveData.PositionX, saveData.PositionY);
+        this.health = saveData.Health;
+        this.hunger = saveData.Hunger;
+        this.thirst = saveData.Thirst;
+        this.oxygen = saveData.Oxygen;
 
+        inventory.Restore(saveData.Inventory);
+    }
+
+    public PlayerSaveData GetSaveData()
+    {
+        
+        return new PlayerSaveData
+        {
+            PositionX = this.position.X,
+            PositionY = this.position.Y,
+
+            Health = this.health,
+            Hunger = this.hunger,
+            Thirst = this.thirst,
+            Oxygen = this.oxygen,
+
+            Inventory = inventory.GetSaveData()
+        };
+
+    }
+
+    public void Update(Vector2 mousePosition, InputManager input, GameTime gameTime, World.World world)
+    {
         updateHunger(gameTime);
         updateThirst(gameTime);
         updateOxygen(gameTime);
 
+        // Movement
+
         float currentSpeed = this.speed;
-        float collisionRadius = hitbox.Width / 2f; // NUEVO
+        float collisionRadius = hitbox.Width / 2f;
+        float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
         runningMultiplier = 1f;
 
-        Vector2 movementDirection = Vector2.Zero;
-
-        // Movement Keys
-        if (input.IsKeyHeld(Keys.A)) movementDirection.X -= 1;
-
-        if (input.IsKeyHeld(Keys.D)) movementDirection.X += 1;
-
-        if (input.IsKeyHeld(Keys.W)) movementDirection.Y -= 1;
-
-        if (input.IsKeyHeld(Keys.S)) movementDirection.Y += 1;
-
-
-        if (movementDirection != Vector2.Zero)
-        {
-            // Sprint
-            if(input.IsKeyHeld(Keys.LeftShift))
-            {
-                currentSpeed *= 2;
-                runningMultiplier = 0.5f;
-            }
-
-            movementDirection.Normalize();
-            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            position += movementDirection * currentSpeed * deltaTime;
-
-        }
-
-        // NUEVO: primero se calcula cuánto querés moverte...
         Vector2 delta = Vector2.Zero;
 
-        if (input.IsKeyHeld(Keys.Left))  delta.X -= currentSpeed;
-        if (input.IsKeyHeld(Keys.Right)) delta.X += currentSpeed;
-        if (input.IsKeyHeld(Keys.Down))  delta.Y += currentSpeed;
-        if (input.IsKeyHeld(Keys.Up))    delta.Y -= currentSpeed;
-
-        // NUEVO: ...y después se mueve cada eje solo si ese lugar es caminable
-        Vector2 nextX = new Vector2(this.position.X + delta.X, this.position.Y);
-        if (world == null || world.IsWalkable(nextX, collisionRadius))
+        if (input.IsKeyHeld(Keys.LeftShift))
         {
-            this.position.X = nextX.X;
+            currentSpeed *= 2f;
         }
 
-        Vector2 nextY = new Vector2(this.position.X, this.position.Y + delta.Y);
+        if (input.IsKeyHeld(Keys.A)) delta.X -= 1f;
+        if (input.IsKeyHeld(Keys.D)) delta.X += 1f;
+        if (input.IsKeyHeld(Keys.S)) delta.Y += 1f;
+        if (input.IsKeyHeld(Keys.W)) delta.Y -= 1f;
+        if (delta != Vector2.Zero)
+        {
+            delta.Normalize();
+        }
+
+        delta *= currentSpeed * deltaTime;
+
+        if (delta != Vector2.Zero && currentSpeed == speed * 2f)
+        {
+            runningMultiplier = 0.5f;
+        }
+
+        Vector2 nextX = new Vector2(
+            position.X + delta.X,
+            position.Y
+        );
+
+        if (world == null || world.IsWalkable(nextX, collisionRadius))
+        {
+            position.X = nextX.X;
+        }
+
+        Vector2 nextY = new Vector2(
+            position.X,
+            position.Y + delta.Y
+        );
+
         if (world == null || world.IsWalkable(nextY, collisionRadius))
         {
-            this.position.Y = nextY.Y;
+            position.Y = nextY.Y;
+        }
+
+        // Debug
+
+        if (input.IsKeyPressed(Keys.H))
+        {
+            gameContext.showHitboxes = !gameContext.showHitboxes;
+        }
+
+        // Hands
+
+        if (input.IsLeftMousePressed() && !input.IsMouseCaptured)
+        {
+            if (rightHand.hasItem)
+            {
+                if (rightHand.DoAction(this)) return;
+            }
+
+            // Hit with raw hand
+            if (rightHand.CanAttack && !leftHand.IsAttacking && !IsLeftNext)
+            {
+                rightHand.Attack();
+                IsLeftNext = true;
+            }
+            else if (leftHand.CanAttack && !rightHand.IsAttacking && IsLeftNext)
+            {
+                leftHand.Attack();
+                IsLeftNext = false;
+            }
+        }
+
+        // Damage timer
+
+        if (damagedTimer > 0f)
+        {
+            damagedTimer -= deltaTime;
+
+            if (damagedTimer <= 0f)
+            {
+                color = Color.White;
+            }
         }
 
         Vector2 direction = mousePosition - position;
-        float angle = System.MathF.Atan2(direction.Y, direction.X);
+        float angle = MathF.Atan2(direction.Y, direction.X);
+
         rightHand.Update(position, direction, false, gameTime);
         leftHand.Update(position, direction, true, gameTime);
+
         sprite.Update(angle, position);
     }
 
