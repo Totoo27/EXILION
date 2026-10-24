@@ -16,4 +16,5 @@ public class WorldSaveData
     public PlayerSaveData Player { get; set; } = new();
 
     public List<CatchableItemSaveData> CatchableItems { get; set; } = new();
+    public List<WorldObjectStateSaveData> WorldObjectStates { get; set; } = new();
 }

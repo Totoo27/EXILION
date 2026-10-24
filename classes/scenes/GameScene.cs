@@ -12,6 +12,7 @@ using EXILION.World;
 using EXILION.UI.HUD;
 using EXILION.Saving;
 using System;
+using System.Linq;
 
 namespace EXILION.Scenes;
 
@@ -136,6 +137,8 @@ public class GameScene : Scene
     private void loadGame()
     {
 
+        world.RestoreObjectStates(saveData.WorldObjectStates.Select(state => state.ToState()));
+
         diurnalCycleTime = saveData.WorldTime;
         night = saveData.IsNight;
         if (night)
@@ -177,6 +180,10 @@ public class GameScene : Scene
         {
             saveData.CatchableItems.Add(catchableItem.GetSaveData());
         }
+
+        saveData.WorldObjectStates.Clear();
+        saveData.WorldObjectStates.AddRange(
+            world.CaptureObjectStates().Select(WorldObjectStateSaveData.FromState));
 
         saveService.SaveAsync(path, saveData).Wait();
     }
