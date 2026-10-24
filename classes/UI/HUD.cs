@@ -15,6 +15,7 @@ public class HUD
     private LinearBar oxygenBar;
     private LinearBar watchBar;
     public InventoryUI inventoryUI { get; private set; }
+    public CraftingUI craftingUI { get; private set; }
     private bool hideHUD = false;
     private Player player;
     private GameContext gameContext;
@@ -111,8 +112,10 @@ public class HUD
         inventoryUI = new InventoryUI(
             player.Inventory,
             Assets.Sprites.Slot,
+            Assets.Sprites.craftingMenu,
             Assets.Fonts.PixelArt,
-            gameContext
+            gameContext,
+           craftingUI = new CraftingUI(gameContext, Assets.Fonts.PixelArt, player)
         );
 
         hungerBar.setProgressColor(new Color(148, 55, 24));
@@ -145,6 +148,7 @@ public class HUD
     public void Update()
     {
         inventoryUI.Update(input);
+        craftingUI.Update(input);
     }
 
     public void Draw(SpriteBatch spriteBatch)
@@ -157,6 +161,7 @@ public class HUD
         oxygenBar.Draw(spriteBatch);
         watchBar.Draw(spriteBatch);
         inventoryUI.Draw(spriteBatch);
+        craftingUI.Draw(spriteBatch);
     }
 
     public int getSelectedSlotIndex()

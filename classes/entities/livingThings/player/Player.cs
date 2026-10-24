@@ -369,4 +369,43 @@ public class Player : LivingThing
         return true;
     }
 
+    public CraftResult EvaluateCraft(Recipe recipe)
+{
+    if (recipe == null) return CraftResult.MissingIngredients;
+
+    foreach (Ingredient ingredient in recipe.Ingredients)
+    {
+        if (!inventory.HasItem(ingredient.Item, ingredient.Quantity))
+        {
+            return CraftResult.MissingIngredients;
+        }
+    }
+
+    if (!inventory.CanFit(recipe.Result, recipe.Amount))
+    {
+        return CraftResult.InventoryFull;
+    }
+
+    return CraftResult.Success;
+}
+
+public bool CanCraft(Recipe recipe)
+{
+    return EvaluateCraft(recipe) == CraftResult.Success;
+}
+
+public CraftResult TryCraft(Recipe recipe)
+{
+    CraftResult result = EvaluateCraft(recipe);
+    if (result != CraftResult.Success) return result;
+
+    foreach (Ingredient ingredient in recipe.Ingredients)
+    {
+        inventory.RemoveItem(ingredient.Item, ingredient.Quantity);
+    }
+
+    inventory.AddItem(recipe.Result, recipe.Amount);
+    return CraftResult.Success;
+}
+
 }

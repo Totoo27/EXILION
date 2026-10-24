@@ -120,6 +120,29 @@ public class Inventory
         return GetItemCount(item) >= amount;
     }
 
+    public bool CanFit(Item item, int amount)
+    {
+        if (amount <= 0) return true;
+
+        int space = 0;
+
+        foreach (ItemStack stack in slots)
+        {
+            if (stack == null)
+            {
+                space += item.GetMaxStackSize();
+            }
+            else if (stack.CanStackWith(item))
+            {
+                space += stack.SpaceLeft;
+            }
+
+            if (space >= amount) return true;
+        }
+
+        return false;
+    }
+
     public ItemStack? GetSlot(int index)
     {
         if (index < 0 || index >= slots.Length) return null;
