@@ -8,7 +8,7 @@ public static class TileProperties
         {
             TileType.DeepWater => false,
             TileType.Water => false,
-            _ => true, // todo lo demás se puede caminar
+            _ => true, // Por ahora, cualquier otro terreno se puede caminar.
         };
     }
 }
