@@ -92,7 +92,7 @@ public sealed class Sprites
         
         // World Test
         Tileset = content.Load<Texture2D>("Sprites/Tiles/Tileset");
-        Objects = content.Load<Texture2D>("Sprites/Objects"); 
+        Objects = content.Load<Texture2D>("Sprites/Tiles/objects"); 
 
         await MainLoader.addCompletedTask();
 

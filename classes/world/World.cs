@@ -154,7 +154,7 @@ public class World
             return TileProperties.IsWalkable(chunk.Tiles[localX, localY].Type);
         }
 
-        return true; // Si todavía no cargamos esta parte del mapa, dejamos pasar al jugador.
+        return true; 
     }
 
     // Encuentra un lugar seco cerca del inicio para que el jugador no aparezca en el agua.
@@ -173,7 +173,6 @@ public class World
                 {
                     if (!TileProperties.IsWalkable(chunk.Tiles[lx, ly].Type)) continue;
 
-                    // Usamos el centro del tile como posible lugar de aparición.
                     float px = (chunk.ChunkX * Chunk.Size + lx + 0.5f) * TileSize;
                     float py = (chunk.ChunkY * Chunk.Size + ly + 0.5f) * TileSize;
 
@@ -198,7 +197,6 @@ public class World
     {
         ObjectStates.RestoreSnapshot(states);
 
-        // Si ya hay partes del mapa cargadas, aplicamos los cambios guardados ahora mismo.
         foreach (var chunk in _loadedChunks.Values)
         {
             chunk.Objects.Clear();
@@ -214,8 +212,7 @@ public class World
             var obj = new WorldObject(spawn.Id, spawn.Type, spawn.TileX, spawn.TileY,
                 savedState, ObjectStates.Record, obj => ObjectDestroyed?.Invoke(obj));
 
-            if (!obj.IsDestroyed)
-                chunk.Objects.Add(obj);
+            if (!obj.IsDestroyed) chunk.Objects.Add(obj);
         }
     }
 }

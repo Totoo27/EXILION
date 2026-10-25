@@ -12,6 +12,7 @@ public class ObjectDefinition
     public float CollisionRadius { get; init; } // Qué tan grande es su zona de choque, medida en tiles.
     public int? MaxHealth { get; init; }
     public bool HandCanBreak { get; init; }
+    public bool AbovePlayer {get; init; }
     public IReadOnlyList<Item> BreakableByItems { get; init; } = Array.Empty<Item>();
     public IReadOnlyList<ObjectDrop> Drops { get; init; } = new List<ObjectDrop>();
     public Rectangle Source { get; init; }      // Qué parte de la imagen Objects.png usamos.

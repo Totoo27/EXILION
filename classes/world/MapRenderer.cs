@@ -52,7 +52,7 @@ public class MapRenderer
         }
     }
   
-    public void DrawObjects(SpriteBatch spriteBatch, World world, float playerY, bool inFrontOfPlayer)
+    public void DrawObjects(SpriteBatch spriteBatch, World world, bool drawAbove)
     {
         _visibleObjects.Clear();
 
@@ -60,9 +60,10 @@ public class MapRenderer
         {
             foreach (var obj in chunk.Objects)
             {
-                if (obj.IsDestroyed) continue;
-                bool isInFront = obj.TileY * _tileSize > playerY;
-                if (isInFront == inFrontOfPlayer) _visibleObjects.Add(obj);
+                if(obj.IsDestroyed) continue;
+                if(!drawAbove && obj.Definition.AbovePlayer) continue;
+                if(drawAbove && !obj.Definition.AbovePlayer) continue;
+                _visibleObjects.Add(obj);
             }
         }
 
@@ -79,8 +80,7 @@ public class MapRenderer
             float width = def.DrawWidthTiles * _tileSize;
             float height = width * def.Source.Height / def.Source.Width;
 
-            // Tomamos este punto como los pies del objeto y apoyamos ahí el dibujo.
-            var dest = new Rectangle((int)(footX - width / 2f), (int)(footY - height), (int)width, (int)height);
+            var dest = new Rectangle((int)(footX - width / 2f), (int)(footY - height / 2f), (int)width, (int)height);
             spriteBatch.Draw(_objectsTexture, dest, def.Source, Color.White);
         }
     }

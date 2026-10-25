@@ -348,9 +348,9 @@ public class GameScene : Scene
         
         
         // Player & objects
-        mapRenderer?.DrawObjects(spriteBatch, world, playerY, false);
+        mapRenderer?.DrawObjects(spriteBatch, world, false);
         player?.Draw(spriteBatch, pixel);
-        mapRenderer?.DrawObjects(spriteBatch, world, playerY, true);
+        mapRenderer?.DrawObjects(spriteBatch, world, true);
         if (GameContext?.showHitboxes == true)
             mapRenderer?.DrawObjectHitboxes(spriteBatch, world, pixel);
         
