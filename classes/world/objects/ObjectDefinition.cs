@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using System;
 using System.Collections.Generic;
 using EXILION.Items;
@@ -8,9 +9,10 @@ namespace EXILION.World;
 public class ObjectDefinition
 {
     public ObjectType Type { get; init; }
-    public bool BlocksMovement { get; init; }   // Indica si el jugador puede atravesarlo.
-    public float CollisionRadius { get; init; } // Qué tan grande es su zona de choque, medida en tiles.
+    public bool BlocksMovement { get; init; }
+    public float CollisionRadius { get; init; }
     public int? MaxHealth { get; init; }
+    public SoundEffect HitSound { get; init; }
     public bool HandCanBreak { get; init; }
     public bool AbovePlayer { get; init; }
     public IReadOnlyList<Item> BreakableByItems { get; init; } = Array.Empty<Item>();

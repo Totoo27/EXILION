@@ -99,7 +99,7 @@ public class Player : LivingThing
 
         if (input.IsKeyHeld(Keys.LeftShift))
         {
-            currentSpeed *= 2f;
+            currentSpeed *= 1.5f;
         }
 
         if (input.IsKeyHeld(Keys.A)) delta.X -= 1f;
@@ -113,7 +113,7 @@ public class Player : LivingThing
 
         delta *= currentSpeed * deltaTime;
 
-        if (delta != Vector2.Zero && currentSpeed == speed * 2f)
+        if (delta != Vector2.Zero && currentSpeed == speed * 1.5f)
         {
             runningMultiplier = 0.5f;
         }

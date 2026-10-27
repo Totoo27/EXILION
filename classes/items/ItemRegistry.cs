@@ -49,11 +49,22 @@ public static class ItemRegistry
         id: 6,
         name: "Hacha de prueba",
         attackSpeed: 3f,
-        damage: 10f,
+        damage: 7f,
         hitboxWidth: 20f,
         hitboxHeight: 40f,
         icon: Assets.Sprites.testAxe
     );
+
+    public static readonly Consumable Baya = new Consumable(
+        id: 7,
+        name: "Baya",
+        statRestore: 5,
+        statType: Entities.LivingThings.StatType.Hunger,
+        icon: Assets.Sprites.Baya
+    );
+
+
+    // -------------------------
 
     private static readonly Dictionary<int, Item> items = new()
     {

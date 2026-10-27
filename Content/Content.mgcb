@@ -52,65 +52,83 @@
 /processorParam:Quality=Best
 /build:Music/menuMusic.mp3
 
-#begin SFX/bottleBreath.wav
+#begin SFX/consume/bottleBreath.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:SFX/bottleBreath.wav
+/build:SFX/consume/bottleBreath.wav;SFX/consume/bottleBreath
 
-#begin SFX/buttonClick.wav
+#begin SFX/consume/drink.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:SFX/buttonClick.wav
+/build:SFX/consume/drink.wav;SFX/consume/drink
 
-#begin SFX/buttonHover.wav
+#begin SFX/consume/eat.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:SFX/buttonHover.wav
+/build:SFX/consume/eat.wav;SFX/consume/eat
 
-#begin SFX/drink.wav
+#begin SFX/damage/brokenBush.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:SFX/drink.wav
+/build:SFX/damage/brokenBush.wav
 
-#begin SFX/eat.wav
+#begin SFX/damage/chop.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:SFX/eat.wav
+/build:SFX/damage/chop.wav;SFX/damage/chop
 
-#begin SFX/pickUpItem.wav
+#begin SFX/damage/mine.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:SFX/pickUpItem.wav
+/build:SFX/damage/mine.wav;SFX/damage/mine
 
-#begin SFX/playerDamage.wav
+#begin SFX/damage/playerDamage.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:SFX/playerDamage.wav
+/build:SFX/damage/playerDamage.wav;SFX/damage/playerDamage
 
-#begin SFX/Swings/swing1.wav
+#begin SFX/swings/swing1.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:SFX/Swings/swing1.wav
+/build:SFX/swings/swing1.wav;SFX/swings/swing1
 
-#begin SFX/Swings/swing2.wav
+#begin SFX/swings/swing2.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:SFX/Swings/swing2.wav
+/build:SFX/swings/swing2.wav;SFX/swings/swing2
 
-#begin SFX/Swings/swing3.wav
+#begin SFX/swings/swing3.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:SFX/Swings/swing3.wav
+/build:SFX/swings/swing3.wav;SFX/swings/swing3
+
+#begin SFX/UI/buttonClick.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/UI/buttonClick.wav;SFX/UI/buttonClick
+
+#begin SFX/UI/buttonHover.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/UI/buttonHover.wav;SFX/UI/buttonHover
+
+#begin SFX/UI/pickUpItem.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/UI/pickUpItem.wav;SFX/UI/pickUpItem
 
 #begin Sprites/Entities/Player.png
 /importer:TextureImporter
@@ -147,6 +165,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/AguaPurificada.png;Sprites/Items/AguaPurificada
+
+#begin Sprites/Items/bayas.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/bayas.png
 
 #begin Sprites/Items/CarneCocinada.png
 /importer:TextureImporter

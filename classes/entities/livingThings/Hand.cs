@@ -26,7 +26,7 @@ public class Hand
     private float ItemAngle;
 
     // Hand distance Offset
-    private const float DefaultSideDistance = 32f;
+    private const float DefaultSideDistance = 30f;
     private const float DefaultForwardDistance = 20f;
     private const float TwoHandedSideDistance = 16f;
     private const float TwoHandedForwardDistance = 26f;
@@ -193,7 +193,7 @@ public class Hand
 
     private void UpdateHitbox(Vector2 ItemPosition, float ItemAngle)
     {
-        if (state == HandState.Idle || isSupportingToolAttack)
+        if (state == HandState.Idle || state == HandState.Retracting || isSupportingToolAttack)
         {
             CurrentHitbox = null;
             return;

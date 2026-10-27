@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using EXILION.Items;
+using EXILION;
 
 namespace EXILION.World;
 
@@ -12,22 +13,33 @@ public static class ObjectProperties
     {
         { ObjectType.Tree, new ObjectDefinition {
             Type = ObjectType.Tree, BlocksMovement = true, CollisionRadius = 0.50f, MaxHealth = 15,
+            HitSound = Assets.SoundEffects?.chop,
             AbovePlayer = true,
             HandCanBreak = true, BreakableByItems = new[] { ItemRegistry.HachaTest },
             Drops = new[] { new ObjectDrop(ItemRegistry.Madera, 2) },
-            Source = new Rectangle(64, 0, 64, 64), DrawWidthTiles = 2.2f } },
+            Source = new Rectangle(128, 0, 64, 64), DrawWidthTiles = 2.2f } },
 
         { ObjectType.Rock, new ObjectDefinition {
             Type = ObjectType.Rock, BlocksMovement = true, CollisionRadius = 0.40f, MaxHealth = 10,
+            HitSound = Assets.SoundEffects?.mine,
             AbovePlayer = false,
             HandCanBreak = false,
             Drops = new[] { new ObjectDrop(ItemRegistry.Piedra, 2) },
-            Source = new Rectangle(128, 0, 64, 64), DrawWidthTiles = 1.6f } },
+            Source = new Rectangle(192, 0, 64, 64), DrawWidthTiles = 1.6f } },
 
         { ObjectType.Bush, new ObjectDefinition {
-            Type = ObjectType.Bush, BlocksMovement = false, CollisionRadius = 0.30f, MaxHealth = 1,
+            Type = ObjectType.Bush, BlocksMovement = false, CollisionRadius = 0.35f, MaxHealth = 4,
+            HitSound = Assets.SoundEffects?.brokenBush,
             AbovePlayer = false,
             HandCanBreak = true,
+            Source = new Rectangle(64, 0, 64, 64), DrawWidthTiles = 1.4f } },
+
+        { ObjectType.FruitBush, new ObjectDefinition {
+            Type = ObjectType.FruitBush, BlocksMovement = false, CollisionRadius = 0.35f, MaxHealth = 4,
+            HitSound = Assets.SoundEffects?.brokenBush,
+            AbovePlayer = false,
+            HandCanBreak = true,
+            Drops = new[] { new ObjectDrop(ItemRegistry.Baya, 2) },
             Source = new Rectangle(0, 0, 64, 64), DrawWidthTiles = 1.4f } },
     };
 
@@ -36,8 +48,8 @@ public static class ObjectProperties
     public static ObjectDefinition Get(ObjectType type) => Definitions[type];
 
     // Estas chances indican qué tan seguido aparece cada objeto en cada tipo de terreno.
-    private static readonly (ObjectType Type, float Chance)[] ForestRules = { (ObjectType.Tree, 0.22f), (ObjectType.Bush, 0.06f) };
-    private static readonly (ObjectType Type, float Chance)[] GrassRules  = { (ObjectType.Tree, 0.02f), (ObjectType.Bush, 0.04f), (ObjectType.Rock, 0.01f) };
+    private static readonly (ObjectType Type, float Chance)[] ForestRules = { (ObjectType.Tree, 0.22f), (ObjectType.Bush, 0.04f), (ObjectType.FruitBush, 0.03f)  };
+    private static readonly (ObjectType Type, float Chance)[] GrassRules  = { (ObjectType.Tree, 0.02f), (ObjectType.Bush, 0.04f), (ObjectType.FruitBush, 0.03f), (ObjectType.Rock, 0.01f) };
     private static readonly (ObjectType Type, float Chance)[] SandRules   = { (ObjectType.Rock, 0.015f) };
     private static readonly (ObjectType Type, float Chance)[] RockRules   = { (ObjectType.Rock, 0.10f) };
     private static readonly (ObjectType Type, float Chance)[] SnowRules   = { (ObjectType.Rock, 0.03f) };

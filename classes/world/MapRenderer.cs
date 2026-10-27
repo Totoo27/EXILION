@@ -80,7 +80,9 @@ public class MapRenderer
             float width = def.DrawWidthTiles * _tileSize;
             float height = width * def.Source.Height / def.Source.Width;
 
-            var dest = new Rectangle((int)(footX - width / 2f), (int)(footY - height / 2f), (int)width, (int)height);
+            float scale = obj.DrawScale;
+            var dest = new Rectangle((int)(footX - width * scale / 2f), (int)(footY - height * scale / 2f),
+                (int)(width * scale), (int)(height * scale));
             spriteBatch.Draw(_objectsTexture, dest, def.Source, Color.White);
         }
     }

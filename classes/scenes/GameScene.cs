@@ -276,6 +276,7 @@ public class GameScene : Scene
         
         if(player != null)
         {
+            world?.UpdateObjects((float)gameTime.ElapsedGameTime.TotalSeconds);
             Vector2 mouseWorldPosition = mouse.Position.ToVector2();
 
             if (camera != null)

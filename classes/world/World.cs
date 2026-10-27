@@ -55,6 +55,13 @@ public class World
         foreach (var key in toRemove) _loadedChunks.Remove(key);
     }
 
+    public void UpdateObjects(float deltaTime)
+    {
+        foreach (var chunk in _loadedChunks.Values)
+            foreach (var obj in chunk.Objects)
+                obj.Update(deltaTime);
+    }
+
     // Comprueba que el jugador quepa en esta posición sin pisar agua.
     public bool IsWalkable(Vector2 worldPosition, float radius = 0f)
     {
