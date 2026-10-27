@@ -66,6 +66,7 @@ public class GameScene : Scene
     private string path;
     private bool isNewGame;
     private bool isLoaded = false;
+    private bool blockPlacementMode;
     private int Seed;
 
     public GameScene(IGameData gameData, string path) : base(gameData)
@@ -266,6 +267,10 @@ public class GameScene : Scene
         {
             saveGame();
         }
+        if (input.IsKeyPressed(Keys.B))
+        {
+            blockPlacementMode = !blockPlacementMode;
+        }
 
         if (pausePanel.enabled)
         {
@@ -288,7 +293,13 @@ public class GameScene : Scene
             UpdateNightTransition(gameTime);
 
             HUD.Update();
+            bool placeBlock = blockPlacementMode && input.IsLeftMousePressed() && !input.IsMouseCaptured;
+            bool wasMouseCaptured = input.IsMouseCaptured;
+            if (placeBlock) input.IsMouseCaptured = true;
             player.Update(mouseWorldPosition, input, gameTime, world);
+            input.IsMouseCaptured = wasMouseCaptured;
+            if (placeBlock)
+                world.TryPlaceBlock(mouseWorldPosition, player.position, player.GetHitbox().Width / 2f);
             ApplyPlayerAttackHits();
 
             if (input.IsKeyPressed(Keys.E))

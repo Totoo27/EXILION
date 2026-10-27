@@ -11,6 +11,7 @@ public class ObjectDefinition
     public bool BlocksMovement { get; init; }   // Indica si el jugador puede atravesarlo.
     public float CollisionRadius { get; init; } // Qué tan grande es su zona de choque, medida en tiles.
     public int? MaxHealth { get; init; }
+    public bool CanBeCollected { get; init; }
     public bool HandCanBreak { get; init; }
     public IReadOnlyList<Item> BreakableByItems { get; init; } = Array.Empty<Item>();
     public IReadOnlyList<ObjectDrop> Drops { get; init; } = new List<ObjectDrop>();
@@ -19,6 +20,8 @@ public class ObjectDefinition
 
     public bool CanBeBrokenBy(Item item)
     {
+        if (item == null) return false;
+
         foreach (var allowedItem in BreakableByItems)
         {
             if (allowedItem.Id == item.Id)

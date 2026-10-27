@@ -11,21 +11,25 @@ public static class ObjectProperties
     private static readonly Dictionary<ObjectType, ObjectDefinition> Definitions = new()
     {
         { ObjectType.Tree, new ObjectDefinition {
-            Type = ObjectType.Tree, BlocksMovement = true, CollisionRadius = 0.50f, MaxHealth = 15,
+            Type = ObjectType.Tree, BlocksMovement = true, CollisionRadius = 0.20f, MaxHealth = 5,
             HandCanBreak = true, BreakableByItems = new[] { ItemRegistry.HachaTest },
             Drops = new[] { new ObjectDrop(ItemRegistry.Madera, 2) },
             Source = new Rectangle(0, 0, 32, 48), DrawWidthTiles = 1.6f } },
 
         { ObjectType.Rock, new ObjectDefinition {
-            Type = ObjectType.Rock, BlocksMovement = true, CollisionRadius = 0.50f, MaxHealth = 10,
-            HandCanBreak = false,
+            Type = ObjectType.Rock, BlocksMovement = true, CollisionRadius = 0.35f, MaxHealth = 4,
             Drops = new[] { new ObjectDrop(ItemRegistry.Piedra, 2) },
             Source = new Rectangle(32, 0, 32, 48), DrawWidthTiles = 1.0f } },
 
         { ObjectType.Bush, new ObjectDefinition {
-            Type = ObjectType.Bush, BlocksMovement = false, CollisionRadius = 0.30f, MaxHealth = 1,
+            Type = ObjectType.Bush, BlocksMovement = false, CollisionRadius = 0.30f, CanBeCollected = true,
             HandCanBreak = true,
             Source = new Rectangle(64, 0, 32, 48), DrawWidthTiles = 1.0f } },
+
+        { ObjectType.Block, new ObjectDefinition {
+            Type = ObjectType.Block, BlocksMovement = true, CollisionRadius = 0.45f, MaxHealth = 10,
+            HandCanBreak = true,
+            Source = new Rectangle(32, 0, 32, 48), DrawWidthTiles = 1.0f } },
     };
 
     public static readonly float MaxCollisionRadius = Definitions.Values.Max(d => d.CollisionRadius);

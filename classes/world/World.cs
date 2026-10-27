@@ -67,6 +67,40 @@ public class World
         return !IntersectsBlockingObject(worldPosition, radius);
     }
 
+    public bool TryPlaceBlock(Vector2 worldPosition, Vector2 playerPosition, float playerRadius)
+    {
+        int tileX = (int)MathF.Floor(worldPosition.X / TileSize);
+        int tileY = (int)MathF.Floor(worldPosition.Y / TileSize);
+        int chunkX = (int)MathF.Floor((float)tileX / Chunk.Size);
+        int chunkY = (int)MathF.Floor((float)tileY / Chunk.Size);
+        if (!_loadedChunks.TryGetValue((chunkX, chunkY), out var chunk)) return false;
+
+        int localX = tileX - chunkX * Chunk.Size;
+        int localY = tileY - chunkY * Chunk.Size;
+        if (!TileProperties.IsWalkable(chunk.Tiles[localX, localY].Type)) return false;
+
+        foreach (var obj in chunk.Objects)
+        {
+            if (obj.IsDestroyed) continue;
+            if ((int)MathF.Floor(obj.TileX) == tileX && (int)MathF.Floor(obj.TileY) == tileY) return false;
+        }
+
+        Vector2 center = new((tileX + 0.5f) * TileSize, (tileY + 0.5f) * TileSize);
+        float reach = TileSize * 4f;
+        if (Vector2.DistanceSquared(center, playerPosition) > reach * reach) return false;
+        float radius = ObjectProperties.Get(ObjectType.Block).CollisionRadius * TileSize;
+        if (Vector2.DistanceSquared(center, playerPosition) < (radius + playerRadius) * (radius + playerRadius)) return false;
+        if (IntersectsBlockingObject(center, radius)) return false;
+
+        // Reserve SpawnIndex -1 for player placed blocks so generated IDs and world seed stay unchanged.
+        var id = new WorldObjectId(_generator.Seed, tileX, tileY, -1);
+        var state = new WorldObjectState(id, ObjectProperties.Get(ObjectType.Block).MaxHealth, false);
+        ObjectStates.Record(state);
+        chunk.Objects.Add(new WorldObject(id, ObjectType.Block, tileX + 0.5f, tileY + 0.5f,
+            state, ObjectStates.Record));
+        return true;
+    }
+
     private bool IntersectsBlockingObject(Vector2 position, float playerRadius)
     {
         foreach (var chunk in _loadedChunks.Values)
@@ -214,8 +248,18 @@ public class World
             var obj = new WorldObject(spawn.Id, spawn.Type, spawn.TileX, spawn.TileY,
                 savedState, ObjectStates.Record, obj => ObjectDestroyed?.Invoke(obj));
 
-            if (!obj.IsDestroyed)
+            if (!obj.IsDestroyed && !obj.IsCollected)
                 chunk.Objects.Add(obj);
+        }
+
+        foreach (var state in ObjectStates.CaptureSnapshot())
+        {
+            if (state.Id.SpawnIndex != -1) continue;
+            int chunkX = (int)MathF.Floor((float)state.Id.TileX / Chunk.Size);
+            int chunkY = (int)MathF.Floor((float)state.Id.TileY / Chunk.Size);
+            if (chunkX != chunk.ChunkX || chunkY != chunk.ChunkY || state.IsDestroyed) continue;
+            chunk.Objects.Add(new WorldObject(state.Id, ObjectType.Block,
+                state.Id.TileX + 0.5f, state.Id.TileY + 0.5f, state, ObjectStates.Record));
         }
     }
 }
