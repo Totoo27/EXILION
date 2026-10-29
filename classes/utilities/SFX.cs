@@ -5,6 +5,7 @@ public static class SFX
 {
     
     private static bool enabled = true;
+    public static bool IsEnabled => enabled;
 
     public static void Play(SoundEffect? sound)
     {
