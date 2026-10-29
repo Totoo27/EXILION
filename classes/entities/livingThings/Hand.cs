@@ -41,6 +41,12 @@ public class Hand
     private float itemSideOffset = 0;
     private float itemForwardOffset = 0;
     private bool isSupportingToolAttack;
+    private const float ConsumeDuration = 0.5f;
+    private const float ConsumeReach = 8f;
+    private float consumeTimer;
+    private bool isConsuming;
+    private Item? consumingItem;
+    private Player? consumingPlayer;
 
     // Attack properties
     private const float DefaultAttackDistance = 35f;
@@ -109,8 +115,20 @@ public class Hand
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
         UpdateAttack(deltaTime);
+        UpdateConsume(deltaTime);
         UpdatePosition(isLeft);
         UpdateHitbox(ItemPosition, ItemAngle);
+
+        if (isConsuming)
+        {
+            float progress = MathHelper.Clamp(consumeTimer / ConsumeDuration, 0f, 1f);
+            Vector2 towardPlayer = ownerPosition - ItemPosition;
+            if (towardPlayer != Vector2.Zero)
+            {
+                towardPlayer.Normalize();
+                ItemPosition += towardPlayer * ConsumeReach * MathF.Sin(progress * MathF.PI);
+            }
+        }
 
         // Sprite updates
         sprite.Update(Angle, Position);
@@ -121,7 +139,13 @@ public class Hand
     {
         if(itemInHand is Consumable)
         {
-            player.TryConsume(itemInHand);
+            if (!isConsuming)
+            {
+                isConsuming = true;
+                consumeTimer = 0f;
+                consumingItem = itemInHand;
+                consumingPlayer = player;
+            }
             return true;
         }
 
@@ -138,6 +162,26 @@ public class Hand
         if(itemInHand?.TwoHanded == true) return true; // Avoid attacking with two-handed on the left hand
 
         return false;
+    }
+
+    private void UpdateConsume(float deltaTime)
+    {
+        if (!isConsuming) return;
+
+        consumeTimer += deltaTime;
+        if (consumeTimer < ConsumeDuration) return;
+
+        Item? item = consumingItem;
+        Player? player = consumingPlayer;
+        isConsuming = false;
+        consumingItem = null;
+        consumingPlayer = null;
+        consumeTimer = 0f;
+
+        if (item != null && player != null)
+        {
+            player.TryConsume(item);
+        }
     }
 
     public void StartToolAttack(float attackDuration)
@@ -164,6 +208,19 @@ public class Hand
         SFX.Play(Assets.SoundEffects.swings[Random.Shared.Next(Assets.SoundEffects.swings.Length)]);
 
         return true;
+    }
+
+    public void CancelAttack()
+    {
+        if (isSupportingToolAttack)
+        {
+            CurrentAttackDuration = DefaultAttackDuration;
+        }
+
+        state = HandState.Idle;
+        attackTimer = 0f;
+        isSupportingToolAttack = false;
+        CurrentHitbox = null;
     }
 
     public bool RegisterHit(WorldObjectId objectId) => hitObjectsThisAttack.Add(objectId);

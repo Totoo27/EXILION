@@ -17,6 +17,10 @@ public class Player : LivingThing
 
     private float damagedTimer = 0f;
     private float runningMultiplier = 1f;
+    private const float ItemTransitionDuration = 0.5f;
+    private float itemTransitionTimer;
+    private Item? pendingHandItem;
+    private bool hasPendingHandItem;
     private const float AttackHeadTurn = 0.16f;
     private float headAttackRotation;
 
@@ -94,6 +98,13 @@ public class Player : LivingThing
         float currentSpeed = this.speed;
         float collisionRadius = hitbox.Width / 2f;
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+        itemTransitionTimer = MathF.Max(0f, itemTransitionTimer - deltaTime);
+        if (hasPendingHandItem && itemTransitionTimer <= 0f)
+        {
+            rightHand.updateItemInHand(pendingHandItem);
+            pendingHandItem = null;
+            hasPendingHandItem = false;
+        }
 
         runningMultiplier = 1f;
 
@@ -149,7 +160,7 @@ public class Player : LivingThing
 
         // Hands
 
-        if (input.IsLeftMousePressed() && !input.IsMouseCaptured)
+        if (itemTransitionTimer <= 0f && input.IsLeftMousePressed() && !input.IsMouseCaptured)
         {
             if (rightHand.hasItem)
             {
@@ -210,6 +221,23 @@ public class Player : LivingThing
             MathHelper.Clamp(deltaTime * 12f, 0f, 1f)
         );
         sprite.Update(angle + headAttackRotation, position);
+    }
+
+    public void BeginItemTransition(Item? item)
+    {
+        pendingHandItem = item;
+        hasPendingHandItem = true;
+        itemTransitionTimer = ItemTransitionDuration;
+        rightHand.CancelAttack();
+        leftHand.CancelAttack();
+    }
+
+    public void SetHandItemImmediately(Item? item)
+    {
+        itemTransitionTimer = 0f;
+        pendingHandItem = null;
+        hasPendingHandItem = false;
+        rightHand.updateItemInHand(item);
     }
 
     public void updateHunger(GameTime gameTime)
