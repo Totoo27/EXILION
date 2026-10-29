@@ -39,7 +39,10 @@ public sealed class Sprites
     public Texture2D OxigenoEmbotellado { get; private set; }
     public Texture2D Baya { get; private set; }
     // Tools
-    public Texture2D testAxe { get; private set; }
+    public Texture2D woodenAxe { get; private set; }
+    public Texture2D stoneAxe { get; private set; }
+    public Texture2D woodenPickaxe { get; private set; }
+    public Texture2D stonePickaxe { get; private set; }
 
     // Inventory
     public Texture2D Slot { get; private set; }
@@ -90,7 +93,11 @@ public sealed class Sprites
         Baya = content.Load<Texture2D>("Sprites/Items/bayas");
       
         // Tools
-        testAxe = content.Load<Texture2D>("Sprites/Items/testAxe");
+        woodenAxe = content.Load<Texture2D>("Sprites/Items/woodenAxe");
+        stoneAxe = content.Load<Texture2D>("Sprites/Items/stoneAxe");
+
+        woodenPickaxe = content.Load<Texture2D>("Sprites/Items/woodenPickaxe");
+        stonePickaxe = content.Load<Texture2D>("Sprites/Items/stonePickaxe");
         
         // World Test
         Tileset = content.Load<Texture2D>("Sprites/Tiles/Tileset");

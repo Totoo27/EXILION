@@ -127,7 +127,7 @@ public class GameScene : Scene
                 new CatchableItem(
                     new ItemStack(drop.Item, drop.Quantity),
                     dropPosition,
-                    new Sprite(drop.Item.Icon, GameContext.ScaleXY(1)),
+                    new Sprite(drop.Item.Icon, GameContext.ScaleXY(1) * 0.8f),
                     GameContext
                 )
             );
@@ -159,7 +159,7 @@ public class GameScene : Scene
                 new CatchableItem(
                     new ItemStack(item, catchableItem.Quantity),
                     new Vector2(catchableItem.PositionX, catchableItem.PositionY),
-                    new Sprite(item.Icon, GameContext.ScaleXY(1)),
+                    new Sprite(item.Icon, GameContext.ScaleXY(1) * 0.8f),
                     GameContext
                 )
 
@@ -182,8 +182,7 @@ public class GameScene : Scene
         }
 
         saveData.WorldObjectStates.Clear();
-        saveData.WorldObjectStates.AddRange(
-            world.CaptureObjectStates().Select(WorldObjectStateSaveData.FromState));
+        saveData.WorldObjectStates.AddRange(world.CaptureObjectStates().Select(WorldObjectStateSaveData.FromState));
 
         saveService.SaveAsync(path, saveData).Wait();
     }
@@ -191,28 +190,12 @@ public class GameScene : Scene
     private void startNewGame()
     {
         processPlayerSpawn(true);
-        
-        catchableItems.Add(
-            new CatchableItem(
-                new ItemStack(ItemRegistry.Madera, 64),
-                new Vector2(100, 100),
-                new Sprite(ItemRegistry.Madera.Icon, GameContext.ScaleXY(1)),
-                GameContext
-            )
-        );
-        catchableItems.Add(
-            new CatchableItem(
-                new ItemStack(ItemRegistry.Piedra, 3),
-                new Vector2(125, 100),
-                new Sprite(ItemRegistry.Piedra.Icon, GameContext.ScaleXY(1)),
-                GameContext
-            )
-        );
+
         catchableItems.Add(
             new CatchableItem(
                 new ItemStack(ItemRegistry.AguaPurificada, 2),
                 new Vector2(300, 100),
-                new Sprite(ItemRegistry.AguaPurificada.Icon, GameContext.ScaleXY(1)),
+                new Sprite(ItemRegistry.AguaPurificada.Icon, GameContext.ScaleXY(1) * 0.8f),
                 GameContext
             )
         );
@@ -220,7 +203,7 @@ public class GameScene : Scene
             new CatchableItem(
                 new ItemStack(ItemRegistry.CarneCocinada, 2),
                 new Vector2(400, 100),
-                new Sprite(ItemRegistry.CarneCocinada.Icon, GameContext.ScaleXY(1)),
+                new Sprite(ItemRegistry.CarneCocinada.Icon, GameContext.ScaleXY(1) * 0.8f),
                 GameContext
             )
         );
@@ -228,15 +211,7 @@ public class GameScene : Scene
             new CatchableItem(
                 new ItemStack(ItemRegistry.OxigenoEmbotellado, 2),
                 new Vector2(500, 100),
-                new Sprite(ItemRegistry.OxigenoEmbotellado.Icon, GameContext.ScaleXY(1)),
-                GameContext
-            )
-        );
-        catchableItems.Add(
-            new CatchableItem(
-                new ItemStack(ItemRegistry.HachaTest, 1),
-                new Vector2(600, 100),
-                new Sprite(ItemRegistry.HachaTest.Icon, GameContext.ScaleXY(1)),
+                new Sprite(ItemRegistry.OxigenoEmbotellado.Icon, GameContext.ScaleXY(1) * 0.8f),
                 GameContext
             )
         );
@@ -291,6 +266,12 @@ public class GameScene : Scene
             HUD.Update();
             player.Update(mouseWorldPosition, input, gameTime, world);
             ApplyPlayerAttackHits();
+
+            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            foreach (CatchableItem item in catchableItems)
+            {
+                item.Update(deltaTime);
+            }
 
             if (input.IsKeyPressed(Keys.E))
             {
@@ -452,7 +433,7 @@ public class GameScene : Scene
                 new CatchableItem(
                     itemStack,
                     player.position,
-                    new Sprite(itemStack.Item.Icon, GameContext.ScaleXY(1)),
+                    new Sprite(itemStack.Item.Icon, GameContext.ScaleXY(1) * 0.8f),
                     GameContext
                 )
             );

@@ -12,18 +12,19 @@ public static class ObjectProperties
     private static readonly Dictionary<ObjectType, ObjectDefinition> Definitions = new()
     {
         { ObjectType.Tree, new ObjectDefinition {
-            Type = ObjectType.Tree, BlocksMovement = true, CollisionRadius = 0.50f, MaxHealth = 15,
+            Type = ObjectType.Tree, BlocksMovement = true, CollisionRadius = 0.50f, MaxHealth = 20,
             HitSound = Assets.SoundEffects?.chop,
             AbovePlayer = true,
-            HandCanBreak = true, BreakableByItems = new[] { ItemRegistry.HachaTest },
+            HandCanBreak = true, BreakableByItems = new[] { ItemRegistry.HachaDeMadera, ItemRegistry.HachaDePiedra },
             Drops = new[] { new ObjectDrop(ItemRegistry.Madera, 2) },
             Source = new Rectangle(128, 0, 64, 64), DrawWidthTiles = 2.2f } },
 
         { ObjectType.Rock, new ObjectDefinition {
-            Type = ObjectType.Rock, BlocksMovement = true, CollisionRadius = 0.40f, MaxHealth = 10,
+            Type = ObjectType.Rock, BlocksMovement = true, CollisionRadius = 0.40f, MaxHealth = 20,
             HitSound = Assets.SoundEffects?.mine,
             AbovePlayer = false,
             HandCanBreak = false,
+            BreakableByItems = new[] { ItemRegistry.PicoDeMadera, ItemRegistry.PicoDePiedra },
             Drops = new[] { new ObjectDrop(ItemRegistry.Piedra, 2) },
             Source = new Rectangle(192, 0, 64, 64), DrawWidthTiles = 1.6f } },
 

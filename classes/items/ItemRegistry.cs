@@ -45,14 +45,14 @@ public static class ItemRegistry
         icon: Assets.Sprites.OxigenoEmbotellado
     );
 
-    public static readonly Tool HachaTest = new Tool(
+    public static readonly Tool HachaDePiedra = new Tool(
         id: 6,
-        name: "Hacha de prueba",
+        name: "Hacha de piedra",
         attackSpeed: 3f,
         damage: 7f,
         hitboxWidth: 20f,
-        hitboxHeight: 40f,
-        icon: Assets.Sprites.testAxe
+        hitboxHeight: 60f,
+        icon: Assets.Sprites.stoneAxe
     );
 
     public static readonly Consumable Baya = new Consumable(
@@ -61,6 +61,36 @@ public static class ItemRegistry
         statRestore: 5,
         statType: Entities.LivingThings.StatType.Hunger,
         icon: Assets.Sprites.Baya
+    );
+
+    public static readonly Tool HachaDeMadera = new Tool(
+        id: 8,
+        name: "Hacha de madera",
+        attackSpeed: 3f,
+        damage: 5f,
+        hitboxWidth: 20f,
+        hitboxHeight: 60f,
+        icon: Assets.Sprites.woodenAxe
+    );
+
+    public static readonly Tool PicoDeMadera = new Tool(
+        id: 9,
+        name: "Pico de madera",
+        attackSpeed: 2.5f,
+        damage: 5f,
+        hitboxWidth: 20f,
+        hitboxHeight: 60f,
+        icon: Assets.Sprites.woodenPickaxe
+    );
+
+    public static readonly Tool PicoDePiedra = new Tool(
+        id: 10,
+        name: "Pico de piedra",
+        attackSpeed: 2.5f,
+        damage: 8f,
+        hitboxWidth: 20f,
+        hitboxHeight: 60f,
+        icon: Assets.Sprites.stonePickaxe
     );
 
 
@@ -73,7 +103,12 @@ public static class ItemRegistry
         { AguaPurificada.Id, AguaPurificada },
         { CarneCocinada.Id, CarneCocinada },
         { OxigenoEmbotellado.Id, OxigenoEmbotellado },
-        { HachaTest.Id, HachaTest }
+
+        // Tools
+        { HachaDePiedra.Id, HachaDePiedra },
+        { PicoDePiedra.Id, PicoDePiedra },
+        { HachaDeMadera.Id, HachaDeMadera },
+        { PicoDeMadera.Id, PicoDeMadera }
     };
 
     public static Item? GetById(int id)

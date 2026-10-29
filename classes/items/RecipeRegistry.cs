@@ -4,32 +4,54 @@ namespace EXILION.Items;
 
 public static class RecipeRegistry
 {
-    public static readonly Recipe AxeRecipe = new Recipe(
+
+    public static readonly Recipe WoodenAxeRecipe = new Recipe(
         id: 1,
-        result: ItemRegistry.HachaTest,
+        result: ItemRegistry.HachaDeMadera,
         ingredients: new List<Ingredient>
         {
-            new Ingredient(ItemRegistry.Madera, 2),
-            new Ingredient(ItemRegistry.Piedra, 3)
+            new Ingredient(ItemRegistry.Madera, 4)
+        },
+        amount: 1
+    );
+    public static readonly Recipe StoneAxeRecipe = new Recipe(
+        id: 2,
+        result: ItemRegistry.HachaDePiedra,
+        ingredients: new List<Ingredient>
+        {
+            new Ingredient(ItemRegistry.Madera, 6),
+            new Ingredient(ItemRegistry.Piedra, 6)
         },
         amount: 1
     );
 
-    public static readonly Recipe Axe2 = new Recipe(
-        id: 2,
-        result: ItemRegistry.HachaTest,
+    public static readonly Recipe WoodenPickaxeRecipe = new Recipe(
+        id: 3,
+        result: ItemRegistry.PicoDeMadera,
         ingredients: new List<Ingredient>
         {
-            new Ingredient(ItemRegistry.Madera, 2),
-            new Ingredient(ItemRegistry.Piedra, 3)
+            new Ingredient(ItemRegistry.Madera, 8)
+        },
+        amount: 1
+    );
+
+    public static readonly Recipe StonePickaxeRecipe = new Recipe(
+        id: 4,
+        result: ItemRegistry.PicoDePiedra,
+        ingredients: new List<Ingredient>
+        {
+            new Ingredient(ItemRegistry.Madera, 8),
+            new Ingredient(ItemRegistry.Piedra, 10)
         },
         amount: 1
     );
 
     public static readonly IReadOnlyList<Recipe> All = new List<Recipe>
     {
-        AxeRecipe,
-        Axe2
+        StoneAxeRecipe,
+        WoodenAxeRecipe,
+        WoodenPickaxeRecipe,
+        StonePickaxeRecipe
     };
 
      private static readonly Dictionary<int, Recipe> recipesById = new Dictionary<int, Recipe>();
