@@ -70,6 +70,7 @@ public class Hand
     public float Angle { get; private set; }
 
     public bool IsAttacking => state != HandState.Idle;
+    public bool IsRetracting => state == HandState.Retracting;
     public bool CanAttack => state == HandState.Idle && (itemInHand is Tool || itemInHand?.TwoHanded != true);
     public bool hasItem => itemInHand != null;
     public bool hasConsumable => itemInHand != null && itemInHand is Consumable;

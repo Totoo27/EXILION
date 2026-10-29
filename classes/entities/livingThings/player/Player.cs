@@ -17,6 +17,8 @@ public class Player : LivingThing
 
     private float damagedTimer = 0f;
     private float runningMultiplier = 1f;
+    private const float AttackHeadTurn = 0.16f;
+    private float headAttackRotation;
 
     private Color damageColor = new Color(230, 180, 180);
 
@@ -185,7 +187,29 @@ public class Player : LivingThing
         rightHand.Update(position, direction, false, gameTime);
         leftHand.Update(position, direction, true, gameTime);
 
-        sprite.Update(angle, position);
+        float targetHeadRotation = 0f;
+        if (rightHand.HeldItem is Tool &&
+            ((rightHand.IsAttacking && !rightHand.IsRetracting) ||
+             (leftHand.IsAttacking && !leftHand.IsRetracting)))
+        {
+            // Las herramientas atacan desde la mano derecha.
+            targetHeadRotation = -AttackHeadTurn;
+        }
+        else if (rightHand.IsAttacking && !rightHand.IsRetracting)
+        {
+            targetHeadRotation = -AttackHeadTurn;
+        }
+        else if (leftHand.IsAttacking && !leftHand.IsRetracting)
+        {
+            targetHeadRotation = AttackHeadTurn;
+        }
+
+        headAttackRotation = MathHelper.Lerp(
+            headAttackRotation,
+            targetHeadRotation,
+            MathHelper.Clamp(deltaTime * 12f, 0f, 1f)
+        );
+        sprite.Update(angle + headAttackRotation, position);
     }
 
     public void updateHunger(GameTime gameTime)
