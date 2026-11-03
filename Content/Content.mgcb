@@ -160,6 +160,18 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/CarneCocinada.png
 
+#begin Sprites/Items/GeneradorO2.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/GeneradorO2.png;Sprites/Items/GeneradorO2
+
 #begin Sprites/Items/OxigenoEmbotellado.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -208,6 +220,18 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/tronco.png;Sprites/Items/tronco
 
+#begin Sprites/Objects.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Objects.png
+
 #begin Sprites/Tiles/Tileset.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -243,6 +267,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/UI/exilionTitle.png;Sprites/UI/exilionTitle
+
+#begin Sprites/UI/HUD/craftingMenu.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/UI/HUD/craftingMenu.png;Sprites/UI/HUD/craftingMenu
 
 #begin Sprites/UI/HUD/healthMeter.png
 /importer:TextureImporter
@@ -376,19 +412,6 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/UI/HUD/watchProgress.png;Sprites/UI/HUD/watchProgress
 
-#begin Sprites/Objects.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Sprites/Objects.png
-
-#begin Sprites/Player.png
 #begin Sprites/UI/HUD/watchSetOff.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -424,18 +447,4 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/UI/Sun.png;Sprites/UI/Sun
-
-#begin Sprites/UI/HUD/craftingMenu.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Sprites/UI/HUD/craftingMenu.png;Sprites/UI/HUD/craftingMenu
-
-
 

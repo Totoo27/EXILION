@@ -85,7 +85,7 @@ public class Player : LivingThing
     {
         updateHunger(gameTime);
         updateThirst(gameTime);
-        updateOxygen(gameTime);
+        updateOxygen(gameTime, world != null && world.IsOxygenSupplied(position));
 
         // Movement
 
@@ -215,9 +215,27 @@ public class Player : LivingThing
 
     }
 
-    public void updateOxygen(GameTime gameTime)
+    public void updateOxygen(GameTime gameTime, bool oxygenSupplied = false)
     {
         PlayerStat stat = oxygen;
+
+        if (oxygenSupplied)
+        {
+            stat.timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            bool changed = false;
+            const float oxygenRecoveryInterval = 0.2f;
+            while (stat.timer >= oxygenRecoveryInterval && stat.value < stat.max)
+            {
+                stat.timer -= oxygenRecoveryInterval;
+                stat.value++;
+                changed = true;
+            }
+            if (stat.value >= stat.max)
+                stat.timer = 0f;
+            oxygen = stat;
+            if (changed) OxygenChanged?.Invoke(stat.value);
+            return;
+        }
 
         stat.timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 

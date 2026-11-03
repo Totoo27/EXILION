@@ -9,14 +9,16 @@ public class MapRenderer
 {
     private readonly Texture2D _tileset;
     private readonly Texture2D _objectsTexture;
+    private readonly Texture2D _oxygenGeneratorTexture;
     private readonly int _tileSize;
     private readonly Dictionary<TileType, Rectangle> _sourceRects;
     private readonly List<WorldObject> _visibleObjects = new();
 
-    public MapRenderer(Texture2D tileset, Texture2D objectsTexture, int tileSize)
+    public MapRenderer(Texture2D tileset, Texture2D objectsTexture, Texture2D oxygenGeneratorTexture, int tileSize)
     {
         _tileset = tileset;
         _objectsTexture = objectsTexture;
+        _oxygenGeneratorTexture = oxygenGeneratorTexture;
         _tileSize = tileSize;
 
         _sourceRects = new Dictionary<TileType, Rectangle>
@@ -81,7 +83,32 @@ public class MapRenderer
 
             // Tomamos este punto como los pies del objeto y apoyamos ahí el dibujo.
             var dest = new Rectangle((int)(footX - width / 2f), (int)(footY - height), (int)width, (int)height);
-            spriteBatch.Draw(_objectsTexture, dest, def.Source, Color.White);
+            spriteBatch.Draw(def.UsesGeneratorSprite ? _oxygenGeneratorTexture : _objectsTexture,
+                dest, def.Source, Color.White);
+        }
+    }
+
+    public void DrawOxygenRanges(SpriteBatch spriteBatch, World world, Texture2D pixel)
+    {
+        const int segments = 96;
+        float thickness = Math.Max(1.5f, _tileSize * 0.0525f);
+        foreach (var chunk in world.LoadedChunks)
+        foreach (var obj in chunk.Objects)
+        {
+            if (obj.IsDestroyed || obj.IsCollected || obj.Definition.OxygenRadiusTiles <= 0f) continue;
+            float radius = obj.Definition.OxygenRadiusTiles * _tileSize;
+            var center = new Vector2(obj.TileX * _tileSize, obj.TileY * _tileSize);
+            Color color = obj.Definition.OxygenCircleColor * (obj.Definition.OxygenCircleAlpha / 255f);
+            for (int i = 0; i < segments; i++)
+            {
+                float a0 = MathHelper.TwoPi * i / segments;
+                float a1 = MathHelper.TwoPi * (i + 1) / segments;
+                var start = center + new Vector2(MathF.Cos(a0), MathF.Sin(a0)) * radius;
+                var end = center + new Vector2(MathF.Cos(a1), MathF.Sin(a1)) * radius;
+                var edge = end - start;
+                spriteBatch.Draw(pixel, start, null, color, MathF.Atan2(edge.Y, edge.X), Vector2.Zero,
+                    new Vector2(edge.Length(), thickness), SpriteEffects.None, 0f);
+            }
         }
     }
 

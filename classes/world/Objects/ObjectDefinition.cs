@@ -17,6 +17,10 @@ public class ObjectDefinition
     public IReadOnlyList<ObjectDrop> Drops { get; init; } = new List<ObjectDrop>();
     public Rectangle Source { get; init; }      // Qué parte de la imagen Objects.png usamos.
     public float DrawWidthTiles { get; init; }  // Qué ancho tendrá al aparecer en el mundo.
+    public float OxygenRadiusTiles { get; init; }
+    public Color OxygenCircleColor { get; init; } = Color.Cyan;
+    public byte OxygenCircleAlpha { get; init; } = 70;
+    public bool UsesGeneratorSprite { get; init; }
 
     public bool CanBeBrokenBy(Item item)
     {

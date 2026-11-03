@@ -113,7 +113,7 @@ public class GameScene : Scene
         }
 
         world.UpdateAroundPosition(player.position);
-        mapRenderer = new MapRenderer(Assets.Sprites.Tileset, Assets.Sprites.Objects, tileSize);
+        mapRenderer = new MapRenderer(Assets.Sprites.Tileset, Assets.Sprites.Objects, Assets.Sprites.GeneradorO2, tileSize);
 
         isLoaded = true;
     }
@@ -160,7 +160,7 @@ public class GameScene : Scene
                 new CatchableItem(
                     new ItemStack(item, catchableItem.Quantity),
                     new Vector2(catchableItem.PositionX, catchableItem.PositionY),
-                    new Sprite(item.Icon, GameContext.ScaleXY(1)),
+                    new Sprite(item.Icon, GameContext.ScaleXY(1), item.IconSource),
                     GameContext
                 )
 
@@ -241,6 +241,14 @@ public class GameScene : Scene
                 GameContext
             )
         );
+        catchableItems.Add(
+            new CatchableItem(
+                new ItemStack(ItemRegistry.GeneradorO2, 1),
+                new Vector2(700, 100),
+                new Sprite(ItemRegistry.GeneradorO2.Icon, GameContext.ScaleXY(1), ItemRegistry.GeneradorO2.IconSource),
+                GameContext
+            )
+        );
     }
 
     public override void Update(GameTime gameTime)
@@ -298,7 +306,13 @@ public class GameScene : Scene
             if (placeBlock) input.IsMouseCaptured = true;
             player.Update(mouseWorldPosition, input, gameTime, world);
             input.IsMouseCaptured = wasMouseCaptured;
-            if (placeBlock
+            if (placeBlock && player.rightHand.HeldItem?.Id == ItemRegistry.GeneradorO2.Id
+                && player.Inventory.HasItem(ItemRegistry.GeneradorO2, 1)
+                && world.TryPlaceOxygenGenerator(mouseWorldPosition, player.position, player.GetHitbox().Width / 2f))
+            {
+                player.Inventory.RemoveItem(ItemRegistry.GeneradorO2, 1);
+            }
+            else if (placeBlock && player.rightHand.HeldItem?.Id == ItemRegistry.Piedra.Id
                 && player.Inventory.HasItem(ItemRegistry.Piedra, 1)
                 && world.TryPlaceBlock(mouseWorldPosition, player.position, player.GetHitbox().Width / 2f))
             {
@@ -351,6 +365,7 @@ public class GameScene : Scene
         float playerY = player != null ? player.position.Y : float.MaxValue;
 
         mapRenderer?.Draw(spriteBatch, world);
+        mapRenderer?.DrawOxygenRanges(spriteBatch, world, pixel);
 
         // Entities
         if(catchableItems != null)

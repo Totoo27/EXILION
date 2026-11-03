@@ -30,6 +30,11 @@ public static class ObjectProperties
             Type = ObjectType.Block, BlocksMovement = true, CollisionRadius = 0.45f, MaxHealth = 10,
             HandCanBreak = true,
             Source = new Rectangle(32, 0, 32, 48), DrawWidthTiles = 1.0f } },
+        { ObjectType.OxygenGenerator, new ObjectDefinition {
+            Type = ObjectType.OxygenGenerator, BlocksMovement = true, CollisionRadius = 0.30f, MaxHealth = 12,
+            HandCanBreak = true, UsesGeneratorSprite = true,
+            Source = new Rectangle(0, 0, 44, 44), DrawWidthTiles = 0.9f,
+            OxygenRadiusTiles = 7.5f, OxygenCircleColor = Color.Cyan, OxygenCircleAlpha = 70 } },
     };
 
     public static readonly float MaxCollisionRadius = Definitions.Values.Max(d => d.CollisionRadius);
