@@ -190,6 +190,18 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/CarneCocinada.png
 
+#begin Sprites/Items/hierro.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/hierro.png
+
 #begin Sprites/Items/OxigenoEmbotellado.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -238,6 +250,30 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/stonePickaxe.png
 
+#begin Sprites/Items/titanio.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/titanio.png
+
+#begin Sprites/Items/torio.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/torio.png
+
 #begin Sprites/Items/tronco.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -273,18 +309,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/woodenPickaxe.png
-
-#begin Sprites/Tiles/objects.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Sprites/Tiles/objects.png
 
 #begin Sprites/Tiles/objects.png
 /importer:TextureImporter

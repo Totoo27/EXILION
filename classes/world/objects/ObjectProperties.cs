@@ -24,7 +24,7 @@ public static class ObjectProperties
             HitSound = Assets.SoundEffects?.mine,
             AbovePlayer = false,
             HandCanBreak = false,
-            BreakableByItems = new[] { ItemRegistry.PicoDeMadera, ItemRegistry.PicoDePiedra },
+            BreakableByItems = new[] { ItemRegistry.PicoDeMadera, ItemRegistry.PicoDePiedra, ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
             Drops = new[] { new ObjectDrop(ItemRegistry.Piedra, 2) },
             Source = new Rectangle(192, 0, 64, 64), DrawWidthTiles = 1.6f } },
 
@@ -45,26 +45,29 @@ public static class ObjectProperties
 
         { ObjectType.Iron, new ObjectDefinition {
             Type = ObjectType.Iron, BlocksMovement = false, CollisionRadius = 0.40f, MaxHealth = 30,
-            HitSound = Assets.SoundEffects?.brokenBush,
+            HitSound = Assets.SoundEffects?.mine,
             AbovePlayer = false,
             HandCanBreak = false,
-            Drops = new[] { new ObjectDrop(ItemRegistry.Baya, 2) },
+            BreakableByItems = new[] { ItemRegistry.PicoDePiedra, ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
+            Drops = new[] { new ObjectDrop(ItemRegistry.Hierro, 2) },
             Source = new Rectangle(256, 0, 64, 64), DrawWidthTiles = 1.6f } },
 
         { ObjectType.Titanium, new ObjectDefinition {
             Type = ObjectType.Titanium, BlocksMovement = false, CollisionRadius = 0.40f, MaxHealth = 45,
-            HitSound = Assets.SoundEffects?.brokenBush,
+            HitSound = Assets.SoundEffects?.mine,
             AbovePlayer = false,
             HandCanBreak = false,
-            Drops = new[] { new ObjectDrop(ItemRegistry.Baya, 2) },
+            BreakableByItems = new[] { ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
+            Drops = new[] { new ObjectDrop(ItemRegistry.Titanio, 2) },
             Source = new Rectangle(256, 64, 64, 64), DrawWidthTiles = 1.6f } },
 
         { ObjectType.Thorium, new ObjectDefinition {
             Type = ObjectType.Thorium, BlocksMovement = false, CollisionRadius = 0.40f, MaxHealth = 60,
-            HitSound = Assets.SoundEffects?.brokenBush,
+            HitSound = Assets.SoundEffects?.mine,
             AbovePlayer = false,
             HandCanBreak = false,
-            Drops = new[] { new ObjectDrop(ItemRegistry.Baya, 2) },
+            BreakableByItems = new[] { ItemRegistry.PicoDeTitanio },
+            Drops = new[] { new ObjectDrop(ItemRegistry.Torio, 2) },
             Source = new Rectangle(192, 64, 64, 64), DrawWidthTiles = 1.6f } },
     };
 

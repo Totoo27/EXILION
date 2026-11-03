@@ -97,21 +97,61 @@ public static class ItemRegistry
         id: 11,
         type: ItemType.RESOURCES,
         name: "Hierro",
-        icon: Assets.Sprites.Piedra
+        icon: Assets.Sprites.Hierro
     );
 
     public static readonly Item Titanio = new Item(
         id: 12,
         type: ItemType.RESOURCES,
         name: "Titanio",
-        icon: Assets.Sprites.Piedra
+        icon: Assets.Sprites.Titanio
     );
 
     public static readonly Item Torio = new Item(
         id: 13,
         type: ItemType.RESOURCES,
         name: "Torio",
-        icon: Assets.Sprites.Piedra
+        icon: Assets.Sprites.Torio
+    );
+
+    public static readonly Tool HachaDeHierro = new Tool(
+        id: 14,
+        name: "Hacha de Hierro",
+        attackSpeed: 3.2f,
+        damage: 10f,
+        hitboxWidth: 20f,
+        hitboxHeight: 60f,
+        icon: Assets.Sprites.woodenAxe
+    );
+
+    public static readonly Tool PicoDeHierro = new Tool(
+        id: 15,
+        name: "Pico de Hierro",
+        attackSpeed: 2.5f,
+        damage: 12f,
+        hitboxWidth: 20f,
+        hitboxHeight: 60f,
+        icon: Assets.Sprites.woodenPickaxe
+    );
+
+    public static readonly Tool HachaDeTitanio = new Tool(
+        id: 16,
+        name: "Hacha de Titanio",
+        attackSpeed: 3.2f,
+        damage: 15f,
+        hitboxWidth: 20f,
+        hitboxHeight: 60f,
+        icon: Assets.Sprites.woodenAxe
+    );
+
+    public static readonly Tool PicoDeTitanio = new Tool(
+        id: 17,
+        name: "Pico de Titanio",
+        attackSpeed: 2.5f,
+        damage: 15f,
+        hitboxWidth: 20f,
+        hitboxHeight: 60f,
+        icon: Assets.Sprites.woodenPickaxe
     );
 
 
@@ -119,17 +159,29 @@ public static class ItemRegistry
 
     private static readonly Dictionary<int, Item> items = new()
     {
+
+        // Resources
         { Madera.Id, Madera },
         { Piedra.Id, Piedra },
+        { Hierro.Id, Hierro },
+        { Titanio.Id, Titanio },
+        { Torio.Id, Torio },
+
+        // Consumables
         { AguaPurificada.Id, AguaPurificada },
         { CarneCocinada.Id, CarneCocinada },
         { OxigenoEmbotellado.Id, OxigenoEmbotellado },
+        { Baya.Id, Baya },
 
         // Tools
         { HachaDePiedra.Id, HachaDePiedra },
         { PicoDePiedra.Id, PicoDePiedra },
         { HachaDeMadera.Id, HachaDeMadera },
-        { PicoDeMadera.Id, PicoDeMadera }
+        { PicoDeMadera.Id, PicoDeMadera },
+        { HachaDeHierro.Id, HachaDeHierro },
+        { PicoDeHierro.Id, PicoDeHierro },
+        { HachaDeTitanio.Id, HachaDeTitanio },
+        { PicoDeTitanio.Id, PicoDeTitanio }
     };
 
     public static Item? GetById(int id)

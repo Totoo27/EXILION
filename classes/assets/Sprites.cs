@@ -89,6 +89,11 @@ public sealed class Sprites
         
         //Items
         Piedra = content.Load<Texture2D>("Sprites/Items/piedra");
+        Hierro = content.Load<Texture2D>("Sprites/Items/hierro");
+        Titanio = content.Load<Texture2D>("Sprites/Items/titanio");
+        Torio = content.Load<Texture2D>("Sprites/Items/torio");
+
+
         Tronco = content.Load<Texture2D>("Sprites/Items/tronco");
         AguaPurificada = content.Load<Texture2D>("Sprites/Items/AguaPurificada");
         CarneCocinada = content.Load<Texture2D>("Sprites/Items/CarneCocinada");
