@@ -33,6 +33,9 @@ public sealed class Sprites
 
     // Items
     public Texture2D Piedra { get; private set; }
+    public Texture2D Hierro { get; private set; }
+    public Texture2D Titanio { get; private set; }
+    public Texture2D Torio { get; private set; }
     public Texture2D Tronco { get; private set; }
     public Texture2D AguaPurificada { get; private set; }
     public Texture2D CarneCocinada { get; private set; }

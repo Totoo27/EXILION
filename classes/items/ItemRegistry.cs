@@ -93,6 +93,27 @@ public static class ItemRegistry
         icon: Assets.Sprites.stonePickaxe
     );
 
+    public static readonly Item Hierro = new Item(
+        id: 11,
+        type: ItemType.RESOURCES,
+        name: "Hierro",
+        icon: Assets.Sprites.Piedra
+    );
+
+    public static readonly Item Titanio = new Item(
+        id: 12,
+        type: ItemType.RESOURCES,
+        name: "Titanio",
+        icon: Assets.Sprites.Piedra
+    );
+
+    public static readonly Item Torio = new Item(
+        id: 13,
+        type: ItemType.RESOURCES,
+        name: "Torio",
+        icon: Assets.Sprites.Piedra
+    );
+
 
     // -------------------------
 

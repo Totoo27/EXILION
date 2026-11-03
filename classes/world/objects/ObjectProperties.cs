@@ -42,6 +42,30 @@ public static class ObjectProperties
             HandCanBreak = true,
             Drops = new[] { new ObjectDrop(ItemRegistry.Baya, 2) },
             Source = new Rectangle(0, 0, 64, 64), DrawWidthTiles = 1.4f } },
+
+        { ObjectType.Iron, new ObjectDefinition {
+            Type = ObjectType.Iron, BlocksMovement = false, CollisionRadius = 0.40f, MaxHealth = 30,
+            HitSound = Assets.SoundEffects?.brokenBush,
+            AbovePlayer = false,
+            HandCanBreak = false,
+            Drops = new[] { new ObjectDrop(ItemRegistry.Baya, 2) },
+            Source = new Rectangle(256, 0, 64, 64), DrawWidthTiles = 1.6f } },
+
+        { ObjectType.Titanium, new ObjectDefinition {
+            Type = ObjectType.Titanium, BlocksMovement = false, CollisionRadius = 0.40f, MaxHealth = 45,
+            HitSound = Assets.SoundEffects?.brokenBush,
+            AbovePlayer = false,
+            HandCanBreak = false,
+            Drops = new[] { new ObjectDrop(ItemRegistry.Baya, 2) },
+            Source = new Rectangle(256, 64, 64, 64), DrawWidthTiles = 1.6f } },
+
+        { ObjectType.Thorium, new ObjectDefinition {
+            Type = ObjectType.Thorium, BlocksMovement = false, CollisionRadius = 0.40f, MaxHealth = 60,
+            HitSound = Assets.SoundEffects?.brokenBush,
+            AbovePlayer = false,
+            HandCanBreak = false,
+            Drops = new[] { new ObjectDrop(ItemRegistry.Baya, 2) },
+            Source = new Rectangle(192, 64, 64, 64), DrawWidthTiles = 1.6f } },
     };
 
     public static readonly float MaxCollisionRadius = Definitions.Values.Max(d => d.CollisionRadius);
@@ -52,7 +76,7 @@ public static class ObjectProperties
     private static readonly (ObjectType Type, float Chance)[] ForestRules = { (ObjectType.Tree, 0.22f), (ObjectType.Bush, 0.04f), (ObjectType.FruitBush, 0.03f)  };
     private static readonly (ObjectType Type, float Chance)[] GrassRules  = { (ObjectType.Tree, 0.02f), (ObjectType.Bush, 0.04f), (ObjectType.FruitBush, 0.03f), (ObjectType.Rock, 0.01f) };
     private static readonly (ObjectType Type, float Chance)[] SandRules   = { (ObjectType.Rock, 0.015f) };
-    private static readonly (ObjectType Type, float Chance)[] RockRules   = { (ObjectType.Rock, 0.10f) };
+    private static readonly (ObjectType Type, float Chance)[] RockRules   = { (ObjectType.Rock, 0.08f), (ObjectType.Iron, 0.05f), (ObjectType.Titanium, 0.02f), (ObjectType.Thorium, 0.005f), };
     private static readonly (ObjectType Type, float Chance)[] SnowRules   = { (ObjectType.Rock, 0.03f) };
     private static readonly (ObjectType Type, float Chance)[] NoRules     = Array.Empty<(ObjectType, float)>();
 
