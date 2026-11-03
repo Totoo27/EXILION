@@ -298,8 +298,12 @@ public class GameScene : Scene
             if (placeBlock) input.IsMouseCaptured = true;
             player.Update(mouseWorldPosition, input, gameTime, world);
             input.IsMouseCaptured = wasMouseCaptured;
-            if (placeBlock)
-                world.TryPlaceBlock(mouseWorldPosition, player.position, player.GetHitbox().Width / 2f);
+            if (placeBlock
+                && player.Inventory.HasItem(ItemRegistry.Piedra, 1)
+                && world.TryPlaceBlock(mouseWorldPosition, player.position, player.GetHitbox().Width / 2f))
+            {
+                player.Inventory.RemoveItem(ItemRegistry.Piedra, 1);
+            }
             ApplyPlayerAttackHits();
 
             if (input.IsKeyPressed(Keys.E))
