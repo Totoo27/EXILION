@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using EXILION.Entities;
+using EXILION.Entities.LivingThings;
 using EXILION.Items;
 
 namespace EXILION.World;
@@ -57,14 +58,34 @@ public class World
 
     // Comprueba que el jugador quepa en esta posición sin pisar agua.
     public bool IsWalkable(Vector2 worldPosition, float radius = 0f)
+        => IsWalkable(worldPosition, radius, false);
+
+    public bool IsWalkable(Vector2 worldPosition, float radius, bool allowShallowWater)
     {
         // Revisamos las cuatro esquinas para que el jugador no quede medio metido en el agua.
-        if (!IsTileWalkable(worldPosition.X - radius, worldPosition.Y - radius)) return false;
-        if (!IsTileWalkable(worldPosition.X + radius, worldPosition.Y - radius)) return false;
-        if (!IsTileWalkable(worldPosition.X - radius, worldPosition.Y + radius)) return false;
-        if (!IsTileWalkable(worldPosition.X + radius, worldPosition.Y + radius)) return false;
+        if (!IsTileWalkable(worldPosition.X - radius, worldPosition.Y - radius, allowShallowWater)) return false;
+        if (!IsTileWalkable(worldPosition.X + radius, worldPosition.Y - radius, allowShallowWater)) return false;
+        if (!IsTileWalkable(worldPosition.X - radius, worldPosition.Y + radius, allowShallowWater)) return false;
+        if (!IsTileWalkable(worldPosition.X + radius, worldPosition.Y + radius, allowShallowWater)) return false;
 
         return !IntersectsBlockingObject(worldPosition, radius);
+    }
+
+    public bool IsInShallowWater(Vector2 worldPosition, float radius, bool alreadySwimming)
+    {
+        int waterSamples = 0;
+        const int samplesPerAxis = 3;
+        for (int x = 0; x < samplesPerAxis; x++)
+        for (int y = 0; y < samplesPerAxis; y++)
+        {
+            float sampleX = worldPosition.X - radius + 2f * radius * x / (samplesPerAxis - 1);
+            float sampleY = worldPosition.Y - radius + 2f * radius * y / (samplesPerAxis - 1);
+            if (GetTileTypeAt(sampleX, sampleY) == TileType.Water) waterSamples++;
+        }
+
+        return alreadySwimming
+            ? waterSamples > 0
+            : waterSamples / 9f >= PlayerMovementSettings.ShallowWaterEnterCoverage;
     }
 
     public bool TryPlaceBlock(Vector2 worldPosition, Vector2 playerPosition, float playerRadius)
@@ -214,7 +235,7 @@ public class World
     }
 
     // Busca el tile que hay debajo de este punto y comprueba si se puede caminar por él.
-    private bool IsTileWalkable(float pixelX, float pixelY)
+    private bool IsTileWalkable(float pixelX, float pixelY, bool allowShallowWater = false)
     {
         int tileX = (int)MathF.Floor(pixelX / TileSize);
         int tileY = (int)MathF.Floor(pixelY / TileSize);
@@ -227,10 +248,21 @@ public class World
 
         if (_loadedChunks.TryGetValue((chunkX, chunkY), out var chunk))
         {
-            return TileProperties.IsWalkable(chunk.Tiles[localX, localY].Type);
+            TileType type = chunk.Tiles[localX, localY].Type;
+            return TileProperties.IsWalkable(type) || (allowShallowWater && type == TileType.Water);
         }
 
         return true; // Si todavía no cargamos esta parte del mapa, dejamos pasar al jugador.
+    }
+
+    private TileType? GetTileTypeAt(float pixelX, float pixelY)
+    {
+        int tileX = (int)MathF.Floor(pixelX / TileSize);
+        int tileY = (int)MathF.Floor(pixelY / TileSize);
+        int chunkX = (int)MathF.Floor((float)tileX / Chunk.Size);
+        int chunkY = (int)MathF.Floor((float)tileY / Chunk.Size);
+        if (!_loadedChunks.TryGetValue((chunkX, chunkY), out var chunk)) return null;
+        return chunk.Tiles[tileX - chunkX * Chunk.Size, tileY - chunkY * Chunk.Size].Type;
     }
 
     // Encuentra un lugar seco cerca del inicio para que el jugador no aparezca en el agua.
