@@ -26,10 +26,22 @@ public static class RecipeRegistry
         amount: 1
     );
 
+    public static readonly Recipe OxygenGeneratorRecipe = new Recipe(
+        id: 3,
+        result: ItemRegistry.GeneradorO2,
+        ingredients: new List<Ingredient>
+        {
+            new Ingredient(ItemRegistry.Madera, 4),
+            new Ingredient(ItemRegistry.Piedra, 3)
+        },
+        amount: 1
+    );
+
     public static readonly IReadOnlyList<Recipe> All = new List<Recipe>
     {
         AxeRecipe,
-        Axe2
+        Axe2,
+        OxygenGeneratorRecipe
     };
 
      private static readonly Dictionary<int, Recipe> recipesById = new Dictionary<int, Recipe>();

@@ -3,6 +3,7 @@ namespace EXILION.World;
 public class MapGenerator
 {
     private readonly int _seed;
+    public int Seed => _seed;
     private readonly float _elevOffsetX, _elevOffsetY;
     private readonly float _moistOffsetX, _moistOffsetY;
 

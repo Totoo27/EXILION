@@ -17,6 +17,8 @@ public class Player : LivingThing
 
     private float damagedTimer = 0f;
     private float runningMultiplier = 1f;
+    private float movementSpeedScale = 1f;
+    public bool IsSwimming { get; private set; }
 
     private Color damageColor = new Color(230, 180, 180);
 
@@ -39,7 +41,7 @@ public class Player : LivingThing
 
 
     public Player(Vector2 position, Sprite sprite, GameContext gameContext)
-    : base(position, sprite, 100, 200, gameContext)
+    : base(position, sprite, 100, PlayerMovementSettings.GroundSpeed, gameContext)
     {
 
         hunger = new PlayerStat(maxStat);
@@ -85,13 +87,19 @@ public class Player : LivingThing
     {
         updateHunger(gameTime);
         updateThirst(gameTime);
-        updateOxygen(gameTime);
+        updateOxygen(gameTime, world != null && world.IsOxygenSupplied(position));
 
         // Movement
 
-        float currentSpeed = this.speed;
         float collisionRadius = hitbox.Width / 2f;
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        IsSwimming = world != null && world.IsInShallowWater(position, collisionRadius, IsSwimming);
+        float targetSpeedScale = IsSwimming ? PlayerMovementSettings.ShallowWaterSpeedMultiplier : 1f;
+        movementSpeedScale += MathHelper.Clamp(targetSpeedScale - movementSpeedScale,
+            -PlayerMovementSettings.SpeedTransitionRate * deltaTime,
+            PlayerMovementSettings.SpeedTransitionRate * deltaTime);
+        float currentSpeed = this.speed * movementSpeedScale;
 
         runningMultiplier = 1f;
 
@@ -113,7 +121,7 @@ public class Player : LivingThing
 
         delta *= currentSpeed * deltaTime;
 
-        if (delta != Vector2.Zero && currentSpeed == speed * 2f)
+        if (delta != Vector2.Zero && input.IsKeyHeld(Keys.LeftShift))
         {
             runningMultiplier = 0.5f;
         }
@@ -123,7 +131,7 @@ public class Player : LivingThing
             position.Y
         );
 
-        if (world == null || world.IsWalkable(nextX, collisionRadius))
+        if (world == null || world.IsWalkable(nextX, collisionRadius, true))
         {
             position.X = nextX.X;
         }
@@ -133,7 +141,7 @@ public class Player : LivingThing
             position.Y + delta.Y
         );
 
-        if (world == null || world.IsWalkable(nextY, collisionRadius))
+        if (world == null || world.IsWalkable(nextY, collisionRadius, true))
         {
             position.Y = nextY.Y;
         }
@@ -215,9 +223,27 @@ public class Player : LivingThing
 
     }
 
-    public void updateOxygen(GameTime gameTime)
+    public void updateOxygen(GameTime gameTime, bool oxygenSupplied = false)
     {
         PlayerStat stat = oxygen;
+
+        if (oxygenSupplied)
+        {
+            stat.timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            bool changed = false;
+            const float oxygenRecoveryInterval = 0.2f;
+            while (stat.timer >= oxygenRecoveryInterval && stat.value < stat.max)
+            {
+                stat.timer -= oxygenRecoveryInterval;
+                stat.value++;
+                changed = true;
+            }
+            if (stat.value >= stat.max)
+                stat.timer = 0f;
+            oxygen = stat;
+            if (changed) OxygenChanged?.Invoke(stat.value);
+            return;
+        }
 
         stat.timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 

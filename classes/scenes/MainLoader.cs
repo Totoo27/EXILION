@@ -47,7 +47,7 @@ public class MainLoader : Scene
 
         if (!contentLoaded)
         {
-            Assets.Load(Content);
+            _ = Assets.Load(Content);
             contentLoaded = true;
         }
 

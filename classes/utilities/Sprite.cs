@@ -10,11 +10,13 @@ public class Sprite
     private Texture2D texture;
     private float rotation;
     private float scale;
+    private Rectangle? sourceRectangle;
 
-    public Sprite(Texture2D texture, float scale)
+    public Sprite(Texture2D texture, float scale, Rectangle? sourceRectangle = null)
     {
         this.texture = texture;
         this.scale = scale;
+        this.sourceRectangle = sourceRectangle;
     }
 
     public void Update(float angle, Vector2 position)
@@ -29,10 +31,11 @@ public class Sprite
         spriteBatch.Draw(
             texture,
             position,
-            null,
+            sourceRectangle,
             color,
             rotation,
-            new Vector2(texture.Width / 2f, texture.Height / 2f),
+            new Vector2((sourceRectangle?.Width ?? texture.Width) / 2f,
+                (sourceRectangle?.Height ?? texture.Height) / 2f),
             scale,
             SpriteEffects.None,
             0f
