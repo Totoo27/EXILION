@@ -56,12 +56,11 @@ public static class ItemRegistry
         icon: Assets.Sprites.testAxe
     );
 
-    public static readonly Item GeneradorO2 = new Item(
+    public static readonly Structure GeneradorO2 = new Structure(
         id: 7,
-        type: ItemType.STRUCTURES,
-        name: "Generador de Oxígeno",
-        icon: Assets.Sprites.GeneradorO2,
-        iconSource: new Rectangle(0, 0, 44, 44)
+        name: "GeneradorO2",
+        icon: Assets.Sprites.GeneradorO2
+       
     );
 
     private static readonly Dictionary<int, Item> items = new()

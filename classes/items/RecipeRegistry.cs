@@ -32,7 +32,7 @@ public static class RecipeRegistry
         ingredients: new List<Ingredient>
         {
             new Ingredient(ItemRegistry.Madera, 4),
-            new Ingredient(ItemRegistry.Piedra, 4)
+            new Ingredient(ItemRegistry.Piedra, 3)
         },
         amount: 1
     );
