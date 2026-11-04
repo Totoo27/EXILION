@@ -136,7 +136,7 @@ public class InventoryUI
                     layout.SlotSize,
                     layout.SlotSize
                 );
-                spriteBatch.Draw(draggedStack.Item.Icon, dragRect, Color.White);
+                spriteBatch.Draw(draggedStack.Item.Icon, dragRect, draggedStack.Item.IconSource, Color.White);
             }
         }
     }
@@ -160,7 +160,7 @@ public class InventoryUI
             ItemStack stack = inventory.GetSlot(slotIndex);
             if (stack == null) continue;
 
-            spriteBatch.Draw(stack.Item.Icon, slotRect, Color.White);
+            spriteBatch.Draw(stack.Item.Icon, slotRect, stack.Item.IconSource, Color.White);
 
             if (stack.Quantity > 1)
             {

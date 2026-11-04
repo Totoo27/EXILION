@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 
 namespace EXILION.Items;
 
@@ -55,6 +56,14 @@ public static class ItemRegistry
         icon: Assets.Sprites.testAxe
     );
 
+    public static readonly Item GeneradorO2 = new Item(
+        id: 7,
+        type: ItemType.STRUCTURES,
+        name: "Generador de Oxígeno",
+        icon: Assets.Sprites.GeneradorO2,
+        iconSource: new Rectangle(0, 0, 44, 44)
+    );
+
     private static readonly Dictionary<int, Item> items = new()
     {
         { Madera.Id, Madera },
@@ -62,7 +71,8 @@ public static class ItemRegistry
         { AguaPurificada.Id, AguaPurificada },
         { CarneCocinada.Id, CarneCocinada },
         { OxigenoEmbotellado.Id, OxigenoEmbotellado },
-        { HachaTest.Id, HachaTest }
+        { HachaTest.Id, HachaTest },
+        { GeneradorO2.Id, GeneradorO2 }
     };
 
     public static Item? GetById(int id)
