@@ -121,7 +121,7 @@ public static class ItemRegistry
         damage: 10f,
         hitboxWidth: 20f,
         hitboxHeight: 60f,
-        icon: Assets.Sprites.woodenAxe
+        icon: Assets.Sprites.ironAxe
     );
 
     public static readonly Tool PicoDeHierro = new Tool(
@@ -131,7 +131,7 @@ public static class ItemRegistry
         damage: 12f,
         hitboxWidth: 20f,
         hitboxHeight: 60f,
-        icon: Assets.Sprites.woodenPickaxe
+        icon: Assets.Sprites.ironPickaxe
     );
 
     public static readonly Tool HachaDeTitanio = new Tool(
@@ -141,7 +141,7 @@ public static class ItemRegistry
         damage: 15f,
         hitboxWidth: 20f,
         hitboxHeight: 60f,
-        icon: Assets.Sprites.woodenAxe
+        icon: Assets.Sprites.titaniumAxe
     );
 
     public static readonly Tool PicoDeTitanio = new Tool(
@@ -151,7 +151,7 @@ public static class ItemRegistry
         damage: 15f,
         hitboxWidth: 20f,
         hitboxHeight: 60f,
-        icon: Assets.Sprites.woodenPickaxe
+        icon: Assets.Sprites.titaniumPickaxe
     );
 
 

@@ -44,31 +44,31 @@ public static class ObjectProperties
             Source = new Rectangle(0, 0, 64, 64), DrawWidthTiles = 1.4f } },
 
         { ObjectType.Iron, new ObjectDefinition {
-            Type = ObjectType.Iron, BlocksMovement = false, CollisionRadius = 0.40f, MaxHealth = 30,
+            Type = ObjectType.Iron, BlocksMovement = true, CollisionRadius = 0.45f, MaxHealth = 30,
             HitSound = Assets.SoundEffects?.mine,
             AbovePlayer = false,
             HandCanBreak = false,
             BreakableByItems = new[] { ItemRegistry.PicoDePiedra, ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
             Drops = new[] { new ObjectDrop(ItemRegistry.Hierro, 2) },
-            Source = new Rectangle(256, 0, 64, 64), DrawWidthTiles = 1.6f } },
+            Source = new Rectangle(256, 0, 64, 64), DrawWidthTiles = 1.7f } },
 
         { ObjectType.Titanium, new ObjectDefinition {
-            Type = ObjectType.Titanium, BlocksMovement = false, CollisionRadius = 0.40f, MaxHealth = 45,
+            Type = ObjectType.Titanium, BlocksMovement = true, CollisionRadius = 0.55f, MaxHealth = 45,
             HitSound = Assets.SoundEffects?.mine,
             AbovePlayer = false,
             HandCanBreak = false,
             BreakableByItems = new[] { ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
             Drops = new[] { new ObjectDrop(ItemRegistry.Titanio, 2) },
-            Source = new Rectangle(256, 64, 64, 64), DrawWidthTiles = 1.6f } },
+            Source = new Rectangle(256, 64, 64, 64), DrawWidthTiles = 1.9f } },
 
         { ObjectType.Thorium, new ObjectDefinition {
-            Type = ObjectType.Thorium, BlocksMovement = false, CollisionRadius = 0.40f, MaxHealth = 60,
+            Type = ObjectType.Thorium, BlocksMovement = true, CollisionRadius = 0.6f, MaxHealth = 60,
             HitSound = Assets.SoundEffects?.mine,
             AbovePlayer = false,
             HandCanBreak = false,
             BreakableByItems = new[] { ItemRegistry.PicoDeTitanio },
             Drops = new[] { new ObjectDrop(ItemRegistry.Torio, 2) },
-            Source = new Rectangle(192, 64, 64, 64), DrawWidthTiles = 1.6f } },
+            Source = new Rectangle(192, 64, 64, 64), DrawWidthTiles = 2.2f } },
     };
 
     public static readonly float MaxCollisionRadius = Definitions.Values.Max(d => d.CollisionRadius);
