@@ -35,8 +35,8 @@ public class SettingsPanel
     // Buttons
     private Button backButton;
     private Button fullScreenButton;
-    private Button musicButton;
-    private Button SFXButton;
+    private CheckBox musicCheckBox;
+    private CheckBox SFXCheckBox;
     private Button instructionsButton;
 
     // Buttons config
@@ -125,7 +125,7 @@ public class SettingsPanel
             font
         );
 
-        SFXButton = new Button(
+        SFXCheckBox = new CheckBox(
             "SFX",
             new Rectangle(
                 (int)position.X,
@@ -133,11 +133,12 @@ public class SettingsPanel
                 gameContext.ScaleX(100),
                 gameContext.ScaleY(50)
             ),
-            buttonSprite,
-            font
+            font,
+            pixel,
+            SFX.IsEnabled
         );
 
-        musicButton = new Button(
+        musicCheckBox = new CheckBox(
             "Music",
             new Rectangle(
                 (int)position.X,
@@ -145,8 +146,9 @@ public class SettingsPanel
                 gameContext.ScaleX(100),
                 gameContext.ScaleY(50)
             ),
-            buttonSprite,
-            font
+            font,
+            pixel,
+            Music.IsEnabled
         );
 
     }
@@ -157,8 +159,8 @@ public class SettingsPanel
 
         MouseState mouseState = input.CurrentMouse;
 
-        updateButtonPosition(SFXButton, gameContext.ScaleX(40), gameContext.ScaleY(20));
-        updateButtonPosition(musicButton, gameContext.ScaleX(40), gameContext.ScaleY(80));
+        updateCheckBoxPosition(SFXCheckBox, gameContext.ScaleX(40), gameContext.ScaleY(20));
+        updateCheckBoxPosition(musicCheckBox, gameContext.ScaleX(40), gameContext.ScaleY(80));
         updateButtonPosition(backButton, gameContext.ScaleX(40), Height - gameContext.ScaleY(90));
         updateButtonPosition(fullScreenButton, Width - gameContext.ScaleX(200), gameContext.ScaleY(20));
         updateButtonPosition(instructionsButton, Width - gameContext.ScaleX(240), Height - gameContext.ScaleY(90));
@@ -181,14 +183,16 @@ public class SettingsPanel
             instructionsPanel.enabled = true;
         }
 
-        if (musicButton.isClicked(mouseState))
+        if (musicCheckBox.Update(mouseState))
         {
             Music.Toggle();
+            musicCheckBox.SetChecked(Music.IsEnabled);
         }
 
-        if (SFXButton.isClicked(mouseState))
+        if (SFXCheckBox.Update(mouseState))
         {
             SFX.toggle();
+            SFXCheckBox.SetChecked(SFX.IsEnabled);
         }
 
     }
@@ -268,8 +272,8 @@ public class SettingsPanel
         );
 
 
-        SFXButton.Draw(spriteBatch, 1f);
-        musicButton.Draw(spriteBatch, 1f);
+        SFXCheckBox.Draw(spriteBatch);
+        musicCheckBox.Draw(spriteBatch);
         backButton.Draw(spriteBatch, 1f);
         fullScreenButton.Draw(spriteBatch, 1f);
         instructionsButton.Draw(spriteBatch, 1f);
@@ -302,6 +306,12 @@ public class SettingsPanel
         button.position.X = (int)position.X + positionX;
         button.position.Y = (int)position.Y + positionY;
         // Cambiar los valores por positionX y positionY
+    }
+
+    public void updateCheckBoxPosition(CheckBox checkBox, int positionX, int positionY)
+    {
+        checkBox.position.X = (int)position.X + positionX;
+        checkBox.position.Y = (int)position.Y + positionY;
     }
 
 }

@@ -113,7 +113,7 @@ public class GameScene : Scene
         }
 
         world.UpdateAroundPosition(player.position);
-        mapRenderer = new MapRenderer(Assets.Sprites.Tileset, Assets.Sprites.Objects, Assets.Sprites.GeneradorO2, tileSize);
+        mapRenderer = new MapRenderer(Assets.Sprites.Tileset, Assets.Sprites.Objects, Assets.Sprites.GeneradorO2, Assets.Sprites.Piedra, tileSize);
 
         isLoaded = true;
     }
@@ -128,7 +128,7 @@ public class GameScene : Scene
                 new CatchableItem(
                     new ItemStack(drop.Item, drop.Quantity),
                     dropPosition,
-                    new Sprite(drop.Item.Icon, GameContext.ScaleXY(1)),
+                    new Sprite(drop.Item.Icon, GameContext.ScaleXY(1) * 0.8f),
                     GameContext
                 )
             );
@@ -161,6 +161,7 @@ public class GameScene : Scene
                     new ItemStack(item, catchableItem.Quantity),
                     new Vector2(catchableItem.PositionX, catchableItem.PositionY),
                     new Sprite(item.Icon, GameContext.ScaleXY(1), item.IconSource),
+                    //new Sprite(item.Icon, GameContext.ScaleXY(1) * 0.8f),
                     GameContext
                 )
 
@@ -183,8 +184,7 @@ public class GameScene : Scene
         }
 
         saveData.WorldObjectStates.Clear();
-        saveData.WorldObjectStates.AddRange(
-            world.CaptureObjectStates().Select(WorldObjectStateSaveData.FromState));
+        saveData.WorldObjectStates.AddRange(world.CaptureObjectStates().Select(WorldObjectStateSaveData.FromState));
 
         saveService.SaveAsync(path, saveData).Wait();
     }
@@ -192,28 +192,12 @@ public class GameScene : Scene
     private void startNewGame()
     {
         processPlayerSpawn(true);
-        
-        catchableItems.Add(
-            new CatchableItem(
-                new ItemStack(ItemRegistry.Madera, 64),
-                new Vector2(100, 100),
-                new Sprite(ItemRegistry.Madera.Icon, GameContext.ScaleXY(1)),
-                GameContext
-            )
-        );
-        catchableItems.Add(
-            new CatchableItem(
-                new ItemStack(ItemRegistry.Piedra, 3),
-                new Vector2(125, 100),
-                new Sprite(ItemRegistry.Piedra.Icon, GameContext.ScaleXY(1)),
-                GameContext
-            )
-        );
+
         catchableItems.Add(
             new CatchableItem(
                 new ItemStack(ItemRegistry.AguaPurificada, 2),
                 new Vector2(300, 100),
-                new Sprite(ItemRegistry.AguaPurificada.Icon, GameContext.ScaleXY(1)),
+                new Sprite(ItemRegistry.AguaPurificada.Icon, GameContext.ScaleXY(1) * 0.8f),
                 GameContext
             )
         );
@@ -221,7 +205,7 @@ public class GameScene : Scene
             new CatchableItem(
                 new ItemStack(ItemRegistry.CarneCocinada, 2),
                 new Vector2(400, 100),
-                new Sprite(ItemRegistry.CarneCocinada.Icon, GameContext.ScaleXY(1)),
+                new Sprite(ItemRegistry.CarneCocinada.Icon, GameContext.ScaleXY(1) * 0.8f),
                 GameContext
             )
         );
@@ -229,15 +213,7 @@ public class GameScene : Scene
             new CatchableItem(
                 new ItemStack(ItemRegistry.OxigenoEmbotellado, 2),
                 new Vector2(500, 100),
-                new Sprite(ItemRegistry.OxigenoEmbotellado.Icon, GameContext.ScaleXY(1)),
-                GameContext
-            )
-        );
-        catchableItems.Add(
-            new CatchableItem(
-                new ItemStack(ItemRegistry.HachaTest, 1),
-                new Vector2(600, 100),
-                new Sprite(ItemRegistry.HachaTest.Icon, GameContext.ScaleXY(1)),
+                new Sprite(ItemRegistry.OxigenoEmbotellado.Icon, GameContext.ScaleXY(1) * 0.8f),
                 GameContext
             )
         );
@@ -289,6 +265,7 @@ public class GameScene : Scene
         
         if(player != null)
         {
+            world?.UpdateObjects((float)gameTime.ElapsedGameTime.TotalSeconds);
             Vector2 mouseWorldPosition = mouse.Position.ToVector2();
 
             if (camera != null)
@@ -319,6 +296,12 @@ public class GameScene : Scene
                 player.Inventory.RemoveItem(ItemRegistry.Piedra, 1);
             }
             ApplyPlayerAttackHits();
+
+            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            foreach (CatchableItem item in catchableItems)
+            {
+                item.Update(deltaTime);
+            }
 
             if (input.IsKeyPressed(Keys.E))
             {
@@ -378,9 +361,9 @@ public class GameScene : Scene
         
         
         // Player & objects
-        mapRenderer?.DrawObjects(spriteBatch, world, playerY, false);
+        mapRenderer?.DrawObjects(spriteBatch, world, false);
         player?.Draw(spriteBatch, pixel);
-        mapRenderer?.DrawObjects(spriteBatch, world, playerY, true);
+        mapRenderer?.DrawObjects(spriteBatch, world, true);
         if (GameContext?.showHitboxes == true)
             mapRenderer?.DrawObjectHitboxes(spriteBatch, world, pixel);
         
@@ -481,7 +464,7 @@ public class GameScene : Scene
                 new CatchableItem(
                     itemStack,
                     player.position,
-                    new Sprite(itemStack.Item.Icon, GameContext.ScaleXY(1)),
+                    new Sprite(itemStack.Item.Icon, GameContext.ScaleXY(1) * 0.8f),
                     GameContext
                 )
             );

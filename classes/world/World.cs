@@ -56,6 +56,13 @@ public class World
         foreach (var key in toRemove) _loadedChunks.Remove(key);
     }
 
+    public void UpdateObjects(float deltaTime)
+    {
+        foreach (var chunk in _loadedChunks.Values)
+            foreach (var obj in chunk.Objects)
+                obj.Update(deltaTime);
+    }
+
     // Comprueba que el jugador quepa en esta posición sin pisar agua.
     public bool IsWalkable(Vector2 worldPosition, float radius = 0f)
         => IsWalkable(worldPosition, radius, false);
@@ -252,7 +259,7 @@ public class World
             return TileProperties.IsWalkable(type) || (allowShallowWater && type == TileType.Water);
         }
 
-        return true; // Si todavía no cargamos esta parte del mapa, dejamos pasar al jugador.
+        return true;
     }
 
     private TileType? GetTileTypeAt(float pixelX, float pixelY)
@@ -281,7 +288,6 @@ public class World
                 {
                     if (!TileProperties.IsWalkable(chunk.Tiles[lx, ly].Type)) continue;
 
-                    // Usamos el centro del tile como posible lugar de aparición.
                     float px = (chunk.ChunkX * Chunk.Size + lx + 0.5f) * TileSize;
                     float py = (chunk.ChunkY * Chunk.Size + ly + 0.5f) * TileSize;
 
@@ -306,7 +312,6 @@ public class World
     {
         ObjectStates.RestoreSnapshot(states);
 
-        // Si ya hay partes del mapa cargadas, aplicamos los cambios guardados ahora mismo.
         foreach (var chunk in _loadedChunks.Values)
         {
             chunk.Objects.Clear();

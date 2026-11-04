@@ -2,6 +2,9 @@ namespace EXILION.World;
 
 public class WorldObject
 {
+    private const float HitAnimationDuration = 0.25f;
+    private const float HitScaleAmount = 0.85f;
+    private float _hitAnimationTimer;
     private readonly System.Action<WorldObjectState> _saveState;
     private readonly System.Action<WorldObject> _onDestroyed;
 
@@ -13,10 +16,20 @@ public class WorldObject
     public int? CurrentHealth { get; private set; }
     public bool IsDestroyed { get; private set; }
     public bool IsCollected { get; private set; }
+    public float DrawScale
+    {
+        get
+        {
+            if (_hitAnimationTimer <= 0f) return 1f;
+
+            float progress = 1f - _hitAnimationTimer / HitAnimationDuration;
+            float easedProgress = progress * progress * (3f - 2f * progress);
+            return HitScaleAmount + (1f - HitScaleAmount) * easedProgress;
+        }
+    }
 
     internal WorldObject(WorldObjectId id, ObjectType type, float tileX, float tileY,
-        WorldObjectState savedState, System.Action<WorldObjectState> saveState,
-        System.Action<WorldObject> onDestroyed = null)
+        WorldObjectState savedState, System.Action<WorldObjectState> saveState, System.Action<WorldObject> onDestroyed = null)
     {
         Id = id;
         Type = type;
@@ -31,9 +44,11 @@ public class WorldObject
 
     public bool ApplyDamage(int damage, bool allowDrops = true)
     {
-        if (damage <= 0 || CurrentHealth == null || IsDestroyed || IsCollected)
+        if (damage <= 0 || CurrentHealth == null || IsDestroyed)
             return false;
 
+        SFX.Play(Definition.HitSound);
+        _hitAnimationTimer = HitAnimationDuration;
         CurrentHealth = System.Math.Max(0, CurrentHealth.Value - damage);
         if (CurrentHealth == 0)
         {
@@ -46,23 +61,18 @@ public class WorldObject
         return true;
     }
 
+    internal void Update(float deltaTime)
+    {
+        if (_hitAnimationTimer > 0f) _hitAnimationTimer = System.Math.Max(0f, _hitAnimationTimer - deltaTime);
+    }
+
     public bool Destroy()
     {
-        if (IsDestroyed || IsCollected)
+        if (IsDestroyed)
             return false;
 
         IsDestroyed = true;
         _onDestroyed?.Invoke(this);
-        SaveState();
-        return true;
-    }
-
-    public bool Collect()
-    {
-        if (!Definition.CanBeCollected || IsDestroyed || IsCollected)
-            return false;
-
-        IsCollected = true;
         SaveState();
         return true;
     }

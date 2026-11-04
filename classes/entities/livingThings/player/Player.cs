@@ -19,6 +19,12 @@ public class Player : LivingThing
     private float runningMultiplier = 1f;
     private float movementSpeedScale = 1f;
     public bool IsSwimming { get; private set; }
+    private const float ItemTransitionDuration = 0.5f;
+    private float itemTransitionTimer;
+    private Item? pendingHandItem;
+    private bool hasPendingHandItem;
+    private const float AttackHeadTurn = 0.16f;
+    private float headAttackRotation;
 
     private Color damageColor = new Color(230, 180, 180);
 
@@ -93,6 +99,13 @@ public class Player : LivingThing
 
         float collisionRadius = hitbox.Width / 2f;
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+        itemTransitionTimer = MathF.Max(0f, itemTransitionTimer - deltaTime);
+        if (hasPendingHandItem && itemTransitionTimer <= 0f)
+        {
+            rightHand.updateItemInHand(pendingHandItem);
+            pendingHandItem = null;
+            hasPendingHandItem = false;
+        }
 
         IsSwimming = world != null && world.IsInShallowWater(position, collisionRadius, IsSwimming);
         float targetSpeedScale = IsSwimming ? PlayerMovementSettings.ShallowWaterSpeedMultiplier : 1f;
@@ -107,7 +120,7 @@ public class Player : LivingThing
 
         if (input.IsKeyHeld(Keys.LeftShift))
         {
-            currentSpeed *= 2f;
+            currentSpeed *= 1.5f;
         }
 
         if (input.IsKeyHeld(Keys.A)) delta.X -= 1f;
@@ -155,7 +168,7 @@ public class Player : LivingThing
 
         // Hands
 
-        if (input.IsLeftMousePressed() && !input.IsMouseCaptured)
+        if (itemTransitionTimer <= 0f && input.IsLeftMousePressed() && !input.IsMouseCaptured)
         {
             if (rightHand.hasItem)
             {
@@ -193,7 +206,46 @@ public class Player : LivingThing
         rightHand.Update(position, direction, false, gameTime);
         leftHand.Update(position, direction, true, gameTime);
 
-        sprite.Update(angle, position);
+        float targetHeadRotation = 0f;
+        if (rightHand.HeldItem is Tool &&
+            ((rightHand.IsAttacking && !rightHand.IsRetracting) ||
+             (leftHand.IsAttacking && !leftHand.IsRetracting)))
+        {
+            // Las herramientas atacan desde la mano derecha.
+            targetHeadRotation = -AttackHeadTurn;
+        }
+        else if (rightHand.IsAttacking && !rightHand.IsRetracting)
+        {
+            targetHeadRotation = -AttackHeadTurn;
+        }
+        else if (leftHand.IsAttacking && !leftHand.IsRetracting)
+        {
+            targetHeadRotation = AttackHeadTurn;
+        }
+
+        headAttackRotation = MathHelper.Lerp(
+            headAttackRotation,
+            targetHeadRotation,
+            MathHelper.Clamp(deltaTime * 12f, 0f, 1f)
+        );
+        sprite.Update(angle + headAttackRotation, position);
+    }
+
+    public void BeginItemTransition(Item? item)
+    {
+        pendingHandItem = item;
+        hasPendingHandItem = true;
+        itemTransitionTimer = ItemTransitionDuration;
+        rightHand.CancelAttack();
+        leftHand.CancelAttack();
+    }
+
+    public void SetHandItemImmediately(Item? item)
+    {
+        itemTransitionTimer = 0f;
+        pendingHandItem = null;
+        hasPendingHandItem = false;
+        rightHand.updateItemInHand(item);
     }
 
     public void updateHunger(GameTime gameTime)

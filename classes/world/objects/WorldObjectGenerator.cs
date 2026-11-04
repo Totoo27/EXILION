@@ -27,9 +27,7 @@ public sealed class WorldObjectGenerator
                         continue;
 
                     var id = new WorldObjectId(_seed, worldX, worldY, i);
-                    float offsetX = 0.2f + 0.6f * WorldHash.Value01(_seed, worldX, worldY, 200);
-                    float offsetY = 0.2f + 0.6f * WorldHash.Value01(_seed, worldX, worldY, 201);
-                    objects.Add(new WorldObjectSpawn(id, rules[i].Type, worldX + offsetX, worldY + offsetY));
+                    objects.Add(new WorldObjectSpawn(id, rules[i].Type, worldX + 0.5f, worldY + 0.5f));
                     break; // Por ahora solo aparece un objeto en cada tile.
                 }
             }

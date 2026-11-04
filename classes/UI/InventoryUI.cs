@@ -37,6 +37,10 @@ public class InventoryUI
 
     public int SelectedSlotIndex { get; private set; } = 0;
     public event Action<Item?>? slotChanged;
+    public event Action<Item?>? itemTransitionRequested;
+    private int lastUpdatedSlotIndex;
+    private Item? lastUpdatedItem;
+    private bool inventoryMoveInProgress;
 
     public InventoryUI(Inventory inventory, Texture2D slotTexture, Texture2D craftingMenuTexture, SpriteFont font, GameContext gameContext,CraftingUI craftingUI)
     {
@@ -46,6 +50,8 @@ public class InventoryUI
         this.font = font;
         this.gameContext = gameContext;
         this.craftingUI = craftingUI;
+        lastUpdatedSlotIndex = SelectedSlotIndex;
+        lastUpdatedItem = inventory.GetSlot(SelectedSlotIndex)?.Item;
         
     }
 
@@ -64,8 +70,11 @@ public class InventoryUI
         {
             if (input.IsKeyPressed(HotbarSelectKeys[i]))
             {
-                SelectedSlotIndex = i;
-                UpdateHandItem();
+                if (SelectedSlotIndex != i)
+                {
+                    SelectedSlotIndex = i;
+                    UpdateHandItem();
+                }
             }
         }
 
@@ -85,7 +94,15 @@ public class InventoryUI
             int targetIndex = GetSlotIndexAt(mousePosition);
             if (targetIndex != -1)
             {
-                inventory.MoveItem(draggedSlotIndex, targetIndex);
+                inventoryMoveInProgress = true;
+                try
+                {
+                    inventory.MoveItem(draggedSlotIndex, targetIndex);
+                }
+                finally
+                {
+                    inventoryMoveInProgress = false;
+                }
             }
             draggedSlotIndex = -1;
         }
@@ -208,7 +225,21 @@ public class InventoryUI
 
     public void UpdateHandItem()
     {
-        slotChanged?.Invoke(inventory.GetSlot(SelectedSlotIndex)?.Item);
+        Item? selectedItem = inventory.GetSlot(SelectedSlotIndex)?.Item;
+        bool slotChangedNow = SelectedSlotIndex != lastUpdatedSlotIndex;
+        bool itemChangedNow = selectedItem?.Id != lastUpdatedItem?.Id;
+
+        if (slotChangedNow || (itemChangedNow && inventoryMoveInProgress))
+        {
+            itemTransitionRequested?.Invoke(selectedItem);
+        }
+        else if (itemChangedNow)
+        {
+            slotChanged?.Invoke(selectedItem);
+        }
+
+        lastUpdatedSlotIndex = SelectedSlotIndex;
+        lastUpdatedItem = selectedItem;
     }
 
     private readonly struct Layout

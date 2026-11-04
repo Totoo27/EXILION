@@ -140,7 +140,8 @@ public class HUD
         player.OxygenChanged += oxygenBar.setDynamicColor;
 
         player.rightHand.updateItemInHand(player.Inventory.GetSlot(0)?.Item);
-        inventoryUI.slotChanged += player.rightHand.updateItemInHand;
+        inventoryUI.slotChanged += player.SetHandItemImmediately;
+        inventoryUI.itemTransitionRequested += player.BeginItemTransition;
 
         watchBar.setValue(0);
     }

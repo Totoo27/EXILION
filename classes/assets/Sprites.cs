@@ -33,13 +33,24 @@ public sealed class Sprites
 
     // Items
     public Texture2D Piedra { get; private set; }
+    public Texture2D Hierro { get; private set; }
+    public Texture2D Titanio { get; private set; }
+    public Texture2D Torio { get; private set; }
     public Texture2D Tronco { get; private set; }
     public Texture2D AguaPurificada { get; private set; }
     public Texture2D CarneCocinada { get; private set; }
     public Texture2D OxigenoEmbotellado { get; private set; }
     public Texture2D GeneradorO2 { get; private set; }
+    public Texture2D Baya { get; private set; }
     // Tools
-    public Texture2D testAxe { get; private set; }
+    public Texture2D woodenAxe { get; private set; }
+    public Texture2D woodenPickaxe { get; private set; }
+    public Texture2D stoneAxe { get; private set; }
+    public Texture2D stonePickaxe { get; private set; }
+    public Texture2D ironAxe { get; private set; }
+    public Texture2D ironPickaxe { get; private set; }
+    public Texture2D titaniumAxe { get; private set; }
+    public Texture2D titaniumPickaxe { get; private set; }
 
     // Inventory
     public Texture2D Slot { get; private set; }
@@ -83,18 +94,33 @@ public sealed class Sprites
         
         //Items
         Piedra = content.Load<Texture2D>("Sprites/Items/piedra");
+        Hierro = content.Load<Texture2D>("Sprites/Items/hierro");
+        Titanio = content.Load<Texture2D>("Sprites/Items/titanio");
+        Torio = content.Load<Texture2D>("Sprites/Items/torio");
+
         Tronco = content.Load<Texture2D>("Sprites/Items/tronco");
         AguaPurificada = content.Load<Texture2D>("Sprites/Items/AguaPurificada");
         CarneCocinada = content.Load<Texture2D>("Sprites/Items/CarneCocinada");
         OxigenoEmbotellado = content.Load<Texture2D>("Sprites/Items/OxigenoEmbotellado");
         GeneradorO2 = content.Load<Texture2D>("Sprites/Items/GeneradorO2");
+        Baya = content.Load<Texture2D>("Sprites/Items/bayas");
       
         // Tools
-        testAxe = content.Load<Texture2D>("Sprites/Items/testAxe");
+        woodenAxe = content.Load<Texture2D>("Sprites/Items/woodenAxe");
+        woodenPickaxe = content.Load<Texture2D>("Sprites/Items/woodenPickaxe");
+
+        stoneAxe = content.Load<Texture2D>("Sprites/Items/stoneAxe");
+        stonePickaxe = content.Load<Texture2D>("Sprites/Items/stonePickaxe");
+
+        ironAxe = content.Load<Texture2D>("Sprites/Items/ironAxe");
+        ironPickaxe = content.Load<Texture2D>("Sprites/Items/ironPickaxe");
+
+        titaniumAxe = content.Load<Texture2D>("Sprites/Items/titaniumAxe");
+        titaniumPickaxe = content.Load<Texture2D>("Sprites/Items/titaniumPickaxe");
         
         // World Test
         Tileset = content.Load<Texture2D>("Sprites/Tiles/Tileset");
-        Objects = content.Load<Texture2D>("Sprites/Objects"); 
+        Objects = content.Load<Texture2D>("Sprites/Tiles/objects");
 
         await MainLoader.addCompletedTask();
 

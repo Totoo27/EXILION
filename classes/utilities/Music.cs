@@ -11,6 +11,7 @@ public static class Music
     private static Song? nextSong;
 
     private static bool enabled = true;
+    public static bool IsEnabled => enabled;
     private static bool fadeInOut = true;
 
     private static bool fadingOut = false;

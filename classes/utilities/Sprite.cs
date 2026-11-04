@@ -11,12 +11,19 @@ public class Sprite
     private float rotation;
     private float scale;
     private Rectangle? sourceRectangle;
+    private readonly float baseScale;
 
     public Sprite(Texture2D texture, float scale, Rectangle? sourceRectangle = null)
     {
         this.texture = texture;
         this.scale = scale;
         this.sourceRectangle = sourceRectangle;
+        this.baseScale = scale;
+    }
+
+    public void SetScaleMultiplier(float multiplier)
+    {
+        scale = baseScale * multiplier;
     }
 
     public void Update(float angle, Vector2 position)
