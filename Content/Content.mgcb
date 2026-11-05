@@ -166,6 +166,18 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/AguaPurificada.png;Sprites/Items/AguaPurificada
 
+#begin Sprites/Items/arena.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/arena.png
+
 #begin Sprites/Items/bayas.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -178,6 +190,18 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/bayas.png
 
+#begin Sprites/Items/botellaVacia.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/botellaVacia.png
+
 #begin Sprites/Items/CarneCocinada.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -189,6 +213,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/CarneCocinada.png
+
+#begin Sprites/Items/chip.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/chip.png
 
 #begin Sprites/Items/GeneradorO2.png
 /importer:TextureImporter
@@ -261,6 +297,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/piedra.png;Sprites/Items/piedra
+
+#begin Sprites/Items/semilla.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/semilla.png
+
+#begin Sprites/Items/silicio.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/silicio.png
 
 #begin Sprites/Items/stoneAxe.png
 /importer:TextureImporter

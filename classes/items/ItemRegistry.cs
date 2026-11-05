@@ -40,7 +40,7 @@ public static class ItemRegistry
 
     public static readonly Consumable OxigenoEmbotellado = new Consumable(
         id: 5,
-        name: "Oxígeno Embotellado",
+        name: "Oxigeno Embotellado",
         statRestore: 20,
         statType: Entities.LivingThings.StatType.Oxygen,
         icon: Assets.Sprites.OxigenoEmbotellado
@@ -159,9 +159,39 @@ public static class ItemRegistry
         id: 18,
         name: "GeneradorO2",
         icon: Assets.Sprites.GeneradorO2
-       
     );
 
+    public static readonly Item BotellaVacia = new Item(
+        id: 19,
+        type: ItemType.RESOURCES,
+        name: "Botella vacia",
+        icon: Assets.Sprites.botellaVacia,
+        twoHanded: true
+    );
+
+    public static readonly Item Arena = new Item(
+        id: 20,
+        type: ItemType.RESOURCES,
+        name: "Arena",
+        icon: Assets.Sprites.arena,
+        twoHanded: false
+    );
+
+    public static readonly Item Silicio = new Item(
+        id: 21,
+        type: ItemType.RESOURCES,
+        name: "Silicio",
+        icon: Assets.Sprites.silicio,
+        twoHanded: false
+    );
+
+    public static readonly Item Chip = new Item(
+        id: 22,
+        type: ItemType.RESOURCES,
+        name: "Chip",
+        icon: Assets.Sprites.chip,
+        twoHanded: false
+    );
 
     // -------------------------
 
@@ -174,6 +204,10 @@ public static class ItemRegistry
         { Hierro.Id, Hierro },
         { Titanio.Id, Titanio },
         { Torio.Id, Torio },
+        { BotellaVacia.Id, BotellaVacia },
+        { Arena.Id, Arena },
+        { Silicio.Id, Silicio },
+        { Chip.Id, Chip },
 
         // Consumables
         { AguaPurificada.Id, AguaPurificada },

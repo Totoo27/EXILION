@@ -44,7 +44,7 @@ public static class ObjectProperties
             Source = new Rectangle(0, 0, 64, 64), DrawWidthTiles = 1.4f } },
 
         { ObjectType.Iron, new ObjectDefinition {
-            Type = ObjectType.Iron, BlocksMovement = true, CollisionRadius = 0.45f, MaxHealth = 30,
+            Type = ObjectType.Iron, BlocksMovement = true, CollisionRadius = 0.50f, MaxHealth = 30,
             HitSound = Assets.SoundEffects?.mine,
             AbovePlayer = false,
             HandCanBreak = false,
@@ -69,6 +69,15 @@ public static class ObjectProperties
             BreakableByItems = new[] { ItemRegistry.PicoDeTitanio },
             Drops = new[] { new ObjectDrop(ItemRegistry.Torio, 2) },
             Source = new Rectangle(192, 64, 64, 64), DrawWidthTiles = 2.2f } },
+
+        { ObjectType.Sandstone, new ObjectDefinition {
+            Type = ObjectType.Sandstone, BlocksMovement = true, CollisionRadius = 0.35f, MaxHealth = 15,
+            HitSound = Assets.SoundEffects?.mine,
+            AbovePlayer = false,
+            HandCanBreak = false,
+            BreakableByItems = new[] { ItemRegistry.PicoDeMadera, ItemRegistry.PicoDePiedra, ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
+            Drops = new[] { new ObjectDrop(ItemRegistry.Arena, 2) },
+            Source = new Rectangle(0, 64, 64, 64), DrawWidthTiles = 1.4f } },
     };
 
     private static readonly ObjectDefinition BlockDefinition = new ObjectDefinition {
@@ -92,11 +101,11 @@ public static class ObjectProperties
     };
 
     // Estas chances indican qué tan seguido aparece cada objeto en cada tipo de terreno.
-    private static readonly (ObjectType Type, float Chance)[] ForestRules = { (ObjectType.Tree, 0.22f), (ObjectType.Bush, 0.04f), (ObjectType.FruitBush, 0.03f)  };
-    private static readonly (ObjectType Type, float Chance)[] GrassRules  = { (ObjectType.Tree, 0.02f), (ObjectType.Bush, 0.04f), (ObjectType.FruitBush, 0.03f), (ObjectType.Rock, 0.01f) };
-    private static readonly (ObjectType Type, float Chance)[] SandRules   = { (ObjectType.Rock, 0.015f) };
-    private static readonly (ObjectType Type, float Chance)[] RockRules   = { (ObjectType.Rock, 0.08f), (ObjectType.Iron, 0.05f), (ObjectType.Titanium, 0.02f), (ObjectType.Thorium, 0.005f), };
-    private static readonly (ObjectType Type, float Chance)[] SnowRules   = { (ObjectType.Rock, 0.03f) };
+    private static readonly (ObjectType Type, float Chance)[] ForestRules = { (ObjectType.Tree, 0.22f), (ObjectType.Bush, 0.04f), (ObjectType.FruitBush, 0.008f)  };
+    private static readonly (ObjectType Type, float Chance)[] GrassRules  = { (ObjectType.Tree, 0.02f), (ObjectType.Bush, 0.04f), (ObjectType.FruitBush, 0.015f), (ObjectType.Rock, 0.01f) };
+    private static readonly (ObjectType Type, float Chance)[] SandRules   = { (ObjectType.Rock, 0.015f), (ObjectType.Sandstone, 0.025f) };
+    private static readonly (ObjectType Type, float Chance)[] RockRules   = { (ObjectType.Rock, 0.06f), (ObjectType.Iron, 0.03f), (ObjectType.Titanium, 0.015f), (ObjectType.Thorium, 0.005f) };
+    private static readonly (ObjectType Type, float Chance)[] SnowRules   = { (ObjectType.Rock, 0.03f), (ObjectType.Titanium, 0.02f), (ObjectType.Thorium, 0.009f) };
     private static readonly (ObjectType Type, float Chance)[] NoRules     = Array.Empty<(ObjectType, float)>();
 
     public static (ObjectType Type, float Chance)[] GetSpawnRules(TileType biome) => biome switch

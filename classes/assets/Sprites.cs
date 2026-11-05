@@ -36,6 +36,10 @@ public sealed class Sprites
     public Texture2D Hierro { get; private set; }
     public Texture2D Titanio { get; private set; }
     public Texture2D Torio { get; private set; }
+    public Texture2D botellaVacia { get; private set; }
+    public Texture2D arena { get; private set; }
+    public Texture2D silicio { get; private set; }
+    public Texture2D chip { get; private set; }
     public Texture2D Tronco { get; private set; }
     public Texture2D AguaPurificada { get; private set; }
     public Texture2D CarneCocinada { get; private set; }
@@ -97,6 +101,10 @@ public sealed class Sprites
         Hierro = content.Load<Texture2D>("Sprites/Items/hierro");
         Titanio = content.Load<Texture2D>("Sprites/Items/titanio");
         Torio = content.Load<Texture2D>("Sprites/Items/torio");
+        botellaVacia = content.Load<Texture2D>("Sprites/Items/botellaVacia");
+        arena = content.Load<Texture2D>("Sprites/Items/arena");
+        silicio = content.Load<Texture2D>("Sprites/Items/silicio");
+        chip = content.Load<Texture2D>("Sprites/Items/chip");
 
         Tronco = content.Load<Texture2D>("Sprites/Items/tronco");
         AguaPurificada = content.Load<Texture2D>("Sprites/Items/AguaPurificada");

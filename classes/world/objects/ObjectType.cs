@@ -9,6 +9,7 @@ public enum ObjectType {
     Titanium,
     Thorium,
     Block,
-    OxygenGenerator
+    OxygenGenerator,
+    Sandstone
 
 }

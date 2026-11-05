@@ -97,8 +97,43 @@ public static class RecipeRegistry
         result: ItemRegistry.GeneradorO2,
         ingredients: new List<Ingredient>
         {
-            new Ingredient(ItemRegistry.Madera, 4),
-            new Ingredient(ItemRegistry.Piedra, 3)
+            new Ingredient(ItemRegistry.Chip, 3),
+            new Ingredient(ItemRegistry.OxigenoEmbotellado, 2),
+            new Ingredient(ItemRegistry.Hierro, 10),
+            new Ingredient(ItemRegistry.Titanio, 1),
+        },
+        amount: 1
+    );
+
+    public static readonly Recipe SiliconRecipe = new Recipe(
+        id: 10,
+        result: ItemRegistry.Silicio,
+        ingredients: new List<Ingredient>
+        {
+            new Ingredient(ItemRegistry.Arena, 1),
+            new Ingredient(ItemRegistry.Piedra, 1)
+        },
+        amount: 2
+    );
+
+    public static readonly Recipe ChipRecipe = new Recipe(
+        id: 11,
+        result: ItemRegistry.Chip,
+        ingredients: new List<Ingredient>
+        {
+            new Ingredient(ItemRegistry.Silicio, 4),
+            new Ingredient(ItemRegistry.Piedra, 1),
+            new Ingredient(ItemRegistry.Hierro, 4)
+        },
+        amount: 1
+    );
+
+    public static readonly Recipe EmptyBottleRecipe = new Recipe(
+        id: 12,
+        result: ItemRegistry.BotellaVacia,
+        ingredients: new List<Ingredient>
+        {
+            new Ingredient(ItemRegistry.Hierro, 3)
         },
         amount: 1
     );
@@ -113,7 +148,10 @@ public static class RecipeRegistry
         IronAxeRecipe,
         TitaniumAxeRecipe,
         TitaniumPickaxeRecipe,
-        OxygenGeneratorRecipe
+        OxygenGeneratorRecipe,
+        SiliconRecipe,
+        ChipRecipe,
+        EmptyBottleRecipe
     };
 
      private static readonly Dictionary<int, Recipe> recipesById = new Dictionary<int, Recipe>();
