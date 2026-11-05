@@ -157,7 +157,7 @@ public static class ItemRegistry
 
     public static readonly Structure GeneradorO2 = new Structure(
         id: 18,
-        name: "GeneradorO2",
+        name: "O2 Generator",
         icon: Assets.Sprites.GeneradorO2
     );
 
@@ -191,6 +191,12 @@ public static class ItemRegistry
         name: "Chip",
         icon: Assets.Sprites.chip,
         twoHanded: false
+    );
+
+    public static readonly Structure CraftingTable = new Structure(
+        id:23,
+        name: "Crafting Table",
+        icon: Assets.Sprites.craftingTable
     );
 
     // -------------------------

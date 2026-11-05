@@ -138,12 +138,23 @@ public static class RecipeRegistry
         amount: 1
     );
 
+    public static readonly Recipe CraftingTableRecipe = new Recipe(
+        id:13,
+        result: ItemRegistry.CraftingTable,
+        ingredients: new List<Ingredient>
+        {
+            new Ingredient(ItemRegistry.Hierro,10)
+        },
+        amount : 1
+    );
+
     public static readonly IReadOnlyList<Recipe> All = new List<Recipe>
     {
         WoodenAxeRecipe,
         WoodenPickaxeRecipe,
         StonePickaxeRecipe,
         StoneAxeRecipe,
+        CraftingTableRecipe,
         IronPickaxeRecipe,
         IronAxeRecipe,
         TitaniumAxeRecipe,
@@ -152,6 +163,7 @@ public static class RecipeRegistry
         SiliconRecipe,
         ChipRecipe,
         EmptyBottleRecipe
+        
     };
 
      private static readonly Dictionary<int, Recipe> recipesById = new Dictionary<int, Recipe>();
