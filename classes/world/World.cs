@@ -171,6 +171,12 @@ public class World
         return false;
     }
 
+    public bool IsInWater(Vector2 worldPosition)
+    {
+        TileType? type = GetTileTypeAt(worldPosition.X, worldPosition.Y);
+        return type == TileType.Water || type == TileType.DeepWater;
+    }
+
     private bool IntersectsBlockingObject(Vector2 position, float playerRadius)
     {
         foreach (var chunk in _loadedChunks.Values)

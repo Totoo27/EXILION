@@ -6,6 +6,7 @@ using EXILION.Items;
 using EXILION.Entities.CatchableItems;
 using EXILION.Saving;
 using Microsoft.Xna.Framework.Audio;
+using EXILION.World;
 
 namespace EXILION.Entities.LivingThings;
 
@@ -170,6 +171,9 @@ public class Player : LivingThing
 
         if (itemTransitionTimer <= 0f && input.IsLeftMousePressed() && !input.IsMouseCaptured)
         {
+            if (rightHand.HeldItem?.Id == ItemRegistry.BotellaVacia.Id && world != null
+                && TryFillBottle(world)) return;
+
             if (rightHand.hasItem)
             {
                 if (rightHand.DoAction(this)) return;
@@ -443,7 +447,21 @@ public class Player : LivingThing
 
         SFX.Play(sfx);
         inventory.RemoveItem(item, 1);
+        if (consumable.statType == StatType.Thirst || consumable.statType == StatType.Oxygen)
+            inventory.AddItem(ItemRegistry.BotellaVacia, 1);
         
+        return true;
+    }
+
+    private bool TryFillBottle(World.World world)
+    {
+        Item? filledBottle = world.IsInWater(position)
+            ? ItemRegistry.AguaPurificada
+            : world.IsOxygenSupplied(position) ? ItemRegistry.OxigenoEmbotellado : null;
+        if (filledBottle == null || !inventory.HasItem(ItemRegistry.BotellaVacia, 1)) return false;
+
+        inventory.RemoveItem(ItemRegistry.BotellaVacia, 1);
+        inventory.AddItem(filledBottle, 1);
         return true;
     }
 
@@ -487,3 +505,4 @@ public CraftResult TryCraft(Recipe recipe)
 }
 
 }
+
