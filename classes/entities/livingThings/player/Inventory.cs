@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using EXILION.Items;
+using EXILION.Saving;
 using System;
 
 namespace EXILION.Entities.LivingThings;
@@ -18,6 +19,45 @@ public class Inventory
     {
         Capacity = capacity;
         slots = new ItemStack[capacity];
+    }
+
+    public void Restore(List<InventorySlotSaveData> savedSlots)
+    {
+        Array.Clear(slots, 0, slots.Length);
+
+        foreach (var savedSlot in savedSlots)
+        {
+
+            if (savedSlot.Slot < 0 || savedSlot.Slot >= slots.Length) continue;
+            if (savedSlot.Quantity <= 0) continue;
+
+            Item? item = ItemRegistry.GetById(savedSlot.ItemId);
+
+            if (item == null) continue;
+            slots[savedSlot.Slot] = new ItemStack(item, savedSlot.Quantity);
+        }
+
+        UpdateInventoryUI?.Invoke();
+    }
+
+    public List<InventorySlotSaveData> GetSaveData()
+    {
+        List<InventorySlotSaveData> saveData = new List<InventorySlotSaveData>();
+
+        for (int i = 0; i < slots.Length; i++)
+        {
+            if (slots[i] != null)
+            {
+                saveData.Add(new InventorySlotSaveData
+                {
+                    Slot = i,
+                    ItemId = slots[i].Item.Id,
+                    Quantity = slots[i].Quantity
+                });
+            }
+        }
+
+        return saveData;
     }
 
      public int AddItem(Item item, int amount)
@@ -80,7 +120,30 @@ public class Inventory
         return GetItemCount(item) >= amount;
     }
 
-    public ItemStack GetSlot(int index)
+    public bool CanFit(Item item, int amount)
+    {
+        if (amount <= 0) return true;
+
+        int space = 0;
+
+        foreach (ItemStack stack in slots)
+        {
+            if (stack == null)
+            {
+                space += item.GetMaxStackSize();
+            }
+            else if (stack.CanStackWith(item))
+            {
+                space += stack.SpaceLeft;
+            }
+
+            if (space >= amount) return true;
+        }
+
+        return false;
+    }
+
+    public ItemStack? GetSlot(int index)
     {
         if (index < 0 || index >= slots.Length) return null;
         return slots[index];
@@ -101,6 +164,7 @@ public class Inventory
         {
             slots[to] = source;
             slots[from] = null;
+            UpdateInventoryUI?.Invoke();
             return;
         }
 
@@ -109,7 +173,7 @@ public class Inventory
             int leftover = destination.Add(source.Quantity);
 
             slots[from] = leftover == 0 ? null : new ItemStack(source.Item, leftover);
-
+            UpdateInventoryUI?.Invoke();
             return;
         }
         

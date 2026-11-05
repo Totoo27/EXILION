@@ -5,9 +5,11 @@ public static class SFX
 {
     
     private static bool enabled = true;
+    public static bool IsEnabled => enabled;
 
-    public static void Play(SoundEffect sound)
+    public static void Play(SoundEffect? sound)
     {
+        if (sound == null) return;
         if(!Assets.AudioAvaible) return;
         if(!enabled) return;
 

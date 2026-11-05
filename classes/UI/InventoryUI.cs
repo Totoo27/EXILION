@@ -10,6 +10,8 @@ namespace EXILION.UI;
 public class InventoryUI
 {
     #nullable enable
+
+    private readonly CraftingUI craftingUI;
     private const int Columns = 8;
     private const int Rows = 3;
     private const int SlotSize = 64;
@@ -23,6 +25,9 @@ public class InventoryUI
 
     private readonly Inventory inventory;
     private readonly Texture2D slotTexture;
+
+
+    private readonly Texture2D craftingMenuTexture;
     private readonly SpriteFont font;
     private readonly GameContext gameContext;
 
@@ -31,18 +36,31 @@ public class InventoryUI
     private Vector2 mousePosition;
 
     public int SelectedSlotIndex { get; private set; } = 0;
-    public event Action<Item>? slotChanged;
+    public event Action<Item?>? slotChanged;
+    public event Action<Item?>? itemTransitionRequested;
+    private int lastUpdatedSlotIndex;
+    private Item? lastUpdatedItem;
+    private bool inventoryMoveInProgress;
 
-    public InventoryUI(Inventory inventory, Texture2D slotTexture, SpriteFont font, GameContext gameContext)
+    public InventoryUI(Inventory inventory, Texture2D slotTexture, Texture2D craftingMenuTexture, SpriteFont font, GameContext gameContext,CraftingUI craftingUI)
     {
         this.inventory = inventory;
         this.slotTexture = slotTexture;
+        this.craftingMenuTexture = craftingMenuTexture;
         this.font = font;
         this.gameContext = gameContext;
+        this.craftingUI = craftingUI;
+        lastUpdatedSlotIndex = SelectedSlotIndex;
+        lastUpdatedItem = inventory.GetSlot(SelectedSlotIndex)?.Item;
+        
     }
 
     public void Update(InputManager input)
     {
+
+        mousePosition = input.MousePosition;
+        input.IsMouseCaptured = GetSlotIndexAt(mousePosition) != -1 || draggedSlotIndex != -1;
+
         if (input.IsKeyPressed(Keys.I))
         {
             expanded = !expanded;
@@ -52,8 +70,11 @@ public class InventoryUI
         {
             if (input.IsKeyPressed(HotbarSelectKeys[i]))
             {
-                SelectedSlotIndex = i;
-                UpdateHandItem();
+                if (SelectedSlotIndex != i)
+                {
+                    SelectedSlotIndex = i;
+                    UpdateHandItem();
+                }
             }
         }
 
@@ -73,10 +94,36 @@ public class InventoryUI
             int targetIndex = GetSlotIndexAt(mousePosition);
             if (targetIndex != -1)
             {
-                inventory.MoveItem(draggedSlotIndex, targetIndex);
+                inventoryMoveInProgress = true;
+                try
+                {
+                    inventory.MoveItem(draggedSlotIndex, targetIndex);
+                }
+                finally
+                {
+                    inventoryMoveInProgress = false;
+                }
             }
             draggedSlotIndex = -1;
         }
+
+        if (expanded && input.IsLeftMousePressed())
+        {
+            Layout layout = GetLayout();
+            Rectangle craftingButtonRect = GetCraftingButtonRect(layout);
+
+            if (craftingButtonRect.Contains(mousePosition))
+            {
+                craftingUI.Toggle();
+                
+            }
+        }
+
+        if(expanded== false && craftingUI.visible==true)
+                {
+                    craftingUI.Toggle();
+                }
+        
     }
 
     public void Draw(SpriteBatch spriteBatch)
@@ -90,7 +137,9 @@ public class InventoryUI
             for (int row = 1; row < Rows; row++)
             {
                 DrawRow(spriteBatch, row, layout);
+
             }
+            DrawCraftingButton(spriteBatch, layout);
         }
 
         if (draggedSlotIndex != -1)
@@ -104,10 +153,12 @@ public class InventoryUI
                     layout.SlotSize,
                     layout.SlotSize
                 );
-                spriteBatch.Draw(draggedStack.Item.Icon, dragRect, Color.White);
+                spriteBatch.Draw(draggedStack.Item.Icon, dragRect, draggedStack.Item.IconSource, Color.White);
             }
         }
     }
+
+    
 
     private void DrawRow(SpriteBatch spriteBatch, int row, Layout layout)
     {
@@ -126,7 +177,7 @@ public class InventoryUI
             ItemStack stack = inventory.GetSlot(slotIndex);
             if (stack == null) continue;
 
-            spriteBatch.Draw(stack.Item.Icon, slotRect, Color.White);
+            spriteBatch.Draw(stack.Item.Icon, slotRect, stack.Item.IconSource, Color.White);
 
             if (stack.Quantity > 1)
             {
@@ -174,7 +225,21 @@ public class InventoryUI
 
     public void UpdateHandItem()
     {
-        slotChanged?.Invoke(inventory.GetSlot(SelectedSlotIndex)?.Item);
+        Item? selectedItem = inventory.GetSlot(SelectedSlotIndex)?.Item;
+        bool slotChangedNow = SelectedSlotIndex != lastUpdatedSlotIndex;
+        bool itemChangedNow = selectedItem?.Id != lastUpdatedItem?.Id;
+
+        if (slotChangedNow || (itemChangedNow && inventoryMoveInProgress))
+        {
+            itemTransitionRequested?.Invoke(selectedItem);
+        }
+        else if (itemChangedNow)
+        {
+            slotChanged?.Invoke(selectedItem);
+        }
+
+        lastUpdatedSlotIndex = SelectedSlotIndex;
+        lastUpdatedItem = selectedItem;
     }
 
     private readonly struct Layout
@@ -207,5 +272,24 @@ public class InventoryUI
 
         return new Layout(slotSize, padding, startX, hotbarY);
     }
+
+    private Rectangle GetCraftingButtonRect(Layout layout)
+    {
+        Rectangle anchor = GetSlotRect(Rows - 1, Columns, layout);
+
+        return new Rectangle(
+            anchor.X,
+            anchor.Y,
+            gameContext.ScaleX(craftingMenuTexture.Width),
+            gameContext.ScaleY(craftingMenuTexture.Height)
+        );
+    }
+
+    private void DrawCraftingButton(SpriteBatch spriteBatch, Layout layout)
+    {
+        spriteBatch.Draw(craftingMenuTexture, GetCraftingButtonRect(layout), Color.White);
+    }
+
+    
 
 }

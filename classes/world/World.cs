@@ -1,20 +1,27 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using EXILION.Entities;
+using EXILION.Entities.LivingThings;
+using EXILION.Items;
 
 namespace EXILION.World;
 
 public class World
 {
     private readonly MapGenerator _generator;
+    private readonly WorldObjectGenerator _objectGenerator;
     private readonly Dictionary<(int, int), Chunk> _loadedChunks = new();
 
     public int TileSize { get; }
     public int RenderDistanceChunks { get; set; } = 2;
+    public WorldObjectStateStore ObjectStates { get; } = new();
+    public event Action<WorldObject> ObjectDestroyed;
 
     public World(int seed, int tileSize)
     {
         _generator = new MapGenerator(seed);
+        _objectGenerator = new WorldObjectGenerator(seed);
         TileSize = tileSize;
     }
 
@@ -34,7 +41,9 @@ public class World
 
                 if (!_loadedChunks.ContainsKey(key))
                 {
-                    _loadedChunks[key] = _generator.GenerateChunk(key.Item1, key.Item2);
+                    var chunk = _generator.GenerateChunk(key.Item1, key.Item2);
+                    PopulateObjects(chunk);
+                    _loadedChunks[key] = chunk;
                 }
             }
         }
@@ -47,5 +56,290 @@ public class World
         foreach (var key in toRemove) _loadedChunks.Remove(key);
     }
 
+    public void UpdateObjects(float deltaTime)
+    {
+        foreach (var chunk in _loadedChunks.Values)
+            foreach (var obj in chunk.Objects)
+                obj.Update(deltaTime);
+    }
+
+    // Comprueba que el jugador quepa en esta posición sin pisar agua.
+    public bool IsWalkable(Vector2 worldPosition, float radius = 0f)
+        => IsWalkable(worldPosition, radius, false);
+
+    public bool IsWalkable(Vector2 worldPosition, float radius, bool allowShallowWater)
+    {
+        // Revisamos las cuatro esquinas para que el jugador no quede medio metido en el agua.
+        if (!IsTileWalkable(worldPosition.X - radius, worldPosition.Y - radius, allowShallowWater)) return false;
+        if (!IsTileWalkable(worldPosition.X + radius, worldPosition.Y - radius, allowShallowWater)) return false;
+        if (!IsTileWalkable(worldPosition.X - radius, worldPosition.Y + radius, allowShallowWater)) return false;
+        if (!IsTileWalkable(worldPosition.X + radius, worldPosition.Y + radius, allowShallowWater)) return false;
+
+        return !IntersectsBlockingObject(worldPosition, radius);
+    }
+
+    public bool IsInShallowWater(Vector2 worldPosition, float radius, bool alreadySwimming)
+    {
+        int waterSamples = 0;
+        const int samplesPerAxis = 3;
+        for (int x = 0; x < samplesPerAxis; x++)
+        for (int y = 0; y < samplesPerAxis; y++)
+        {
+            float sampleX = worldPosition.X - radius + 2f * radius * x / (samplesPerAxis - 1);
+            float sampleY = worldPosition.Y - radius + 2f * radius * y / (samplesPerAxis - 1);
+            if (GetTileTypeAt(sampleX, sampleY) == TileType.Water) waterSamples++;
+        }
+
+        return alreadySwimming
+            ? waterSamples > 0
+            : waterSamples / 9f >= PlayerMovementSettings.ShallowWaterEnterCoverage;
+    }
+
+    public bool TryPlaceBlock(Vector2 worldPosition, Vector2 playerPosition, float playerRadius)
+    {
+        int tileX = (int)MathF.Floor(worldPosition.X / TileSize);
+        int tileY = (int)MathF.Floor(worldPosition.Y / TileSize);
+        int chunkX = (int)MathF.Floor((float)tileX / Chunk.Size);
+        int chunkY = (int)MathF.Floor((float)tileY / Chunk.Size);
+        if (!_loadedChunks.TryGetValue((chunkX, chunkY), out var chunk)) return false;
+
+        int localX = tileX - chunkX * Chunk.Size;
+        int localY = tileY - chunkY * Chunk.Size;
+        if (!TileProperties.IsWalkable(chunk.Tiles[localX, localY].Type)) return false;
+
+        foreach (var obj in chunk.Objects)
+        {
+            if (obj.IsDestroyed) continue;
+            if ((int)MathF.Floor(obj.TileX) == tileX && (int)MathF.Floor(obj.TileY) == tileY) return false;
+        }
+
+        Vector2 center = new((tileX + 0.5f) * TileSize, (tileY + 0.5f) * TileSize);
+        float reach = TileSize * 4f;
+        if (Vector2.DistanceSquared(center, playerPosition) > reach * reach) return false;
+        float radius = ObjectProperties.Get(ObjectType.Block).CollisionRadius * TileSize;
+        if (Vector2.DistanceSquared(center, playerPosition) < (radius + playerRadius) * (radius + playerRadius)) return false;
+        if (IntersectsBlockingObject(center, radius)) return false;
+
+        // Reserve SpawnIndex -1 for player placed blocks so generated IDs and world seed stay unchanged.
+        var id = new WorldObjectId(_generator.Seed, tileX, tileY, -1);
+        var state = new WorldObjectState(id, ObjectProperties.Get(ObjectType.Block).MaxHealth, false);
+        ObjectStates.Record(state);
+        chunk.Objects.Add(new WorldObject(id, ObjectType.Block, tileX + 0.5f, tileY + 0.5f,
+            state, ObjectStates.Record));
+        return true;
+    }
+
+    public bool TryPlaceOxygenGenerator(Vector2 worldPosition, Vector2 playerPosition, float playerRadius)
+    {
+        int tileX = (int)MathF.Floor(worldPosition.X / TileSize);
+        int tileY = (int)MathF.Floor(worldPosition.Y / TileSize);
+        int chunkX = (int)MathF.Floor((float)tileX / Chunk.Size);
+        int chunkY = (int)MathF.Floor((float)tileY / Chunk.Size);
+        if (!_loadedChunks.TryGetValue((chunkX, chunkY), out var chunk)) return false;
+        int localX = tileX - chunkX * Chunk.Size;
+        int localY = tileY - chunkY * Chunk.Size;
+        if (!TileProperties.IsWalkable(chunk.Tiles[localX, localY].Type)) return false;
+        foreach (var obj in chunk.Objects)
+            if (!obj.IsDestroyed && (int)MathF.Floor(obj.TileX) == tileX && (int)MathF.Floor(obj.TileY) == tileY) return false;
+
+        Vector2 center = new((tileX + 0.5f) * TileSize, (tileY + 0.5f) * TileSize);
+        if (Vector2.DistanceSquared(center, playerPosition) > (TileSize * 4f) * (TileSize * 4f)) return false;
+        float radius = ObjectProperties.Get(ObjectType.OxygenGenerator).CollisionRadius * TileSize;
+        if (Vector2.DistanceSquared(center, playerPosition) < (radius + playerRadius) * (radius + playerRadius)) return false;
+        if (IntersectsBlockingObject(center, radius)) return false;
+
+        var id = new WorldObjectId(_generator.Seed, tileX, tileY, -2);
+        var state = new WorldObjectState(id, ObjectProperties.Get(ObjectType.OxygenGenerator).MaxHealth, false);
+        ObjectStates.Record(state);
+        chunk.Objects.Add(new WorldObject(id, ObjectType.OxygenGenerator, tileX + 0.5f, tileY + 0.5f,
+            state, ObjectStates.Record, obj => ObjectDestroyed?.Invoke(obj)));
+        return true;
+    }
+
+    public bool IsOxygenSupplied(Vector2 worldPosition)
+    {
+        foreach (var chunk in _loadedChunks.Values)
+        foreach (var obj in chunk.Objects)
+        {
+            if (obj.IsDestroyed || obj.IsCollected) continue;
+            float radius = obj.Definition.OxygenRadiusTiles * TileSize;
+            if (radius <= 0f) continue;
+            float dx = obj.TileX * TileSize - worldPosition.X;
+            float dy = obj.TileY * TileSize - worldPosition.Y;
+            if (dx * dx + dy * dy <= radius * radius) return true;
+        }
+        return false;
+    }
+
+    private bool IntersectsBlockingObject(Vector2 position, float playerRadius)
+    {
+        foreach (var chunk in _loadedChunks.Values)
+        {
+            foreach (var obj in chunk.Objects)
+            {
+                if (obj.IsDestroyed) continue;
+                var definition = obj.Definition;
+                if (!definition.BlocksMovement) continue;
+
+                float objectRadius = definition.CollisionRadius * TileSize;
+                float objectX = obj.TileX * TileSize;
+                float objectY = obj.TileY * TileSize;
+
+                // The player hitbox is an axis-aligned square; find its nearest point to the object's circle.
+                float nearestX = MathHelper.Clamp(objectX, position.X - playerRadius, position.X + playerRadius);
+                float nearestY = MathHelper.Clamp(objectY, position.Y - playerRadius, position.Y + playerRadius);
+                float dx = objectX - nearestX;
+                float dy = objectY - nearestY;
+
+                if (dx * dx + dy * dy < objectRadius * objectRadius)
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void DamageObjects(AttackHitbox attackHitbox, int damage, Item heldItem,
+        Func<WorldObjectId, bool> registerHit)
+    {
+        if (damage <= 0) return;
+
+        float halfWidth = attackHitbox.Width / 2f;
+        float halfHeight = attackHitbox.Height / 2f;
+        float cos = MathF.Cos(attackHitbox.Rotation);
+        float sin = MathF.Sin(attackHitbox.Rotation);
+
+        foreach (var chunk in _loadedChunks.Values)
+        {
+            foreach (var obj in chunk.Objects)
+            {
+                if (obj.IsDestroyed || obj.CurrentHealth == null) continue;
+
+                float centerX = obj.TileX * TileSize;
+                float centerY = obj.TileY * TileSize;
+                float deltaX = centerX - attackHitbox.Position.X;
+                float deltaY = centerY - attackHitbox.Position.Y;
+
+                // Rotate the object's center into the attack rectangle's local space.
+                float localX = deltaX * cos + deltaY * sin;
+                float localY = -deltaX * sin + deltaY * cos;
+                float nearestX = MathHelper.Clamp(localX, -halfWidth, halfWidth);
+                float nearestY = MathHelper.Clamp(localY, -halfHeight, halfHeight);
+                float distanceX = localX - nearestX;
+                float distanceY = localY - nearestY;
+                float objectRadius = obj.Definition.CollisionRadius * TileSize;
+
+                if (distanceX * distanceX + distanceY * distanceY > objectRadius * objectRadius)
+                    continue;
+
+                if (!registerHit(obj.Id)) continue;
+
+                bool isAllowedTool = heldItem != null && obj.Definition.CanBeBrokenBy(heldItem);
+                bool isAllowed = heldItem == null ? obj.Definition.HandCanBreak : isAllowedTool;
+                obj.ApplyDamage(isAllowed ? damage : 1, allowDrops: isAllowed);
+            }
+        }
+    }
+
+    // Busca el tile que hay debajo de este punto y comprueba si se puede caminar por él.
+    private bool IsTileWalkable(float pixelX, float pixelY, bool allowShallowWater = false)
+    {
+        int tileX = (int)MathF.Floor(pixelX / TileSize);
+        int tileY = (int)MathF.Floor(pixelY / TileSize);
+
+        int chunkX = (int)MathF.Floor((float)tileX / Chunk.Size);
+        int chunkY = (int)MathF.Floor((float)tileY / Chunk.Size);
+
+        int localX = tileX - chunkX * Chunk.Size;
+        int localY = tileY - chunkY * Chunk.Size;
+
+        if (_loadedChunks.TryGetValue((chunkX, chunkY), out var chunk))
+        {
+            TileType type = chunk.Tiles[localX, localY].Type;
+            return TileProperties.IsWalkable(type) || (allowShallowWater && type == TileType.Water);
+        }
+
+        return true;
+    }
+
+    private TileType? GetTileTypeAt(float pixelX, float pixelY)
+    {
+        int tileX = (int)MathF.Floor(pixelX / TileSize);
+        int tileY = (int)MathF.Floor(pixelY / TileSize);
+        int chunkX = (int)MathF.Floor((float)tileX / Chunk.Size);
+        int chunkY = (int)MathF.Floor((float)tileY / Chunk.Size);
+        if (!_loadedChunks.TryGetValue((chunkX, chunkY), out var chunk)) return null;
+        return chunk.Tiles[tileX - chunkX * Chunk.Size, tileY - chunkY * Chunk.Size].Type;
+    }
+
+    // Encuentra un lugar seco cerca del inicio para que el jugador no aparezca en el agua.
+    public Vector2 FindSpawnPosition()
+    {
+        UpdateAroundPosition(Vector2.Zero); // Primero cargamos el mapa que rodea el punto de inicio.
+
+        Vector2 best = Vector2.Zero;
+        float bestDistance = float.MaxValue;
+
+        foreach (var chunk in _loadedChunks.Values)
+        {
+            for (int lx = 0; lx < Chunk.Size; lx++)
+            {
+                for (int ly = 0; ly < Chunk.Size; ly++)
+                {
+                    if (!TileProperties.IsWalkable(chunk.Tiles[lx, ly].Type)) continue;
+
+                    float px = (chunk.ChunkX * Chunk.Size + lx + 0.5f) * TileSize;
+                    float py = (chunk.ChunkY * Chunk.Size + ly + 0.5f) * TileSize;
+
+                    float distance = px * px + py * py;
+                    if (distance < bestDistance)
+                    {
+                        bestDistance = distance;
+                        best = new Vector2(px, py);
+                    }
+                }
+            }
+        }
+
+        return best;
+    }
+
     public IEnumerable<Chunk> LoadedChunks => _loadedChunks.Values;
+
+    public IReadOnlyList<WorldObjectState> CaptureObjectStates() => ObjectStates.CaptureSnapshot();
+
+    public void RestoreObjectStates(IEnumerable<WorldObjectState> states)
+    {
+        ObjectStates.RestoreSnapshot(states);
+
+        foreach (var chunk in _loadedChunks.Values)
+        {
+            chunk.Objects.Clear();
+            PopulateObjects(chunk);
+        }
+    }
+
+    private void PopulateObjects(Chunk chunk)
+    {
+        foreach (var spawn in _objectGenerator.Generate(chunk))
+        {
+            ObjectStates.TryGet(spawn.Id, out var savedState);
+            var obj = new WorldObject(spawn.Id, spawn.Type, spawn.TileX, spawn.TileY,
+                savedState, ObjectStates.Record, obj => ObjectDestroyed?.Invoke(obj));
+
+            if (!obj.IsDestroyed && !obj.IsCollected)
+                chunk.Objects.Add(obj);
+        }
+
+        foreach (var state in ObjectStates.CaptureSnapshot())
+        {
+            if (state.Id.SpawnIndex != -1 && state.Id.SpawnIndex != -2) continue;
+            int chunkX = (int)MathF.Floor((float)state.Id.TileX / Chunk.Size);
+            int chunkY = (int)MathF.Floor((float)state.Id.TileY / Chunk.Size);
+            if (chunkX != chunk.ChunkX || chunkY != chunk.ChunkY || state.IsDestroyed) continue;
+            var type = state.Id.SpawnIndex == -2 ? ObjectType.OxygenGenerator : ObjectType.Block;
+            chunk.Objects.Add(new WorldObject(state.Id, type,
+                state.Id.TileX + 0.5f, state.Id.TileY + 0.5f, state, ObjectStates.Record));
+        }
+    }
 }

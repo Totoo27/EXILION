@@ -10,6 +10,8 @@ public class InputManager
     public MouseState CurrentMouse { get; private set; }
     public MouseState PreviousMouse { get; private set; }
 
+    public bool IsMouseCaptured { get; set; }
+
     public void Update()
     {
         PreviousKeyboard = CurrentKeyboard;

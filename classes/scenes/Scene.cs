@@ -6,12 +6,14 @@ namespace EXILION.Scenes;
 
 public abstract class Scene
 {
+    protected IGameData GameData;
     protected GameContext GameContext;
     protected bool stopUpdating = false;
 
-    protected Scene(GameContext gameContext)
+    protected Scene(IGameData gameData)
     {
-        GameContext = gameContext;
+        GameData = gameData;
+        GameContext = gameData.GetGameContext();
     }
     public abstract void LoadContent();
 

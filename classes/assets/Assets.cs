@@ -48,7 +48,6 @@ public static class Assets
         Console.WriteLine("Cargando Sprites.");
         await Sprites.Load(content);
         Console.WriteLine("Sprites cargados.");
-        
 
     }
 }

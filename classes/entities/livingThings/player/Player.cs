@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using EXILION.Items;
 using EXILION.Entities.CatchableItems;
-using EXILION.UI;
+using EXILION.Saving;
 using Microsoft.Xna.Framework.Audio;
 
 namespace EXILION.Entities.LivingThings;
@@ -17,6 +17,14 @@ public class Player : LivingThing
 
     private float damagedTimer = 0f;
     private float runningMultiplier = 1f;
+    private float movementSpeedScale = 1f;
+    public bool IsSwimming { get; private set; }
+    private const float ItemTransitionDuration = 0.5f;
+    private float itemTransitionTimer;
+    private Item? pendingHandItem;
+    private bool hasPendingHandItem;
+    private const float AttackHeadTurn = 0.16f;
+    private float headAttackRotation;
 
     private Color damageColor = new Color(230, 180, 180);
 
@@ -39,7 +47,7 @@ public class Player : LivingThing
 
 
     public Player(Vector2 position, Sprite sprite, GameContext gameContext)
-    : base(position, sprite, 100, 200, gameContext)
+    : base(position, sprite, 100, PlayerMovementSettings.GroundSpeed, gameContext)
     {
 
         hunger = new PlayerStat(maxStat);
@@ -47,103 +55,197 @@ public class Player : LivingThing
         oxygen = new PlayerStat(maxOxygen);
         this.inventory = new Inventory(); 
 
-        rightHand.ConsumableOnHand += rightHand.ToggleEating;
-        rightHand.ConsumableOnHand += leftHand.ToggleEating;
+        rightHand.UpdateHandsOffset += rightHand.ManageOffsets;
+        rightHand.UpdateHandsOffset += leftHand.ManageOffsets;
+        rightHand.ToolAttack += leftHand.StartToolAttack;
     }
 
-    public void Update(Vector2 mousePosition, InputManager input, GameTime gameTime)
+    public void Restore(PlayerSaveData saveData)
     {
+        this.position = new Vector2(saveData.PositionX, saveData.PositionY);
+        this.health = saveData.Health;
+        this.hunger = saveData.Hunger;
+        this.thirst = saveData.Thirst;
+        this.oxygen = saveData.Oxygen;
 
+        inventory.Restore(saveData.Inventory);
+    }
+
+    public PlayerSaveData GetSaveData()
+    {
+        
+        return new PlayerSaveData
+        {
+            PositionX = this.position.X,
+            PositionY = this.position.Y,
+
+            Health = this.health,
+            Hunger = this.hunger,
+            Thirst = this.thirst,
+            Oxygen = this.oxygen,
+
+            Inventory = inventory.GetSaveData()
+        };
+
+    }
+
+    public void Update(Vector2 mousePosition, InputManager input, GameTime gameTime, World.World world)
+    {
         updateHunger(gameTime);
         updateThirst(gameTime);
-        updateOxygen(gameTime);
+        updateOxygen(gameTime, world != null && world.IsOxygenSupplied(position));
 
-        float currentSpeed = this.speed;
+        // Movement
 
-        // Movement Keys
-        if(input.IsKeyHeld(Keys.LeftShift))
+        float collisionRadius = hitbox.Width / 2f;
+        float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+        itemTransitionTimer = MathF.Max(0f, itemTransitionTimer - deltaTime);
+        if (hasPendingHandItem && itemTransitionTimer <= 0f)
         {
-            currentSpeed *= 2;
+            rightHand.updateItemInHand(pendingHandItem);
+            pendingHandItem = null;
+            hasPendingHandItem = false;
+        }
+
+        IsSwimming = world != null && world.IsInShallowWater(position, collisionRadius, IsSwimming);
+        float targetSpeedScale = IsSwimming ? PlayerMovementSettings.ShallowWaterSpeedMultiplier : 1f;
+        movementSpeedScale += MathHelper.Clamp(targetSpeedScale - movementSpeedScale,
+            -PlayerMovementSettings.SpeedTransitionRate * deltaTime,
+            PlayerMovementSettings.SpeedTransitionRate * deltaTime);
+        float currentSpeed = this.speed * movementSpeedScale;
+
+        runningMultiplier = 1f;
+
+        Vector2 delta = Vector2.Zero;
+
+        if (input.IsKeyHeld(Keys.LeftShift))
+        {
+            currentSpeed *= 1.5f;
+        }
+
+        if (input.IsKeyHeld(Keys.A)) delta.X -= 1f;
+        if (input.IsKeyHeld(Keys.D)) delta.X += 1f;
+        if (input.IsKeyHeld(Keys.S)) delta.Y += 1f;
+        if (input.IsKeyHeld(Keys.W)) delta.Y -= 1f;
+        if (delta != Vector2.Zero)
+        {
+            delta.Normalize();
+        }
+
+        delta *= currentSpeed * deltaTime;
+
+        if (delta != Vector2.Zero && input.IsKeyHeld(Keys.LeftShift))
+        {
             runningMultiplier = 0.5f;
         }
-        else
+
+        Vector2 nextX = new Vector2(
+            position.X + delta.X,
+            position.Y
+        );
+
+        if (world == null || world.IsWalkable(nextX, collisionRadius, true))
         {
-            runningMultiplier = 1f;
+            position.X = nextX.X;
         }
 
-        Vector2 movementDirection = Vector2.Zero;
+        Vector2 nextY = new Vector2(
+            position.X,
+            position.Y + delta.Y
+        );
 
-        if (input.IsKeyHeld(Keys.A)) movementDirection.X -= 1;
-
-        if (input.IsKeyHeld(Keys.D)) movementDirection.X += 1;
-
-        if (input.IsKeyHeld(Keys.W)) movementDirection.Y -= 1;
-
-        if (input.IsKeyHeld(Keys.S)) movementDirection.Y += 1;
-
-        if (movementDirection != Vector2.Zero)
+        if (world == null || world.IsWalkable(nextY, collisionRadius, true))
         {
-            movementDirection.Normalize();
-            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            position += movementDirection * currentSpeed * deltaTime;
+            position.Y = nextY.Y;
         }
 
-        // Debug keys
-        if (input.IsKeyPressed(Keys.NumPad1))
-        {
-            takeDamage(5);
-        }
-        if (input.IsKeyPressed(Keys.NumPad2))
-        {
-            takeDamage(10);
-        }
-        if (input.IsKeyPressed(Keys.NumPad3))
-        {
-            takeDamage(20);
-        }
+        // Debug
 
         if (input.IsKeyPressed(Keys.H))
         {
             gameContext.showHitboxes = !gameContext.showHitboxes;
         }
 
-        if (input.IsLeftMousePressed())
-        {
+        // Hands
 
+        if (itemTransitionTimer <= 0f && input.IsLeftMousePressed() && !input.IsMouseCaptured)
+        {
             if (rightHand.hasItem)
             {
-                if(rightHand.DoAction(this)) return;
+                if (rightHand.DoAction(this)) return;
             }
 
             // Hit with raw hand
-            if(rightHand.CanAttack && !leftHand.IsAttacking && !IsLeftNext)
+            if (rightHand.CanAttack && !leftHand.IsAttacking && !IsLeftNext)
             {
                 rightHand.Attack();
                 IsLeftNext = true;
-            } 
-            else if(leftHand.CanAttack && !rightHand.IsAttacking && IsLeftNext)
+            }
+            else if (leftHand.CanAttack && !rightHand.IsAttacking && IsLeftNext)
             {
                 leftHand.Attack();
                 IsLeftNext = false;
             }
         }
 
-        if(damagedTimer > 0f)
-        {
-            damagedTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+        // Damage timer
 
-            if(damagedTimer <= 0f)
+        if (damagedTimer > 0f)
+        {
+            damagedTimer -= deltaTime;
+
+            if (damagedTimer <= 0f)
             {
                 color = Color.White;
             }
-
         }
 
         Vector2 direction = mousePosition - position;
-        float angle = System.MathF.Atan2(direction.Y, direction.X);
+        float angle = MathF.Atan2(direction.Y, direction.X);
+
         rightHand.Update(position, direction, false, gameTime);
         leftHand.Update(position, direction, true, gameTime);
-        sprite.Update(angle, position);
+
+        float targetHeadRotation = 0f;
+        if (rightHand.HeldItem is Tool &&
+            ((rightHand.IsAttacking && !rightHand.IsRetracting) ||
+             (leftHand.IsAttacking && !leftHand.IsRetracting)))
+        {
+            // Las herramientas atacan desde la mano derecha.
+            targetHeadRotation = -AttackHeadTurn;
+        }
+        else if (rightHand.IsAttacking && !rightHand.IsRetracting)
+        {
+            targetHeadRotation = -AttackHeadTurn;
+        }
+        else if (leftHand.IsAttacking && !leftHand.IsRetracting)
+        {
+            targetHeadRotation = AttackHeadTurn;
+        }
+
+        headAttackRotation = MathHelper.Lerp(
+            headAttackRotation,
+            targetHeadRotation,
+            MathHelper.Clamp(deltaTime * 12f, 0f, 1f)
+        );
+        sprite.Update(angle + headAttackRotation, position);
+    }
+
+    public void BeginItemTransition(Item? item)
+    {
+        pendingHandItem = item;
+        hasPendingHandItem = true;
+        itemTransitionTimer = ItemTransitionDuration;
+        rightHand.CancelAttack();
+        leftHand.CancelAttack();
+    }
+
+    public void SetHandItemImmediately(Item? item)
+    {
+        itemTransitionTimer = 0f;
+        pendingHandItem = null;
+        hasPendingHandItem = false;
+        rightHand.updateItemInHand(item);
     }
 
     public void updateHunger(GameTime gameTime)
@@ -173,9 +275,27 @@ public class Player : LivingThing
 
     }
 
-    public void updateOxygen(GameTime gameTime)
+    public void updateOxygen(GameTime gameTime, bool oxygenSupplied = false)
     {
         PlayerStat stat = oxygen;
+
+        if (oxygenSupplied)
+        {
+            stat.timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            bool changed = false;
+            const float oxygenRecoveryInterval = 0.2f;
+            while (stat.timer >= oxygenRecoveryInterval && stat.value < stat.max)
+            {
+                stat.timer -= oxygenRecoveryInterval;
+                stat.value++;
+                changed = true;
+            }
+            if (stat.value >= stat.max)
+                stat.timer = 0f;
+            oxygen = stat;
+            if (changed) OxygenChanged?.Invoke(stat.value);
+            return;
+        }
 
         stat.timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -224,6 +344,14 @@ public class Player : LivingThing
 
     }
 
+    public void ForceUpdateStats()
+    {   
+        HealthChanged?.Invoke(health);
+        OxygenChanged?.Invoke(oxygen.value);
+        HungerChanged?.Invoke(hunger.value);
+        ThirstChanged?.Invoke(thirst.value);
+    }
+
     public override void takeDamage(int damage)
     {
         base.takeDamage(damage);
@@ -235,6 +363,22 @@ public class Player : LivingThing
         HealthChanged?.Invoke(this.health);
     }
 
+    public override void Draw(SpriteBatch spriteBatch, Texture2D pixel)
+    {
+
+        leftHand.Draw(spriteBatch, color, gameContext.showHitboxes);
+        rightHand.Draw(spriteBatch, color, gameContext.showHitboxes);
+
+        sprite.Draw(spriteBatch, color);
+
+        if (gameContext.showHitboxes)
+        {
+            spriteBatch.Draw(pixel, hitbox, Color.Red);
+        }
+        
+    }
+
+    // Item usage
     public bool TryPickup(CatchableItem item)
     {
         if (item.Picked) return false;
@@ -254,21 +398,6 @@ public class Player : LivingThing
 
         SFX.Play(Assets.SoundEffects.pickUpItem);
         return true;
-    }
-
-    public override void Draw(SpriteBatch spriteBatch, Texture2D pixel)
-    {
-
-        leftHand.Draw(spriteBatch, color);
-        rightHand.Draw(spriteBatch, color);
-
-        sprite.Draw(spriteBatch, color);
-
-        if (gameContext.showHitboxes)
-        {
-            spriteBatch.Draw(pixel, hitbox, Color.Red);
-        }
-        
     }
 
     public bool TryConsume(Item item)
@@ -318,6 +447,43 @@ public class Player : LivingThing
         return true;
     }
 
+    public CraftResult EvaluateCraft(Recipe recipe)
+{
+    if (recipe == null) return CraftResult.MissingIngredients;
 
+    foreach (Ingredient ingredient in recipe.Ingredients)
+    {
+        if (!inventory.HasItem(ingredient.Item, ingredient.Quantity))
+        {
+            return CraftResult.MissingIngredients;
+        }
+    }
+
+    if (!inventory.CanFit(recipe.Result, recipe.Amount))
+    {
+        return CraftResult.InventoryFull;
+    }
+
+    return CraftResult.Success;
+}
+
+public bool CanCraft(Recipe recipe)
+{
+    return EvaluateCraft(recipe) == CraftResult.Success;
+}
+
+public CraftResult TryCraft(Recipe recipe)
+{
+    CraftResult result = EvaluateCraft(recipe);
+    if (result != CraftResult.Success) return result;
+
+    foreach (Ingredient ingredient in recipe.Ingredients)
+    {
+        inventory.RemoveItem(ingredient.Item, ingredient.Quantity);
+    }
+
+    inventory.AddItem(recipe.Result, recipe.Amount);
+    return CraftResult.Success;
+}
 
 }

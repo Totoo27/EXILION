@@ -25,18 +25,12 @@ public class MainLoader : Scene
 
     private ContentManager Content;
     private GraphicsDevice GraphicsDevice;
-    private InputManager input;
-    private Camera camera;
-    private IDisplaySettings displaySettings;
 
-    public MainLoader(GameContext gameContext, GraphicsDevice GraphicsDevice, InputManager input, ContentManager Content, Camera camera, IDisplaySettings displaySettings) : base(gameContext)
+    public MainLoader(IGameData gameData) : base(gameData)
     {
-        this.GraphicsDevice = GraphicsDevice;
-        viewPort = GraphicsDevice.Viewport;
-        this.Content = Content;
-        this.input = input;
-        this.camera = camera;
-        this.displaySettings = displaySettings;
+        this.GraphicsDevice = gameData.GetGraphicsDevice();
+        viewPort = this.GraphicsDevice.Viewport;
+        this.Content = gameData.GetContentManager();
     }
 
     public override void LoadContent()
@@ -53,7 +47,7 @@ public class MainLoader : Scene
 
         if (!contentLoaded)
         {
-            Assets.Load(Content);
+            _ = Assets.Load(Content);
             contentLoaded = true;
         }
 
@@ -61,7 +55,7 @@ public class MainLoader : Scene
 
         if(progress >= 1)
         {
-            SceneManager.ChangeScene(new MainMenu(GameContext, GraphicsDevice, input, displaySettings, camera));
+            SceneManager.ChangeScene(new MainMenu(GameData));
             return;
         }
     }
@@ -97,7 +91,7 @@ public class MainLoader : Scene
 
     public static async Task addCompletedTask()
     {
-        await Task.Delay(500);
+        await Task.Delay(5);
         completedTasks++;
     }
 
