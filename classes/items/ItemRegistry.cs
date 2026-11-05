@@ -200,6 +200,7 @@ public static class ItemRegistry
     );
 
     // -------------------------
+    //para el commit
 
     private static readonly Dictionary<int, Item> items = new()
     {
