@@ -1,5 +1,55 @@
 # Changelog
 
+## [0.4.0](https://github.com/Totoo27/EXILION/compare/v0.3.0...v0.4.0) (2026-11-05)
+
+
+### Features
+
+* add animation to tool attack (WIP) ([6f4d24f](https://github.com/Totoo27/EXILION/commit/6f4d24f9440bc70c26145fe0ab69ff587d38d530))
+* add catchable item animation & more items ([c76927a](https://github.com/Totoo27/EXILION/commit/c76927ab6a2f625d4b15b038879eae2b7013dfd9))
+* add checkboxes to Settings ([372e6b1](https://github.com/Totoo27/EXILION/commit/372e6b1be915d1e6c62382c1dae7747edd1970d5))
+* add crafting button reaction ([ab9da2b](https://github.com/Totoo27/EXILION/commit/ab9da2ba83558c63d0d45689c05c11519e485fd1))
+* add custom name & seed world creation ([6f463a0](https://github.com/Totoo27/EXILION/commit/6f463a0c756bc7e84a6807e5bdbd3f48a6d9190b))
+* add death panel ([89e6e59](https://github.com/Totoo27/EXILION/commit/89e6e596bef719a0cc46dd287523726ea2b21f03))
+* add delete button to worlds saves ([95fc0c9](https://github.com/Totoo27/EXILION/commit/95fc0c9fd8be35162adbced7483abf71122a7b5e))
+* add item transition between selection & eat animation ([700597d](https://github.com/Totoo27/EXILION/commit/700597de11e33884e1d6370dbf4a62cc296dcf0e))
+* add merge with feature/Assets to develop ([dd94c6f](https://github.com/Totoo27/EXILION/commit/dd94c6fd640530740128b4bdc0534dd2d6e46180))
+* add minerals ([f1154ac](https://github.com/Totoo27/EXILION/commit/f1154ac4d289f2c79f25beb86bde8d78f37fa69e))
+* add minerals sprites & Tools ([b3b81a8](https://github.com/Totoo27/EXILION/commit/b3b81a85b0f777717de02e8ce045cd91c7581421))
+* add objects colission & item drop ([8f7e474](https://github.com/Totoo27/EXILION/commit/8f7e4741e7727baf23775e7da922546a05b94053))
+* add player head animation following its hits ([a63adbe](https://github.com/Totoo27/EXILION/commit/a63adbe7ea748f91263b877702940e228f32ce31))
+* add recipes and crafting logic ([f3fdfb1](https://github.com/Totoo27/EXILION/commit/f3fdfb1813ec9be5943aa81ac74c93562f2cb892))
+* add tool hit animation ([3d3aaea](https://github.com/Totoo27/EXILION/commit/3d3aaea5d5e246ac7a6f2a9c0cccf770d8c9695c))
+* add tool rotation ([f8d729a](https://github.com/Totoo27/EXILION/commit/f8d729a59be33aaed62c4eb19a9c6630badaaabd))
+* add tools & limited usage ([6c1e5d1](https://github.com/Totoo27/EXILION/commit/6c1e5d127c9b1f544b31956a9d38cf1c43d3f123))
+* add world saves panel ([aeb80f4](https://github.com/Totoo27/EXILION/commit/aeb80f4051f21876d1358a376c29911352daaac1))
+* add world saves panel function (WIP) ([0c6ca37](https://github.com/Totoo27/EXILION/commit/0c6ca37019dc551d9b7bf73717d6d43180b1ffa0))
+* add world saving (Single world) ([9223fdf](https://github.com/Totoo27/EXILION/commit/9223fdff5808dd37aace864774df2cfd4d426934))
+* adjust minerals & tool sprites ([df07e12](https://github.com/Totoo27/EXILION/commit/df07e12f3ca3a5abc684d3f7eb37eec502fbc9e2))
+* crafting button added ([4a5ff90](https://github.com/Totoo27/EXILION/commit/4a5ff90fa4cd8326b8d58ecad38a7ab9614b1074))
+* crafting menu button added ([e2b5efc](https://github.com/Totoo27/EXILION/commit/e2b5efc6762410fe5dd5e367d770c36e2db5175b))
+* first visual recipe added ([fcbb19d](https://github.com/Totoo27/EXILION/commit/fcbb19d39679a82377baaaab6dacf6d64a03c72c))
+* hit animation & sound effect on objects ([da44469](https://github.com/Totoo27/EXILION/commit/da44469b654f7ecd91fae0f8dd0de7fd8b862d0f))
+* makes block breakable ([7fe5429](https://github.com/Totoo27/EXILION/commit/7fe542959b4f13283460c019251639ce77f9054e))
+* O2 generator ([6f5797f](https://github.com/Totoo27/EXILION/commit/6f5797f7e62b33c3b11b1e08c7a61252a619846c))
+* objects world saving ([a941964](https://github.com/Totoo27/EXILION/commit/a941964b67708dfed4f7970e90d61041f19a0fa9))
+* **Objects:** change sprites & properties ([fac2bbe](https://github.com/Totoo27/EXILION/commit/fac2bbef38974b21e3633741bbf44ceaf9d3e43e))
+* objets procedural generation, and colision with water ([f49fd8d](https://github.com/Totoo27/EXILION/commit/f49fd8d21f61737e95a52c9a83c9bd2981f9d0d1))
+* objets procedural generation, and colision with water ([b4d3e0c](https://github.com/Totoo27/EXILION/commit/b4d3e0c35168c20843100e6ccf9349c487d25345))
+* player can swim in water ([7748d46](https://github.com/Totoo27/EXILION/commit/7748d468106c2e2df68761efc0d2c7e6c5f75320))
+* **Player:** add item drop on death ([0e3c54d](https://github.com/Totoo27/EXILION/commit/0e3c54dc7be2fa9d16ff14b9265df83737ce42a6))
+* separa la generacion de los objetos del mundo ([29ce2c5](https://github.com/Totoo27/EXILION/commit/29ce2c52f28b382f5bec686a0ff165df4447f32d))
+
+
+### Bug Fixes
+
+* fix all merge conflicts ([0266d45](https://github.com/Totoo27/EXILION/commit/0266d4577ce1f2fa5f839cf4e87c5bc94a36899b))
+* fix player hit when mouse on inventory ([7096eab](https://github.com/Totoo27/EXILION/commit/7096eaba2a824b41b46fc4d4d832960c4028d2ff))
+* O2Generator craft ([eb583e7](https://github.com/Totoo27/EXILION/commit/eb583e7a3d6c453975324ebd1be0384b3ffe6100))
+* **Objects:** fix double folder bug ([0b6f733](https://github.com/Totoo27/EXILION/commit/0b6f733a4665e3e5b612a765545806e6e9952396))
+* **Sprint:** fix sprinting stats while still ([454f483](https://github.com/Totoo27/EXILION/commit/454f483d74e956f11776e9a73e9d1c88fe707aef))
+* update HUD on load saved world & save world time stats ([8fa17bd](https://github.com/Totoo27/EXILION/commit/8fa17bd9ed4e38096d07a4a903e314d9d804a498))
+
 ## [0.3.0](https://github.com/Totoo27/EXILION/compare/v0.2.0...v0.3.0) (2026-10-08)
 
 
