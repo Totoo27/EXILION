@@ -42,6 +42,8 @@ public abstract class LivingThing : Entity
 
     public virtual void takeDamage(int damage)
     {
+        if (isDead || damage <= 0) return;
+
         this.health -= damage;
         if (this.health <= 0)
         {

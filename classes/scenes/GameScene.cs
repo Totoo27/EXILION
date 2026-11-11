@@ -39,7 +39,7 @@ public class GameScene : Scene
 
     // Player
     private Player player;
-    private List<PeacefulCreature> peacefulCreatures = new List<PeacefulCreature>();
+    private List<Creature> creatures = new List<Creature>();
     private Texture2D pixel;
     private HUD HUD;
     private InputManager input;
@@ -113,9 +113,11 @@ public class GameScene : Scene
             loadGame();
         }
 
-        peacefulCreatures.Add(new PeacefulCreature(
+        creatures.Add(new Creature(
             player.position + new Vector2(tileSize * 3, 0),
-            new Sprite(Assets.Sprites.Player, GameContext.ScaleXY(1) * 0.8f), GameContext));
+            new Sprite(Assets.Sprites.Player, GameContext.ScaleXY(1) * 0.8f), GameContext,
+            new PeacefulCreatureIntelligence()
+            ));
 
         world.UpdateAroundPosition(player.position);
         mapRenderer = new MapRenderer(Assets.Sprites.Tileset, Assets.Sprites.Objects, Assets.Sprites.GeneradorO2, Assets.Sprites.Piedra, tileSize);
@@ -287,8 +289,9 @@ public class GameScene : Scene
             bool wasMouseCaptured = input.IsMouseCaptured;
             if (placeBlock) input.IsMouseCaptured = true;
             player.Update(mouseWorldPosition, input, gameTime, world);
-            foreach (PeacefulCreature creature in peacefulCreatures)
-                creature.Update(gameTime, world);
+
+            foreach (Creature creature in creatures) creature.Update(gameTime, world);
+
             input.IsMouseCaptured = wasMouseCaptured;
             if (placeBlock && player.rightHand.HeldItem?.Id == ItemRegistry.GeneradorO2.Id
                 && player.Inventory.HasItem(ItemRegistry.GeneradorO2, 1)
@@ -303,6 +306,7 @@ public class GameScene : Scene
                 player.Inventory.RemoveItem(ItemRegistry.Piedra, 1);
             }
             ApplyPlayerAttackHits();
+            creatures.RemoveAll(creature => creature.isDead);
 
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             foreach (CatchableItem item in catchableItems)
@@ -347,7 +351,26 @@ public class GameScene : Scene
     private void ApplyHandAttackHits(Hand hand)
     {
         if (hand.CurrentHitbox is not AttackHitbox hitbox) return;
+
         world.DamageObjects(hitbox, hand.AttackDamage, hand.HeldItem, hand.RegisterHit);
+
+        foreach (Creature creature in creatures)
+        {
+            if (creature.isDead || !AttackIntersectsCreature(hitbox, creature)) continue;
+            if (hand.RegisterHit(creature)) creature.takeDamage(hand.AttackDamage);
+        }
+    }
+
+    private static bool AttackIntersectsCreature(AttackHitbox attack, Creature creature)
+    {
+        Vector2 offset = creature.position - attack.Position;
+        float cos = MathF.Cos(attack.Rotation);
+        float sin = MathF.Sin(attack.Rotation);
+        float localX = offset.X * cos + offset.Y * sin;
+        float localY = -offset.X * sin + offset.Y * cos;
+        float radius = creature.GetHitbox().Width * 0.5f;
+        return MathF.Abs(localX) <= attack.Width * 0.5f + radius
+            && MathF.Abs(localY) <= attack.Height * 0.5f + radius;
     }
 
     public override void Draw(SpriteBatch spriteBatch)
@@ -370,8 +393,9 @@ public class GameScene : Scene
         // Player & objects
         mapRenderer?.DrawObjects(spriteBatch, world, false);
         player?.Draw(spriteBatch, pixel);
-        foreach (PeacefulCreature creature in peacefulCreatures)
-            creature.Draw(spriteBatch, pixel);
+
+        foreach (Creature creature in creatures) creature.Draw(spriteBatch, pixel);
+
         mapRenderer?.DrawObjects(spriteBatch, world, true);
         if (GameContext?.showHitboxes == true)
             mapRenderer?.DrawObjectHitboxes(spriteBatch, world, pixel);
@@ -414,7 +438,7 @@ public class GameScene : Scene
         // Entities
         catchableItems?.Clear();
         catchableItems = null;
-        peacefulCreatures?.Clear();
+        creatures?.Clear();
 
         // World
         world = null;
