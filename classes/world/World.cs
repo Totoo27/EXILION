@@ -128,41 +128,6 @@ public class World
             state, ObjectStates.Record));
         return true;
     }
-
-    /*
-    public bool TryPlaceOxygenGenerator(Vector2 worldPosition, Vector2 playerPosition, float playerRadius)
-    {
-        int tileX = (int)MathF.Floor(worldPosition.X / TileSize);
-        int tileY = (int)MathF.Floor(worldPosition.Y / TileSize);
-        int chunkX = (int)MathF.Floor((float)tileX / Chunk.Size);
-        int chunkY = (int)MathF.Floor((float)tileY / Chunk.Size);
-
-        if (!_loadedChunks.TryGetValue((chunkX, chunkY), out var chunk)) return false;
-
-        int localX = tileX - chunkX * Chunk.Size;
-        int localY = tileY - chunkY * Chunk.Size;
-
-        if (!TileProperties.IsWalkable(chunk.Tiles[localX, localY].Type)) return false;
-
-        foreach (var obj in chunk.Objects)
-            if (!obj.IsDestroyed && (int)MathF.Floor(obj.TileX) == tileX && (int)MathF.Floor(obj.TileY) == tileY) return false;
-
-        Vector2 center = new((tileX + 0.5f) * TileSize, (tileY + 0.5f) * TileSize);
-        if (Vector2.DistanceSquared(center, playerPosition) > (TileSize * 4f) * (TileSize * 4f)) return false;
-        float radius = ObjectProperties.Get(ObjectType.OxygenGenerator).CollisionRadius * TileSize;
-        if (Vector2.DistanceSquared(center, playerPosition) < (radius + playerRadius) * (radius + playerRadius)) return false;
-        if (IntersectsBlockingObject(center, radius)) return false;
-
-        var id = new WorldObjectId(_generator.Seed, tileX, tileY, -2);
-        var state = new WorldObjectState(id, ObjectProperties.Get(ObjectType.OxygenGenerator).MaxHealth, false);
-        
-        ObjectStates.Record(state);
-        chunk.Objects.Add(new WorldObject(id, ObjectType.OxygenGenerator, tileX + 0.5f, tileY + 0.5f,
-            state, ObjectStates.Record, obj => ObjectDestroyed?.Invoke(obj)));
-        return true;
-    }
-    */
-
     public bool IsOxygenSupplied(Vector2 worldPosition)
     {
         foreach (var chunk in _loadedChunks.Values)
@@ -350,7 +315,7 @@ public class World
             int chunkX = (int)MathF.Floor((float)state.Id.TileX / Chunk.Size);
             int chunkY = (int)MathF.Floor((float)state.Id.TileY / Chunk.Size);
             if (chunkX != chunk.ChunkX || chunkY != chunk.ChunkY || state.IsDestroyed) continue;
-            var type = state.Id.SpawnIndex == -2 ? ObjectType.OxygenGenerator : ObjectType.Block;
+            var type = ObjectType.OxygenGenerator;
             chunk.Objects.Add(new WorldObject(state.Id, type,
                 state.Id.TileX + 0.5f, state.Id.TileY + 0.5f, state, ObjectStates.Record));
         }

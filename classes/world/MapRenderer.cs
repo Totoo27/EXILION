@@ -73,15 +73,11 @@ public class MapRenderer
             var definition = obj.Definition;
             Texture2D texture = obj.Type switch
             {
-                ObjectType.Block => _blockTexture,
-                ObjectType.OxygenGenerator => _oxygenGeneratorTexture,
                 _ => _objectsTexture
             };
 
             Rectangle? source = obj.Type switch
             {
-                ObjectType.Block => GetSquareSource(_blockTexture),
-                ObjectType.OxygenGenerator => GetSquareSource(_oxygenGeneratorTexture),
                 _ => definition.Source
             };
 
@@ -107,7 +103,7 @@ public class MapRenderer
         foreach (var chunk in world.LoadedChunks)
         foreach (var obj in chunk.Objects)
         {
-            if (obj.IsDestroyed || obj.IsCollected || obj.Definition.OxygenRadiusTiles <= 0f) continue;
+            if (obj.IsDestroyed || obj.Definition.OxygenRadiusTiles <= 0f) continue;
 
             float radius = obj.Definition.OxygenRadiusTiles * _tileSize;
             Vector2 center = ObjectCenter(obj);

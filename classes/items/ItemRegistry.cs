@@ -158,7 +158,7 @@ public static class ItemRegistry
 
     public static readonly Structure GeneradorO2 = new Structure(
         id: 18,
-        name: "GeneradorO2",
+        name: "O2 Generator",
         type: ObjectType.OxygenGenerator,
         icon: Assets.Sprites.GeneradorO2
     );
@@ -195,6 +195,13 @@ public static class ItemRegistry
         twoHanded: false
     );
 
+     public static readonly Structure CraftingTable = new Structure(
+        id: 23,
+        name: "Crafting Table",
+        type: ObjectType.CraftingTable,
+        icon: Assets.Sprites.craftingTable
+    );
+
     // -------------------------
 
     private static readonly Dictionary<int, Item> items = new()
@@ -218,7 +225,8 @@ public static class ItemRegistry
         { Baya.Id, Baya },
 
         // Structures
-        { GeneradorO2.Id, GeneradorO2 },
+        { GeneradorO2.Id,GeneradorO2 },
+        {CraftingTable.Id, CraftingTable},
 
         // Tools
         { HachaDePiedra.Id, HachaDePiedra },

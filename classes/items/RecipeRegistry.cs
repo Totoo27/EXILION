@@ -138,12 +138,23 @@ public static class RecipeRegistry
         amount: 1
     );
 
+     public static readonly Recipe CraftingTableRecipe = new Recipe(
+        id:13,
+        result: ItemRegistry.CraftingTable,
+        ingredients: new List<Ingredient>
+        {
+            new Ingredient(ItemRegistry.Madera, 5)
+        },
+        amount : 1
+    );
+
     public static readonly IReadOnlyList<Recipe> All = new List<Recipe>
     {
         WoodenAxeRecipe,
         WoodenPickaxeRecipe,
         StonePickaxeRecipe,
         StoneAxeRecipe,
+        CraftingTableRecipe,
         IronPickaxeRecipe,
         IronAxeRecipe,
         TitaniumAxeRecipe,
