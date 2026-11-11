@@ -18,8 +18,6 @@ public class Player : LivingThing
 
     private float damagedTimer = 0f;
     private float runningMultiplier = 1f;
-    private float movementSpeedScale = 1f;
-    public bool IsSwimming { get; private set; }
     private const float ItemTransitionDuration = 0.5f;
     private float itemTransitionTimer;
     private Item? pendingHandItem;
@@ -98,7 +96,6 @@ public class Player : LivingThing
 
         // Movement
 
-        float collisionRadius = hitbox.Width / 2f;
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
         itemTransitionTimer = MathF.Max(0f, itemTransitionTimer - deltaTime);
         if (hasPendingHandItem && itemTransitionTimer <= 0f)
@@ -108,21 +105,11 @@ public class Player : LivingThing
             hasPendingHandItem = false;
         }
 
-        IsSwimming = world != null && world.IsInShallowWater(position, collisionRadius, IsSwimming);
-        float targetSpeedScale = IsSwimming ? PlayerMovementSettings.ShallowWaterSpeedMultiplier : 1f;
-        movementSpeedScale += MathHelper.Clamp(targetSpeedScale - movementSpeedScale,
-            -PlayerMovementSettings.SpeedTransitionRate * deltaTime,
-            PlayerMovementSettings.SpeedTransitionRate * deltaTime);
-        float currentSpeed = this.speed * movementSpeedScale;
-
         runningMultiplier = 1f;
 
         Vector2 delta = Vector2.Zero;
 
-        if (input.IsKeyHeld(Keys.LeftShift))
-        {
-            currentSpeed *= 1.5f;
-        }
+        float currentSpeed = speed * (input.IsKeyHeld(Keys.LeftShift) ? 1.5f : 1f);
 
         if (input.IsKeyHeld(Keys.A)) delta.X -= 1f;
         if (input.IsKeyHeld(Keys.D)) delta.X += 1f;
@@ -140,25 +127,7 @@ public class Player : LivingThing
             runningMultiplier = 0.5f;
         }
 
-        Vector2 nextX = new Vector2(
-            position.X + delta.X,
-            position.Y
-        );
-
-        if (world == null || world.IsWalkable(nextX, collisionRadius, true))
-        {
-            position.X = nextX.X;
-        }
-
-        Vector2 nextY = new Vector2(
-            position.X,
-            position.Y + delta.Y
-        );
-
-        if (world == null || world.IsWalkable(nextY, collisionRadius, true))
-        {
-            position.Y = nextY.Y;
-        }
+        Move(delta, deltaTime, world, currentSpeed / speed);
 
         // Debug
 

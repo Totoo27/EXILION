@@ -39,6 +39,7 @@ public class GameScene : Scene
 
     // Player
     private Player player;
+    private List<PeacefulCreature> peacefulCreatures = new List<PeacefulCreature>();
     private Texture2D pixel;
     private HUD HUD;
     private InputManager input;
@@ -111,6 +112,10 @@ public class GameScene : Scene
         {
             loadGame();
         }
+
+        peacefulCreatures.Add(new PeacefulCreature(
+            player.position + new Vector2(tileSize * 3, 0),
+            new Sprite(Assets.Sprites.Player, GameContext.ScaleXY(1) * 0.8f), GameContext));
 
         world.UpdateAroundPosition(player.position);
         mapRenderer = new MapRenderer(Assets.Sprites.Tileset, Assets.Sprites.Objects, Assets.Sprites.GeneradorO2, Assets.Sprites.Piedra, tileSize);
@@ -282,6 +287,8 @@ public class GameScene : Scene
             bool wasMouseCaptured = input.IsMouseCaptured;
             if (placeBlock) input.IsMouseCaptured = true;
             player.Update(mouseWorldPosition, input, gameTime, world);
+            foreach (PeacefulCreature creature in peacefulCreatures)
+                creature.Update(gameTime, world);
             input.IsMouseCaptured = wasMouseCaptured;
             if (placeBlock && player.rightHand.HeldItem?.Id == ItemRegistry.GeneradorO2.Id
                 && player.Inventory.HasItem(ItemRegistry.GeneradorO2, 1)
@@ -363,6 +370,8 @@ public class GameScene : Scene
         // Player & objects
         mapRenderer?.DrawObjects(spriteBatch, world, false);
         player?.Draw(spriteBatch, pixel);
+        foreach (PeacefulCreature creature in peacefulCreatures)
+            creature.Draw(spriteBatch, pixel);
         mapRenderer?.DrawObjects(spriteBatch, world, true);
         if (GameContext?.showHitboxes == true)
             mapRenderer?.DrawObjectHitboxes(spriteBatch, world, pixel);
@@ -405,6 +414,7 @@ public class GameScene : Scene
         // Entities
         catchableItems?.Clear();
         catchableItems = null;
+        peacefulCreatures?.Clear();
 
         // World
         world = null;
