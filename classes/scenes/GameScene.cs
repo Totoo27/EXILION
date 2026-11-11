@@ -283,6 +283,18 @@ public class GameScene : Scene
             if (placeBlock) input.IsMouseCaptured = true;
             player.Update(mouseWorldPosition, input, gameTime, world);
             input.IsMouseCaptured = wasMouseCaptured;
+
+            Item? itemInHand = player.rightHand.HeldItem;
+
+            if (placeBlock && itemInHand != null
+                && player.rightHand.HeldItem is Structure structure
+                && player.Inventory.HasItem(ItemRegistry.GetById(itemInHand.Id), 1)
+                && world.TryPlaceBlock(mouseWorldPosition, player.position, player.GetHitbox().Width / 2f, structure))
+            {
+                player.Inventory.RemoveItem(ItemRegistry.GetById(itemInHand.Id), 1);
+            }
+            
+            /*
             if (placeBlock && player.rightHand.HeldItem?.Id == ItemRegistry.GeneradorO2.Id
                 && player.Inventory.HasItem(ItemRegistry.GeneradorO2, 1)
                 && world.TryPlaceOxygenGenerator(mouseWorldPosition, player.position, player.GetHitbox().Width / 2f))
@@ -294,7 +306,8 @@ public class GameScene : Scene
                 && world.TryPlaceBlock(mouseWorldPosition, player.position, player.GetHitbox().Width / 2f))
             {
                 player.Inventory.RemoveItem(ItemRegistry.Piedra, 1);
-            }
+            } */
+            
             ApplyPlayerAttackHits();
 
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;

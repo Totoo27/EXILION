@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using EXILION.World;
 using Microsoft.Xna.Framework;
 
 namespace EXILION.Items;
@@ -158,6 +159,7 @@ public static class ItemRegistry
     public static readonly Structure GeneradorO2 = new Structure(
         id: 18,
         name: "GeneradorO2",
+        type: ObjectType.OxygenGenerator,
         icon: Assets.Sprites.GeneradorO2
     );
 
