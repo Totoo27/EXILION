@@ -20,9 +20,10 @@ public class ObjectDefinition
     public Rectangle Source { get; init; }      // Qué parte de la imagen Objects.png usamos.
     public float DrawWidthTiles { get; init; }  // Qué ancho tendrá al aparecer en el mundo.
 
+    public bool UseItemSprite { get; init; } = false;
     public float OxygenRadiusTiles { get; init; }
-    public Color OxygenCircleColor { get; init; } = Color.Cyan;
-    public byte OxygenCircleAlpha { get; init; } = 80;
+    public Color OxygenCircleColor { get; init; } = Color.LightBlue;
+    public byte OxygenCircleAlpha { get; init; } = 120;
 
     public bool CanBeBrokenBy(Item item)
     {

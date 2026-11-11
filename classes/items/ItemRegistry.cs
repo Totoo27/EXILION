@@ -245,4 +245,16 @@ public static class ItemRegistry
         return item;
     }
 
+    public static Item? GetByObjectType(ObjectType objectType)
+    {
+        foreach (var item in items.Values)
+        {
+            if (item is Structure structure && structure.objectType == objectType)
+            {
+                return structure;
+            }
+        }
+        return null;
+    }
+
 }

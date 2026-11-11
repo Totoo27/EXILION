@@ -81,15 +81,21 @@ public static class ObjectProperties
 
         { ObjectType.OxygenGenerator, new ObjectDefinition {
             Type = ObjectType.OxygenGenerator, BlocksMovement = true, CollisionRadius = 0.45f, MaxHealth = 30,
-            HitSound = Assets.SoundEffects?.mine, AbovePlayer = false, HandCanBreak = true,
-            OxygenRadiusTiles = 8f, OxygenCircleColor = Color.LightBlue,
-            OxygenCircleAlpha = 80, Source = new Rectangle(0, 0, 32, 32), DrawWidthTiles = 1f }},
+            HitSound = Assets.SoundEffects?.mine, AbovePlayer = false,
+            HandCanBreak = false,
+            UseItemSprite = true,
+            OxygenRadiusTiles = 8f,
+            BreakableByItems = new[] { ItemRegistry.PicoDePiedra, ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
+            Drops = new[] { new ObjectDrop(ItemRegistry.GeneradorO2, 1) }, DrawWidthTiles = 1f }},
 
         { ObjectType.CraftingTable, new ObjectDefinition {
-            Type = ObjectType.CraftingTable, BlocksMovement = true, CollisionRadius = 0.45f, MaxHealth = 30,
+            Type = ObjectType.CraftingTable, BlocksMovement = true, CollisionRadius = 0.45f, MaxHealth = 20,
             HitSound = Assets.SoundEffects?.mine,
-            AbovePlayer = false, HandCanBreak = true,
-            Source = new Rectangle(0, 0, 32, 32), DrawWidthTiles = 1f }},
+            AbovePlayer = false,
+            HandCanBreak = false,
+            UseItemSprite = true,
+            BreakableByItems = new[] { ItemRegistry.PicoDePiedra, ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
+            Drops = new[] { new ObjectDrop(ItemRegistry.CraftingTable, 1) }, DrawWidthTiles = 1f } },
     };
 
     public static readonly float MaxCollisionRadius = Definitions.Values.Max(d => d.CollisionRadius);

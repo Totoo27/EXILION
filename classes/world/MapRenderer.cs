@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using EXILION.Items;
 
 namespace EXILION.World;
 
@@ -11,19 +12,15 @@ public class MapRenderer
 
     private readonly Texture2D _tileset;
     private readonly Texture2D _objectsTexture;
-    private readonly Texture2D _oxygenGeneratorTexture;
-    private readonly Texture2D _blockTexture;
     private readonly int _tileSize;
     private readonly Dictionary<TileType, Rectangle> _sourceRects;
+    private readonly Rectangle defaultRectangle = new(0, 0, ObjectSourceSize, ObjectSourceSize);
     private readonly List<WorldObject> _visibleObjects = new();
 
-    public MapRenderer(Texture2D tileset, Texture2D objectsTexture, Texture2D oxygenGeneratorTexture,
-        Texture2D blockTexture, int tileSize)
+    public MapRenderer(Texture2D tileset, Texture2D objectsTexture, int tileSize)
     {
         _tileset = tileset;
         _objectsTexture = objectsTexture;
-        _oxygenGeneratorTexture = oxygenGeneratorTexture;
-        _blockTexture = blockTexture;
         _tileSize = tileSize;
 
         _sourceRects = new Dictionary<TileType, Rectangle>
@@ -71,15 +68,25 @@ public class MapRenderer
         foreach (var obj in _visibleObjects)
         {
             var definition = obj.Definition;
-            Texture2D texture = obj.Type switch
-            {
-                _ => _objectsTexture
-            };
+            Texture2D texture;
+            Rectangle? source;
 
-            Rectangle? source = obj.Type switch
+            if(definition.UseItemSprite && ItemRegistry.GetByObjectType(obj.Type) is Item item)
             {
-                _ => definition.Source
-            };
+                texture = item.Icon;
+                source = defaultRectangle;
+            } else
+            {
+                texture = obj.Type switch
+                {
+                    _ => _objectsTexture
+                };
+
+                source = obj.Type switch
+                {
+                    _ => definition.Source
+                };
+            }
 
             Vector2 center = ObjectCenter(obj);
             float width = definition.DrawWidthTiles * _tileSize;
@@ -89,7 +96,8 @@ public class MapRenderer
                 (int)(center.X - width * scale / 2f),
                 (int)(center.Y - height * scale / 2f),
                 (int)(width * scale),
-                (int)(height * scale));
+                (int)(height * scale)
+            );
 
             spriteBatch.Draw(texture, destination, source, Color.White);
         }
