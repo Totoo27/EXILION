@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using EXILION.Entities.LivingThings;
 using EXILION.Items;
+using EXILION.UI;
 
 namespace EXILION.UI;
 
@@ -27,6 +28,8 @@ public class CraftingUI
     private readonly Player player;
 
     public bool visible { get; private set; } = false;
+
+    public bool AtCraftingTable { get; private set; } = false;
     public Recipe? SelectedRecipe { get; private set; }
 
     public CraftingUI(GameContext gameContext, SpriteFont font, Player player)
@@ -44,32 +47,47 @@ public class CraftingUI
         pixel.SetData(new[] { Color.White });
     }
 
+    public void Open(bool atCraftingTable)
+    {
+        visible = true;
+        AtCraftingTable = atCraftingTable;
+    }
+
+    public void Close()
+    {
+        visible = false;
+        AtCraftingTable = false;
+    }
+
     public void Toggle()
     {
-        visible = !visible;
+        if (AtCraftingTable) return;
+
+        if (visible) Close();
+        else Open(false);
     }
 
     public void Update(InputManager input)
-{
-    if (!visible) return;
-
-    if (input.IsLeftMousePressed())
     {
-        for (int i = 0; i < RecipeRegistry.All.Count; i++)
+        if (!visible) return;
+
+        if (input.IsLeftMousePressed())
         {
-            if (GetRowRect(i).Contains(input.MousePosition))
+            for (int i = 0; i < RecipeRegistry.All.Count; i++)
             {
-                SelectedRecipe = RecipeRegistry.All[i];
-                break;
+                if (GetRowRect(i).Contains(input.MousePosition))
+                {
+                    SelectedRecipe = RecipeRegistry.All[i];
+                    break;
+                }
+            }
+
+            if (SelectedRecipe != null && GetCraftButtonRect().Contains(input.MousePosition))
+            {
+                player.TryCraft(SelectedRecipe, AtCraftingTable);
             }
         }
-
-        if (SelectedRecipe != null && GetCraftButtonRect().Contains(input.MousePosition))
-        {
-            player.TryCraft(SelectedRecipe);
-        }
     }
-}
 
     private Rectangle GetPanelRect()
     {
@@ -166,7 +184,7 @@ public class CraftingUI
         if (SelectedRecipe == null)
         {
             Rectangle detail = GetDetailRect();
-            spriteBatch.DrawString(font, "Elegi una receta", new Vector2(detail.X, detail.Y), Color.White);
+            spriteBatch.DrawString(font, "Choose a recipe", new Vector2(detail.X, detail.Y), Color.White);
             return;
         }
 
@@ -178,10 +196,10 @@ public class CraftingUI
         DrawItemLine(spriteBatch, recipe.Result, title, GetDetailLineRect(0), Color.White);
 
         Rectangle labelLine = GetDetailLineRect(1);
-        Vector2 labelSize = font.MeasureString("Ingredientes");
+        Vector2 labelSize = font.MeasureString("Ingredients");
         spriteBatch.DrawString(
             font,
-            "Ingredientes",
+            "Ingredients",
             new Vector2(labelLine.X, labelLine.Y + (labelLine.Height - labelSize.Y) / 2),
             Color.White
         );
@@ -204,6 +222,7 @@ public class CraftingUI
             );
             spriteBatch.DrawString(font, count, countPosition, color);
         }
+
         DrawCraftButton(spriteBatch, recipe);
     }
 
@@ -234,13 +253,13 @@ public class CraftingUI
 
     private void DrawCraftButton(SpriteBatch spriteBatch, Recipe recipe)
     {
-        CraftResult status = player.EvaluateCraft(recipe);
+        CraftResult status = player.EvaluateCraft(recipe, AtCraftingTable);
         Rectangle button = GetCraftButtonRect();
 
         Color buttonColor = status == CraftResult.Success ? Color.LimeGreen : Color.Gray;
         spriteBatch.Draw(pixel, button, buttonColor);
 
-        string label = "Craftear";
+        string label = "Craft";
         Vector2 labelSize = font.MeasureString(label);
         spriteBatch.DrawString(
             font,
@@ -254,9 +273,13 @@ public class CraftingUI
 
         if (status != CraftResult.Success)
         {
-            string message = status == CraftResult.MissingIngredients
-                ? "Faltan ingredientes"
-                : "Inventario lleno";
+            string message = status switch
+            {
+                CraftResult.MissingIngredients => "Missing ingredients",
+                CraftResult.InventoryFull => "Inventory full",
+                CraftResult.MissingCraftingTable => "Requires crafting table",
+                _ => ""
+            };
 
             Vector2 messageSize = font.MeasureString(message);
             spriteBatch.DrawString(

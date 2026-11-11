@@ -294,19 +294,7 @@ public class GameScene : Scene
                 player.Inventory.RemoveItem(ItemRegistry.GetById(itemInHand.Id), 1);
             }
             
-            /*
-            if (placeBlock && player.rightHand.HeldItem?.Id == ItemRegistry.GeneradorO2.Id
-                && player.Inventory.HasItem(ItemRegistry.GeneradorO2, 1)
-                && world.TryPlaceOxygenGenerator(mouseWorldPosition, player.position, player.GetHitbox().Width / 2f))
-            {
-                player.Inventory.RemoveItem(ItemRegistry.GeneradorO2, 1);
-            }
-            else if (placeBlock && player.rightHand.HeldItem?.Id == ItemRegistry.Piedra.Id
-                && player.Inventory.HasItem(ItemRegistry.Piedra, 1)
-                && world.TryPlaceBlock(mouseWorldPosition, player.position, player.GetHitbox().Width / 2f))
-            {
-                player.Inventory.RemoveItem(ItemRegistry.Piedra, 1);
-            } */
+            
             
             ApplyPlayerAttackHits();
 

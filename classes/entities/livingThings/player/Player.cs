@@ -465,44 +465,49 @@ public class Player : LivingThing
         return true;
     }
 
-    public CraftResult EvaluateCraft(Recipe recipe)
-{
-    if (recipe == null) return CraftResult.MissingIngredients;
-
-    foreach (Ingredient ingredient in recipe.Ingredients)
+    public CraftResult EvaluateCraft(Recipe recipe, bool atCraftingTable = false)
     {
-        if (!inventory.HasItem(ingredient.Item, ingredient.Quantity))
+        if (recipe == null) return CraftResult.MissingIngredients;
+
+        if (recipe.RequiresCraftingTable && !atCraftingTable)
         {
-            return CraftResult.MissingIngredients;
+            return CraftResult.MissingCraftingTable;
         }
+
+        foreach (Ingredient ingredient in recipe.Ingredients)
+        {
+            if (!inventory.HasItem(ingredient.Item, ingredient.Quantity))
+            {
+                return CraftResult.MissingIngredients;
+            }
+        }
+
+        if (!inventory.CanFit(recipe.Result, recipe.Amount))
+        {
+            return CraftResult.InventoryFull;
+        }
+
+        return CraftResult.Success;
     }
 
-    if (!inventory.CanFit(recipe.Result, recipe.Amount))
+    public bool CanCraft(Recipe recipe, bool atCraftingTable = false)
     {
-        return CraftResult.InventoryFull;
+        return EvaluateCraft(recipe, atCraftingTable) == CraftResult.Success;
     }
 
-    return CraftResult.Success;
-}
-
-public bool CanCraft(Recipe recipe)
-{
-    return EvaluateCraft(recipe) == CraftResult.Success;
-}
-
-public CraftResult TryCraft(Recipe recipe)
-{
-    CraftResult result = EvaluateCraft(recipe);
-    if (result != CraftResult.Success) return result;
-
-    foreach (Ingredient ingredient in recipe.Ingredients)
+    public CraftResult TryCraft(Recipe recipe, bool atCraftingTable = false)
     {
-        inventory.RemoveItem(ingredient.Item, ingredient.Quantity);
-    }
+        CraftResult result = EvaluateCraft(recipe, atCraftingTable);
+        if (result != CraftResult.Success) return result;
 
-    inventory.AddItem(recipe.Result, recipe.Amount);
-    return CraftResult.Success;
-}
+        foreach (Ingredient ingredient in recipe.Ingredients)
+        {
+            inventory.RemoveItem(ingredient.Item, ingredient.Quantity);
+        }
+
+        inventory.AddItem(recipe.Result, recipe.Amount);
+        return CraftResult.Success;
+    }
 
 }
 

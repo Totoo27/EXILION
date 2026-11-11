@@ -10,7 +10,9 @@ public class Recipe
     public IReadOnlyList<Ingredient> Ingredients {get; private set;}
     public int Amount {get; private set;}
 
-    public Recipe(int id,Item result, List<Ingredient> ingredients,int amount)
+    public bool RequiresCraftingTable;
+
+    public Recipe(int id,Item result, List<Ingredient> ingredients,int amount, bool requiresCraftingTable)
     {   
 
         if (ingredients == null || ingredients.Count == 0)
@@ -23,6 +25,7 @@ public class Recipe
         this.Result = result;
         this.Ingredients = ingredients;
         this.Amount = amount;
+        this.RequiresCraftingTable = requiresCraftingTable;
     }
 
 

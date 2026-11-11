@@ -61,7 +61,7 @@ public class InventoryUI
         mousePosition = input.MousePosition;
         input.IsMouseCaptured = GetSlotIndexAt(mousePosition) != -1 || draggedSlotIndex != -1;
 
-        if (input.IsKeyPressed(Keys.I))
+        if (input.IsKeyPressed(Keys.I) && craftingUI.AtCraftingTable == false)
         {
             expanded = !expanded;
         }
