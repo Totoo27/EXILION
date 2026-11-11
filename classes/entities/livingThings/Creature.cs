@@ -18,6 +18,7 @@ public sealed class Creature : LivingThing
 
     public void Update(GameTime gameTime, World.World world)
     {
+        base.Update(gameTime);
         if (!isDead) intelligence?.Update(this, gameTime, world);
     }
 

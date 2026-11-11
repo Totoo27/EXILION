@@ -16,6 +16,9 @@ public abstract class LivingThing : Entity
     public bool IsSwimming { get; private set; }
     private float movementSpeedScale = 1f;
 
+    protected readonly Color damageColor = new Color(230, 180, 180);
+    private float damagedTimer = 0f; 
+
     public LivingThing(Vector2 position, Sprite sprite, int maxHealth, int speed, GameContext gameContext) : base(position, sprite, gameContext)
     {
         this.maxHealth = maxHealth;
@@ -40,16 +43,38 @@ public abstract class LivingThing : Entity
         if (world == null || world.IsWalkable(next, radius, true)) position.Y = next.Y;
     }
 
+    public virtual void Update(GameTime gameTime)
+    {
+        float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        // Damage timer
+
+        if (damagedTimer > 0f)
+        {
+            damagedTimer -= deltaTime;
+
+            if (damagedTimer <= 0f)
+            {
+                color = Color.White;
+            }
+        }
+    }
+
     public virtual void takeDamage(int damage)
     {
         if (isDead || damage <= 0) return;
 
         this.health -= damage;
+
+        color = damageColor;
+        damagedTimer = 0.3f;
+
         if (this.health <= 0)
         {
             this.health = 0;
             die();
         }
+
     }
 
     private void die()

@@ -15,8 +15,6 @@ public class Player : LivingThing
     #nullable enable
     public const int maxStat = 100;
     private int maxOxygen = 100;
-
-    private float damagedTimer = 0f;
     private float runningMultiplier = 1f;
     private const float ItemTransitionDuration = 0.5f;
     private float itemTransitionTimer;
@@ -24,8 +22,6 @@ public class Player : LivingThing
     private bool hasPendingHandItem;
     private const float AttackHeadTurn = 0.16f;
     private float headAttackRotation;
-
-    private Color damageColor = new Color(230, 180, 180);
 
     public PlayerStat oxygen {get; private set;}
     public PlayerStat hunger {get; private set;}
@@ -90,6 +86,9 @@ public class Player : LivingThing
 
     public void Update(Vector2 mousePosition, InputManager input, GameTime gameTime, World.World world)
     {
+
+        base.Update(gameTime);
+
         updateHunger(gameTime);
         updateThirst(gameTime);
         updateOxygen(gameTime, world != null && world.IsOxygenSupplied(position));
@@ -158,18 +157,6 @@ public class Player : LivingThing
             {
                 leftHand.Attack();
                 IsLeftNext = false;
-            }
-        }
-
-        // Damage timer
-
-        if (damagedTimer > 0f)
-        {
-            damagedTimer -= deltaTime;
-
-            if (damagedTimer <= 0f)
-            {
-                color = Color.White;
             }
         }
 
@@ -328,9 +315,6 @@ public class Player : LivingThing
     public override void takeDamage(int damage)
     {
         base.takeDamage(damage);
-
-        color = damageColor;
-        damagedTimer = 0.3f;
 
         SFX.Play(Assets.SoundEffects.playerDamage);
         HealthChanged?.Invoke(this.health);
