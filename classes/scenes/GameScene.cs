@@ -211,7 +211,7 @@ public class GameScene : Scene
 
         saveData.Creatures.Clear();
         saveData.Creatures.AddRange(creatures
-            .Where(creature => !creature.isDead)
+            .Where(creature => !creature.isDead && !creature.ShouldDespawn)
             .Select(creature => creature.GetSaveData()));
 
         saveService.SaveAsync(path, saveData).Wait();
@@ -317,7 +317,7 @@ public class GameScene : Scene
             if (placeBlock) input.IsMouseCaptured = true;
             player.Update(mouseWorldPosition, input, gameTime, world);
 
-            foreach (Creature creature in creatures) creature.Update(gameTime, world);
+            foreach (Creature creature in creatures) creature.Update(gameTime, world, player.position);
 
             input.IsMouseCaptured = wasMouseCaptured;
             if (placeBlock && player.rightHand.HeldItem?.Id == ItemRegistry.GeneradorO2.Id
@@ -336,6 +336,7 @@ public class GameScene : Scene
             foreach (Creature creature in creatures.Where(creature => creature.isDead))
                 dropCreatureItems(creature);
             creatures.RemoveAll(creature => creature.isDead);
+            creatures.RemoveAll(creature => creature.ShouldDespawn);
 
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             foreach (CatchableItem item in catchableItems)

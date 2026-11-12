@@ -24,13 +24,13 @@ public static class CreatureFactory
                 position, new Sprite(Assets.Sprites.NeutralCreature, gameContext.ScaleXY(1) * 0.8f), gameContext,
                 new NeutralCreatureIntelligence(),
                 new List<ItemStack> { new(ItemRegistry.CarneCocinada, 1) },
-                maxHealth: 45, speed: PlayerMovementSettings.GroundSpeed / 2, type: type),
+                maxHealth: 50, speed: PlayerMovementSettings.GroundSpeed / 2, type: type),
 
             CreatureType.Hostile => new Creature(
                 position, new Sprite(Assets.Sprites.HostileCreature, gameContext.ScaleXY(1) * 0.8f), gameContext,
                 new HostileCreatureIntelligence(),
                 new List<ItemStack> { new(ItemRegistry.CarneCocinada, 1) },
-                maxHealth: 60, speed: PlayerMovementSettings.GroundSpeed / 2, type: type),
+                maxHealth: 70, speed: 210, type: type),
 
             _ => throw new ArgumentException($"Unsupported creature type: {type}")
         };

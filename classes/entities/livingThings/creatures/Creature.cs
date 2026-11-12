@@ -10,8 +10,13 @@ public sealed class Creature : LivingThing
 {
     #nullable enable
 
+    private const float DespawnAfterFarSeconds = 30f;
+    private const float DespawnDistanceInChunks = 3f;
+
     private readonly ICreatureIntelligence? intelligence;
     private readonly List<ItemStack>? dropItems;
+    private float farFromPlayerTimer;
+    public bool ShouldDespawn { get; private set; }
     public CreatureType Type { get; private set; }
 
     public Creature(Vector2 position, Sprite sprite, GameContext gameContext, ICreatureIntelligence? intelligence = null, List<ItemStack>? dropItems = null, 
@@ -24,10 +29,28 @@ public sealed class Creature : LivingThing
         sprite.Update(0f, position);
     }
 
-    public void Update(GameTime gameTime, World.World world)
+    public void Update(GameTime gameTime, World.World world, Vector2 playerPosition)
     {
         base.Update(gameTime);
-        if (!isDead) intelligence?.Update(this, gameTime, world);
+        if (isDead || ShouldDespawn) return;
+
+        float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+        float despawnDistance = world.TileSize * World.Chunk.Size * DespawnDistanceInChunks;
+        if (Vector2.DistanceSquared(position, playerPosition) > despawnDistance * despawnDistance)
+        {
+            farFromPlayerTimer += deltaTime;
+            if (farFromPlayerTimer >= DespawnAfterFarSeconds)
+            {
+                ShouldDespawn = true;
+                return;
+            }
+        }
+        else
+        {
+            farFromPlayerTimer = 0f;
+        }
+
+        intelligence?.Update(this, gameTime, world, playerPosition);
     }
 
     public IReadOnlyList<ItemStack>? GetDropItems() => dropItems;

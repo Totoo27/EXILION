@@ -10,7 +10,7 @@ namespace EXILION.World;
 public sealed class CreatureSpawnGenerator
 {
     private const float SpawnInterval = 6f;
-    private const int MaxCreatures = 12;
+    private const int MaxCreatures = 20;
     private const float SpawnChancePerAttempt = 0.75f;
 
     private readonly World world;
@@ -29,9 +29,7 @@ public sealed class CreatureSpawnGenerator
         if (spawnTimer < SpawnInterval) return null;
         spawnTimer %= SpawnInterval;
 
-        if (activeCreatures.Count(creature => !creature.isDead) >= MaxCreatures
-            || random.NextDouble() >= SpawnChancePerAttempt)
-            return null;
+        if (activeCreatures.Count(creature => !creature.isDead) >= MaxCreatures || random.NextDouble() >= SpawnChancePerAttempt) return null;
 
         Chunk[] loadedChunks = world.LoadedChunks.ToArray();
         if (loadedChunks.Length == 0) return null;
@@ -48,8 +46,7 @@ public sealed class CreatureSpawnGenerator
             Vector2 position = new Vector2(
                 (chunk.ChunkX * Chunk.Size + localX + 0.5f) * world.TileSize,
                 (chunk.ChunkY * Chunk.Size + localY + 0.5f) * world.TileSize);
-            if (Vector2.DistanceSquared(position, playerPosition) < world.TileSize * world.TileSize * 9f)
-                continue;
+            if (Vector2.DistanceSquared(position, playerPosition) < world.TileSize * world.TileSize * 9f) continue;
             if (!world.IsWalkable(position, gameContext.ScaleX(20))) continue;
             if (activeCreatures.Any(creature => !creature.isDead
                 && Vector2.DistanceSquared(position, creature.position) < world.TileSize * world.TileSize * 4f))
