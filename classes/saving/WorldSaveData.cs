@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using EXILION.Entities.LivingThings;
 
 namespace EXILION.Saving;
 
@@ -17,4 +18,5 @@ public class WorldSaveData
 
     public List<CatchableItemSaveData> CatchableItems { get; set; } = new();
     public List<WorldObjectStateSaveData> WorldObjectStates { get; set; } = new();
+    public List<CreatureSaveData> Creatures { get; set; } = new();
 }

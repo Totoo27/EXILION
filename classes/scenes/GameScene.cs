@@ -159,12 +159,14 @@ public class GameScene : Scene
 
         world.RestoreObjectStates(saveData.WorldObjectStates.Select(state => state.ToState()));
 
+        creatures.Clear();
+        foreach (CreatureSaveData creatureData in saveData.Creatures ?? new List<CreatureSaveData>()) creatures.Add(CreatureFactory.CreateRestoredCreature(creatureData, GameContext));
+
         diurnalCycleTime = saveData.WorldTime;
+
         night = saveData.IsNight;
-        if (night)
-        {
-            nightOpacity = 1f;
-        }
+        if (night) nightOpacity = 1f;
+        
         Seed = saveData.WorldSeed;
         processPlayerSpawn(false);
         
@@ -204,6 +206,11 @@ public class GameScene : Scene
 
         saveData.WorldObjectStates.Clear();
         saveData.WorldObjectStates.AddRange(world.CaptureObjectStates().Select(WorldObjectStateSaveData.FromState));
+
+        saveData.Creatures.Clear();
+        saveData.Creatures.AddRange(creatures
+            .Where(creature => !creature.isDead)
+            .Select(creature => creature.GetSaveData()));
 
         saveService.SaveAsync(path, saveData).Wait();
     }
@@ -245,10 +252,10 @@ public class GameScene : Scene
             )
         );
 
-        creatures.Add(new Creature(
+        creatures.Add(CreatureFactory.CreateCreature(
+            CreatureType.Peaceful,
             player.position + new Vector2(64 * 3, 0),
-            new Sprite(Assets.Sprites.PeacefulCreature, GameContext.ScaleXY(1) * 0.8f), GameContext,
-            new PeacefulCreatureIntelligence()
+            GameContext
         ));
     }
 
