@@ -42,7 +42,7 @@ public class Player : LivingThing
 
 
     public Player(Vector2 position, Sprite sprite, GameContext gameContext)
-    : base(position, sprite, 100, PlayerMovementSettings.GroundSpeed, gameContext)
+    : base(position, sprite, 100, PlayerMovementSettings.GroundSpeed, gameContext, Assets.SoundEffects.playerDamage)
     {
 
         hunger = new PlayerStat(maxStat);
@@ -315,8 +315,6 @@ public class Player : LivingThing
     public override void takeDamage(int damage)
     {
         base.takeDamage(damage);
-
-        SFX.Play(Assets.SoundEffects.playerDamage);
         HealthChanged?.Invoke(this.health);
     }
 

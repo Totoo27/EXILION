@@ -16,6 +16,9 @@ public sealed class SoundEffects
     public SoundEffect pickUpItem { get; private set; }
     public SoundEffect[] swings { get; private set; } = new SoundEffect[3];
 
+    // Creatures
+    public SoundEffect creatureDamage { get; private set; }
+
 
     // Objects
     public SoundEffect chop { get; private set; }
@@ -41,6 +44,10 @@ public sealed class SoundEffects
         swings[0] = content.Load<SoundEffect>("SFX/Swings/swing1");
         swings[1] = content.Load<SoundEffect>("SFX/Swings/swing2");
         swings[2] = content.Load<SoundEffect>("SFX/Swings/swing3");
+
+        // Creatures
+
+        creatureDamage = content.Load<SoundEffect>("SFX/damage/GritoDesgarrador");
 
         // Objects
         chop = content.Load<SoundEffect>("SFX/damage/chop");

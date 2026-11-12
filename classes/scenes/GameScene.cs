@@ -113,12 +113,6 @@ public class GameScene : Scene
             loadGame();
         }
 
-        creatures.Add(new Creature(
-            player.position + new Vector2(tileSize * 3, 0),
-            new Sprite(Assets.Sprites.Player, GameContext.ScaleXY(1) * 0.8f), GameContext,
-            new PeacefulCreatureIntelligence()
-            ));
-
         world.UpdateAroundPosition(player.position);
         mapRenderer = new MapRenderer(Assets.Sprites.Tileset, Assets.Sprites.Objects, Assets.Sprites.GeneradorO2, Assets.Sprites.Piedra, tileSize);
 
@@ -139,6 +133,24 @@ public class GameScene : Scene
                     GameContext
                 )
             );
+        }
+    }
+
+    private void dropCreatureItems(Creature creature)
+    {
+        IReadOnlyList<ItemStack>? dropItems = creature.GetDropItems();
+
+        if(dropItems == null) return;
+
+        foreach (ItemStack drop in dropItems)
+        {
+            if (drop == null || drop.Quantity <= 0) continue;
+            catchableItems.Add(new CatchableItem(
+                drop,
+                creature.position,
+                new Sprite(drop.Item.Icon, GameContext.ScaleXY(1) * 0.8f),
+                GameContext
+            ));
         }
     }
 
@@ -232,6 +244,12 @@ public class GameScene : Scene
                 GameContext
             )
         );
+
+        creatures.Add(new Creature(
+            player.position + new Vector2(64 * 3, 0),
+            new Sprite(Assets.Sprites.PeacefulCreature, GameContext.ScaleXY(1) * 0.8f), GameContext,
+            new PeacefulCreatureIntelligence()
+        ));
     }
 
     public override void Update(GameTime gameTime)
@@ -306,6 +324,8 @@ public class GameScene : Scene
                 player.Inventory.RemoveItem(ItemRegistry.Piedra, 1);
             }
             ApplyPlayerAttackHits();
+            foreach (Creature creature in creatures.Where(creature => creature.isDead))
+                dropCreatureItems(creature);
             creatures.RemoveAll(creature => creature.isDead);
 
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -357,7 +377,7 @@ public class GameScene : Scene
         foreach (Creature creature in creatures)
         {
             if (creature.isDead || !AttackIntersectsCreature(hitbox, creature)) continue;
-            if (hand.RegisterHit(creature)) creature.takeDamage(hand.AttackDamage);
+            if (hand.RegisterHit(creature)) creature.takeDamage(hand.AttackDamage, player.position);
         }
     }
 

@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using EXILION.World;
 
@@ -15,15 +16,17 @@ public abstract class LivingThing : Entity
     public event Action? deathEvent;
     public bool IsSwimming { get; private set; }
     private float movementSpeedScale = 1f;
+    protected SoundEffect damageSoundEffect;
 
     protected readonly Color damageColor = new Color(230, 180, 180);
     private float damagedTimer = 0f; 
 
-    public LivingThing(Vector2 position, Sprite sprite, int maxHealth, int speed, GameContext gameContext) : base(position, sprite, gameContext)
+    public LivingThing(Vector2 position, Sprite sprite, int maxHealth, int speed, GameContext gameContext, SoundEffect damageSoundEffect) : base(position, sprite, gameContext)
     {
         this.maxHealth = maxHealth;
         this.health = maxHealth;
         this.speed = speed;
+        this.damageSoundEffect = damageSoundEffect;
     }
 
     protected void Move(Vector2 direction, float deltaTime, World.World? world, float speedMultiplier = 1f)
@@ -74,6 +77,8 @@ public abstract class LivingThing : Entity
             this.health = 0;
             die();
         }
+
+        SFX.Play(damageSoundEffect);
 
     }
 

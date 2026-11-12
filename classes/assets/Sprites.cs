@@ -17,6 +17,9 @@ public sealed class Sprites
     public Texture2D Player { get; private set; }
     public Texture2D playerHand { get; private set; }
 
+    // Creatures
+    public Texture2D PeacefulCreature { get; private set; }
+
     // HUD
     public Texture2D meter { get; private set; }
     public Texture2D meterProgress { get; private set; }
@@ -94,7 +97,11 @@ public sealed class Sprites
         Player = content.Load<Texture2D>("Sprites/Entities/Player");
         playerHand = content.Load<Texture2D>("Sprites/Entities/playerHand");
         Slot   = content.Load<Texture2D>("Sprites/UI/HUD/slot");
-          craftingMenu = content.Load<Texture2D>("Sprites/UI/HUD/craftingMenu");
+        craftingMenu = content.Load<Texture2D>("Sprites/UI/HUD/craftingMenu");
+
+        // Creatures
+
+        PeacefulCreature = content.Load<Texture2D>("Sprites/Entities/peacefulCreature");
         
         //Items
         Piedra = content.Load<Texture2D>("Sprites/Items/piedra");
