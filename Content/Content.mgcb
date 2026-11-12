@@ -136,6 +136,30 @@
 /processorParam:Quality=Best
 /build:SFX/UI/pickUpItem.wav;SFX/UI/pickUpItem
 
+#begin Sprites/Entities/hostileCreature.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Entities/hostileCreature.png
+
+#begin Sprites/Entities/neutralCreature.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Entities/neutralCreature.png
+
 #begin Sprites/Entities/peacefulCreature.png
 /importer:TextureImporter
 /processor:TextureProcessor

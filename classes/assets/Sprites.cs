@@ -19,6 +19,8 @@ public sealed class Sprites
 
     // Creatures
     public Texture2D PeacefulCreature { get; private set; }
+    public Texture2D NeutralCreature { get; private set; }
+    public Texture2D HostileCreature { get; private set; }
 
     // HUD
     public Texture2D meter { get; private set; }
@@ -102,6 +104,8 @@ public sealed class Sprites
         // Creatures
 
         PeacefulCreature = content.Load<Texture2D>("Sprites/Entities/peacefulCreature");
+        HostileCreature = content.Load<Texture2D>("Sprites/Entities/hostileCreature");
+        NeutralCreature = content.Load<Texture2D>("Sprites/Entities/neutralCreature");
         
         //Items
         Piedra = content.Load<Texture2D>("Sprites/Items/piedra");

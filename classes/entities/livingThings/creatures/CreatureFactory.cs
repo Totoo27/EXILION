@@ -21,13 +21,13 @@ public static class CreatureFactory
                 maxHealth: 40, speed: PlayerMovementSettings.GroundSpeed / 2, type: type),
 
             CreatureType.Neutral => new Creature(
-                position, new Sprite(Assets.Sprites.PeacefulCreature, gameContext.ScaleXY(1) * 0.8f), gameContext,
+                position, new Sprite(Assets.Sprites.NeutralCreature, gameContext.ScaleXY(1) * 0.8f), gameContext,
                 new NeutralCreatureIntelligence(),
                 new List<ItemStack> { new(ItemRegistry.CarneCocinada, 1) },
                 maxHealth: 45, speed: PlayerMovementSettings.GroundSpeed / 2, type: type),
 
             CreatureType.Hostile => new Creature(
-                position, new Sprite(Assets.Sprites.PeacefulCreature, gameContext.ScaleXY(1) * 0.8f), gameContext,
+                position, new Sprite(Assets.Sprites.HostileCreature, gameContext.ScaleXY(1) * 0.8f), gameContext,
                 new HostileCreatureIntelligence(),
                 new List<ItemStack> { new(ItemRegistry.CarneCocinada, 1) },
                 maxHealth: 60, speed: PlayerMovementSettings.GroundSpeed / 2, type: type),

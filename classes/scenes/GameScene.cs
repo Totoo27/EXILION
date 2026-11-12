@@ -40,6 +40,7 @@ public class GameScene : Scene
     // Player
     private Player player;
     private List<Creature> creatures = new List<Creature>();
+    private CreatureSpawnGenerator creatureSpawnGenerator;
     private Texture2D pixel;
     private HUD HUD;
     private InputManager input;
@@ -101,6 +102,7 @@ public class GameScene : Scene
 
         int tileSize = (int)GameContext.ScaleXY(64);
         world = new World.World(seed: Seed, tileSize: tileSize) { RenderDistanceChunks = 2 };
+        creatureSpawnGenerator = new CreatureSpawnGenerator(world);
         world.ObjectDestroyed += dropWorldObjectItems;
 
         if (isNewGame)
@@ -358,6 +360,13 @@ public class GameScene : Scene
             }
         
             world.UpdateAroundPosition(player.position);
+            Creature spawnedCreature = creatureSpawnGenerator.TrySpawn(
+                (float)gameTime.ElapsedGameTime.TotalSeconds,
+                player.position,
+                night,
+                creatures,
+                GameContext);
+            if (spawnedCreature != null) creatures.Add(spawnedCreature);
             camera.Follow(player.position);
 
             if (player.isDead)
