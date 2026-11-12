@@ -77,8 +77,8 @@ public class WorldObject
         return true;
     }
 
-    private void SaveState()
+   private void SaveState()
     {
-        _saveState(new WorldObjectState(Id, CurrentHealth, IsDestroyed, IsCollected));
+        _saveState(new WorldObjectState(Id, CurrentHealth, IsDestroyed, IsCollected, Type));
     }
 }

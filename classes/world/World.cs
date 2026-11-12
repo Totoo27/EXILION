@@ -122,7 +122,7 @@ public class World
 
         // Reserve SpawnIndex -1 for player placed blocks so generated IDs and world seed stay unchanged.
         var id = new WorldObjectId(_generator.Seed, tileX, tileY, -1);
-        var state = new WorldObjectState(id, ObjectProperties.Get(item.objectType).MaxHealth, false);
+        var state = new WorldObjectState(id, ObjectProperties.Get(item.objectType).MaxHealth, false, false, item.objectType);
         ObjectStates.Record(state);
         chunk.Objects.Add(new WorldObject(id, item.objectType, tileX + 0.5f, tileY + 0.5f,
             state, ObjectStates.Record));
@@ -315,7 +315,7 @@ public class World
             int chunkX = (int)MathF.Floor((float)state.Id.TileX / Chunk.Size);
             int chunkY = (int)MathF.Floor((float)state.Id.TileY / Chunk.Size);
             if (chunkX != chunk.ChunkX || chunkY != chunk.ChunkY || state.IsDestroyed) continue;
-            var type = ObjectType.OxygenGenerator;
+            var type = state.Type ?? ObjectType.OxygenGenerator;
             chunk.Objects.Add(new WorldObject(state.Id, type,
                 state.Id.TileX + 0.5f, state.Id.TileY + 0.5f, state, ObjectStates.Record));
         }
