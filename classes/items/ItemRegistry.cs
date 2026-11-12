@@ -193,6 +193,30 @@ public static class ItemRegistry
         twoHanded: false
     );
 
+    public static readonly Item lowCrystal = new Item(
+        id: 23,
+        type: ItemType.RESOURCES,
+        name: "Cristal bajo",
+        icon: Assets.Sprites.LowCrystal,
+        twoHanded: false
+    );
+
+    public static readonly Item mediumCrystal = new Item(
+        id: 24,
+        type: ItemType.RESOURCES,
+        name: "Cristal medio",
+        icon: Assets.Sprites.MediumCrystal,
+        twoHanded: false
+    );
+
+    public static readonly Item advancedCrystal = new Item(
+        id: 25,
+        type: ItemType.RESOURCES,
+        name: "Cristal avanzado",
+        icon: Assets.Sprites.AdvancedCrystal,
+        twoHanded: false
+    );
+
     // -------------------------
 
     private static readonly Dictionary<int, Item> items = new()
