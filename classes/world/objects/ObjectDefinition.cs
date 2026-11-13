@@ -25,6 +25,9 @@ public class ObjectDefinition
     public Color OxygenCircleColor { get; init; } = Color.LightBlue;
     public byte OxygenCircleAlpha { get; init; } = 120;
 
+    public bool IsCraftingTable { get; init; }
+    public float InteractionRadiusTiles { get; init; }
+
     public bool CanBeBrokenBy(Item item)
     {
         foreach (var allowedItem in BreakableByItems)

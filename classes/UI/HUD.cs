@@ -152,6 +152,20 @@ public class HUD
         craftingUI.Update(input);
     }
 
+    public void OpenCraftingTable()
+    {
+        inventoryUI.Open();
+        craftingUI.Open(true);
+    }
+
+    public void CloseCraftingTable()
+    {
+        if (!craftingUI.AtCraftingTable) return;
+
+        craftingUI.Close();
+        inventoryUI.Close();
+    }
+
     public void Draw(SpriteBatch spriteBatch)
     {
         if(hideHUD) return;

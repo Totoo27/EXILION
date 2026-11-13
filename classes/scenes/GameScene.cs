@@ -304,18 +304,38 @@ public class GameScene : Scene
                 item.Update(deltaTime);
             }
 
+                        // Cierre automático de la mesa si el jugador se aleja
+            if (HUD.craftingUI.AtCraftingTable && !world.IsNearCraftingTable(player.position))
+            {
+                HUD.CloseCraftingTable();
+            }
+
             if (input.IsKeyPressed(Keys.E))
             {
-                Rectangle playerHitbox = player.GetHitbox();
-
-                for (int i = catchableItems.Count - 1; i >= 0; i--)
+                if (HUD.craftingUI.AtCraftingTable)
                 {
-                    CatchableItem item = catchableItems[i];
+                    HUD.CloseCraftingTable();
+                }
+                else
+                {
+                    Rectangle playerHitbox = player.GetHitbox();
+                    bool touchedItem = false;
 
-                    if (playerHitbox.Intersects(item.GetHitbox()))
+                    for (int i = catchableItems.Count - 1; i >= 0; i--)
                     {
-                        player.TryPickup(item);
-                        if (item.Picked) catchableItems.RemoveAt(i);
+                        CatchableItem item = catchableItems[i];
+
+                        if (playerHitbox.Intersects(item.GetHitbox()))
+                        {
+                            touchedItem = true;
+                            player.TryPickup(item);
+                            if (item.Picked) catchableItems.RemoveAt(i);
+                        }
+                    }
+
+                    if (!touchedItem && world.IsNearCraftingTable(player.position))
+                    {
+                        HUD.OpenCraftingTable();
                     }
                 }
             }
@@ -329,6 +349,7 @@ public class GameScene : Scene
             }
 
         }
+        
 
     }
 

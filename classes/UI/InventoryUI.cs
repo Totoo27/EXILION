@@ -242,6 +242,16 @@ public class InventoryUI
         lastUpdatedItem = selectedItem;
     }
 
+    public void Open()
+    {
+        expanded = true;
+    }
+
+    public void Close()
+    {
+        expanded = false;
+    }
+
     private readonly struct Layout
     {
         public readonly int SlotSize;

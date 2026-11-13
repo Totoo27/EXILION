@@ -95,7 +95,11 @@ public static class ObjectProperties
             HandCanBreak = false,
             UseItemSprite = true,
             BreakableByItems = new[] { ItemRegistry.PicoDePiedra, ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
-            Drops = new[] { new ObjectDrop(ItemRegistry.CraftingTable, 1) }, DrawWidthTiles = 1f } },
+            Drops = new[] { new ObjectDrop(ItemRegistry.CraftingTable, 1) }, DrawWidthTiles = 1f ,
+            IsCraftingTable = true, InteractionRadiusTiles = 2.5f} 
+            
+            },
+            
     };
 
     public static readonly float MaxCollisionRadius = Definitions.Values.Max(d => d.CollisionRadius);
