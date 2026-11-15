@@ -64,6 +64,7 @@ public class Hand
 
     private HandState state = HandState.Idle;
     private readonly HashSet<WorldObjectId> hitObjectsThisAttack = new();
+    private readonly HashSet<Creature> hitCreaturesThisAttack = new();
 
     private float attackTimer = 0f;
 
@@ -203,6 +204,7 @@ public class Hand
         if (!CanAttack) return false;
 
         hitObjectsThisAttack.Clear();
+        hitCreaturesThisAttack.Clear();
         state = HandState.Extending;
         attackTimer = 0f;
         SFX.Play(Assets.SoundEffects.swings[Random.Shared.Next(Assets.SoundEffects.swings.Length)]);
@@ -224,6 +226,7 @@ public class Hand
     }
 
     public bool RegisterHit(WorldObjectId objectId) => hitObjectsThisAttack.Add(objectId);
+    public bool RegisterHit(Creature creature) => hitCreaturesThisAttack.Add(creature);
 
     private void UpdateAttack(float deltaTime)
     {

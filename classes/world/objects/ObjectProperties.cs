@@ -102,7 +102,7 @@ public static class ObjectProperties
 
     // Estas chances indican qué tan seguido aparece cada objeto en cada tipo de terreno.
     private static readonly (ObjectType Type, float Chance)[] ForestRules = { (ObjectType.Tree, 0.22f), (ObjectType.Bush, 0.04f), (ObjectType.FruitBush, 0.008f)  };
-    private static readonly (ObjectType Type, float Chance)[] GrassRules  = { (ObjectType.Tree, 0.02f), (ObjectType.Bush, 0.04f), (ObjectType.FruitBush, 0.015f), (ObjectType.Rock, 0.01f) };
+    private static readonly (ObjectType Type, float Chance)[] GrassRules  = { (ObjectType.Tree, 0.02f), (ObjectType.Bush, 0.01f), (ObjectType.FruitBush, 0.01f), (ObjectType.Rock, 0.01f) };
     private static readonly (ObjectType Type, float Chance)[] SandRules   = { (ObjectType.Rock, 0.015f), (ObjectType.Sandstone, 0.025f) };
     private static readonly (ObjectType Type, float Chance)[] RockRules   = { (ObjectType.Rock, 0.06f), (ObjectType.Iron, 0.03f), (ObjectType.Titanium, 0.015f), (ObjectType.Thorium, 0.005f) };
     private static readonly (ObjectType Type, float Chance)[] SnowRules   = { (ObjectType.Rock, 0.03f), (ObjectType.Titanium, 0.02f), (ObjectType.Thorium, 0.009f) };

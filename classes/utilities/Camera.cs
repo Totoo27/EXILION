@@ -72,8 +72,7 @@ public class Camera
 
     public void damageShake(int damage)
     {
-        float intensity = MathHelper.Clamp(damage * 0.2f, 2f, 6f);
-
+        float intensity = MathHelper.Clamp(damage * 0.5f, 2f, 6f);
         Shake(intensity, 0.2f);
     }
 }

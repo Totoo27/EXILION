@@ -17,6 +17,23 @@ public sealed class Sprites
     public Texture2D Player { get; private set; }
     public Texture2D playerHand { get; private set; }
 
+    // Creatures
+    public Texture2D PeacefulCreature { get; private set; }
+    public Texture2D NeutralCreature { get; private set; }
+    public Texture2D HostileCreature { get; private set; }
+
+    // Creature drops
+
+    public Texture2D LowCrystal { get; private set; }
+    public Texture2D MediumCrystal { get; private set; }
+    public Texture2D AdvancedCrystal { get; private set; }
+
+    // Armors
+
+    public Texture2D LowArmor { get; private set; }
+    public Texture2D MediumArmor { get; private set; }
+    public Texture2D AdvancedArmor { get; private set; }
+
     // HUD
     public Texture2D meter { get; private set; }
     public Texture2D meterProgress { get; private set; }
@@ -87,15 +104,31 @@ public sealed class Sprites
         watchMeter = content.Load<Texture2D>("Sprites/UI/HUD/watchMeter");
         watchProgress = content.Load<Texture2D>("Sprites/UI/HUD/watchProgress");
         watchSetOff = content.Load<Texture2D>("Sprites/UI/HUD/watchSetOff");
-      
-      
 
         // Player
         Player = content.Load<Texture2D>("Sprites/Entities/Player");
         playerHand = content.Load<Texture2D>("Sprites/Entities/playerHand");
         Slot   = content.Load<Texture2D>("Sprites/UI/HUD/slot");
-          craftingMenu = content.Load<Texture2D>("Sprites/UI/HUD/craftingMenu");
-        
+        craftingMenu = content.Load<Texture2D>("Sprites/UI/HUD/craftingMenu");
+
+        // Creatures
+
+        PeacefulCreature = content.Load<Texture2D>("Sprites/Entities/peacefulCreature");
+        HostileCreature = content.Load<Texture2D>("Sprites/Entities/hostileCreature");
+        NeutralCreature = content.Load<Texture2D>("Sprites/Entities/neutralCreature");
+
+        // Creature drops
+
+        LowCrystal = content.Load<Texture2D>("Sprites/Items/lowCrystal");
+        MediumCrystal = content.Load<Texture2D>("Sprites/Items/mediumCrystal");
+        AdvancedCrystal = content.Load<Texture2D>("Sprites/Items/advancedCrystal");
+
+        // Armors
+
+        LowArmor = content.Load<Texture2D>("Sprites/Items/lowArmor");
+        MediumArmor = content.Load<Texture2D>("Sprites/Items/mediumArmor");
+        AdvancedArmor = content.Load<Texture2D>("Sprites/Items/advancedArmor");
+
         //Items
         Piedra = content.Load<Texture2D>("Sprites/Items/piedra");
         Hierro = content.Load<Texture2D>("Sprites/Items/hierro");

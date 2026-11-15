@@ -31,6 +31,7 @@ public static class RecipeRegistry
         result: ItemRegistry.HachaDePiedra,
         ingredients: new List<Ingredient>
         {
+            new Ingredient(ItemRegistry.HachaDeMadera, 1),
             new Ingredient(ItemRegistry.Madera, 6),
             new Ingredient(ItemRegistry.Piedra, 6)
         },
@@ -42,6 +43,7 @@ public static class RecipeRegistry
         result: ItemRegistry.PicoDePiedra,
         ingredients: new List<Ingredient>
         {
+            new Ingredient(ItemRegistry.PicoDeMadera, 1),
             new Ingredient(ItemRegistry.Madera, 8),
             new Ingredient(ItemRegistry.Piedra, 10)
         },
@@ -53,6 +55,7 @@ public static class RecipeRegistry
         result: ItemRegistry.HachaDeHierro,
         ingredients: new List<Ingredient>
         {
+            new Ingredient(ItemRegistry.HachaDePiedra, 1),
             new Ingredient(ItemRegistry.Madera, 12),
             new Ingredient(ItemRegistry.Hierro, 10)
         },
@@ -64,6 +67,7 @@ public static class RecipeRegistry
         result: ItemRegistry.PicoDeHierro,
         ingredients: new List<Ingredient>
         {
+            new Ingredient(ItemRegistry.PicoDePiedra, 1),
             new Ingredient(ItemRegistry.Madera, 15),
             new Ingredient(ItemRegistry.Hierro, 15)
         },
@@ -75,6 +79,7 @@ public static class RecipeRegistry
         result: ItemRegistry.HachaDeTitanio,
         ingredients: new List<Ingredient>
         {
+            new Ingredient(ItemRegistry.HachaDeHierro, 1),
             new Ingredient(ItemRegistry.Madera, 20),
             new Ingredient(ItemRegistry.Titanio, 15)
         },
@@ -86,6 +91,7 @@ public static class RecipeRegistry
         result: ItemRegistry.PicoDeTitanio,
         ingredients: new List<Ingredient>
         {
+            new Ingredient(ItemRegistry.PicoDeHierro, 1),
             new Ingredient(ItemRegistry.Madera, 20),
             new Ingredient(ItemRegistry.Titanio, 20)
         },
@@ -134,6 +140,45 @@ public static class RecipeRegistry
         ingredients: new List<Ingredient>
         {
             new Ingredient(ItemRegistry.Hierro, 3)
+        },
+        amount: 1
+    );
+
+    public static readonly Recipe LowArmorRecipe = new Recipe(
+        id: 13,
+        result: ItemRegistry.lowArmor,
+        ingredients: new List<Ingredient>
+        {
+            new Ingredient(ItemRegistry.Chip, 2),
+            new Ingredient(ItemRegistry.Hierro, 10),
+            new Ingredient(ItemRegistry.lowCrystal, 10),
+
+        },
+        amount: 1
+    );
+
+    public static readonly Recipe MidArmorRecipe = new Recipe(
+        id: 14,
+        result: ItemRegistry.mediumArmor,
+        ingredients: new List<Ingredient>
+        {
+            new Ingredient(ItemRegistry.lowArmor, 1),
+            new Ingredient(ItemRegistry.Chip, 2),
+            new Ingredient(ItemRegistry.Titanio, 10),
+            new Ingredient(ItemRegistry.mediumCrystal, 10),
+        },
+        amount: 1
+    );
+
+    public static readonly Recipe AdvancedArmorRecipe = new Recipe(
+        id: 15,
+        result: ItemRegistry.advancedArmor,
+        ingredients: new List<Ingredient>
+        {
+            new Ingredient(ItemRegistry.mediumArmor, 1),
+            new Ingredient(ItemRegistry.Chip, 2),
+            new Ingredient(ItemRegistry.Torio, 15),
+            new Ingredient(ItemRegistry.advancedCrystal, 20),
         },
         amount: 1
     );
