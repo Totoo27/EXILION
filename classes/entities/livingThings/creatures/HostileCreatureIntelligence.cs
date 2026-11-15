@@ -5,6 +5,8 @@ namespace EXILION.Entities.LivingThings;
 
 public sealed class HostileCreatureIntelligence : ICreatureIntelligence
 {
+    public bool CanDamagePlayer => true;
+
     public void Update(Creature creature, GameTime gameTime, World.World world, Vector2 playerPosition)
     {
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;

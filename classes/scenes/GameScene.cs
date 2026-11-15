@@ -41,6 +41,8 @@ public class GameScene : Scene
     private Player player;
     private List<Creature> creatures = new List<Creature>();
     private CreatureSpawnGenerator creatureSpawnGenerator;
+    private float creatureContactDamageCooldown;
+    private const float CREATURE_CONTACT_DAMAGE_COOLDOWN = 0.8f;
     private Texture2D pixel;
     private HUD HUD;
     private InputManager input;
@@ -318,6 +320,7 @@ public class GameScene : Scene
             player.Update(mouseWorldPosition, input, gameTime, world);
 
             foreach (Creature creature in creatures) creature.Update(gameTime, world, player.position);
+            ProcessCreatureContactDamage(gameTime);
 
             input.IsMouseCaptured = wasMouseCaptured;
             if (placeBlock && player.rightHand.HeldItem?.Id == ItemRegistry.GeneradorO2.Id
@@ -383,6 +386,25 @@ public class GameScene : Scene
     {
         ApplyHandAttackHits(player.rightHand);
         ApplyHandAttackHits(player.leftHand);
+    }
+
+    private void ProcessCreatureContactDamage(GameTime gameTime)
+    {
+        creatureContactDamageCooldown = Math.Max(0f,
+            creatureContactDamageCooldown - (float)gameTime.ElapsedGameTime.TotalSeconds);
+        if (creatureContactDamageCooldown > 0f) return;
+
+        Rectangle playerHitbox = player.GetHitbox();
+        foreach (Creature creature in creatures)
+        {
+            if (creature.isDead || creature.ShouldDespawn || !creature.CanDamagePlayer
+                || creature.ContactDamage <= 0 || !playerHitbox.Intersects(creature.GetHitbox()))
+                continue;
+
+            player.takeDamage(creature.ContactDamage);
+            creatureContactDamageCooldown = CREATURE_CONTACT_DAMAGE_COOLDOWN;
+            return;
+        }
     }
 
     private void ApplyHandAttackHits(Hand hand)

@@ -5,6 +5,8 @@ namespace EXILION.Entities.LivingThings;
 
 public sealed class PeacefulCreatureIntelligence : ICreatureIntelligence
 {
+    public bool CanDamagePlayer => false;
+
     private static readonly Random random = new();
     private Vector2 direction;
     private float directionTimer;

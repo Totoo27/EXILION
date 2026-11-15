@@ -217,6 +217,30 @@ public static class ItemRegistry
         twoHanded: false
     );
 
+    public static readonly Item advancedArmor = new Item(
+        id: 26,
+        type: ItemType.RESOURCES,
+        name: "Armadura avanzada",
+        icon: Assets.Sprites.AdvancedArmor,
+        twoHanded: true
+    );
+
+    public static readonly Item mediumArmor = new Item(
+        id: 27,
+        type: ItemType.RESOURCES,
+        name: "Armadura media",
+        icon: Assets.Sprites.MediumArmor,
+        twoHanded: true
+    );
+
+    public static readonly Item lowArmor = new Item(
+        id: 28,
+        type: ItemType.RESOURCES,
+        name: "Armadura baja",
+        icon: Assets.Sprites.LowArmor,
+        twoHanded: true
+    );
+
     // -------------------------
 
     private static readonly Dictionary<int, Item> items = new()

@@ -18,14 +18,18 @@ public sealed class Creature : LivingThing
     private float farFromPlayerTimer;
     public bool ShouldDespawn { get; private set; }
     public CreatureType Type { get; private set; }
+    public int ContactDamage { get; }
+    public bool CanDamagePlayer => intelligence?.CanDamagePlayer ?? false;
 
     public Creature(Vector2 position, Sprite sprite, GameContext gameContext, ICreatureIntelligence? intelligence = null, List<ItemStack>? dropItems = null, 
-        int maxHealth = 25, int speed = PlayerMovementSettings.GroundSpeed / 2, CreatureType type = CreatureType.Peaceful)
+        int maxHealth = 25, int speed = PlayerMovementSettings.GroundSpeed / 2, CreatureType type = CreatureType.Peaceful,
+        int contactDamage = 1)
     : base(position, sprite, maxHealth, speed, gameContext, Assets.SoundEffects.creatureDamage)
     {
         this.intelligence = intelligence;
         this.dropItems = dropItems;
         Type = type;
+        ContactDamage = Math.Max(0, contactDamage);
         sprite.Update(0f, position);
     }
 
