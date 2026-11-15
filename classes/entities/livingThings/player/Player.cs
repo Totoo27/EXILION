@@ -31,6 +31,7 @@ public class Player : LivingThing
     public event Action<int>? HungerChanged;
     public event Action<int>? ThirstChanged;
     public event Action<int>? HealthChanged;
+    public event Action<int>? DamageTaken;
     
     private Inventory inventory;
     public Inventory Inventory => inventory;
@@ -39,6 +40,11 @@ public class Player : LivingThing
     public Hand rightHand { get; private set; } = new Hand(Assets.Sprites.playerHand, handHitboxSize);
     public Hand leftHand { get; private set; } = new Hand(Assets.Sprites.playerHand, handHitboxSize);
     private bool IsLeftNext = false;
+
+    private float combatTimer = 0f;
+    private const float combatCooldown = 3f; // Time in seconds before health regeneration can start after taking damage
+    private float healthRegenerationAccumulator;
+    private bool canRegenerate => health < maxHealth && combatTimer <= 0f && hunger.value > 0 && thirst.value > 0 && oxygen.value > 0;
 
 
     public Player(Vector2 position, Sprite sprite, GameContext gameContext)
@@ -93,16 +99,37 @@ public class Player : LivingThing
         updateThirst(gameTime);
         updateOxygen(gameTime, world != null && world.IsOxygenSupplied(position));
 
-        // Movement
-
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+        combatTimer = MathF.Max(0f, combatTimer - deltaTime);
         itemTransitionTimer = MathF.Max(0f, itemTransitionTimer - deltaTime);
+
         if (hasPendingHandItem && itemTransitionTimer <= 0f)
         {
             rightHand.updateItemInHand(pendingHandItem);
             pendingHandItem = null;
             hasPendingHandItem = false;
         }
+
+        if (canRegenerate)
+        {
+            float regenRate = 2f; // Health points per second
+            healthRegenerationAccumulator += regenRate * deltaTime;
+            int healthToRestore = (int)healthRegenerationAccumulator;
+            if (healthToRestore > 0)
+            {
+                int previousHealth = health;
+                health = Math.Min(maxHealth, health + healthToRestore);
+                healthRegenerationAccumulator -= health - previousHealth;
+                if (health != previousHealth) HealthChanged?.Invoke(health);
+                if (health >= maxHealth) healthRegenerationAccumulator = 0f;
+            }
+        }
+        else if (health >= maxHealth)
+        {
+            healthRegenerationAccumulator = 0f;
+        }
+
+        // Movement
 
         runningMultiplier = 1f;
 
@@ -314,8 +341,17 @@ public class Player : LivingThing
 
     public override void takeDamage(int damage)
     {
+        if (isDead || damage <= 0) return;
+
+        int previousHealth = health;
         base.takeDamage(damage);
-        HealthChanged?.Invoke(this.health);
+        int damageReceived = previousHealth - health;
+        if (damageReceived <= 0) return;
+
+        combatTimer = combatCooldown;
+        healthRegenerationAccumulator = 0f;
+        HealthChanged?.Invoke(health);
+        DamageTaken?.Invoke(damageReceived);
     }
 
     public override void Draw(SpriteBatch spriteBatch, Texture2D pixel)

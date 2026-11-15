@@ -486,7 +486,7 @@ public class GameScene : Scene
         if (player != null)
         {
             player.Inventory.UpdateInventoryUI -= HUD.inventoryUI.UpdateHandItem;
-            player.HealthChanged -= camera.damageShake;
+            player.DamageTaken -= camera.damageShake;
         } 
 
         // UI
@@ -563,7 +563,7 @@ public class GameScene : Scene
             );
         }
 
-        player.HealthChanged -= camera.damageShake;
+        player.DamageTaken -= camera.damageShake;
         player.Inventory.UpdateInventoryUI -= HUD.inventoryUI.UpdateHandItem;
 
         HUD = null;
@@ -585,7 +585,7 @@ public class GameScene : Scene
         HUD.setTime(DIURNAL_PRESET_TIME - diurnalCycleTime);
         player.ForceUpdateStats();
 
-        player.HealthChanged += camera.damageShake;
+        player.DamageTaken += camera.damageShake;
         player.Inventory.UpdateInventoryUI += HUD.inventoryUI.UpdateHandItem;
 
         if(isNewGame) player.position = world.FindSpawnPosition();
