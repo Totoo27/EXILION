@@ -33,6 +33,8 @@ public class InputManager
 
     public Vector2 MousePosition => CurrentMouse.Position.ToVector2();
 
+    public int ScrollDelta => CurrentMouse.ScrollWheelValue - PreviousMouse.ScrollWheelValue;
+
      public bool IsLeftMousePressed()
     {
         return CurrentMouse.LeftButton == ButtonState.Pressed

@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using EXILION.Entities.LivingThings;
@@ -19,6 +20,8 @@ public class CraftingUI
     private const int DetailLineHeight = 36;
     private const int IconPadding = 4;
     private const int TextPadding = 8;
+    private const int ScrollBarWidth = 4;
+    private const int MinThumbHeight = 12;
 
     private const int CraftButtonHeight = 40;
 
@@ -26,6 +29,8 @@ public class CraftingUI
     private readonly SpriteFont font;
     private readonly GameContext gameContext;
     private readonly Player player;
+
+    private int firstVisibleRow = 0;
 
     public bool visible { get; private set; } = false;
 
@@ -71,9 +76,23 @@ public class CraftingUI
     {
         if (!visible) return;
 
+        bool mouseOverPanel = GetPanelRect().Contains(input.MousePosition);
+
+        if (mouseOverPanel)
+        {
+            input.IsMouseCaptured = true;
+
+            if (input.ScrollDelta > 0) firstVisibleRow--;
+            else if (input.ScrollDelta < 0) firstVisibleRow++;
+        }
+
+        ClampScroll();
+
         if (input.IsLeftMousePressed())
         {
-            for (int i = 0; i < RecipeRegistry.All.Count; i++)
+            int lastRow = Math.Min(RecipeRegistry.All.Count, firstVisibleRow + GetVisibleRowCount());
+
+            for (int i = firstVisibleRow; i < lastRow; i++)
             {
                 if (GetRowRect(i).Contains(input.MousePosition))
                 {
@@ -89,6 +108,24 @@ public class CraftingUI
         }
     }
 
+    private int GetVisibleRowCount()
+    {
+        int rowHeight = gameContext.ScaleY(RowHeight);
+        int spacing = gameContext.ScaleY(RowSpacing);
+
+        return Math.Max(1, (GetListRect().Height + spacing) / (rowHeight + spacing));
+    }
+
+    private int GetMaxFirstRow()
+    {
+        return Math.Max(0, RecipeRegistry.All.Count - GetVisibleRowCount());
+    }
+
+    private void ClampScroll()
+    {
+        firstVisibleRow = Math.Clamp(firstVisibleRow, 0, GetMaxFirstRow());
+    }
+
     private Rectangle GetPanelRect()
     {
         int width = gameContext.ScaleX(PanelWidth);
@@ -100,18 +137,30 @@ public class CraftingUI
         return new Rectangle(x, y, width, height);
     }
 
-    private Rectangle GetRowRect(int index)
+    private Rectangle GetListRect()
     {
         Rectangle panel = GetPanelRect();
-
         int margin = gameContext.ScaleX(PanelMargin);
+
+        return new Rectangle(
+            panel.X + margin,
+            panel.Y + margin,
+            gameContext.ScaleX(ListWidth),
+            panel.Height - 2 * margin
+        );
+    }
+
+    private Rectangle GetRowRect(int index)
+    {
+        Rectangle list = GetListRect();
+
         int rowHeight = gameContext.ScaleY(RowHeight);
         int spacing = gameContext.ScaleY(RowSpacing);
 
         return new Rectangle(
-            panel.X + margin,
-            panel.Y + margin + index * (rowHeight + spacing),
-            gameContext.ScaleX(ListWidth),
+            list.X,
+            list.Y + (index - firstVisibleRow) * (rowHeight + spacing),
+            list.Width,
             rowHeight
         );
     }
@@ -161,12 +210,15 @@ public class CraftingUI
         spriteBatch.Draw(pixel, GetPanelRect(), new Color(0, 183, 239) * 0.7f);
 
         DrawRecipeList(spriteBatch);
+        DrawScrollBar(spriteBatch);
         DrawDetail(spriteBatch);
     }
 
     private void DrawRecipeList(SpriteBatch spriteBatch)
     {
-        for (int i = 0; i < RecipeRegistry.All.Count; i++)
+        int lastRow = Math.Min(RecipeRegistry.All.Count, firstVisibleRow + GetVisibleRowCount());
+
+        for (int i = firstVisibleRow; i < lastRow; i++)
         {
             Recipe recipe = RecipeRegistry.All[i];
             Rectangle rowRect = GetRowRect(i);
@@ -177,6 +229,30 @@ public class CraftingUI
 
             DrawItemLine(spriteBatch, recipe.Result, recipe.Result.Name, rowRect, Color.White);
         }
+    }
+
+    private void DrawScrollBar(SpriteBatch spriteBatch)
+    {
+        int maxFirstRow = GetMaxFirstRow();
+        if (maxFirstRow == 0) return;
+
+        Rectangle list = GetListRect();
+        int margin = gameContext.ScaleX(PanelMargin);
+        int barWidth = gameContext.ScaleX(ScrollBarWidth);
+
+        Rectangle track = new Rectangle(
+            list.Right + (margin - barWidth) / 2,
+            list.Y,
+            barWidth,
+            list.Height
+        );
+        spriteBatch.Draw(pixel, track, Color.White * 0.25f);
+
+        float visibleRatio = (float)GetVisibleRowCount() / RecipeRegistry.All.Count;
+        int thumbHeight = Math.Max(gameContext.ScaleY(MinThumbHeight), (int)(track.Height * visibleRatio));
+        int thumbY = track.Y + (int)((track.Height - thumbHeight) * ((float)firstVisibleRow / maxFirstRow));
+
+        spriteBatch.Draw(pixel, new Rectangle(track.X, thumbY, barWidth, thumbHeight), Color.White * 0.8f);
     }
 
     private void DrawDetail(SpriteBatch spriteBatch)

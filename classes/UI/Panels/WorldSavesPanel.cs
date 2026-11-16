@@ -65,6 +65,9 @@ public class WorldSavesPanel
     private readonly WorldCreationPanel creationPanel;
     private readonly IGameData GameData;
 
+    // Scroll
+    private readonly ScrollList scroll = new ScrollList();
+
     public WorldSavesPanel(IGameData gameData, IHasWorldSaves scene, Vector2 position)
     {
         GameData = gameData;
@@ -130,6 +133,15 @@ public class WorldSavesPanel
         );
     }
 
+    private Rectangle GetListArea()
+    {
+        int x = bounds.X + gameContext.ScaleX(40);
+        int y = bounds.Y + gameContext.ScaleY(120);
+        int width = bounds.Width - gameContext.ScaleX(80);
+        int height = bounds.Bottom - gameContext.ScaleY(20) - y;
+        return new Rectangle(x, y, width, height);
+    }
+
     public void Update()
     {
         if (!enabled || isLoadingWorlds) return;
@@ -158,17 +170,26 @@ public class WorldSavesPanel
 
         if (isCreatingWorld || isLoadingWorlds) return;
 
+        // Scroll
+        scroll.Configure(
+            GetListArea(),
+            gameContext.ScaleY(100),
+            gameContext.ScaleY(10),
+            worldSaveRows.Count
+        );
+
+        if (bounds.Contains(mouseState.Position))
+        {
+            scroll.HandleWheel(input.ScrollDelta);
+        }
+
         const int worldDelete = 2;
         const int loadWorld = 1;
 
-        for (int i = 0; i < worldSaveRows.Count; i++)
+        for (int i = scroll.FirstVisible; i < scroll.EndIndex; i++)
         {
-            int startOffset = gameContext.ScaleY(120);
-            int spacing = gameContext.ScaleY(10);
-            int startY = (spacing + worldSaveRows[i].bounds.Height) * i + bounds.Y + startOffset;
-
-            worldSaveRows[i].UpdatePositionY(startY);
-            int value = worldSaveRows[i].isClicked(input.CurrentMouse);
+            worldSaveRows[i].UpdatePositionY(scroll.GetItemY(i));
+            int value = worldSaveRows[i].isClicked(input.CurrentMouse, input.PreviousMouse);
 
             if (value == worldDelete)
             {
@@ -286,7 +307,7 @@ public class WorldSavesPanel
             Color.White
         );
 
-        // Borde superior
+        
         spriteBatch.Draw(
             borderTexture,
             new Rectangle(
@@ -298,7 +319,7 @@ public class WorldSavesPanel
             borderColor
         );
 
-        // Borde inferior
+        
         spriteBatch.Draw(
             borderTexture,
             new Rectangle(
@@ -310,7 +331,7 @@ public class WorldSavesPanel
             borderColor
         );
 
-        // Borde izquierdo
+     
         spriteBatch.Draw(
             borderTexture,
             new Rectangle(
@@ -322,7 +343,7 @@ public class WorldSavesPanel
             borderColor
         );
 
-        // Borde derecho
+       
         spriteBatch.Draw(
             borderTexture,
             new Rectangle(
@@ -337,10 +358,18 @@ public class WorldSavesPanel
         backButton.Draw(spriteBatch, 1f);
         newWorldButton.Draw(spriteBatch, 1f);
 
-        for (int i = 0; i < worldSaveRows.Count; i++)
+        for (int i = scroll.FirstVisible; i < scroll.EndIndex; i++)
         {
             worldSaveRows[i].Draw(spriteBatch, pixel);
         }
+
+        scroll.DrawScrollBar(
+            spriteBatch,
+            pixel,
+            gameContext.ScaleX(6),
+            gameContext.ScaleX(12),
+            gameContext.ScaleY(12)
+        );
 
         creationPanel.Draw(spriteBatch);
 
