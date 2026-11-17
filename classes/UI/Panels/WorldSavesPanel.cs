@@ -170,7 +170,7 @@ public class WorldSavesPanel
 
         if (isCreatingWorld || isLoadingWorlds) return;
 
-        // Scroll
+    
         scroll.Configure(
             GetListArea(),
             gameContext.ScaleY(100),
@@ -358,10 +358,13 @@ public class WorldSavesPanel
         backButton.Draw(spriteBatch, 1f);
         newWorldButton.Draw(spriteBatch, 1f);
 
+        if (worldSaveRows.Count > 0)
+    {
         for (int i = scroll.FirstVisible; i < scroll.EndIndex; i++)
         {
             worldSaveRows[i].Draw(spriteBatch, pixel);
         }
+    }
 
         scroll.DrawScrollBar(
             spriteBatch,

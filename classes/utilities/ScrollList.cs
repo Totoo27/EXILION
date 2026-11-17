@@ -19,15 +19,22 @@ public class ScrollList
 
     
     public void Configure(Rectangle area, int itemHeight, int spacing, int itemCount)
-    {
-        this.area = area;
-        this.itemHeight = itemHeight;
-        this.spacing = spacing;
-        this.itemCount = itemCount;
+{
+    this.area = area;
+    this.itemHeight = itemHeight;
+    this.spacing = spacing;
+    this.itemCount = itemCount;
 
-        visibleCount = Math.Max(1, (area.Height + spacing) / (itemHeight + spacing));
-        firstVisible = Math.Clamp(firstVisible, 0, MaxFirst);
+    visibleCount = Math.Max(1, (area.Height + spacing) / (itemHeight + spacing));
+
+    if (itemCount <= 0)
+    {
+        firstVisible = 0;
+        return;
     }
+
+    firstVisible = Math.Clamp(firstVisible, 0, MaxFirst);
+}
 
     
     public void HandleWheel(int scrollDelta)
