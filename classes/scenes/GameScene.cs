@@ -39,6 +39,10 @@ public class GameScene : Scene
 
     // Player
     private Player player;
+    private List<Creature> creatures = new List<Creature>();
+    private CreatureSpawnGenerator creatureSpawnGenerator;
+    private float creatureContactDamageCooldown;
+    private const float CREATURE_CONTACT_DAMAGE_COOLDOWN = 0.8f;
     private Texture2D pixel;
     private HUD HUD;
     private InputManager input;
@@ -100,6 +104,7 @@ public class GameScene : Scene
 
         int tileSize = (int)GameContext.ScaleXY(64);
         world = new World.World(seed: Seed, tileSize: tileSize) { RenderDistanceChunks = 2 };
+        creatureSpawnGenerator = new CreatureSpawnGenerator(world);
         world.ObjectDestroyed += dropWorldObjectItems;
 
         if (isNewGame)
@@ -135,17 +140,37 @@ public class GameScene : Scene
         }
     }
 
+    private void dropCreatureItems(Creature creature)
+    {
+        IReadOnlyList<ItemStack>? dropItems = creature.GetDropItems();
+
+        if(dropItems == null) return;
+
+        foreach (ItemStack drop in dropItems)
+        {
+            if (drop == null || drop.Quantity <= 0) continue;
+            catchableItems.Add(new CatchableItem(
+                drop,
+                creature.position,
+                new Sprite(drop.Item.Icon, GameContext.ScaleXY(1) * 0.8f),
+                GameContext
+            ));
+        }
+    }
+
     private void loadGame()
     {
 
         world.RestoreObjectStates(saveData.WorldObjectStates.Select(state => state.ToState()));
 
+        creatures.Clear();
+        foreach (CreatureSaveData creatureData in saveData.Creatures ?? new List<CreatureSaveData>()) creatures.Add(CreatureFactory.CreateRestoredCreature(creatureData, GameContext));
+
         diurnalCycleTime = saveData.WorldTime;
+
         night = saveData.IsNight;
-        if (night)
-        {
-            nightOpacity = 1f;
-        }
+        if (night) nightOpacity = 1f;
+        
         Seed = saveData.WorldSeed;
         processPlayerSpawn(false);
         
@@ -186,6 +211,11 @@ public class GameScene : Scene
         saveData.WorldObjectStates.Clear();
         saveData.WorldObjectStates.AddRange(world.CaptureObjectStates().Select(WorldObjectStateSaveData.FromState));
 
+        saveData.Creatures.Clear();
+        saveData.Creatures.AddRange(creatures
+            .Where(creature => !creature.isDead && !creature.ShouldDespawn)
+            .Select(creature => creature.GetSaveData()));
+
         saveService.SaveAsync(path, saveData).Wait();
     }
 
@@ -225,6 +255,12 @@ public class GameScene : Scene
                 GameContext
             )
         );
+
+        creatures.Add(CreatureFactory.CreateCreature(
+            CreatureType.Peaceful,
+            player.position + new Vector2(64 * 3, 0),
+            GameContext
+        ));
     }
 
     public override void Update(GameTime gameTime)
@@ -282,6 +318,10 @@ public class GameScene : Scene
             bool wasMouseCaptured = input.IsMouseCaptured;
             if (placeBlock) input.IsMouseCaptured = true;
             player.Update(mouseWorldPosition, input, gameTime, world);
+
+            foreach (Creature creature in creatures) creature.Update(gameTime, world, player.position);
+            ProcessCreatureContactDamage(gameTime);
+
             input.IsMouseCaptured = wasMouseCaptured;
 
             Item? itemInHand = player.rightHand.HeldItem;
@@ -297,6 +337,10 @@ public class GameScene : Scene
             
             
             ApplyPlayerAttackHits();
+            foreach (Creature creature in creatures.Where(creature => creature.isDead))
+                dropCreatureItems(creature);
+            creatures.RemoveAll(creature => creature.isDead);
+            creatures.RemoveAll(creature => creature.ShouldDespawn);
 
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             foreach (CatchableItem item in catchableItems)
@@ -341,6 +385,13 @@ public class GameScene : Scene
             }
         
             world.UpdateAroundPosition(player.position);
+            Creature spawnedCreature = creatureSpawnGenerator.TrySpawn(
+                (float)gameTime.ElapsedGameTime.TotalSeconds,
+                player.position,
+                night,
+                creatures,
+                GameContext);
+            if (spawnedCreature != null) creatures.Add(spawnedCreature);
             camera.Follow(player.position);
 
             if (player.isDead)
@@ -359,10 +410,48 @@ public class GameScene : Scene
         ApplyHandAttackHits(player.leftHand);
     }
 
+    private void ProcessCreatureContactDamage(GameTime gameTime)
+    {
+        creatureContactDamageCooldown = Math.Max(0f,
+            creatureContactDamageCooldown - (float)gameTime.ElapsedGameTime.TotalSeconds);
+        if (creatureContactDamageCooldown > 0f) return;
+
+        Rectangle playerHitbox = player.GetHitbox();
+        foreach (Creature creature in creatures)
+        {
+            if (creature.isDead || creature.ShouldDespawn || !creature.CanDamagePlayer
+                || creature.ContactDamage <= 0 || !playerHitbox.Intersects(creature.GetHitbox()))
+                continue;
+
+            player.takeDamage(creature.ContactDamage);
+            creatureContactDamageCooldown = CREATURE_CONTACT_DAMAGE_COOLDOWN;
+            return;
+        }
+    }
+
     private void ApplyHandAttackHits(Hand hand)
     {
         if (hand.CurrentHitbox is not AttackHitbox hitbox) return;
+
         world.DamageObjects(hitbox, hand.AttackDamage, hand.HeldItem, hand.RegisterHit);
+
+        foreach (Creature creature in creatures)
+        {
+            if (creature.isDead || !AttackIntersectsCreature(hitbox, creature)) continue;
+            if (hand.RegisterHit(creature)) creature.takeDamage(hand.AttackDamage, player.position);
+        }
+    }
+
+    private static bool AttackIntersectsCreature(AttackHitbox attack, Creature creature)
+    {
+        Vector2 offset = creature.position - attack.Position;
+        float cos = MathF.Cos(attack.Rotation);
+        float sin = MathF.Sin(attack.Rotation);
+        float localX = offset.X * cos + offset.Y * sin;
+        float localY = -offset.X * sin + offset.Y * cos;
+        float radius = creature.GetHitbox().Width * 0.5f;
+        return MathF.Abs(localX) <= attack.Width * 0.5f + radius
+            && MathF.Abs(localY) <= attack.Height * 0.5f + radius;
     }
 
     public override void Draw(SpriteBatch spriteBatch)
@@ -385,6 +474,9 @@ public class GameScene : Scene
         // Player & objects
         mapRenderer?.DrawObjects(spriteBatch, world, false);
         player?.Draw(spriteBatch, pixel);
+
+        foreach (Creature creature in creatures) creature.Draw(spriteBatch, pixel);
+
         mapRenderer?.DrawObjects(spriteBatch, world, true);
         if (GameContext?.showHitboxes == true)
             mapRenderer?.DrawObjectHitboxes(spriteBatch, world, pixel);
@@ -416,7 +508,7 @@ public class GameScene : Scene
         if (player != null)
         {
             player.Inventory.UpdateInventoryUI -= HUD.inventoryUI.UpdateHandItem;
-            player.HealthChanged -= camera.damageShake;
+            player.DamageTaken -= camera.damageShake;
         } 
 
         // UI
@@ -427,6 +519,7 @@ public class GameScene : Scene
         // Entities
         catchableItems?.Clear();
         catchableItems = null;
+        creatures?.Clear();
 
         // World
         world = null;
@@ -492,7 +585,7 @@ public class GameScene : Scene
             );
         }
 
-        player.HealthChanged -= camera.damageShake;
+        player.DamageTaken -= camera.damageShake;
         player.Inventory.UpdateInventoryUI -= HUD.inventoryUI.UpdateHandItem;
 
         HUD = null;
@@ -514,7 +607,7 @@ public class GameScene : Scene
         HUD.setTime(DIURNAL_PRESET_TIME - diurnalCycleTime);
         player.ForceUpdateStats();
 
-        player.HealthChanged += camera.damageShake;
+        player.DamageTaken += camera.damageShake;
         player.Inventory.UpdateInventoryUI += HUD.inventoryUI.UpdateHandItem;
 
         if(isNewGame) player.position = world.FindSpawnPosition();
