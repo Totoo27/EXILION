@@ -177,7 +177,8 @@ public static class RecipeRegistry
             new Ingredient(ItemRegistry.lowCrystal, 10),
 
         },
-        amount: 1
+        amount: 1,
+        requiresCraftingTable: true
     );
 
     public static readonly Recipe MidArmorRecipe = new Recipe(
@@ -190,7 +191,8 @@ public static class RecipeRegistry
             new Ingredient(ItemRegistry.Titanio, 10),
             new Ingredient(ItemRegistry.mediumCrystal, 10),
         },
-        amount: 1
+        amount: 1,
+        requiresCraftingTable: true
     );
 
     public static readonly Recipe AdvancedArmorRecipe = new Recipe(
@@ -203,7 +205,8 @@ public static class RecipeRegistry
             new Ingredient(ItemRegistry.Torio, 15),
             new Ingredient(ItemRegistry.advancedCrystal, 20),
         },
-        amount: 1
+        amount: 1,
+        requiresCraftingTable: true
     );
 
     public static readonly IReadOnlyList<Recipe> All = new List<Recipe>

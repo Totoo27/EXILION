@@ -195,11 +195,6 @@ public static class ItemRegistry
         twoHanded: false
     );
 
-     public static readonly Structure CraftingTable = new Structure(
-        id: 29,
-        name: "Crafting Table",
-        type: ObjectType.CraftingTable,
-        icon: Assets.Sprites.craftingTable
     public static readonly Item lowCrystal = new Item(
         id: 23,
         type: ItemType.RESOURCES,
@@ -248,6 +243,13 @@ public static class ItemRegistry
         twoHanded: true
     );
 
+    public static readonly Structure CraftingTable = new Structure(
+        id: 29,
+        name: "Crafting Table",
+        type: ObjectType.CraftingTable,
+        icon: Assets.Sprites.craftingTable
+     );
+
     // -------------------------
 
     private static readonly Dictionary<int, Item> items = new()
@@ -263,6 +265,12 @@ public static class ItemRegistry
         { Arena.Id, Arena },
         { Silicio.Id, Silicio },
         { Chip.Id, Chip },
+        { lowCrystal.Id, lowCrystal },
+        { mediumCrystal.Id, mediumCrystal },
+        { advancedCrystal.Id, advancedCrystal },
+        { advancedArmor.Id, advancedArmor },
+        { mediumArmor.Id, mediumArmor },
+        { lowArmor.Id, lowArmor },
 
         // Consumables
         { AguaPurificada.Id, AguaPurificada },
