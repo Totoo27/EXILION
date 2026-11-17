@@ -73,6 +73,8 @@ public sealed class Sprites
     public Texture2D titaniumAxe { get; private set; }
     public Texture2D titaniumPickaxe { get; private set; }
 
+     public Texture2D craftingTable { get;private set;}
+
     // Inventory
     public Texture2D Slot { get; private set; }
 
@@ -145,6 +147,7 @@ public sealed class Sprites
         OxigenoEmbotellado = content.Load<Texture2D>("Sprites/Items/OxigenoEmbotellado");
         GeneradorO2 = content.Load<Texture2D>("Sprites/Items/GeneradorO2");
         Baya = content.Load<Texture2D>("Sprites/Items/bayas");
+        craftingTable= content.Load<Texture2D>("Sprites/Items/craftingTable");
       
         // Tools
         woodenAxe = content.Load<Texture2D>("Sprites/Items/woodenAxe");

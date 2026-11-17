@@ -4,4 +4,5 @@ public sealed record WorldObjectState(
     WorldObjectId Id,
     int? CurrentHealth,
     bool IsDestroyed,
-    bool IsCollected = false);
+    bool IsCollected = false,
+    ObjectType? Type = null);

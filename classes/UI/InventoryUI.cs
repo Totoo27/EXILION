@@ -61,7 +61,7 @@ public class InventoryUI
         mousePosition = input.MousePosition;
         input.IsMouseCaptured = GetSlotIndexAt(mousePosition) != -1 || draggedSlotIndex != -1;
 
-        if (input.IsKeyPressed(Keys.I))
+        if (input.IsKeyPressed(Keys.I) && craftingUI.AtCraftingTable == false)
         {
             expanded = !expanded;
         }
@@ -240,6 +240,16 @@ public class InventoryUI
 
         lastUpdatedSlotIndex = SelectedSlotIndex;
         lastUpdatedItem = selectedItem;
+    }
+
+    public void Open()
+    {
+        expanded = true;
+    }
+
+    public void Close()
+    {
+        expanded = false;
     }
 
     private readonly struct Layout

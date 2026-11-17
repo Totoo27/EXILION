@@ -158,7 +158,7 @@ public static class ItemRegistry
 
     public static readonly Structure GeneradorO2 = new Structure(
         id: 18,
-        name: "GeneradorO2",
+        name: "O2 Generator",
         type: ObjectType.OxygenGenerator,
         icon: Assets.Sprites.GeneradorO2
     );
@@ -195,6 +195,11 @@ public static class ItemRegistry
         twoHanded: false
     );
 
+     public static readonly Structure CraftingTable = new Structure(
+        id: 29,
+        name: "Crafting Table",
+        type: ObjectType.CraftingTable,
+        icon: Assets.Sprites.craftingTable
     public static readonly Item lowCrystal = new Item(
         id: 23,
         type: ItemType.RESOURCES,
@@ -266,7 +271,8 @@ public static class ItemRegistry
         { Baya.Id, Baya },
 
         // Structures
-        { GeneradorO2.Id, GeneradorO2 },
+        { GeneradorO2.Id,GeneradorO2 },
+        {CraftingTable.Id, CraftingTable},
 
         // Tools
         { HachaDePiedra.Id, HachaDePiedra },
@@ -283,6 +289,18 @@ public static class ItemRegistry
     {
         items.TryGetValue(id, out Item? item);
         return item;
+    }
+
+    public static Item? GetByObjectType(ObjectType objectType)
+    {
+        foreach (var item in items.Values)
+        {
+            if (item is Structure structure && structure.objectType == objectType)
+            {
+                return structure;
+            }
+        }
+        return null;
     }
 
 }

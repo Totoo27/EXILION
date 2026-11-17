@@ -151,6 +151,8 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
 
         worldSavesPanel.Update();
         updateWorldSavesAnimation();
+        if (SceneManager.CurrentScene != this) return;
+        updateWorldSavesAnimation();
         if(worldSavesPanel.enabled) return; // Prevent using Menu buttons while worldSaves panel is enabled
 
         settingsPanel.Update();

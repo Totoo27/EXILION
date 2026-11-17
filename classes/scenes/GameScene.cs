@@ -118,7 +118,7 @@ public class GameScene : Scene
         }
 
         world.UpdateAroundPosition(player.position);
-        mapRenderer = new MapRenderer(Assets.Sprites.Tileset, Assets.Sprites.Objects, Assets.Sprites.GeneradorO2, Assets.Sprites.Piedra, tileSize);
+        mapRenderer = new MapRenderer(Assets.Sprites.Tileset, Assets.Sprites.Objects, tileSize);
 
         isLoaded = true;
     }
@@ -334,19 +334,7 @@ public class GameScene : Scene
                 player.Inventory.RemoveItem(ItemRegistry.GetById(itemInHand.Id), 1);
             }
             
-            /*
-            if (placeBlock && player.rightHand.HeldItem?.Id == ItemRegistry.GeneradorO2.Id
-                && player.Inventory.HasItem(ItemRegistry.GeneradorO2, 1)
-                && world.TryPlaceOxygenGenerator(mouseWorldPosition, player.position, player.GetHitbox().Width / 2f))
-            {
-                player.Inventory.RemoveItem(ItemRegistry.GeneradorO2, 1);
-            }
-            else if (placeBlock && player.rightHand.HeldItem?.Id == ItemRegistry.Piedra.Id
-                && player.Inventory.HasItem(ItemRegistry.Piedra, 1)
-                && world.TryPlaceBlock(mouseWorldPosition, player.position, player.GetHitbox().Width / 2f))
-            {
-                player.Inventory.RemoveItem(ItemRegistry.Piedra, 1);
-            } */
+            
             
             ApplyPlayerAttackHits();
             foreach (Creature creature in creatures.Where(creature => creature.isDead))
@@ -360,18 +348,38 @@ public class GameScene : Scene
                 item.Update(deltaTime);
             }
 
+                        // Cierre automático de la mesa si el jugador se aleja
+            if (HUD.craftingUI.AtCraftingTable && !world.IsNearCraftingTable(player.position))
+            {
+                HUD.CloseCraftingTable();
+            }
+
             if (input.IsKeyPressed(Keys.E))
             {
-                Rectangle playerHitbox = player.GetHitbox();
-
-                for (int i = catchableItems.Count - 1; i >= 0; i--)
+                if (HUD.craftingUI.AtCraftingTable)
                 {
-                    CatchableItem item = catchableItems[i];
+                    HUD.CloseCraftingTable();
+                }
+                else
+                {
+                    Rectangle playerHitbox = player.GetHitbox();
+                    bool touchedItem = false;
 
-                    if (playerHitbox.Intersects(item.GetHitbox()))
+                    for (int i = catchableItems.Count - 1; i >= 0; i--)
                     {
-                        player.TryPickup(item);
-                        if (item.Picked) catchableItems.RemoveAt(i);
+                        CatchableItem item = catchableItems[i];
+
+                        if (playerHitbox.Intersects(item.GetHitbox()))
+                        {
+                            touchedItem = true;
+                            player.TryPickup(item);
+                            if (item.Picked) catchableItems.RemoveAt(i);
+                        }
+                    }
+
+                    if (!touchedItem && world.IsNearCraftingTable(player.position))
+                    {
+                        HUD.OpenCraftingTable();
                     }
                 }
             }
@@ -392,6 +400,7 @@ public class GameScene : Scene
             }
 
         }
+        
 
     }
 

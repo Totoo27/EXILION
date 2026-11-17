@@ -13,7 +13,8 @@ public static class RecipeRegistry
         {
             new Ingredient(ItemRegistry.Madera, 4)
         },
-        amount: 1
+        amount: 1,
+        requiresCraftingTable: true
     );
 
     public static readonly Recipe WoodenPickaxeRecipe = new Recipe(
@@ -23,7 +24,8 @@ public static class RecipeRegistry
         {
             new Ingredient(ItemRegistry.Madera, 8)
         },
-        amount: 1
+        amount: 1,
+        requiresCraftingTable: false
     );
 
     public static readonly Recipe StoneAxeRecipe = new Recipe(
@@ -35,7 +37,8 @@ public static class RecipeRegistry
             new Ingredient(ItemRegistry.Madera, 6),
             new Ingredient(ItemRegistry.Piedra, 6)
         },
-        amount: 1
+        amount: 1,
+        requiresCraftingTable: false
     );
 
     public static readonly Recipe StonePickaxeRecipe = new Recipe(
@@ -47,7 +50,8 @@ public static class RecipeRegistry
             new Ingredient(ItemRegistry.Madera, 8),
             new Ingredient(ItemRegistry.Piedra, 10)
         },
-        amount: 1
+        amount: 1,
+        requiresCraftingTable: false
     );
 
     public static readonly Recipe IronAxeRecipe = new Recipe(
@@ -59,7 +63,8 @@ public static class RecipeRegistry
             new Ingredient(ItemRegistry.Madera, 12),
             new Ingredient(ItemRegistry.Hierro, 10)
         },
-        amount: 1
+        amount: 1,
+        requiresCraftingTable: true
     );
 
     public static readonly Recipe IronPickaxeRecipe = new Recipe(
@@ -71,7 +76,8 @@ public static class RecipeRegistry
             new Ingredient(ItemRegistry.Madera, 15),
             new Ingredient(ItemRegistry.Hierro, 15)
         },
-        amount: 1
+        amount: 1,
+        requiresCraftingTable: true
     );
 
     public static readonly Recipe TitaniumAxeRecipe = new Recipe(
@@ -83,7 +89,8 @@ public static class RecipeRegistry
             new Ingredient(ItemRegistry.Madera, 20),
             new Ingredient(ItemRegistry.Titanio, 15)
         },
-        amount: 1
+        amount: 1,
+        requiresCraftingTable: true
     );
 
     public static readonly Recipe TitaniumPickaxeRecipe = new Recipe(
@@ -95,7 +102,8 @@ public static class RecipeRegistry
             new Ingredient(ItemRegistry.Madera, 20),
             new Ingredient(ItemRegistry.Titanio, 20)
         },
-        amount: 1
+        amount: 1,
+        requiresCraftingTable: true
     );
 
     public static readonly Recipe OxygenGeneratorRecipe = new Recipe(
@@ -108,7 +116,8 @@ public static class RecipeRegistry
             new Ingredient(ItemRegistry.Hierro, 10),
             new Ingredient(ItemRegistry.Titanio, 1),
         },
-        amount: 1
+        amount: 1,
+        requiresCraftingTable: true
     );
 
     public static readonly Recipe SiliconRecipe = new Recipe(
@@ -119,7 +128,8 @@ public static class RecipeRegistry
             new Ingredient(ItemRegistry.Arena, 1),
             new Ingredient(ItemRegistry.Piedra, 1)
         },
-        amount: 2
+        amount: 2,
+        requiresCraftingTable: true
     );
 
     public static readonly Recipe ChipRecipe = new Recipe(
@@ -131,7 +141,8 @@ public static class RecipeRegistry
             new Ingredient(ItemRegistry.Piedra, 1),
             new Ingredient(ItemRegistry.Hierro, 4)
         },
-        amount: 1
+        amount: 1,
+        requiresCraftingTable: true
     );
 
     public static readonly Recipe EmptyBottleRecipe = new Recipe(
@@ -141,7 +152,19 @@ public static class RecipeRegistry
         {
             new Ingredient(ItemRegistry.Hierro, 3)
         },
-        amount: 1
+        amount: 1,
+        requiresCraftingTable: true
+    );
+
+     public static readonly Recipe CraftingTableRecipe = new Recipe(
+        id:13,
+        result: ItemRegistry.CraftingTable,
+        ingredients: new List<Ingredient>
+        {
+            new Ingredient(ItemRegistry.Madera, 5)
+        },
+        amount : 1,
+        requiresCraftingTable: false
     );
 
     public static readonly Recipe LowArmorRecipe = new Recipe(
@@ -189,6 +212,7 @@ public static class RecipeRegistry
         WoodenPickaxeRecipe,
         StonePickaxeRecipe,
         StoneAxeRecipe,
+        CraftingTableRecipe,
         IronPickaxeRecipe,
         IronAxeRecipe,
         TitaniumAxeRecipe,

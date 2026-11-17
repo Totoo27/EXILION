@@ -78,25 +78,34 @@ public static class ObjectProperties
             BreakableByItems = new[] { ItemRegistry.PicoDeMadera, ItemRegistry.PicoDePiedra, ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
             Drops = new[] { new ObjectDrop(ItemRegistry.Arena, 2) },
             Source = new Rectangle(0, 64, 64, 64), DrawWidthTiles = 1.4f } },
+
+        { ObjectType.OxygenGenerator, new ObjectDefinition {
+            Type = ObjectType.OxygenGenerator, BlocksMovement = true, CollisionRadius = 0.45f, MaxHealth = 30,
+            HitSound = Assets.SoundEffects?.mine, AbovePlayer = false,
+            HandCanBreak = false,
+            UseItemSprite = true,
+            OxygenRadiusTiles = 8f,
+            BreakableByItems = new[] { ItemRegistry.PicoDePiedra, ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
+            Drops = new[] { new ObjectDrop(ItemRegistry.GeneradorO2, 1) }, DrawWidthTiles = 1f }},
+
+        { ObjectType.CraftingTable, new ObjectDefinition {
+            Type = ObjectType.CraftingTable, BlocksMovement = true, CollisionRadius = 0.45f, MaxHealth = 20,
+            HitSound = Assets.SoundEffects?.mine,
+            AbovePlayer = false,
+            HandCanBreak = false,
+            UseItemSprite = true,
+            BreakableByItems = new[] { ItemRegistry.PicoDePiedra, ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
+            Drops = new[] { new ObjectDrop(ItemRegistry.CraftingTable, 1) }, DrawWidthTiles = 1f ,
+            IsCraftingTable = true, InteractionRadiusTiles = 2.5f} 
+            
+            },
+            
     };
-
-    private static readonly ObjectDefinition BlockDefinition = new ObjectDefinition {
-        Type = ObjectType.Block, BlocksMovement = true, CollisionRadius = 0.42f, MaxHealth = 20,
-        HitSound = Assets.SoundEffects?.mine, AbovePlayer = false, HandCanBreak = true,
-        Source = new Rectangle(0, 0, 32, 32), DrawWidthTiles = 1f };
-
-    private static readonly ObjectDefinition OxygenGeneratorDefinition = new ObjectDefinition {
-        Type = ObjectType.OxygenGenerator, BlocksMovement = true, CollisionRadius = 0.45f, MaxHealth = 30,
-        HitSound = Assets.SoundEffects?.mine, AbovePlayer = false, HandCanBreak = true,
-        UsesGeneratorSprite = true, OxygenRadiusTiles = 8f, OxygenCircleColor = Color.LightBlue,
-        OxygenCircleAlpha = 80, Source = new Rectangle(0, 0, 32, 32), DrawWidthTiles = 1f };
 
     public static readonly float MaxCollisionRadius = Definitions.Values.Max(d => d.CollisionRadius);
 
     public static ObjectDefinition Get(ObjectType type) => type switch
     {
-        ObjectType.Block => BlockDefinition,
-        ObjectType.OxygenGenerator => OxygenGeneratorDefinition,
         _ => Definitions[type]
     };
 

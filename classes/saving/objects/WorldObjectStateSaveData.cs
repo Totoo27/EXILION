@@ -11,6 +11,7 @@ public sealed class WorldObjectStateSaveData
     public int? CurrentHealth { get; set; }
     public bool IsDestroyed { get; set; }
     public bool IsCollected { get; set; }
+    public ObjectType? Type { get; set; }
 
     public static WorldObjectStateSaveData FromState(WorldObjectState state) => new()
     {
@@ -20,12 +21,14 @@ public sealed class WorldObjectStateSaveData
         SpawnIndex = state.Id.SpawnIndex,
         CurrentHealth = state.CurrentHealth,
         IsDestroyed = state.IsDestroyed,
-        IsCollected = state.IsCollected
+        IsCollected = state.IsCollected,
+        Type = state.Type
     };
 
-    public WorldObjectState ToState() => new(
+        public WorldObjectState ToState() => new(
         new WorldObjectId(Seed, TileX, TileY, SpawnIndex),
         CurrentHealth,
         IsDestroyed,
-        IsCollected);
+        IsCollected,
+        Type);
 }
