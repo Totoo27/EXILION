@@ -277,7 +277,15 @@ public class GameScene : Scene
 
         if (input.IsKeyPressed(Keys.Escape))
         {
-            pausePanel.enabled = true;
+
+            if (HUD.inventoryUI.expanded)
+            {
+                HUD.inventoryUI.Close();
+            } else
+            {
+                pausePanel.enabled = !pausePanel.enabled;
+            }
+
         }
         if (input.IsKeyPressed(Keys.F1) && player != null)
         {

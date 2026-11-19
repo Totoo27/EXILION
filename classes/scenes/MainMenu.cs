@@ -130,6 +130,16 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
 
         MouseState mouseState = input.CurrentMouse;
 
+        if (!animationFinished)
+        {
+            KeyboardState keyboardState = input.CurrentKeyboard;
+
+            if (keyboardState.GetPressedKeyCount() > 0 || mouseState.LeftButton == ButtonState.Pressed || mouseState.RightButton == ButtonState.Pressed)
+            {
+                SkipTitleAnimation();
+            }
+        }
+
         if (input.IsKeyPressed(Keys.Escape))
         {
 
@@ -150,10 +160,10 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
         if(!animationFinished) return; // Prevent any logic before the animation ends
 
         worldSavesPanel.Update();
-        updateWorldSavesAnimation();
         if (SceneManager.CurrentScene != this) return;
         updateWorldSavesAnimation();
-        if(worldSavesPanel.enabled) return; // Prevent using Menu buttons while worldSaves panel is enabled
+        if (SceneManager.CurrentScene != this) return;
+        if (worldSavesPanel.enabled) return; // Prevent using Menu buttons while worldSavesPanel is enabled
 
         settingsPanel.Update();
         updateSettingsAnimation();
@@ -293,6 +303,23 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
             break;
         }
 
+    }
+
+    private void SkipTitleAnimation()
+    {
+        animationFinished = true;
+        currentState = TitleAnimationState.Finished;
+
+        // Opacidad final
+        titleOpacity = 1f;
+        buttonsOpacity = 1f;
+
+        // Posiciones finales
+        titleRect.X = (int)originalTitlePosition.X;
+        titleRect.Y = (int)originalTitlePosition.Y;
+
+        sunRect.X = (int)originalSunPosition.X;
+        sunRect.Y = (int)originalSunPosition.Y;
     }
 
     public void closeSettings()
