@@ -14,7 +14,7 @@ public static class RecipeRegistry
             new Ingredient(ItemRegistry.Madera, 4)
         },
         amount: 1,
-        requiresCraftingTable: true
+        requiresCraftingTable: false
     );
 
     public static readonly Recipe WoodenPickaxeRecipe = new Recipe(
@@ -129,7 +129,7 @@ public static class RecipeRegistry
             new Ingredient(ItemRegistry.Piedra, 1)
         },
         amount: 2,
-        requiresCraftingTable: true
+        requiresCraftingTable: false
     );
 
     public static readonly Recipe ChipRecipe = new Recipe(
@@ -153,22 +153,27 @@ public static class RecipeRegistry
             new Ingredient(ItemRegistry.Hierro, 3)
         },
         amount: 1,
-        requiresCraftingTable: true
+        requiresCraftingTable: false
     );
 
      public static readonly Recipe CraftingTableRecipe = new Recipe(
-        id:13,
+        id: 13,
         result: ItemRegistry.CraftingTable,
         ingredients: new List<Ingredient>
         {
-            new Ingredient(ItemRegistry.Madera, 5)
+
+            new Ingredient(ItemRegistry.Piedra, 5),
+            new Ingredient(ItemRegistry.Hierro, 5),
+            new Ingredient(ItemRegistry.lowCrystal, 2),
+            new Ingredient(ItemRegistry.mediumCrystal, 1)
+
         },
         amount : 1,
         requiresCraftingTable: false
     );
 
     public static readonly Recipe LowArmorRecipe = new Recipe(
-        id: 13,
+        id: 14,
         result: ItemRegistry.lowArmor,
         ingredients: new List<Ingredient>
         {
@@ -182,7 +187,7 @@ public static class RecipeRegistry
     );
 
     public static readonly Recipe MidArmorRecipe = new Recipe(
-        id: 14,
+        id: 15,
         result: ItemRegistry.mediumArmor,
         ingredients: new List<Ingredient>
         {
@@ -196,7 +201,7 @@ public static class RecipeRegistry
     );
 
     public static readonly Recipe AdvancedArmorRecipe = new Recipe(
-        id: 15,
+        id: 16,
         result: ItemRegistry.advancedArmor,
         ingredients: new List<Ingredient>
         {
@@ -209,21 +214,52 @@ public static class RecipeRegistry
         requiresCraftingTable: true
     );
 
+    public static readonly Recipe WoodenWallRecipe = new Recipe(
+        id: 17,
+        result: ItemRegistry.Arena,
+        ingredients: new List<Ingredient>
+        {
+            new Ingredient(ItemRegistry.Madera, 2)
+        },
+        amount: 1,
+        requiresCraftingTable: false
+    );
+
+    public static readonly Recipe StoneWallRecipe = new Recipe(
+        id: 18,
+        result: ItemRegistry.Arena,
+        ingredients: new List<Ingredient>
+        {
+            new Ingredient(ItemRegistry.Piedra, 2)
+        },
+        amount: 1,
+        requiresCraftingTable: true
+    );
+
     public static readonly IReadOnlyList<Recipe> All = new List<Recipe>
     {
+        CraftingTableRecipe,
         WoodenAxeRecipe,
         WoodenPickaxeRecipe,
+        EmptyBottleRecipe,
         StonePickaxeRecipe,
         StoneAxeRecipe,
-        CraftingTableRecipe,
-        IronPickaxeRecipe,
-        IronAxeRecipe,
-        TitaniumAxeRecipe,
-        TitaniumPickaxeRecipe,
-        OxygenGeneratorRecipe,
         SiliconRecipe,
         ChipRecipe,
-        EmptyBottleRecipe
+
+        WoodenWallRecipe,
+        StoneWallRecipe,
+
+        IronPickaxeRecipe,
+        IronAxeRecipe,
+        OxygenGeneratorRecipe,
+        TitaniumAxeRecipe,
+        TitaniumPickaxeRecipe,
+
+        LowArmorRecipe,
+        MidArmorRecipe,
+        AdvancedArmorRecipe
+
     };
 
      private static readonly Dictionary<int, Recipe> recipesById = new Dictionary<int, Recipe>();

@@ -80,7 +80,7 @@ public static class ObjectProperties
             Source = new Rectangle(0, 64, 64, 64), DrawWidthTiles = 1.4f } },
 
         { ObjectType.OxygenGenerator, new ObjectDefinition {
-            Type = ObjectType.OxygenGenerator, BlocksMovement = true, CollisionRadius = 0.45f, MaxHealth = 30,
+            Type = ObjectType.OxygenGenerator, BlocksMovement = true, CollisionRadius = 0.30f, MaxHealth = 30,
             HitSound = Assets.SoundEffects?.mine, AbovePlayer = false,
             HandCanBreak = false,
             UseItemSprite = true,
