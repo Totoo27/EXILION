@@ -36,7 +36,6 @@ public class GameScene : Scene
     private PausePanel pausePanel;
     private DeathPanel deathPanel;
 
-
     // Player
     private Player player;
     private List<Creature> creatures = new List<Creature>();
@@ -46,6 +45,7 @@ public class GameScene : Scene
     private Texture2D pixel;
     private HUD HUD;
     private InputManager input;
+    private InteractionPrompt interactionPrompt;
 
     // Songs queue
     private List<Song> songsQueue = new List<Song>
@@ -106,6 +106,8 @@ public class GameScene : Scene
         world = new World.World(seed: Seed, tileSize: tileSize) { RenderDistanceChunks = 2 };
         creatureSpawnGenerator = new CreatureSpawnGenerator(world);
         world.ObjectDestroyed += dropWorldObjectItems;
+
+        interactionPrompt = new InteractionPrompt(Assets.Fonts.PixelArt, GameContext.ScaleXY(1));
 
         if (isNewGame)
         {
@@ -356,11 +358,12 @@ public class GameScene : Scene
                 item.Update(deltaTime);
             }
 
-                        // Cierre automático de la mesa si el jugador se aleja
+            // Cierre automático de la mesa si el jugador se aleja
             if (HUD.craftingUI.AtCraftingTable && !world.IsNearCraftingTable(player.position))
             {
                 HUD.CloseCraftingTable();
             }
+            UpdateInteractionPrompt();
 
             if (input.IsKeyPressed(Keys.E))
             {
@@ -410,6 +413,25 @@ public class GameScene : Scene
         }
         
 
+    }
+
+    private void UpdateInteractionPrompt()
+    {
+        if (player == null || HUD.craftingUI.AtCraftingTable)
+        {
+            interactionPrompt.Visible = false;
+            return;
+        }
+
+        Rectangle playerHitbox = player.GetHitbox();
+
+        bool nearItem = catchableItems.Any(item =>
+            playerHitbox.Intersects(item.GetHitbox())
+        );
+
+        bool nearCraftingTable = world.IsNearCraftingTable(player.position);
+
+        interactionPrompt.Visible = nearItem || nearCraftingTable;
     }
 
     private void ApplyPlayerAttackHits()
@@ -483,11 +505,18 @@ public class GameScene : Scene
         mapRenderer?.DrawObjects(spriteBatch, world, false);
         player?.Draw(spriteBatch, pixel);
 
-        foreach (Creature creature in creatures) creature.Draw(spriteBatch, pixel);
+        foreach (Creature creature in creatures)
+            creature.Draw(spriteBatch, pixel);
 
         mapRenderer?.DrawObjects(spriteBatch, world, true);
-        if (GameContext?.showHitboxes == true)
-            mapRenderer?.DrawObjectHitboxes(spriteBatch, world, pixel);
+
+        // Interaction Prompt
+        if (interactionPrompt != null && !pausePanel.enabled && !deathPanel.enabled && player != null)
+        {
+            interactionPrompt.Draw(spriteBatch, pixel, player.GetHitbox());
+        }
+
+        if (GameContext?.showHitboxes == true) mapRenderer?.DrawObjectHitboxes(spriteBatch, world, pixel);
         
     }
 
@@ -523,6 +552,7 @@ public class GameScene : Scene
         HUD = null;
         pausePanel = null;
         deathPanel = null;
+        interactionPrompt = null;
 
         // Entities
         catchableItems?.Clear();
