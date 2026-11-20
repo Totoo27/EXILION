@@ -60,6 +60,19 @@ public class Inventory
         return saveData;
     }
 
+    public ItemStack? TakeStack(int index)
+    {
+        if (index < 0 || index >= slots.Length) return null;
+
+        ItemStack? stack = slots[index];
+        if (stack == null) return null;
+
+        slots[index] = null;
+        UpdateInventoryUI?.Invoke();
+
+        return stack;
+    }
+
      public int AddItem(Item item, int amount)
     {
         

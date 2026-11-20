@@ -14,7 +14,7 @@ public static class RecipeRegistry
             new Ingredient(ItemRegistry.Madera, 4)
         },
         amount: 1,
-        requiresCraftingTable: true
+        requiresCraftingTable: false
     );
 
     public static readonly Recipe WoodenPickaxeRecipe = new Recipe(

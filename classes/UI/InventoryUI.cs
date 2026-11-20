@@ -38,6 +38,8 @@ public class InventoryUI
     public int SelectedSlotIndex { get; private set; } = 0;
     public event Action<Item?>? slotChanged;
     public event Action<Item?>? itemTransitionRequested;
+
+    public event Action<ItemStack>? ItemDropped;
     private int lastUpdatedSlotIndex;
     private Item? lastUpdatedItem;
     private bool inventoryMoveInProgress;
@@ -92,18 +94,22 @@ public class InventoryUI
         if (input.IsLeftMouseReleased() && draggedSlotIndex != -1)
         {
             int targetIndex = GetSlotIndexAt(mousePosition);
+
             if (targetIndex != -1)
             {
-                inventoryMoveInProgress = true;
-                try
+                inventory.MoveItem(draggedSlotIndex, targetIndex);
+            }
+            else if (expanded)
+            {
+                ItemStack? droppedStack = inventory.TakeStack(draggedSlotIndex);
+
+                if (droppedStack != null)
                 {
-                    inventory.MoveItem(draggedSlotIndex, targetIndex);
-                }
-                finally
-                {
-                    inventoryMoveInProgress = false;
+                    // Solicitar a GameScene que genere el objeto en el mundo.
+                    ItemDropped?.Invoke(droppedStack);
                 }
             }
+
             draggedSlotIndex = -1;
         }
 
