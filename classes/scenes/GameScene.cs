@@ -367,6 +367,7 @@ public class GameScene : Scene
             }
         
             world.UpdateAroundPosition(player.position);
+            world.UpdateRegrowth((float)gameTime.ElapsedGameTime.TotalSeconds, player.position);
             Creature spawnedCreature = creatureSpawnGenerator.TrySpawn(
                 (float)gameTime.ElapsedGameTime.TotalSeconds,
                 player.position,
