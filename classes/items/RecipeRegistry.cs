@@ -236,6 +236,78 @@ public static class RecipeRegistry
         requiresCraftingTable: true
     );
 
+    public static readonly Recipe TurbineRecipe = new Recipe(
+        id: 19,
+        result: ItemRegistry.turbine,
+        ingredients: new List<Ingredient>
+        {
+
+            new Ingredient(ItemRegistry.Hierro, 10),
+            new Ingredient(ItemRegistry.Titanio, 10),
+            new Ingredient(ItemRegistry.Torio, 5),
+            new Ingredient(ItemRegistry.Silicio, 30)
+
+        },
+        amount: 1,
+        requiresCraftingTable: true
+    );
+
+    public static readonly Recipe WingRecipe = new Recipe(
+        id: 20,
+        result: ItemRegistry.wing,
+        ingredients: new List<Ingredient>
+        {
+            new Ingredient(ItemRegistry.Hierro, 10),
+            new Ingredient(ItemRegistry.Titanio, 15),
+            new Ingredient(ItemRegistry.Silicio, 20),
+            new Ingredient(ItemRegistry.lowCrystal, 15)
+        },
+        amount: 1,
+        requiresCraftingTable: true
+    );
+
+    public static readonly Recipe FuelTankRecipe = new Recipe(
+        id: 21,
+        result: ItemRegistry.fuelTank,
+        ingredients: new List<Ingredient>
+        {
+            new Ingredient(ItemRegistry.Hierro, 30),
+            new Ingredient(ItemRegistry.Torio, 5),
+            new Ingredient(ItemRegistry.mediumCrystal, 20)
+        },
+        amount: 1,
+        requiresCraftingTable: true
+    );
+
+    public static readonly Recipe CabinRecipe = new Recipe(
+        id: 22,
+        result: ItemRegistry.cabin,
+        ingredients: new List<Ingredient>
+        {
+            new Ingredient(ItemRegistry.Titanio, 25),
+            // Cristal, 10
+            new Ingredient(ItemRegistry.Chip, 5),
+            new Ingredient(ItemRegistry.advancedCrystal, 10)
+        },
+        amount: 1,
+        requiresCraftingTable: true
+    );
+
+    public static readonly Recipe ShipRecipe = new Recipe(
+        id: 23,
+        result: ItemRegistry.FinalShip,
+        ingredients: new List<Ingredient>
+        {
+            new Ingredient(ItemRegistry.turbine, 1),
+            new Ingredient(ItemRegistry.wing, 2),
+            new Ingredient(ItemRegistry.fuelTank, 1),
+            new Ingredient(ItemRegistry.cabin, 1),
+            new Ingredient(ItemRegistry.GeneradorO2, 1)
+        },
+        amount: 1,
+        requiresCraftingTable: true
+    );
+
     public static readonly IReadOnlyList<Recipe> All = new List<Recipe>
     {
         CraftingTableRecipe,
@@ -258,7 +330,13 @@ public static class RecipeRegistry
 
         LowArmorRecipe,
         MidArmorRecipe,
-        AdvancedArmorRecipe
+        AdvancedArmorRecipe,
+
+        TurbineRecipe,
+        WingRecipe,
+        FuelTankRecipe,
+        CabinRecipe,
+        ShipRecipe,
 
     };
 

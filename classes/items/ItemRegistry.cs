@@ -11,7 +11,7 @@ public static class ItemRegistry
     public static readonly Item Madera = new Item(
         id: 1,
         type: ItemType.RESOURCES,
-        name: "Madera",
+        name: "Wood",
         icon: Assets.Sprites.Tronco,
         twoHanded: true
     );
@@ -19,13 +19,13 @@ public static class ItemRegistry
     public static readonly Item Piedra = new Item(
         id: 2,
         type: ItemType.RESOURCES,
-        name: "Piedra",
+        name: "Stone",
         icon: Assets.Sprites.Piedra
     );
 
     public static readonly Consumable AguaPurificada = new Consumable(
         id: 3,
-        name: "Agua Purificada",
+        name: "Purified Water",
         statRestore: 20,
         statType: Entities.LivingThings.StatType.Thirst,
         icon: Assets.Sprites.AguaPurificada
@@ -33,7 +33,7 @@ public static class ItemRegistry
 
     public static readonly Consumable CarneCocinada = new Consumable(
         id: 4,
-        name: "Carne Cocinada",
+        name: "Meat",
         statRestore: 20,
         statType: Entities.LivingThings.StatType.Hunger,
         icon: Assets.Sprites.CarneCocinada
@@ -41,7 +41,7 @@ public static class ItemRegistry
 
     public static readonly Consumable OxigenoEmbotellado = new Consumable(
         id: 5,
-        name: "Oxigeno Embotellado",
+        name: "Bottled Oxygen",
         statRestore: 20,
         statType: Entities.LivingThings.StatType.Oxygen,
         icon: Assets.Sprites.OxigenoEmbotellado
@@ -49,7 +49,7 @@ public static class ItemRegistry
 
     public static readonly Tool HachaDePiedra = new Tool(
         id: 6,
-        name: "Hacha de piedra",
+        name: "Stone Axe",
         attackSpeed: 3f,
         damage: 7f,
         hitboxWidth: 20f,
@@ -59,15 +59,15 @@ public static class ItemRegistry
 
     public static readonly Consumable Baya = new Consumable(
         id: 7,
-        name: "Baya",
-        statRestore: 5,
+        name: "Berry",
+        statRestore: 8,
         statType: Entities.LivingThings.StatType.Hunger,
         icon: Assets.Sprites.Baya
     );
 
     public static readonly Tool HachaDeMadera = new Tool(
         id: 8,
-        name: "Hacha de madera",
+        name: "Wooden Axe",
         attackSpeed: 3f,
         damage: 5f,
         hitboxWidth: 20f,
@@ -77,7 +77,7 @@ public static class ItemRegistry
 
     public static readonly Tool PicoDeMadera = new Tool(
         id: 9,
-        name: "Pico de madera",
+        name: "Wooden Pickaxe",
         attackSpeed: 2.5f,
         damage: 5f,
         hitboxWidth: 20f,
@@ -87,7 +87,7 @@ public static class ItemRegistry
 
     public static readonly Tool PicoDePiedra = new Tool(
         id: 10,
-        name: "Pico de piedra",
+        name: "Stone Pickaxe",
         attackSpeed: 2.5f,
         damage: 8f,
         hitboxWidth: 20f,
@@ -98,27 +98,27 @@ public static class ItemRegistry
     public static readonly Item Hierro = new Item(
         id: 11,
         type: ItemType.RESOURCES,
-        name: "Hierro",
+        name: "Iron",
         icon: Assets.Sprites.Hierro
     );
 
     public static readonly Item Titanio = new Item(
         id: 12,
         type: ItemType.RESOURCES,
-        name: "Titanio",
+        name: "Titanium",
         icon: Assets.Sprites.Titanio
     );
 
     public static readonly Item Torio = new Item(
         id: 13,
         type: ItemType.RESOURCES,
-        name: "Torio",
+        name: "Thorium",
         icon: Assets.Sprites.Torio
     );
 
     public static readonly Tool HachaDeHierro = new Tool(
         id: 14,
-        name: "Hacha de Hierro",
+        name: "Iron Axe",
         attackSpeed: 3.2f,
         damage: 10f,
         hitboxWidth: 20f,
@@ -128,7 +128,7 @@ public static class ItemRegistry
 
     public static readonly Tool PicoDeHierro = new Tool(
         id: 15,
-        name: "Pico de Hierro",
+        name: "Iron Pickaxe",
         attackSpeed: 2.5f,
         damage: 12f,
         hitboxWidth: 20f,
@@ -138,7 +138,7 @@ public static class ItemRegistry
 
     public static readonly Tool HachaDeTitanio = new Tool(
         id: 16,
-        name: "Hacha de Titanio",
+        name: "Titanium Axe",
         attackSpeed: 3.2f,
         damage: 15f,
         hitboxWidth: 20f,
@@ -148,7 +148,7 @@ public static class ItemRegistry
 
     public static readonly Tool PicoDeTitanio = new Tool(
         id: 17,
-        name: "Pico de Titanio",
+        name: "Titanium Pickaxe",
         attackSpeed: 2.5f,
         damage: 15f,
         hitboxWidth: 20f,
@@ -166,7 +166,7 @@ public static class ItemRegistry
     public static readonly Item BotellaVacia = new Item(
         id: 19,
         type: ItemType.RESOURCES,
-        name: "Botella vacia",
+        name: "Empty Bottle",
         icon: Assets.Sprites.botellaVacia,
         twoHanded: true
     );
@@ -174,7 +174,7 @@ public static class ItemRegistry
     public static readonly Item Arena = new Item(
         id: 20,
         type: ItemType.RESOURCES,
-        name: "Arena",
+        name: "Sand",
         icon: Assets.Sprites.arena,
         twoHanded: false
     );
@@ -182,7 +182,7 @@ public static class ItemRegistry
     public static readonly Item Silicio = new Item(
         id: 21,
         type: ItemType.RESOURCES,
-        name: "Silicio",
+        name: "Silicon",
         icon: Assets.Sprites.silicio,
         twoHanded: false
     );
@@ -198,7 +198,7 @@ public static class ItemRegistry
     public static readonly Item lowCrystal = new Item(
         id: 23,
         type: ItemType.RESOURCES,
-        name: "Cristal bajo",
+        name: "Low-Grade Crystal",
         icon: Assets.Sprites.LowCrystal,
         twoHanded: false
     );
@@ -206,7 +206,7 @@ public static class ItemRegistry
     public static readonly Item mediumCrystal = new Item(
         id: 24,
         type: ItemType.RESOURCES,
-        name: "Cristal medio",
+        name: "Mid-Grade Crystal",
         icon: Assets.Sprites.MediumCrystal,
         twoHanded: false
     );
@@ -214,7 +214,7 @@ public static class ItemRegistry
     public static readonly Item advancedCrystal = new Item(
         id: 25,
         type: ItemType.RESOURCES,
-        name: "Cristal avanzado",
+        name: "Advanced Crystal",
         icon: Assets.Sprites.AdvancedCrystal,
         twoHanded: false
     );
@@ -222,7 +222,7 @@ public static class ItemRegistry
     public static readonly Item advancedArmor = new Item(
         id: 26,
         type: ItemType.RESOURCES,
-        name: "Armadura avanzada",
+        name: "Advanced Armor",
         icon: Assets.Sprites.AdvancedArmor,
         twoHanded: true
     );
@@ -230,7 +230,7 @@ public static class ItemRegistry
     public static readonly Item mediumArmor = new Item(
         id: 27,
         type: ItemType.RESOURCES,
-        name: "Armadura media",
+        name: "Medium Armor",
         icon: Assets.Sprites.MediumArmor,
         twoHanded: true
     );
@@ -238,7 +238,7 @@ public static class ItemRegistry
     public static readonly Item lowArmor = new Item(
         id: 28,
         type: ItemType.RESOURCES,
-        name: "Armadura baja",
+        name: "Low-Grade Armor",
         icon: Assets.Sprites.LowArmor,
         twoHanded: true
     );
@@ -248,6 +248,45 @@ public static class ItemRegistry
         name: "Crafting Table",
         type: ObjectType.CraftingTable,
         icon: Assets.Sprites.craftingTable
+     );
+
+    public static readonly Item turbine = new Item(
+        id: 30,
+        type: ItemType.RESOURCES,
+        name: "Turbine",
+        icon: Assets.Sprites.turbine,
+        twoHanded: true
+    );
+
+    public static readonly Item wing = new Item(
+        id: 31,
+        type: ItemType.RESOURCES,
+        name: "Wing",
+        icon: Assets.Sprites.wing,
+        twoHanded: true
+    );
+
+    public static readonly Item fuelTank = new Item(
+        id: 32,
+        type: ItemType.RESOURCES,
+        name: "Fuel Tank",
+        icon: Assets.Sprites.fuelTank,
+        twoHanded: true
+    );
+
+    public static readonly Item cabin = new Item(
+        id: 33,
+        type: ItemType.RESOURCES,
+        name: "Cabin",
+        icon: Assets.Sprites.cabin,
+        twoHanded: true
+    );
+
+    public static readonly Structure FinalShip = new Structure(
+        id: 34,
+        name: "Spaceship",
+        type: ObjectType.CraftingTable,
+        icon: Assets.Sprites.ship
      );
 
     // -------------------------
@@ -290,7 +329,14 @@ public static class ItemRegistry
         { HachaDeHierro.Id, HachaDeHierro },
         { PicoDeHierro.Id, PicoDeHierro },
         { HachaDeTitanio.Id, HachaDeTitanio },
-        { PicoDeTitanio.Id, PicoDeTitanio }
+        { PicoDeTitanio.Id, PicoDeTitanio },
+
+        // Final Ship
+        { turbine.Id, turbine },
+        { wing.Id, wing },
+        { fuelTank.Id, fuelTank },
+        { cabin.Id, cabin },
+        { FinalShip.Id, FinalShip }
     };
 
     public static Item? GetById(int id)

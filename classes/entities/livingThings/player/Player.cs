@@ -21,6 +21,9 @@ public class Player : LivingThing
     private Item? pendingHandItem;
     private bool hasPendingHandItem;
     private const float AttackHeadTurn = 0.16f;
+    private const float AttackHeadTurnWeapon = 0.25f;
+
+    private float headTurn => rightHand.HeldItem is Tool ? AttackHeadTurnWeapon : AttackHeadTurn;
     private float headAttackRotation;
 
     public PlayerStat oxygen {get; private set;}
@@ -199,15 +202,15 @@ public class Player : LivingThing
              (leftHand.IsAttacking && !leftHand.IsRetracting)))
         {
             // Las herramientas atacan desde la mano derecha.
-            targetHeadRotation = -AttackHeadTurn;
+            targetHeadRotation = -headTurn;
         }
         else if (rightHand.IsAttacking && !rightHand.IsRetracting)
         {
-            targetHeadRotation = -AttackHeadTurn;
+            targetHeadRotation = -headTurn;
         }
         else if (leftHand.IsAttacking && !leftHand.IsRetracting)
         {
-            targetHeadRotation = AttackHeadTurn;
+            targetHeadRotation = headTurn;
         }
 
         headAttackRotation = MathHelper.Lerp(
