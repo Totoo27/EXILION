@@ -29,7 +29,7 @@ public class GameScene : Scene
     private const float MAX_NIGHT_OPACITY = 0.65f;
     private const float NIGHT_TRANSITION_SPEED = 0.15f;
     private bool night = false;
-    private Color nightColor = new Color(15, 10, 35);
+    private Color nightColor = new Color(30, 10, 45);
 
     // Panels
 
@@ -227,42 +227,13 @@ public class GameScene : Scene
 
         catchableItems.Add(
             new CatchableItem(
-                new ItemStack(ItemRegistry.AguaPurificada, 2),
-                new Vector2(300, 100),
-                new Sprite(ItemRegistry.AguaPurificada.Icon, GameContext.ScaleXY(1) * 0.8f),
-                GameContext
-            )
-        );
-        catchableItems.Add(
-            new CatchableItem(
-                new ItemStack(ItemRegistry.CarneCocinada, 2),
-                new Vector2(400, 100),
-                new Sprite(ItemRegistry.CarneCocinada.Icon, GameContext.ScaleXY(1) * 0.8f),
-                GameContext
-            )
-        );
-        catchableItems.Add(
-            new CatchableItem(
-                new ItemStack(ItemRegistry.OxigenoEmbotellado, 2),
-                new Vector2(500, 100),
-                new Sprite(ItemRegistry.OxigenoEmbotellado.Icon, GameContext.ScaleXY(1) * 0.8f),
-                GameContext
-            )
-        );
-        catchableItems.Add(
-            new CatchableItem(
                 new ItemStack(ItemRegistry.GeneradorO2, 1),
-                new Vector2(700, 100),
+                new Vector2(100, 100),
                 new Sprite(ItemRegistry.GeneradorO2.Icon, GameContext.ScaleXY(1), ItemRegistry.GeneradorO2.IconSource),
                 GameContext
             )
         );
-
-        creatures.Add(CreatureFactory.CreateCreature(
-            CreatureType.Peaceful,
-            player.position + new Vector2(64 * 3, 0),
-            GameContext
-        ));
+        
     }
 
     public override void Update(GameTime gameTime)

@@ -6,12 +6,11 @@ using EXILION.Entities.LivingThings;
 
 namespace EXILION.World;
 
-/// <summary>Genera criaturas proceduralmente sobre los chunks que el mundo tiene cargados.</summary>
 public sealed class CreatureSpawnGenerator
 {
     private const float SpawnInterval = 6f;
     private const int MaxCreatures = 20;
-    private const float SpawnChancePerAttempt = 0.75f;
+    private const float SpawnChancePerAttempt = 0.55f;
 
     private readonly World world;
     private readonly Random random = new();
@@ -65,12 +64,12 @@ public sealed class CreatureSpawnGenerator
 
         if (isNight)
         {
-            if (roll < 0.35) return CreatureType.Hostile;
-            roll -= 0.35;
+            if (roll < 0.30) return CreatureType.Hostile;
+            roll -= 0.30;
         }
 
         // Las zonas de roca favorecen criaturas neutrales; el resto favorece pacíficas.
-        double neutralChance = isRock ? 0.65 : 0.30;
+        double neutralChance = isRock ? 0.70 : 0.30;
         return roll < neutralChance ? CreatureType.Neutral : CreatureType.Peaceful;
     }
 }

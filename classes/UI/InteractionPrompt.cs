@@ -27,7 +27,7 @@ public class InteractionPrompt
         int border = Math.Max(1, (int)(2 * scale));
 
         int x = targetHitbox.Center.X - width / 2;
-        int y = targetHitbox.Top - height - (int)(8 * scale);
+        int y = targetHitbox.Top - height - (int)(10 * scale);
 
         Rectangle background = new Rectangle(x, y, width, height);
 
