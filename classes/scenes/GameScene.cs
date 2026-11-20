@@ -511,6 +511,7 @@ public class GameScene : Scene
             player.DamageTaken -= camera.damageShake;
         } 
 
+        HUD.inventoryUI.ItemDropped -= DropItem;
         // UI
         HUD = null;
         pausePanel = null;
@@ -603,6 +604,8 @@ public class GameScene : Scene
 
         HUD = new HUD(player, GameContext, graphicsDevice, input, DIURNAL_PRESET_TIME);
 
+         HUD.inventoryUI.ItemDropped += DropItem;
+
         // update stats from beggining
         HUD.setTime(DIURNAL_PRESET_TIME - diurnalCycleTime);
         player.ForceUpdateStats();
@@ -611,6 +614,20 @@ public class GameScene : Scene
         player.Inventory.UpdateInventoryUI += HUD.inventoryUI.UpdateHandItem;
 
         if(isNewGame) player.position = world.FindSpawnPosition();
+    }
+
+    private void DropItem(ItemStack stack)
+    {
+        if (stack == null || stack.Quantity <= 0) return;
+
+        catchableItems.Add(
+            new CatchableItem(
+                stack,
+                player.position,
+                new Sprite(stack.Item.Icon, GameContext.ScaleXY(1) * 0.8f),
+                GameContext
+            )
+        );
     }
 
     private void UpdateNightTransition(GameTime gameTime)
