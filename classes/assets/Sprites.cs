@@ -12,6 +12,7 @@ public sealed class Sprites
     public Texture2D GameTitle { get; private set; }
     public Texture2D Sun { get; private set; }
     public Texture2D Button { get; private set; }
+    public Texture2D cursorTexture { get; private set; }
 
     // Player
     public Texture2D Player { get; private set; }
@@ -84,11 +85,13 @@ public sealed class Sprites
 
     public async Task Load(ContentManager content)
     {
+
         // UI
         MenuBackground = content.Load<Texture2D>("Sprites/UI/MainMenuBackground");
         GameTitle = content.Load<Texture2D>("Sprites/UI/ExilionTitle");
         Sun = content.Load<Texture2D>("Sprites/UI/Sun");        
         Button = content.Load<Texture2D>("Sprites/UI/Button");
+        cursorTexture = content.Load<Texture2D>("Sprites/UI/pointer");
 
         // Bars
         meter = content.Load<Texture2D>("Sprites/UI/HUD/meter");

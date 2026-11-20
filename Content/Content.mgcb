@@ -292,6 +292,18 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/chip.png
 
+#begin Sprites/Items/CraftingTable.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/CraftingTable.png
+
 #begin Sprites/Items/GeneradorO2.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -760,6 +772,18 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/UI/MainMenuBackground.png;Sprites/UI/MainMenuBackground
 
+#begin Sprites/UI/pointer.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/UI/pointer.png
+
 #begin Sprites/UI/Sun.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -771,16 +795,4 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/UI/Sun.png;Sprites/UI/Sun
-
-#begin Sprites/Items/CraftingTable.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Sprites/Items/CraftingTable.png
 
