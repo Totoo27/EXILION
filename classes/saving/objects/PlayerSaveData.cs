@@ -14,5 +14,6 @@ public class PlayerSaveData
     public PlayerStat Oxygen { get; set; }
 
     public List<InventorySlotSaveData> Inventory { get; set; } = new();
+    public int? EquippedArmorItemId { get; set; }
 
 }

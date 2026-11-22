@@ -182,6 +182,7 @@ public class GameScene : Scene
         foreach (CreatureSaveData creatureData in saveData.Creatures ?? new List<CreatureSaveData>())
         {
             Creature creature = CreatureFactory.CreateRestoredCreature(creatureData, GameContext);
+            creatures.Add(creature);
         }
         
         foreach(var catchableItem in saveData.CatchableItems)
@@ -674,10 +675,15 @@ public class GameScene : Scene
     {
         if (stack == null || stack.Quantity <= 0) return;
 
+        Rectangle playerHitbox = player.GetHitbox();
+        Vector2 dropPosition = new(
+            player.position.X,
+            playerHitbox.Bottom + GameContext.ScaleY(16));
+
         catchableItems.Add(
             new CatchableItem(
                 stack,
-                player.position,
+                dropPosition,
                 new Sprite(stack.Item.Icon, GameContext.ScaleXY(1) * 0.8f),
                 GameContext
             )

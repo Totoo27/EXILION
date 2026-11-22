@@ -219,28 +219,28 @@ public static class ItemRegistry
         twoHanded: false
     );
 
-    public static readonly Item advancedArmor = new Item(
+    public static readonly Armor advancedArmor = new Armor(
         id: 26,
-        type: ItemType.RESOURCES,
         name: "Advanced Armor",
-        icon: Assets.Sprites.AdvancedArmor,
-        twoHanded: true
+        armorPoints: 60f,
+        speedMultiplier: 1.35f,
+        icon: Assets.Sprites.AdvancedArmor
     );
 
-    public static readonly Item mediumArmor = new Item(
+    public static readonly Armor mediumArmor = new Armor(
         id: 27,
-        type: ItemType.RESOURCES,
         name: "Medium Armor",
-        icon: Assets.Sprites.MediumArmor,
-        twoHanded: true
+        armorPoints: 35f,
+        speedMultiplier: 1.25f,
+        icon: Assets.Sprites.MediumArmor
     );
 
-    public static readonly Item lowArmor = new Item(
+    public static readonly Armor lowArmor = new Armor(
         id: 28,
-        type: ItemType.RESOURCES,
         name: "Low-Grade Armor",
-        icon: Assets.Sprites.LowArmor,
-        twoHanded: true
+        armorPoints: 20f,
+        speedMultiplier: 1.15f,
+        icon: Assets.Sprites.LowArmor
     );
 
     public static readonly Structure CraftingTable = new Structure(

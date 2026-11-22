@@ -14,6 +14,7 @@ public class Inventory
     public int Capacity { get; private set; }
 
     private readonly ItemStack[] slots;
+    public Armor? EquippedArmor { get; private set; }
 
     public Inventory(int capacity = DefaultStacksAmount)
     {
@@ -38,6 +39,72 @@ public class Inventory
         }
 
         UpdateInventoryUI?.Invoke();
+    }
+
+    public void RestoreArmor(int? itemId)
+    {
+        Item? item = itemId.HasValue ? ItemRegistry.GetById(itemId.Value) : null;
+        EquippedArmor = item as Armor;
+        UpdateInventoryUI?.Invoke();
+    }
+
+    public bool EquipArmorFromSlot(int index)
+    {
+        if (index < 0 || index >= slots.Length || slots[index]?.Item is not Armor newArmor)
+            return false;
+
+        ItemStack source = slots[index];
+        if (source.Quantity > 1 && EquippedArmor != null && !CanFit(EquippedArmor, 1))
+        {
+            return false;
+        }
+
+        source.Remove(1);
+        if (source.Quantity == 0) slots[index] = null;
+
+        Armor? replacedArmor = EquippedArmor;
+        EquippedArmor = newArmor;
+        if (replacedArmor != null) AddItem(replacedArmor, 1);
+        UpdateInventoryUI?.Invoke();
+        return true;
+    }
+
+    public ItemStack? TakeEquippedArmor()
+    {
+        if (EquippedArmor == null) return null;
+        ItemStack stack = new(EquippedArmor, 1);
+        EquippedArmor = null;
+        UpdateInventoryUI?.Invoke();
+        return stack;
+    }
+
+    public bool MoveEquippedArmorToSlot(int index)
+    {
+        if (EquippedArmor == null || index < 0 || index >= slots.Length) return false;
+        if (slots[index]?.Item is Armor armorInSlot)
+        {
+            Armor armorToEquip = EquippedArmor;
+            slots[index] = new ItemStack(armorToEquip, 1);
+            EquippedArmor = armorInSlot;
+            UpdateInventoryUI?.Invoke();
+            return true;
+        }
+
+        if (slots[index] == null)
+        {
+            slots[index] = new ItemStack(EquippedArmor, 1);
+        }
+        else if (slots[index].CanStackWith(EquippedArmor))
+        {
+            if (slots[index].Add(1) != 0) return false;
+        }
+        else
+        {
+            return false;
+        }
+        EquippedArmor = null;
+        UpdateInventoryUI?.Invoke();
+        return true;
     }
 
     public List<InventorySlotSaveData> GetSaveData()
