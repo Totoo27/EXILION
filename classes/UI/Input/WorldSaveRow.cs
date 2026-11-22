@@ -69,8 +69,9 @@ public class WorldSaveRow
         deleteSize = gameContext.ScaleXY(30);
     }
 
-    public void UpdatePositionY(int positionY)
+    public void UpdatePosition(int positionX, int positionY)
     {
+        this.position.X = positionX;
         this.position.Y = positionY;
     }
 

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 
 namespace EXILION.World;
 public sealed class WorldObjectGenerator
@@ -34,5 +35,20 @@ public sealed class WorldObjectGenerator
         }
 
         return objects;
+    }
+
+    public WorldObjectSpawn? TryGenerateAt(Chunk chunk, int localX, int localY, int spawnIndex, Random random)
+    {
+        var rules = ObjectProperties.GetSpawnRules(chunk.Tiles[localX, localY].Type);
+        for (int i = 0; i < rules.Length; i++)
+        {
+            if (random.NextDouble() >= rules[i].Chance) continue;
+            int worldX = chunk.ChunkX * Chunk.Size + localX;
+            int worldY = chunk.ChunkY * Chunk.Size + localY;
+            var id = new WorldObjectId(_seed, worldX, worldY, spawnIndex);
+            return new WorldObjectSpawn(id, rules[i].Type, worldX + 0.5f, worldY + 0.5f);
+        }
+
+        return null;
     }
 }

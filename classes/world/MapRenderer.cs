@@ -9,6 +9,11 @@ namespace EXILION.World;
 public class MapRenderer
 {
     private const int ObjectSourceSize = 64;
+    private const int TileSourceSize = 32;
+    private const int WaterFrameCount = 4;
+    private const float WaterFrameDuration = 0.25f;
+    private const int WaterSourceX = 32;
+    private const int DeepWaterSourceX = 0;
 
     private readonly Texture2D _tileset;
     private readonly Texture2D _objectsTexture;
@@ -16,6 +21,8 @@ public class MapRenderer
     private readonly Dictionary<TileType, Rectangle> _sourceRects;
     private readonly Rectangle defaultRectangle = new(0, 0, ObjectSourceSize, ObjectSourceSize);
     private readonly List<WorldObject> _visibleObjects = new();
+    private float _waterFrameTimer;
+    private int _waterFrame;
 
     public MapRenderer(Texture2D tileset, Texture2D objectsTexture, int tileSize)
     {
@@ -35,6 +42,16 @@ public class MapRenderer
         };
     }
 
+    public void Update(GameTime gameTime)
+    {
+        _waterFrameTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+        while (_waterFrameTimer >= WaterFrameDuration)
+        {
+            _waterFrameTimer -= WaterFrameDuration;
+            _waterFrame = (_waterFrame + 1) % WaterFrameCount;
+        }
+    }
+
     public void Draw(SpriteBatch spriteBatch, World world)
     {
         foreach (var chunk in world.LoadedChunks)
@@ -47,7 +64,14 @@ public class MapRenderer
             {
                 var destination = new Rectangle(
                     (baseX + lx) * _tileSize, (baseY + ly) * _tileSize, _tileSize, _tileSize);
-                spriteBatch.Draw(_tileset, destination, _sourceRects[chunk.Tiles[lx, ly].Type], Color.White);
+                TileType type = chunk.Tiles[lx, ly].Type;
+                Rectangle source = type switch
+                {
+                    TileType.Water => new Rectangle(WaterSourceX, _waterFrame * TileSourceSize, TileSourceSize, TileSourceSize),
+                    TileType.DeepWater => new Rectangle(DeepWaterSourceX, _waterFrame * TileSourceSize, TileSourceSize, TileSourceSize),
+                    _ => _sourceRects[type]
+                };
+                spriteBatch.Draw(_tileset, destination, source, Color.White);
             }
         }
     }
@@ -74,7 +98,15 @@ public class MapRenderer
             if(definition.UseItemSprite && ItemRegistry.GetByObjectType(obj.Type) is Item item)
             {
                 texture = item.Icon;
-                source = defaultRectangle;
+
+                if(definition.Type == ObjectType.SpaceShip)
+                {
+                    source = new(0, 0, ObjectSourceSize*2, ObjectSourceSize*2);
+                } else
+                {
+                    source = defaultRectangle;
+                }
+
             } else
             {
                 texture = obj.Type switch

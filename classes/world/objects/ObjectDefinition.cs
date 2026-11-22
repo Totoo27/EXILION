@@ -26,6 +26,7 @@ public class ObjectDefinition
     public byte OxygenCircleAlpha { get; init; } = 120;
 
     public bool IsCraftingTable { get; init; }
+    public bool IsExit { get; init; }
     public float InteractionRadiusTiles { get; init; }
 
     public bool CanBeBrokenBy(Item item)

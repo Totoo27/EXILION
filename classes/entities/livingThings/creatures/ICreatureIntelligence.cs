@@ -5,6 +5,6 @@ namespace EXILION.Entities.LivingThings;
 public interface ICreatureIntelligence
 {
     bool CanDamagePlayer { get; }
-    void Update(Creature creature, GameTime gameTime, World.World world, Vector2 playerPosition);
+    void Update(Creature creature, GameTime gameTime, World.World world, Vector2 playerPosition, bool isNight);
     void OnDamaged(Creature creature, Vector2 attackerPosition);
 }

@@ -12,6 +12,10 @@ public class World
     private readonly MapGenerator _generator;
     private readonly WorldObjectGenerator _objectGenerator;
     private readonly Dictionary<(int, int), Chunk> _loadedChunks = new();
+    private float _regrowthTimer;
+    private int _regrowthCycle;
+    private const float RegrowthIntervalSeconds = 60f;
+    private const int RegrowthRadiusChunks = 5;
 
     public int TileSize { get; }
     public int RenderDistanceChunks { get; set; } = 2;
@@ -63,7 +67,51 @@ public class World
                 obj.Update(deltaTime);
     }
 
-    // Comprueba que el jugador quepa en esta posición sin pisar agua.
+    public void UpdateRegrowth(float deltaTime, Vector2 worldPosition)
+    {
+        _regrowthTimer += deltaTime;
+        if (_regrowthTimer < RegrowthIntervalSeconds) return;
+        _regrowthTimer %= RegrowthIntervalSeconds;
+
+        int playerChunkX = (int)MathF.Floor(worldPosition.X / (TileSize * Chunk.Size));
+        int playerChunkY = (int)MathF.Floor(worldPosition.Y / (TileSize * Chunk.Size));
+        var random = new Random(unchecked(_generator.Seed ^ (++_regrowthCycle * 7919)));
+        int chunkX = playerChunkX + random.Next(-RegrowthRadiusChunks, RegrowthRadiusChunks + 1);
+        int chunkY = playerChunkY + random.Next(-RegrowthRadiusChunks, RegrowthRadiusChunks + 1);
+
+        if (!_loadedChunks.TryGetValue((chunkX, chunkY), out var chunk))
+        {
+            chunk = _generator.GenerateChunk(chunkX, chunkY);
+            PopulateObjects(chunk);
+        }
+
+        int localX = random.Next(Chunk.Size);
+        int localY = random.Next(Chunk.Size);
+        int tileX = chunkX * Chunk.Size + localX;
+        int tileY = chunkY * Chunk.Size + localY;
+        foreach (var existing in chunk.Objects)
+        {
+            if (!existing.IsDestroyed && !existing.IsCollected
+                && (int)MathF.Floor(existing.TileX) == tileX
+                && (int)MathF.Floor(existing.TileY) == tileY)
+                return;
+        }
+
+        // Los índices negativos desde -2 identifican objetos regenerados y se guardan igual que los colocados.
+        int spawnIndex = -1 - _regrowthCycle;
+        var spawn = _objectGenerator.TryGenerateAt(chunk, localX, localY, spawnIndex, random);
+        if (spawn == null) return;
+
+        var state = new WorldObjectState(spawn.Value.Id, ObjectProperties.Get(spawn.Value.Type).MaxHealth, false, false, spawn.Value.Type);
+        ObjectStates.Record(state);
+        chunk.Objects.Add(new WorldObject(spawn.Value.Id, spawn.Value.Type,
+            spawn.Value.TileX, spawn.Value.TileY, state, ObjectStates.Record,
+            obj => ObjectDestroyed?.Invoke(obj)));
+
+        Console.WriteLine("Regrowth" + $" at chunk ({chunkX}, {chunkY}), tile ({localX}, {localY})");
+        Console.WriteLine("Player position: " + worldPosition);
+    }
+
     public bool IsWalkable(Vector2 worldPosition, float radius = 0f)
         => IsWalkable(worldPosition, radius, false);
 
@@ -76,6 +124,28 @@ public class World
         if (!IsTileWalkable(worldPosition.X + radius, worldPosition.Y + radius, allowShallowWater)) return false;
 
         return !IntersectsBlockingObject(worldPosition, radius);
+    }
+
+    public bool HasObjectAtTile(Vector2 worldPosition)
+    {
+        int tileX = (int)MathF.Floor(worldPosition.X / TileSize);
+        int tileY = (int)MathF.Floor(worldPosition.Y / TileSize);
+        int chunkX = (int)MathF.Floor((float)tileX / Chunk.Size);
+        int chunkY = (int)MathF.Floor((float)tileY / Chunk.Size);
+        if (!_loadedChunks.TryGetValue((chunkX, chunkY), out var chunk))
+        {
+            chunk = _generator.GenerateChunk(chunkX, chunkY);
+            PopulateObjects(chunk);
+        }
+
+        foreach (var obj in chunk.Objects)
+        {
+            if (obj.IsDestroyed || obj.IsCollected) continue;
+            if ((int)MathF.Floor(obj.TileX) == tileX && (int)MathF.Floor(obj.TileY) == tileY)
+                return true;
+        }
+
+        return false;
     }
 
     public bool IsInShallowWater(Vector2 worldPosition, float radius, bool alreadySwimming)
@@ -125,7 +195,7 @@ public class World
         var state = new WorldObjectState(id, ObjectProperties.Get(item.objectType).MaxHealth, false, false, item.objectType);
         ObjectStates.Record(state);
         chunk.Objects.Add(new WorldObject(id, item.objectType, tileX + 0.5f, tileY + 0.5f,
-            state, ObjectStates.Record));
+            state, ObjectStates.Record, obj => ObjectDestroyed?.Invoke(obj)));
         return true;
     }
     public bool IsOxygenSupplied(Vector2 worldPosition)
@@ -149,6 +219,22 @@ public class World
         {
             if (obj.IsDestroyed || obj.IsCollected) continue;
             if (!obj.Definition.IsCraftingTable) continue;
+
+            float radius = obj.Definition.InteractionRadiusTiles * TileSize;
+            float dx = obj.TileX * TileSize - worldPosition.X;
+            float dy = obj.TileY * TileSize - worldPosition.Y;
+            if (dx * dx + dy * dy <= radius * radius) return true;
+        }
+        return false;
+    }
+
+    public bool IsNearExit(Vector2 worldPosition)
+    {
+        foreach (var chunk in _loadedChunks.Values)
+        foreach (var obj in chunk.Objects)
+        {
+            if (obj.IsDestroyed || obj.IsCollected) continue;
+            if (!obj.Definition.IsExit) continue;
 
             float radius = obj.Definition.InteractionRadiusTiles * TileSize;
             float dx = obj.TileX * TileSize - worldPosition.X;
@@ -266,11 +352,11 @@ public class World
     }
 
     // Encuentra un lugar seco cerca del inicio para que el jugador no aparezca en el agua.
-    public Vector2 FindSpawnPosition()
+    public Vector2 FindSpawnPosition(Vector2 preferredPosition = default)
     {
-        UpdateAroundPosition(Vector2.Zero); // Primero cargamos el mapa que rodea el punto de inicio.
+        UpdateAroundPosition(preferredPosition); // Primero cargamos el mapa alrededor del punto de referencia.
 
-        Vector2 best = Vector2.Zero;
+        Vector2 best = preferredPosition;
         float bestDistance = float.MaxValue;
 
         foreach (var chunk in _loadedChunks.Values)
@@ -283,12 +369,14 @@ public class World
 
                     float px = (chunk.ChunkX * Chunk.Size + lx + 0.5f) * TileSize;
                     float py = (chunk.ChunkY * Chunk.Size + ly + 0.5f) * TileSize;
+                    Vector2 candidate = new(px, py);
+                    if (HasObjectAtTile(candidate)) continue;
 
-                    float distance = px * px + py * py;
+                    float distance = Vector2.DistanceSquared(candidate, preferredPosition);
                     if (distance < bestDistance)
                     {
                         bestDistance = distance;
-                        best = new Vector2(px, py);
+                        best = candidate;
                     }
                 }
             }
@@ -304,6 +392,9 @@ public class World
     public void RestoreObjectStates(IEnumerable<WorldObjectState> states)
     {
         ObjectStates.RestoreSnapshot(states);
+        foreach (var state in ObjectStates.CaptureSnapshot())
+            if (state.Id.SpawnIndex <= -2)
+                _regrowthCycle = Math.Max(_regrowthCycle, -state.Id.SpawnIndex - 1);
 
         foreach (var chunk in _loadedChunks.Values)
         {
@@ -326,7 +417,7 @@ public class World
 
         foreach (var state in ObjectStates.CaptureSnapshot())
         {
-            if (state.Id.SpawnIndex != -1 && state.Id.SpawnIndex != -2) continue;
+            if (state.Id.SpawnIndex > -1) continue;
             int chunkX = (int)MathF.Floor((float)state.Id.TileX / Chunk.Size);
             int chunkY = (int)MathF.Floor((float)state.Id.TileY / Chunk.Size);
             if (chunkX != chunk.ChunkX || chunkY != chunk.ChunkY || state.IsDestroyed) continue;

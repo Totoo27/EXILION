@@ -31,7 +31,7 @@ public class InventoryUI
     private readonly SpriteFont font;
     private readonly GameContext gameContext;
 
-    private bool expanded = false;
+    public bool expanded { get; private set; } = false;
     private int draggedSlotIndex = -1;
     private Vector2 mousePosition;
 

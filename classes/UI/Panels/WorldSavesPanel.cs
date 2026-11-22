@@ -188,7 +188,9 @@ public class WorldSavesPanel
 
         for (int i = scroll.FirstVisible; i < scroll.EndIndex; i++)
         {
-            worldSaveRows[i].UpdatePositionY(scroll.GetItemY(i));
+            worldSaveRows[i].UpdatePosition(
+                bounds.X + gameContext.ScaleX(40),
+                scroll.GetItemY(i));
             int value = worldSaveRows[i].isClicked(input.CurrentMouse, input.PreviousMouse);
 
             if (value == worldDelete)
@@ -272,7 +274,6 @@ public class WorldSavesPanel
                     worlds[i].WorldSeed
                 ));
 
-                worldSaveRows[i].position = new Vector2(gameContext.ScaleX(40) + bounds.X, bounds.Y);
             }
         }
         finally
@@ -359,12 +360,24 @@ public class WorldSavesPanel
         newWorldButton.Draw(spriteBatch, 1f);
 
         if (worldSaveRows.Count > 0)
-    {
-        for (int i = scroll.FirstVisible; i < scroll.EndIndex; i++)
         {
-            worldSaveRows[i].Draw(spriteBatch, pixel);
+            // Async world loading can finish before or after the menu centers this
+            // panel. Reposition rows from the panel's current bounds every draw.
+            scroll.Configure(
+                GetListArea(),
+                gameContext.ScaleY(100),
+                gameContext.ScaleY(10),
+                worldSaveRows.Count
+            );
+
+            for (int i = scroll.FirstVisible; i < scroll.EndIndex; i++)
+            {
+                worldSaveRows[i].UpdatePosition(
+                    bounds.X + gameContext.ScaleX(40),
+                    scroll.GetItemY(i));
+                worldSaveRows[i].Draw(spriteBatch, pixel);
+            }
         }
-    }
 
         scroll.DrawScrollBar(
             spriteBatch,

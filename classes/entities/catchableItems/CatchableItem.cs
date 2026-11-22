@@ -10,6 +10,9 @@ public class CatchableItem : Entity
 {
     private const float PulseSpeed = 1.5f;
     private const float PulseAmount = 0.12f;
+    private const int LifeTime = 20; // Seconds
+    private float lifeTimer = 0;
+
     private float animationTime;
     private const int HitboxSize = 28; // más chico que el del jugador (40)
 
@@ -29,6 +32,13 @@ public class CatchableItem : Entity
     public void Update(float deltaTime)
     {
         if (Picked) return;
+
+        lifeTimer += deltaTime;
+        if (lifeTimer >= LifeTime)
+        {
+            MarkPicked();
+            return;
+        }
 
         animationTime += deltaTime;
         float pulse = 1f + MathF.Sin(animationTime * PulseSpeed) * PulseAmount;

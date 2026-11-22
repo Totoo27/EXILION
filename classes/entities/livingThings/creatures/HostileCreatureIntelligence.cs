@@ -7,14 +7,14 @@ public sealed class HostileCreatureIntelligence : ICreatureIntelligence
 {
     public bool CanDamagePlayer => true;
 
-    public void Update(Creature creature, GameTime gameTime, World.World world, Vector2 playerPosition)
+    public void Update(Creature creature, GameTime gameTime, World.World world, Vector2 playerPosition, bool isNight)
     {
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
         Vector2 direction = playerPosition - creature.position;
         if (direction != Vector2.Zero)
         {
             direction.Normalize();
-            creature.ApplyIntelligenceMovement(direction, deltaTime, world);
+            creature.ApplyIntelligenceMovement(direction, deltaTime, world, isNight ? 1f : 0.5f);
             creature.ApplyIntelligenceFacingAngle(MathF.Atan2(direction.Y, direction.X));
         }
     }

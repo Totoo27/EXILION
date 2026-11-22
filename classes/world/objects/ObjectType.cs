@@ -10,6 +10,10 @@ public enum ObjectType {
     Thorium,
     OxygenGenerator,
     Sandstone,
-    CraftingTable
+    CraftingTable,
+    SpaceShip,
+    WoodenFloor,
+    WoodenWall,
+    StoneWall
 
 }

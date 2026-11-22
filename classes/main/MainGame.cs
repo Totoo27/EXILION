@@ -16,6 +16,7 @@ public class MainGame : Game, IDisplaySettings, IGameData
     public InputManager input {get; private set;}
     public GameContext gameContext { get; private set; }
     public Camera camera {private set; get;}
+    private Vector2 cursorPosition;
 
     public MainGame()
     {
@@ -42,6 +43,7 @@ public class MainGame : Game, IDisplaySettings, IGameData
         base.Initialize();
         sceneManager = new SceneManager();
         input = new InputManager();
+        IsMouseVisible = false;
 
         SceneManager.ChangeScene(new MainLoader(this));
 
@@ -59,6 +61,8 @@ public class MainGame : Game, IDisplaySettings, IGameData
     {
         // TODO: Add your update logic here
         input.Update();
+        MouseState mouseState = input.CurrentMouse;
+        cursorPosition = mouseState.Position.ToVector2();
 
         if (input.IsKeyPressed(Keys.F11))
         {
@@ -88,6 +92,25 @@ public class MainGame : Game, IDisplaySettings, IGameData
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend);
 
         sceneManager.DrawUI(_spriteBatch);
+
+
+        if (Assets.Sprites.cursorTexture != null)
+        {
+            _spriteBatch.Draw(
+                Assets.Sprites.cursorTexture,
+                cursorPosition,
+                null,
+                Color.White,
+                0f,
+                new Vector2(
+                    Assets.Sprites.cursorTexture.Width / 2f,
+                    Assets.Sprites.cursorTexture.Height / 2f
+                ),
+                1f,
+                SpriteEffects.None,
+                0f
+            );
+        }
 
         _spriteBatch.End();
 

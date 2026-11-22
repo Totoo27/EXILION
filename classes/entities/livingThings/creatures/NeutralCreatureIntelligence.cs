@@ -27,7 +27,7 @@ public sealed class NeutralCreatureIntelligence : ICreatureIntelligence
         directionTimer = 0.2f;
     }
 
-    public void Update(Creature creature, GameTime gameTime, World.World world, Vector2 playerPosition)
+    public void Update(Creature creature, GameTime gameTime, World.World world, Vector2 playerPosition, bool isNight)
     {
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
         if (attackMode)

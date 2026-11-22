@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using EXILION.Entities.LivingThings;
 using EXILION.UI.Bar;
+using EXILION.UI;
 
 namespace EXILION.UI.HUD;
 
@@ -20,8 +22,10 @@ public class HUD
     private Player player;
     private GameContext gameContext;
     private GraphicsDevice GraphicsDevice;
+    private StatAdviceIndicator statAdviceIndicator;
     private InputManager input;
     private int DIURNAL_TIME;
+    private int dayCount = 1;
     public HUD(Player player, GameContext gameContext, GraphicsDevice GraphicsDevice, InputManager input, int DIURNAL_TIME)
     {
         this.gameContext = gameContext;
@@ -29,6 +33,7 @@ public class HUD
         this.input = input;
         this.DIURNAL_TIME = DIURNAL_TIME;
         this.player = player;
+        statAdviceIndicator = new StatAdviceIndicator(player, gameContext);
         LoadContent();
     }
 
@@ -146,10 +151,17 @@ public class HUD
         watchBar.setValue(0);
     }
 
-    public void Update()
+    public void Update(GameTime gameTime)
     {
+        statAdviceIndicator.Update(gameTime);
         inventoryUI.Update(input);
         craftingUI.Update(input);
+    }
+
+    public void DrawStatAdvice(SpriteBatch spriteBatch)
+    {
+        if (hideHUD) return;
+        statAdviceIndicator.Draw(spriteBatch);
     }
 
     public void OpenCraftingTable()
@@ -175,6 +187,7 @@ public class HUD
         healthBar.Draw(spriteBatch);
         oxygenBar.Draw(spriteBatch);
         watchBar.Draw(spriteBatch);
+        spriteBatch.DrawString(Assets.Fonts.PixelArtSmall, $"Days Exiled: {dayCount}", new Vector2(gameContext.ScaleX(24), gameContext.ScaleY(20)), Color.White);
         inventoryUI.Draw(spriteBatch);
         craftingUI.Draw(spriteBatch);
     }
@@ -187,6 +200,11 @@ public class HUD
     public void setTime(int value)
     {
         watchBar.setValue(value);
+    }
+
+    public void setDayCount(int value)
+    {
+        dayCount = Math.Max(1, value);
     }
 
     public void hide()

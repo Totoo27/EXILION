@@ -33,7 +33,7 @@ public sealed class Creature : LivingThing
         sprite.Update(0f, position);
     }
 
-    public void Update(GameTime gameTime, World.World world, Vector2 playerPosition)
+    public void Update(GameTime gameTime, World.World world, Vector2 playerPosition, bool isNight)
     {
         base.Update(gameTime);
         if (isDead || ShouldDespawn) return;
@@ -54,7 +54,7 @@ public sealed class Creature : LivingThing
             farFromPlayerTimer = 0f;
         }
 
-        intelligence?.Update(this, gameTime, world, playerPosition);
+        intelligence?.Update(this, gameTime, world, playerPosition, isNight);
     }
 
     public IReadOnlyList<ItemStack>? GetDropItems() => dropItems;
