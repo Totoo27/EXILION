@@ -15,12 +15,13 @@ public sealed class CreatureSpawnGenerator
     private const double MaxHostileChance = 0.75;
 
     private readonly World world;
-    private readonly Random random = new();
+    private readonly Random random;
     private float spawnTimer;
 
-    public CreatureSpawnGenerator(World world)
+    public CreatureSpawnGenerator(World world, Random random = null)
     {
         this.world = world;
+        this.random = random ?? new Random();
     }
 
     public Creature TrySpawn(float deltaTime, Vector2 playerPosition, bool isNight,
