@@ -14,6 +14,11 @@ public sealed class Sprites
     public Texture2D Button { get; private set; }
     public Texture2D cursorTexture { get; private set; }
 
+    public Texture2D statIndicator { get; private set; }
+    public Texture2D hungerAdvice { get; private set; }
+    public Texture2D thirstAdvice { get; private set; }
+    public Texture2D oxygenAdvice { get; private set; }
+
     // Player
     public Texture2D Player { get; private set; }
     public Texture2D playerHand { get; private set; }
@@ -100,6 +105,13 @@ public sealed class Sprites
         Sun = content.Load<Texture2D>("Sprites/UI/Sun");        
         Button = content.Load<Texture2D>("Sprites/UI/Button");
         cursorTexture = content.Load<Texture2D>("Sprites/UI/pointer");
+
+        // Advices
+
+        statIndicator = content.Load<Texture2D>("Sprites/UI/HUD/statIndicator");
+        hungerAdvice = content.Load<Texture2D>("Sprites/UI/HUD/hungerAdviceIcon");
+        thirstAdvice = content.Load<Texture2D>("Sprites/UI/HUD/waterAdviceIcon");
+        oxygenAdvice = content.Load<Texture2D>("Sprites/UI/HUD/oxygenAdviceIcon");
 
         // Bars
         meter = content.Load<Texture2D>("Sprites/UI/HUD/meter");

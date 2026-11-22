@@ -700,6 +700,30 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/UI/HUD/healthProgress.png;Sprites/UI/HUD/healthProgress
 
+#begin Sprites/UI/HUD/hungerAdviceIcon.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/UI/HUD/hungerAdviceIcon.png
+
+#begin Sprites/UI/HUD/hungerAdviceIcon.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/UI/HUD/hungerAdviceIcon.png
+
 #begin Sprites/UI/HUD/hungerMeterIcon.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -736,6 +760,18 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/UI/HUD/meterProgress.png;Sprites/UI/HUD/meterProgress
 
+#begin Sprites/UI/HUD/oxygenAdviceIcon.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/UI/HUD/oxygenAdviceIcon.png
+
 #begin Sprites/UI/HUD/oxygenMeter.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -771,6 +807,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/UI/HUD/slot.png;Sprites/UI/HUD/slot
+
+#begin Sprites/UI/HUD/statIndicator.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/UI/HUD/statIndicator.png
 
 #begin Sprites/UI/HUD/thirstMeterIcon.png
 /importer:TextureImporter
@@ -819,6 +867,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/UI/HUD/watchSetOff.png;Sprites/UI/HUD/watchSetOff
+
+#begin Sprites/UI/HUD/waterAdviceIcon.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/UI/HUD/waterAdviceIcon.png
 
 #begin Sprites/UI/MainMenuBackground.png
 /importer:TextureImporter

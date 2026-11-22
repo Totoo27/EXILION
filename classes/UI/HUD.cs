@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using EXILION.Entities.LivingThings;
 using EXILION.UI.Bar;
+using EXILION.UI;
 
 namespace EXILION.UI.HUD;
 
@@ -20,6 +21,7 @@ public class HUD
     private Player player;
     private GameContext gameContext;
     private GraphicsDevice GraphicsDevice;
+    private StatAdviceIndicator statAdviceIndicator;
     private InputManager input;
     private int DIURNAL_TIME;
     public HUD(Player player, GameContext gameContext, GraphicsDevice GraphicsDevice, InputManager input, int DIURNAL_TIME)
@@ -29,6 +31,7 @@ public class HUD
         this.input = input;
         this.DIURNAL_TIME = DIURNAL_TIME;
         this.player = player;
+        statAdviceIndicator = new StatAdviceIndicator(player, gameContext);
         LoadContent();
     }
 
@@ -146,10 +149,17 @@ public class HUD
         watchBar.setValue(0);
     }
 
-    public void Update()
+    public void Update(GameTime gameTime)
     {
+        statAdviceIndicator.Update(gameTime);
         inventoryUI.Update(input);
         craftingUI.Update(input);
+    }
+
+    public void DrawStatAdvice(SpriteBatch spriteBatch)
+    {
+        if (hideHUD) return;
+        statAdviceIndicator.Draw(spriteBatch);
     }
 
     public void OpenCraftingTable()

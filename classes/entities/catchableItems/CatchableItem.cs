@@ -10,7 +10,7 @@ public class CatchableItem : Entity
 {
     private const float PulseSpeed = 1.5f;
     private const float PulseAmount = 0.12f;
-    private const int LifeTime = 10;
+    private const int LifeTime = 20; // Seconds
     private float lifeTimer = 0;
 
     private float animationTime;

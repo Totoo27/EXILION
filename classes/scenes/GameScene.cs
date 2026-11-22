@@ -229,12 +229,14 @@ public class GameScene : Scene
         processPlayerSpawn(true);
 
         catchableItems.Add(
+
             new CatchableItem(
-                new ItemStack(ItemRegistry.FinalShip, 1),
-                new Vector2(100, 100),
-                new Sprite(ItemRegistry.FinalShip.Icon, GameContext.ScaleXY(1), ItemRegistry.FinalShip.IconSource),
+                new ItemStack(ItemRegistry.GeneradorO2, 1),
+                new Vector2(0, 0),
+                new Sprite(ItemRegistry.GeneradorO2.Icon, GameContext.ScaleXY(1), ItemRegistry.GeneradorO2.IconSource),
                 GameContext
             )
+
         );
         
     }
@@ -303,7 +305,7 @@ public class GameScene : Scene
             UpdateDiurnalCycle(gameTime);
             UpdateNightTransition(gameTime);
 
-            HUD.Update();
+            HUD.Update(gameTime);
             bool placeBlock = blockPlacementMode && input.IsLeftMousePressed() && !input.IsMouseCaptured;
             bool wasMouseCaptured = input.IsMouseCaptured;
             if (placeBlock) input.IsMouseCaptured = true;
@@ -495,6 +497,7 @@ public class GameScene : Scene
         // Player & objects
         mapRenderer?.DrawObjects(spriteBatch, world, false);
         player?.Draw(spriteBatch, pixel);
+        HUD?.DrawStatAdvice(spriteBatch);
 
         foreach (Creature creature in creatures)
             creature.Draw(spriteBatch, pixel);
