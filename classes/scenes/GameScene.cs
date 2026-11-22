@@ -23,12 +23,11 @@ public class GameScene : Scene
 
     // Game stats
 
-    private float timer = 0f;
-    private const float TIMER_INTERVAL = 1f;
     private float nightOpacity = 0f;
     private const int DIURNAL_PRESET_TIME = 200; // in seconds
     private int diurnalCycleTime = DIURNAL_PRESET_TIME; // in seconds
     private int dayCount = 1;
+    private readonly GameClock gameClock = new GameClock();
     private const float MAX_NIGHT_OPACITY = 0.65f;
     private const float NIGHT_TRANSITION_SPEED = 0.15f;
     private bool night = false;
@@ -111,6 +110,7 @@ public class GameScene : Scene
         world = new World.World(seed: Seed, tileSize: tileSize) { RenderDistanceChunks = 2 };
         creatureSpawnGenerator = new CreatureSpawnGenerator(world);
         world.ObjectDestroyed += dropWorldObjectItems;
+        world.ObjectDamaged += OnWorldObjectDamaged;
 
         interactionPrompt = new InteractionPrompt(Assets.Fonts.PixelArt, GameContext.ScaleXY(1));
 
@@ -147,6 +147,12 @@ public class GameScene : Scene
         }
     }
 
+    private void OnWorldObjectDamaged(WorldObjectId id, ObjectType type)
+    {
+        ObjectAudio.PlayHit(type);
+        mapRenderer?.PlayObjectHitAnimation(id);
+    }
+
     private void dropCreatureItems(Creature creature)
     {
         IReadOnlyList<ItemStack>? dropItems = creature.GetDropItems();
@@ -174,6 +180,7 @@ public class GameScene : Scene
         dayCount = Math.Max(1, saveData.DayCount);
 
         night = saveData.IsNight;
+        gameClock.Restore(diurnalCycleTime, dayCount, night);
         if (night) nightOpacity = 1f;
         
         Seed = saveData.WorldSeed;
@@ -183,6 +190,7 @@ public class GameScene : Scene
         foreach (CreatureSaveData creatureData in saveData.Creatures ?? new List<CreatureSaveData>())
         {
             Creature creature = CreatureFactory.CreateRestoredCreature(creatureData, GameContext);
+            creature.SoundRequested += GameAudio.Play;
             creatures.Add(creature);
         }
         
@@ -393,8 +401,13 @@ public class GameScene : Scene
                 night,
                 dayCount,
                 creatures,
-                GameContext);
-            if (spawnedCreature != null) creatures.Add(spawnedCreature);
+                GameContext.ScaleX(20),
+                (type, position) => CreatureFactory.CreateCreature(type, position, GameContext));
+            if (spawnedCreature != null)
+            {
+                spawnedCreature.SoundRequested += GameAudio.Play;
+                creatures.Add(spawnedCreature);
+            }
             camera.Follow(player.position);
 
             if (player.isDead)
@@ -486,6 +499,7 @@ public class GameScene : Scene
 
         // Events
         Music.musicStop -= changeMusic;
+        if (world != null) world.ObjectDamaged -= OnWorldObjectDamaged;
         deathPanel.Respawn -= processPlayerSpawn;
         victoryPanel.ContinuePlaying -= resumeAfterVictory;
         if (player != null)
@@ -528,27 +542,12 @@ public class GameScene : Scene
 
     private void UpdateDiurnalCycle(GameTime gameTime)
     {
-        timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-        if (timer >= TIMER_INTERVAL)
-        {
-            timer = 0f;
-            diurnalCycleTime--;
-
-            if (diurnalCycleTime <= 0)
-            {
-
-                diurnalCycleTime = DIURNAL_PRESET_TIME;
-                if (night) dayCount++;
-                night = !night;
-                HUD.setDayCount(dayCount);
-
-            }
-
-            HUD.setTime(DIURNAL_PRESET_TIME - diurnalCycleTime);
-
-        }
-
+        bool phaseChanged = gameClock.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+        diurnalCycleTime = gameClock.RemainingSeconds;
+        dayCount = gameClock.DayCount;
+        night = gameClock.IsNight;
+        if (phaseChanged) HUD.setDayCount(dayCount);
+        HUD.setTime(DIURNAL_PRESET_TIME - diurnalCycleTime);
     }
 
     private void processPlayerDeath()
@@ -584,6 +583,7 @@ public class GameScene : Scene
     private void processPlayerSpawn(bool isNewGame)
     {
         player = new Player(Vector2.Zero, new Sprite(Assets.Sprites.Player, GameContext.ScaleXY(1)), GameContext); 
+        player.SoundRequested += GameAudio.Play;
         if (!isNewGame)
         {
             player.Restore(saveData.Player);

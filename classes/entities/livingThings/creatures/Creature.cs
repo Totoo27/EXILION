@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using EXILION.Items;
 using EXILION.Saving;
+using EXILION.Logic;
 
 namespace EXILION.Entities.LivingThings;
 
@@ -24,7 +25,7 @@ public sealed class Creature : LivingThing
     public Creature(Vector2 position, Sprite sprite, GameContext gameContext, ICreatureIntelligence? intelligence = null, List<ItemStack>? dropItems = null, 
         int maxHealth = 25, int speed = PlayerMovementSettings.GroundSpeed / 2, CreatureType type = CreatureType.Peaceful,
         int contactDamage = 1)
-    : base(position, sprite, maxHealth, speed, gameContext, Assets.SoundEffects.creatureDamage)
+    : base(position, sprite, maxHealth, speed, gameContext, GameAudioCue.CreatureDamage)
     {
         this.intelligence = intelligence;
         this.dropItems = dropItems;

@@ -40,7 +40,6 @@ public abstract class Entity
 
     public virtual void Draw(SpriteBatch spriteBatch, Texture2D pixel)
     {
-
         sprite.Draw(spriteBatch, color);
         if (gameContext.showHitboxes)
         {

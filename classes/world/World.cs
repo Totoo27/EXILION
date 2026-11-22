@@ -21,6 +21,7 @@ public class World
     public int RenderDistanceChunks { get; set; } = 2;
     public WorldObjectStateStore ObjectStates { get; } = new();
     public event Action<WorldObject> ObjectDestroyed;
+    public event Action<WorldObjectId, ObjectType> ObjectDamaged;
 
     public World(int seed, int tileSize)
     {
@@ -62,9 +63,7 @@ public class World
 
     public void UpdateObjects(float deltaTime)
     {
-        foreach (var chunk in _loadedChunks.Values)
-            foreach (var obj in chunk.Objects)
-                obj.Update(deltaTime);
+        // Reserved for future timed world simulation; rendering effects are client-owned.
     }
 
     public void UpdateRegrowth(float deltaTime, Vector2 worldPosition)
@@ -315,7 +314,8 @@ public class World
 
                 bool isAllowedTool = heldItem != null && obj.Definition.CanBeBrokenBy(heldItem);
                 bool isAllowed = heldItem == null ? obj.Definition.HandCanBreak : isAllowedTool;
-                obj.ApplyDamage(isAllowed ? damage : 1, allowDrops: isAllowed);
+                if (obj.ApplyDamage(isAllowed ? damage : 1, allowDrops: isAllowed))
+                    ObjectDamaged?.Invoke(obj.Id, obj.Type);
             }
         }
     }

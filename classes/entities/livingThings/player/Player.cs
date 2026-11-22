@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework.Graphics;
 using EXILION.Items;
 using EXILION.Entities.CatchableItems;
 using EXILION.Saving;
-using Microsoft.Xna.Framework.Audio;
 using EXILION.World;
 using EXILION.Logic;
 
@@ -51,7 +50,7 @@ public class Player : LivingThing
 
 
     public Player(Vector2 position, Sprite sprite, GameContext gameContext)
-    : base(position, sprite, 100, PlayerMovementSettings.GroundSpeed, gameContext, Assets.SoundEffects.playerDamage)
+    : base(position, sprite, 100, PlayerMovementSettings.GroundSpeed, gameContext, GameAudioCue.PlayerDamage)
     {
 
         hunger = new PlayerStat(maxStat);
@@ -62,6 +61,14 @@ public class Player : LivingThing
         rightHand.UpdateHandsOffset += rightHand.ManageOffsets;
         rightHand.UpdateHandsOffset += leftHand.ManageOffsets;
         rightHand.ToolAttack += leftHand.StartToolAttack;
+        rightHand.SoundRequested += RequestSound;
+        leftHand.SoundRequested += cue =>
+        {
+            if (rightHand.HeldItem is not Tool)
+            {
+                RequestSound(cue);
+            }
+        };
     }
 
     public void Restore(PlayerSaveData saveData)
@@ -404,7 +411,7 @@ public class Player : LivingThing
             item.MarkPicked();
         }
 
-        SFX.Play(Assets.SoundEffects.pickUpItem);
+        RequestSound(GameAudioCue.Pickup);
         return true;
     }
 
@@ -413,7 +420,7 @@ public class Player : LivingThing
         if (item is not Consumable consumable) return false;
 
         PlayerStat stat;
-        SoundEffect sfx;
+        GameAudioCue soundCue;
 
         switch (consumable.statType)
         {
@@ -423,7 +430,7 @@ public class Player : LivingThing
                 thirst = stat;
                 ThirstChanged?.Invoke(thirst.value);
 
-                sfx = Assets.SoundEffects.drink;
+                soundCue = GameAudioCue.Drink;
             break;
 
             case StatType.Hunger:
@@ -432,7 +439,7 @@ public class Player : LivingThing
                 hunger = stat;
                 HungerChanged?.Invoke(hunger.value);
 
-                sfx = Assets.SoundEffects.eat;
+                soundCue = GameAudioCue.Eat;
             break;
 
             case StatType.Oxygen:
@@ -441,15 +448,15 @@ public class Player : LivingThing
                 oxygen = stat;
                 OxygenChanged?.Invoke(oxygen.value);
 
-                sfx = Assets.SoundEffects.bottleBreath;
+                soundCue = GameAudioCue.BottleBreath;
             break;
 
             default:
-                sfx = Assets.SoundEffects.playerDamage;
+                soundCue = GameAudioCue.PlayerDamage;
             break;
         }
 
-        SFX.Play(sfx);
+        RequestSound(soundCue);
         inventory.RemoveItem(item, 1);
         if (consumable.statType == StatType.Thirst || consumable.statType == StatType.Oxygen)
             inventory.AddItem(ItemRegistry.BotellaVacia, 1);

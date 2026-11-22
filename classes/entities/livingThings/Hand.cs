@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using EXILION.Items;
 using EXILION.Client;
 using EXILION.World;
+using EXILION.Logic;
 using System.Collections.Generic;
 
 namespace EXILION.Entities.LivingThings;
@@ -21,6 +22,7 @@ public class Hand
 
     public event Action<Item?>? UpdateHandsOffset;
     public event Action<float>? ToolAttack;
+    public event Action<GameAudioCue>? SoundRequested;
     private Item? itemInHand;
     private Sprite? itemSprite;
     private Vector2 ItemPosition;
@@ -208,7 +210,7 @@ public class Hand
         hitCreaturesThisAttack.Clear();
         state = HandState.Extending;
         attackTimer = 0f;
-        SFX.Play(Assets.SoundEffects.swings[Random.Shared.Next(Assets.SoundEffects.swings.Length)]);
+        SoundRequested?.Invoke(GameAudioCue.HandSwing);
 
         return true;
     }
