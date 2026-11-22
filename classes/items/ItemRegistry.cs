@@ -193,25 +193,25 @@ public static class ItemRegistry
         twoHanded: false
     );
 
-    public static readonly Item advancedArmor = new Item(
+    public static readonly Armor advancedArmor = new Armor(
         id: 26,
-        type: ItemType.RESOURCES,
         name: "Advanced Armor",
-        twoHanded: true
+        armorPoints: 60f,
+        speedMultiplier: 1.35f
     );
 
-    public static readonly Item mediumArmor = new Item(
+    public static readonly Armor mediumArmor = new Armor(
         id: 27,
-        type: ItemType.RESOURCES,
         name: "Medium Armor",
-        twoHanded: true
+        armorPoints: 35f,
+        speedMultiplier: 1.25f
     );
 
-    public static readonly Item lowArmor = new Item(
+    public static readonly Armor lowArmor = new Armor(
         id: 28,
-        type: ItemType.RESOURCES,
         name: "Low-Grade Armor",
-        twoHanded: true
+        armorPoints: 20f,
+        speedMultiplier: 1.15f
     );
 
     public static readonly Structure CraftingTable = new Structure(

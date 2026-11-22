@@ -86,7 +86,11 @@ public class InventoryUI
         if (input.IsLeftMousePressed())
         {
             int slotIndex = GetSlotIndexAt(mousePosition);
-            if (slotIndex != -1 && inventory.GetSlot(slotIndex) != null)
+            if (slotIndex == -2 && inventory.EquippedArmor != null)
+            {
+                draggedSlotIndex = -2;
+            }
+            else if (slotIndex >= 0 && inventory.GetSlot(slotIndex) != null)
             {
                 draggedSlotIndex = slotIndex;
             }
@@ -96,11 +100,25 @@ public class InventoryUI
         {
             int targetIndex = GetSlotIndexAt(mousePosition);
 
-            if (targetIndex != -1)
+            if (draggedSlotIndex == -2)
+            {
+                if (targetIndex >= 0)
+                    inventory.MoveEquippedArmorToSlot(targetIndex);
+                else if (targetIndex == -1)
+                {
+                    ItemStack? armor = inventory.TakeEquippedArmor();
+                    if (armor != null) ItemDropped?.Invoke(armor);
+                }
+            }
+            else if (targetIndex == -2)
+            {
+                inventory.EquipArmorFromSlot(draggedSlotIndex);
+            }
+            else if (targetIndex >= 0)
             {
                 inventory.MoveItem(draggedSlotIndex, targetIndex);
             }
-            else if (expanded)
+            else
             {
                 ItemStack? droppedStack = inventory.TakeStack(draggedSlotIndex);
 
@@ -138,6 +156,7 @@ public class InventoryUI
         var layout = GetLayout();
 
         DrawRow(spriteBatch, row: 0, layout);
+        DrawArmorSlot(spriteBatch, layout);
 
         if (expanded)
         {
@@ -151,7 +170,9 @@ public class InventoryUI
 
         if (draggedSlotIndex != -1)
         {
-            ItemStack draggedStack = inventory.GetSlot(draggedSlotIndex);
+            ItemStack? draggedStack = draggedSlotIndex == -2
+                ? inventory.EquippedArmor == null ? null : new ItemStack(inventory.EquippedArmor, 1)
+                : inventory.GetSlot(draggedSlotIndex);
             if (draggedStack != null)
             {
                 var dragRect = new Rectangle(
@@ -205,6 +226,7 @@ public class InventoryUI
     private int GetSlotIndexAt(Vector2 point)
     {
         Layout layout = GetLayout();
+        if (GetArmorSlotRect(layout).Contains(point)) return -2;
         int maxRow = expanded ? Rows : 1;
 
         for (int row = 0; row < maxRow; row++)
@@ -220,6 +242,25 @@ public class InventoryUI
         }
 
         return -1;
+    }
+
+    private void DrawArmorSlot(SpriteBatch spriteBatch, Layout layout)
+    {
+        Rectangle slotRect = GetArmorSlotRect(layout);
+        spriteBatch.Draw(slotTexture, slotRect, Color.White);
+        if (inventory.EquippedArmor is Armor armor && ItemVisuals.GetIcon(armor) is Texture2D icon)
+            spriteBatch.Draw(icon, slotRect, ItemVisuals.GetIconSource(armor.Id), Color.White);
+        else
+            spriteBatch.DrawString(font, "A", new Vector2(slotRect.X + 8, slotRect.Y + 6), Color.White);
+    }
+
+    private Rectangle GetArmorSlotRect(Layout layout)
+    {
+        return new Rectangle(
+            layout.StartX - layout.SlotSize - layout.Padding,
+            layout.HotbarY,
+            layout.SlotSize,
+            layout.SlotSize);
     }
 
     private Rectangle GetSlotRect(int row, int col, Layout layout)

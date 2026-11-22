@@ -15,6 +15,12 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
 
     private Rectangle titleRect;
     private Rectangle sunRect;
+    private const int SunFrameSize = 128;
+    private const int SunFramesPerRow = 8;
+    private const int SunFrameCount = 8;
+    private const float SunFrameDuration = 0.12f;
+    private int sunFrame;
+    private float sunFrameTimer;
 
     // Original positions
     private Vector2 originalSunPosition;
@@ -125,7 +131,12 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
 
         starfield.Draw(spriteBatch);
         spriteBatch.Draw(title, titleRect, Color.White * titleOpacity);
-        spriteBatch.Draw(sun, sunRect, Color.White);
+        Rectangle sunSource = new Rectangle(
+            (sunFrame % SunFramesPerRow) * SunFrameSize,
+            (sunFrame / SunFramesPerRow) * SunFrameSize,
+            SunFrameSize,
+            SunFrameSize);
+        spriteBatch.Draw(sun, sunRect, sunSource, Color.White);
 
         startGame.Draw(spriteBatch, buttonsOpacity);
         settings.Draw(spriteBatch, buttonsOpacity);
@@ -168,6 +179,7 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
         }
 
         starfield.Update(gameTime);
+        UpdateSunAnimation(gameTime);
 
         updateTitleAnimation(gameTime);
         if(!animationFinished) return; // Prevent any logic before the animation ends
@@ -239,8 +251,20 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
         timer = 0f;
         titleOpacity = 0f;
         buttonsOpacity = 0f;
+        sunFrame = 0;
+        sunFrameTimer = 0f;
 
         currentState = TitleAnimationState.WaitingStart;
+    }
+
+    private void UpdateSunAnimation(GameTime gameTime)
+    {
+        sunFrameTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+        while (sunFrameTimer >= SunFrameDuration)
+        {
+            sunFrameTimer -= SunFrameDuration;
+            sunFrame = (sunFrame + 1) % SunFrameCount;
+        }
     }
 
     private void updateTitleAnimation(GameTime gameTime)

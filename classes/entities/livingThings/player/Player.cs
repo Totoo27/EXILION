@@ -73,6 +73,7 @@ public class Player : LivingThing
         this.oxygen = saveData.Oxygen;
 
         inventory.Restore(saveData.Inventory);
+        inventory.RestoreArmor(saveData.EquippedArmorItemId);
     }
 
     public PlayerSaveData GetSaveData()
@@ -88,7 +89,8 @@ public class Player : LivingThing
             Thirst = this.thirst,
             Oxygen = this.oxygen,
 
-            Inventory = inventory.GetSaveData()
+            Inventory = inventory.GetSaveData(),
+            EquippedArmorItemId = inventory.EquippedArmor?.Id
         };
 
     }
@@ -138,7 +140,8 @@ public class Player : LivingThing
 
         Vector2 delta = Vector2.Zero;
 
-        float currentSpeed = speed * (input.Run ? 1.5f : 1f);
+        float armorSpeedMultiplier = inventory.EquippedArmor?.SpeedMultiplier ?? 1f;
+        float currentSpeed = speed * armorSpeedMultiplier * (input.Run ? 1.5f : 1f);
 
         if (input.MoveLeft) delta.X -= 1f;
         if (input.MoveRight) delta.X += 1f;
@@ -247,7 +250,7 @@ public class Player : LivingThing
             if (stat.value <= 0)
             {
                 stat.value = 0;
-                takeDamage(1);
+                takeNaturalDamage(1);
             }
 
             HungerChanged?.Invoke(stat.value);
@@ -290,7 +293,7 @@ public class Player : LivingThing
             if (stat.value <= 0)
             {
                 stat.value = 0;
-                takeDamage(3);
+                takeNaturalDamage(3);
             }
 
             OxygenChanged?.Invoke(stat.value);
@@ -317,7 +320,7 @@ public class Player : LivingThing
             if (stat.value <= 0)
             {
                 stat.value = 0;
-                takeDamage(1);
+                takeNaturalDamage(1);
             }
 
             ThirstChanged?.Invoke(stat.value);
@@ -336,6 +339,24 @@ public class Player : LivingThing
     }
 
     public override void takeDamage(int damage)
+    {
+        if (isDead || damage <= 0) return;
+
+        float protection = (inventory.EquippedArmor?.ArmorPoints ?? 0f) / 100f;
+        damage = Math.Max(1, (int)MathF.Ceiling(damage * (1f - protection)));
+
+        int previousHealth = health;
+        base.takeDamage(damage);
+        int damageReceived = previousHealth - health;
+        if (damageReceived <= 0) return;
+
+        combatTimer = combatCooldown;
+        healthRegenerationAccumulator = 0f;
+        HealthChanged?.Invoke(health);
+        DamageTaken?.Invoke(damageReceived);
+    }
+
+    private void takeNaturalDamage(int damage)
     {
         if (isDead || damage <= 0) return;
 
