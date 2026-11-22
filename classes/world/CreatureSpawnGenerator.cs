@@ -11,6 +11,8 @@ public sealed class CreatureSpawnGenerator
     private const float SpawnInterval = 6f;
     private const int MaxCreatures = 20;
     private const float SpawnChancePerAttempt = 0.55f;
+    private const double HostileChanceIncreasePerDay = 0.10;
+    private const double MaxHostileChance = 0.75;
 
     private readonly World world;
     private readonly Random random = new();
@@ -22,7 +24,7 @@ public sealed class CreatureSpawnGenerator
     }
 
     public Creature TrySpawn(float deltaTime, Vector2 playerPosition, bool isNight,
-        IReadOnlyList<Creature> activeCreatures, GameContext gameContext)
+        int dayCount, IReadOnlyList<Creature> activeCreatures, GameContext gameContext)
     {
         spawnTimer += deltaTime;
         if (spawnTimer < SpawnInterval) return null;
@@ -46,29 +48,27 @@ public sealed class CreatureSpawnGenerator
                 (chunk.ChunkX * Chunk.Size + localX + 0.5f) * world.TileSize,
                 (chunk.ChunkY * Chunk.Size + localY + 0.5f) * world.TileSize);
             if (Vector2.DistanceSquared(position, playerPosition) < world.TileSize * world.TileSize * 9f) continue;
+            if (world.HasObjectAtTile(position)) continue;
             if (!world.IsWalkable(position, gameContext.ScaleX(20))) continue;
             if (activeCreatures.Any(creature => !creature.isDead
                 && Vector2.DistanceSquared(position, creature.position) < world.TileSize * world.TileSize * 4f))
                 continue;
 
-            return CreatureFactory.CreateCreature(ChooseCreatureType(biome, isNight), position, gameContext);
+            return CreatureFactory.CreateCreature(ChooseCreatureType(biome, isNight, dayCount), position, gameContext);
         }
 
         return null;
     }
 
-    private CreatureType ChooseCreatureType(TileType biome, bool isNight)
+    private CreatureType ChooseCreatureType(TileType biome, bool isNight, int dayCount)
     {
+        double hostileChance = Math.Min(MaxHostileChance, Math.Max(0, dayCount - 1) * HostileChanceIncreasePerDay);
+        if (isNight && random.NextDouble() < hostileChance)
+            return CreatureType.Hostile;
+
         double roll = random.NextDouble();
         bool isRock = biome == TileType.Rock;
 
-        if (isNight)
-        {
-            if (roll < 0.30) return CreatureType.Hostile;
-            roll -= 0.30;
-        }
-
-        // Las zonas de roca favorecen criaturas neutrales; el resto favorece pacíficas.
         double neutralChance = isRock ? 0.70 : 0.30;
         return roll < neutralChance ? CreatureType.Neutral : CreatureType.Peaceful;
     }

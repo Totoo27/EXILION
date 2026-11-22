@@ -126,6 +126,28 @@ public class World
         return !IntersectsBlockingObject(worldPosition, radius);
     }
 
+    public bool HasObjectAtTile(Vector2 worldPosition)
+    {
+        int tileX = (int)MathF.Floor(worldPosition.X / TileSize);
+        int tileY = (int)MathF.Floor(worldPosition.Y / TileSize);
+        int chunkX = (int)MathF.Floor((float)tileX / Chunk.Size);
+        int chunkY = (int)MathF.Floor((float)tileY / Chunk.Size);
+        if (!_loadedChunks.TryGetValue((chunkX, chunkY), out var chunk))
+        {
+            chunk = _generator.GenerateChunk(chunkX, chunkY);
+            PopulateObjects(chunk);
+        }
+
+        foreach (var obj in chunk.Objects)
+        {
+            if (obj.IsDestroyed || obj.IsCollected) continue;
+            if ((int)MathF.Floor(obj.TileX) == tileX && (int)MathF.Floor(obj.TileY) == tileY)
+                return true;
+        }
+
+        return false;
+    }
+
     public bool IsInShallowWater(Vector2 worldPosition, float radius, bool alreadySwimming)
     {
         int waterSamples = 0;
@@ -330,11 +352,11 @@ public class World
     }
 
     // Encuentra un lugar seco cerca del inicio para que el jugador no aparezca en el agua.
-    public Vector2 FindSpawnPosition()
+    public Vector2 FindSpawnPosition(Vector2 preferredPosition = default)
     {
-        UpdateAroundPosition(Vector2.Zero); // Primero cargamos el mapa que rodea el punto de inicio.
+        UpdateAroundPosition(preferredPosition); // Primero cargamos el mapa alrededor del punto de referencia.
 
-        Vector2 best = Vector2.Zero;
+        Vector2 best = preferredPosition;
         float bestDistance = float.MaxValue;
 
         foreach (var chunk in _loadedChunks.Values)
@@ -347,12 +369,14 @@ public class World
 
                     float px = (chunk.ChunkX * Chunk.Size + lx + 0.5f) * TileSize;
                     float py = (chunk.ChunkY * Chunk.Size + ly + 0.5f) * TileSize;
+                    Vector2 candidate = new(px, py);
+                    if (HasObjectAtTile(candidate)) continue;
 
-                    float distance = px * px + py * py;
+                    float distance = Vector2.DistanceSquared(candidate, preferredPosition);
                     if (distance < bestDistance)
                     {
                         bestDistance = distance;
-                        best = new Vector2(px, py);
+                        best = candidate;
                     }
                 }
             }

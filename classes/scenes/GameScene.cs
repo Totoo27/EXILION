@@ -26,6 +26,7 @@ public class GameScene : Scene
     private float nightOpacity = 0f;
     private const int DIURNAL_PRESET_TIME = 200; // in seconds
     private int diurnalCycleTime = DIURNAL_PRESET_TIME; // in seconds
+    private int dayCount = 1;
     private const float MAX_NIGHT_OPACITY = 0.65f;
     private const float NIGHT_TRANSITION_SPEED = 0.15f;
     private bool night = false;
@@ -168,16 +169,20 @@ public class GameScene : Scene
 
         world.RestoreObjectStates(saveData.WorldObjectStates.Select(state => state.ToState()));
 
-        creatures.Clear();
-        foreach (CreatureSaveData creatureData in saveData.Creatures ?? new List<CreatureSaveData>()) creatures.Add(CreatureFactory.CreateRestoredCreature(creatureData, GameContext));
-
         diurnalCycleTime = saveData.WorldTime;
+        dayCount = Math.Max(1, saveData.DayCount);
 
         night = saveData.IsNight;
         if (night) nightOpacity = 1f;
         
         Seed = saveData.WorldSeed;
         processPlayerSpawn(false);
+
+        creatures.Clear();
+        foreach (CreatureSaveData creatureData in saveData.Creatures ?? new List<CreatureSaveData>())
+        {
+            Creature creature = CreatureFactory.CreateRestoredCreature(creatureData, GameContext);
+        }
         
         foreach(var catchableItem in saveData.CatchableItems)
         {
@@ -205,6 +210,7 @@ public class GameScene : Scene
         saveData.IsNewWorld = false;
         saveData.WorldTime = diurnalCycleTime;
         saveData.IsNight = night;
+        saveData.DayCount = dayCount;
 
         saveData.Player = player.GetSaveData();
         saveData.CatchableItems.Clear();
@@ -311,7 +317,7 @@ public class GameScene : Scene
             if (placeBlock) input.IsMouseCaptured = true;
             player.Update(mouseWorldPosition, input, gameTime, world);
 
-            foreach (Creature creature in creatures) creature.Update(gameTime, world, player.position);
+            foreach (Creature creature in creatures) creature.Update(gameTime, world, player.position, night);
             ProcessCreatureContactDamage(gameTime);
 
             input.IsMouseCaptured = wasMouseCaptured;
@@ -392,6 +398,7 @@ public class GameScene : Scene
                 (float)gameTime.ElapsedGameTime.TotalSeconds,
                 player.position,
                 night,
+                dayCount,
                 creatures,
                 GameContext);
             if (spawnedCreature != null) creatures.Add(spawnedCreature);
@@ -588,7 +595,9 @@ public class GameScene : Scene
             {
 
                 diurnalCycleTime = DIURNAL_PRESET_TIME;
+                if (night) dayCount++;
                 night = !night;
+                HUD.setDayCount(dayCount);
 
             }
 
@@ -637,6 +646,7 @@ public class GameScene : Scene
         }
 
         HUD = new HUD(player, GameContext, graphicsDevice, input, DIURNAL_PRESET_TIME);
+        HUD.setDayCount(dayCount);
 
         // update stats from beggining
         HUD.setTime(DIURNAL_PRESET_TIME - diurnalCycleTime);
@@ -645,7 +655,14 @@ public class GameScene : Scene
         player.DamageTaken += camera.damageShake;
         player.Inventory.UpdateInventoryUI += HUD.inventoryUI.UpdateHandItem;
 
-        if(isNewGame) player.position = world.FindSpawnPosition();
+        if (isNewGame)
+        {
+            player.position = world.FindSpawnPosition();
+        }
+        else
+        {
+            world.UpdateAroundPosition(player.position);
+        }
     }
 
     private void UpdateNightTransition(GameTime gameTime)

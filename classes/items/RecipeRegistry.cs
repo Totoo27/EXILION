@@ -150,7 +150,7 @@ public static class RecipeRegistry
         result: ItemRegistry.BotellaVacia,
         ingredients: new List<Ingredient>
         {
-            new Ingredient(ItemRegistry.Hierro, 3)
+            new Ingredient(ItemRegistry.Hierro, 1)
         },
         amount: 1,
         requiresCraftingTable: false
@@ -308,6 +308,17 @@ public static class RecipeRegistry
         requiresCraftingTable: true
     );
 
+    public static readonly Recipe WoodenFloorRecipe = new Recipe(
+        id: 24,
+        result: ItemRegistry.WoodenFloor,
+        ingredients: new List<Ingredient>
+        {
+            new Ingredient(ItemRegistry.Madera, 2)
+        },
+        amount: 2,
+        requiresCraftingTable: false
+    );
+
     public static readonly IReadOnlyList<Recipe> All = new List<Recipe>
     {
         CraftingTableRecipe,
@@ -319,6 +330,7 @@ public static class RecipeRegistry
         SiliconRecipe,
         ChipRecipe,
 
+        WoodenFloorRecipe,
         WoodenWallRecipe,
         StoneWallRecipe,
 

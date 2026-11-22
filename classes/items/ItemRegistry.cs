@@ -289,6 +289,13 @@ public static class ItemRegistry
         icon: Assets.Sprites.ship
      );
 
+    public static readonly Structure WoodenFloor = new Structure(
+        id: 35,
+        name: "Wooden Floor",
+        type: ObjectType.WoodenFloor,
+        icon: Assets.Sprites.woodenFloor
+    );
+
     // -------------------------
 
     private static readonly Dictionary<int, Item> items = new()
@@ -319,7 +326,8 @@ public static class ItemRegistry
 
         // Structures
         { GeneradorO2.Id,GeneradorO2 },
-        {CraftingTable.Id, CraftingTable},
+        { CraftingTable.Id, CraftingTable},
+        { WoodenFloor.Id, WoodenFloor},
 
         // Tools
         { HachaDePiedra.Id, HachaDePiedra },

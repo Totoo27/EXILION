@@ -27,7 +27,7 @@ public sealed class PeacefulCreatureIntelligence : ICreatureIntelligence
         fleeTimer = 3f;
     }
 
-    public void Update(Creature creature, GameTime gameTime, World.World world, Vector2 playerPosition)
+    public void Update(Creature creature, GameTime gameTime, World.World world, Vector2 playerPosition, bool isNight)
     {
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
         fleeTimer = Math.Max(0f, fleeTimer - deltaTime);

@@ -84,6 +84,12 @@ public sealed class Sprites
     // Inventory
     public Texture2D Slot { get; private set; }
 
+    // Structures
+
+    public Texture2D woodenFloor { get; private set; }
+    public Texture2D woodenWall { get; private set; }
+    public Texture2D stoneWall { get; private set; }
+
     // Final Ship
 
     public Texture2D turbine { get; private set; }
@@ -184,6 +190,12 @@ public sealed class Sprites
 
         titaniumAxe = content.Load<Texture2D>("Sprites/Items/titaniumAxe");
         titaniumPickaxe = content.Load<Texture2D>("Sprites/Items/titaniumPickaxe");
+
+        // Structures
+
+        woodenFloor = content.Load<Texture2D>("Sprites/Items/woodenFloor");
+        woodenWall = content.Load<Texture2D>("Sprites/Items/woodenFloor");
+        stoneWall = content.Load<Texture2D>("Sprites/Items/woodenFloor");
         
         // Final Ship
 

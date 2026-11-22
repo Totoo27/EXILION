@@ -604,6 +604,18 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/woodenAxe.png
 
+#begin Sprites/Items/woodenFloor.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/woodenFloor.png
+
 #begin Sprites/Items/woodenPickaxe.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -699,18 +711,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/UI/HUD/healthProgress.png;Sprites/UI/HUD/healthProgress
-
-#begin Sprites/UI/HUD/hungerAdviceIcon.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Sprites/UI/HUD/hungerAdviceIcon.png
 
 #begin Sprites/UI/HUD/hungerAdviceIcon.png
 /importer:TextureImporter

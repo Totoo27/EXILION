@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -24,6 +25,7 @@ public class HUD
     private StatAdviceIndicator statAdviceIndicator;
     private InputManager input;
     private int DIURNAL_TIME;
+    private int dayCount = 1;
     public HUD(Player player, GameContext gameContext, GraphicsDevice GraphicsDevice, InputManager input, int DIURNAL_TIME)
     {
         this.gameContext = gameContext;
@@ -185,6 +187,7 @@ public class HUD
         healthBar.Draw(spriteBatch);
         oxygenBar.Draw(spriteBatch);
         watchBar.Draw(spriteBatch);
+        spriteBatch.DrawString(Assets.Fonts.PixelArtSmall, $"Days Exiled: {dayCount}", new Vector2(gameContext.ScaleX(24), gameContext.ScaleY(20)), Color.White);
         inventoryUI.Draw(spriteBatch);
         craftingUI.Draw(spriteBatch);
     }
@@ -197,6 +200,11 @@ public class HUD
     public void setTime(int value)
     {
         watchBar.setValue(value);
+    }
+
+    public void setDayCount(int value)
+    {
+        dayCount = Math.Max(1, value);
     }
 
     public void hide()

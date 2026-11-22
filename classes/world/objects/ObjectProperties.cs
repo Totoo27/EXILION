@@ -15,7 +15,7 @@ public static class ObjectProperties
             Type = ObjectType.Tree, BlocksMovement = true, CollisionRadius = 0.50f, MaxHealth = 20,
             HitSound = Assets.SoundEffects?.chop,
             AbovePlayer = true,
-            HandCanBreak = true, BreakableByItems = new[] { ItemRegistry.HachaDeMadera, ItemRegistry.HachaDePiedra },
+            HandCanBreak = true, BreakableByItems = new[] { ItemRegistry.HachaDeMadera, ItemRegistry.HachaDePiedra, ItemRegistry.HachaDeHierro, ItemRegistry.HachaDeTitanio },
             Drops = new[] { new ObjectDrop(ItemRegistry.Madera, 2) },
             Source = new Rectangle(128, 0, 64, 64), DrawWidthTiles = 2.2f } },
 
@@ -105,6 +105,14 @@ public static class ObjectProperties
             HandCanBreak = false,
             UseItemSprite = true,
             DrawWidthTiles = 5.5f, IsExit = true, InteractionRadiusTiles = 2f }},
+
+        { ObjectType.WoodenFloor, new ObjectDefinition {
+            Type = ObjectType.WoodenFloor, BlocksMovement = false, CollisionRadius = 0.35f, MaxHealth = 50,
+            HitSound = Assets.SoundEffects?.chop, AbovePlayer = false,
+            UseItemSprite = true,
+            HandCanBreak = true, BreakableByItems = new[] { ItemRegistry.HachaDeMadera, ItemRegistry.HachaDePiedra, ItemRegistry.HachaDeHierro, ItemRegistry.HachaDeTitanio },
+            Drops = new[] { new ObjectDrop(ItemRegistry.WoodenFloor, 1) },
+            DrawWidthTiles = 1f }},
             
     };
 

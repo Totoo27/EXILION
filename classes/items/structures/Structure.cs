@@ -8,7 +8,7 @@ public class Structure : Item
 {
     public ObjectType objectType;
     public Structure(int id, string name,ObjectType type, Texture2D icon = null )
-        : base(id, name, ItemType.STRUCTURES, icon)
+        : base(id, name, ItemType.STRUCTURES, icon, true)
     {
         this.objectType = type;
     }
