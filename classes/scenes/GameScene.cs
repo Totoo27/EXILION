@@ -35,6 +35,7 @@ public class GameScene : Scene
 
     private PausePanel pausePanel;
     private DeathPanel deathPanel;
+    private VictoryPanel victoryPanel;
 
     // Player
     private Player player;
@@ -96,8 +97,10 @@ public class GameScene : Scene
 
         pausePanel = new PausePanel(GameData);
         deathPanel = new DeathPanel(GameData);
+        victoryPanel = new VictoryPanel(GameData);
 
         deathPanel.Respawn += processPlayerSpawn;
+        victoryPanel.ContinuePlaying += resumeAfterVictory;
         Music.musicStop += changeMusic;
 
         catchableItems = new List<CatchableItem>();
@@ -227,9 +230,9 @@ public class GameScene : Scene
 
         catchableItems.Add(
             new CatchableItem(
-                new ItemStack(ItemRegistry.GeneradorO2, 1),
+                new ItemStack(ItemRegistry.FinalShip, 1),
                 new Vector2(100, 100),
-                new Sprite(ItemRegistry.GeneradorO2.Icon, GameContext.ScaleXY(1), ItemRegistry.GeneradorO2.IconSource),
+                new Sprite(ItemRegistry.FinalShip.Icon, GameContext.ScaleXY(1), ItemRegistry.FinalShip.IconSource),
                 GameContext
             )
         );
@@ -245,6 +248,12 @@ public class GameScene : Scene
         if(deathPanel.enabled)
         {
             deathPanel.Update();
+            return;
+        }
+
+        if (victoryPanel.Enabled)
+        {
+            victoryPanel.Update(gameTime);
             return;
         }
 
@@ -344,24 +353,33 @@ public class GameScene : Scene
                 }
                 else
                 {
-                    Rectangle playerHitbox = player.GetHitbox();
-                    bool touchedItem = false;
-
-                    for (int i = catchableItems.Count - 1; i >= 0; i--)
+                    if (world.IsNearExit(player.position))
                     {
-                        CatchableItem item = catchableItems[i];
-
-                        if (playerHitbox.Intersects(item.GetHitbox()))
-                        {
-                            touchedItem = true;
-                            player.TryPickup(item);
-                            if (item.Picked) catchableItems.RemoveAt(i);
-                        }
+                        victoryPanel.Enabled = true;
+                        Music.musicStop -= changeMusic;
+                        Music.Play(Assets.Songs.MenuMusic);
                     }
-
-                    if (!touchedItem && world.IsNearCraftingTable(player.position))
+                    else
                     {
-                        HUD.OpenCraftingTable();
+                        Rectangle playerHitbox = player.GetHitbox();
+                        bool touchedItem = false;
+
+                        for (int i = catchableItems.Count - 1; i >= 0; i--)
+                        {
+                            CatchableItem item = catchableItems[i];
+
+                            if (playerHitbox.Intersects(item.GetHitbox()))
+                            {
+                                touchedItem = true;
+                                player.TryPickup(item);
+                                if (item.Picked) catchableItems.RemoveAt(i);
+                            }
+                        }
+
+                        if (!touchedItem && world.IsNearCraftingTable(player.position))
+                        {
+                            HUD.OpenCraftingTable();
+                        }
                     }
                 }
             }
@@ -402,8 +420,9 @@ public class GameScene : Scene
         );
 
         bool nearCraftingTable = world.IsNearCraftingTable(player.position);
+        bool nearExit = world.IsNearExit(player.position);
 
-        interactionPrompt.Visible = nearItem || nearCraftingTable;
+        interactionPrompt.Visible = nearItem || nearCraftingTable || nearExit;
     }
 
     private void ApplyPlayerAttackHits()
@@ -483,7 +502,7 @@ public class GameScene : Scene
         mapRenderer?.DrawObjects(spriteBatch, world, true);
 
         // Interaction Prompt
-        if (interactionPrompt != null && !pausePanel.enabled && !deathPanel.enabled && player != null)
+        if (interactionPrompt != null && !pausePanel.enabled && !deathPanel.enabled && !victoryPanel.Enabled && player != null)
         {
             interactionPrompt.Draw(spriteBatch, pixel, player.GetHitbox());
         }
@@ -505,6 +524,7 @@ public class GameScene : Scene
         // Panels
         pausePanel.Draw(spriteBatch);
         deathPanel.Draw(spriteBatch);
+        victoryPanel.Draw(spriteBatch, pixel);
     }
 
     public override void UnloadContent()
@@ -514,6 +534,7 @@ public class GameScene : Scene
         // Events
         Music.musicStop -= changeMusic;
         deathPanel.Respawn -= processPlayerSpawn;
+        victoryPanel.ContinuePlaying -= resumeAfterVictory;
         if (player != null)
         {
             player.Inventory.UpdateInventoryUI -= HUD.inventoryUI.UpdateHandItem;
@@ -524,6 +545,7 @@ public class GameScene : Scene
         HUD = null;
         pausePanel = null;
         deathPanel = null;
+        victoryPanel = null;
         interactionPrompt = null;
 
         // Entities
@@ -644,6 +666,12 @@ public class GameScene : Scene
         currentSongIndex++;
         if (currentSongIndex >= songsQueue.Count) currentSongIndex = 0;
         Music.Play(songsQueue[currentSongIndex], 3f);
+    }
+
+    private void resumeAfterVictory()
+    {
+        Music.musicStop += changeMusic;
+        Music.Play(songsQueue[currentSongIndex], 1f);
     }
 
 }

@@ -285,7 +285,7 @@ public static class ItemRegistry
     public static readonly Structure FinalShip = new Structure(
         id: 34,
         name: "Spaceship",
-        type: ObjectType.CraftingTable,
+        type: ObjectType.SpaceShip,
         icon: Assets.Sprites.ship
      );
 

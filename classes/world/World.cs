@@ -206,6 +206,22 @@ public class World
         return false;
     }
 
+    public bool IsNearExit(Vector2 worldPosition)
+    {
+        foreach (var chunk in _loadedChunks.Values)
+        foreach (var obj in chunk.Objects)
+        {
+            if (obj.IsDestroyed || obj.IsCollected) continue;
+            if (!obj.Definition.IsExit) continue;
+
+            float radius = obj.Definition.InteractionRadiusTiles * TileSize;
+            float dx = obj.TileX * TileSize - worldPosition.X;
+            float dy = obj.TileY * TileSize - worldPosition.Y;
+            if (dx * dx + dy * dy <= radius * radius) return true;
+        }
+        return false;
+    }
+
     public bool IsInWater(Vector2 worldPosition)
     {
         TileType? type = GetTileTypeAt(worldPosition.X, worldPosition.Y);

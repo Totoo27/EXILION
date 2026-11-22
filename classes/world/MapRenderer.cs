@@ -74,7 +74,15 @@ public class MapRenderer
             if(definition.UseItemSprite && ItemRegistry.GetByObjectType(obj.Type) is Item item)
             {
                 texture = item.Icon;
-                source = defaultRectangle;
+
+                if(definition.Type == ObjectType.SpaceShip)
+                {
+                    source = new(0, 0, ObjectSourceSize*2, ObjectSourceSize*2);
+                } else
+                {
+                    source = defaultRectangle;
+                }
+
             } else
             {
                 texture = obj.Type switch

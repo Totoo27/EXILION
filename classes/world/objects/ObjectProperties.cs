@@ -96,9 +96,15 @@ public static class ObjectProperties
             UseItemSprite = true,
             BreakableByItems = new[] { ItemRegistry.PicoDePiedra, ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
             Drops = new[] { new ObjectDrop(ItemRegistry.CraftingTable, 1) }, DrawWidthTiles = 1f ,
-            IsCraftingTable = true, InteractionRadiusTiles = 2.5f} 
-            
-            },
+            IsCraftingTable = true, InteractionRadiusTiles = 1.5f}
+        },
+
+        { ObjectType.SpaceShip, new ObjectDefinition {
+            Type = ObjectType.SpaceShip, BlocksMovement = true, CollisionRadius = 1.2f, MaxHealth = 999,
+            HitSound = Assets.SoundEffects?.mine, AbovePlayer = true,
+            HandCanBreak = false,
+            UseItemSprite = true,
+            DrawWidthTiles = 5.5f, IsExit = true, InteractionRadiusTiles = 2f }},
             
     };
 
