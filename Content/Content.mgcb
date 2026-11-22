@@ -520,6 +520,18 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/stonePickaxe.png
 
+#begin Sprites/Items/StoneWall.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/StoneWall.png
+
 #begin Sprites/Items/titanio.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -627,6 +639,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/woodenPickaxe.png
+
+#begin Sprites/Items/WoodenWall.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/WoodenWall.png
 
 #begin Sprites/Tiles/objects.png
 /importer:TextureImporter

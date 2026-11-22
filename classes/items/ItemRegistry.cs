@@ -296,6 +296,20 @@ public static class ItemRegistry
         icon: Assets.Sprites.woodenFloor
     );
 
+    public static readonly Structure WoodenWall = new Structure(
+        id: 36,
+        name: "Wooden Wall",
+        type: ObjectType.WoodenWall,
+        icon: Assets.Sprites.woodenWall
+    );
+
+    public static readonly Structure StoneWall = new Structure(
+        id: 37,
+        name: "Stone Wall",
+        type: ObjectType.StoneWall,
+        icon: Assets.Sprites.stoneWall
+    );
+
     // -------------------------
 
     private static readonly Dictionary<int, Item> items = new()
@@ -328,6 +342,8 @@ public static class ItemRegistry
         { GeneradorO2.Id,GeneradorO2 },
         { CraftingTable.Id, CraftingTable},
         { WoodenFloor.Id, WoodenFloor},
+        { WoodenWall.Id, WoodenWall},
+        { StoneWall.Id, StoneWall},
 
         // Tools
         { HachaDePiedra.Id, HachaDePiedra },

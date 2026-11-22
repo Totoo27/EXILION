@@ -194,8 +194,8 @@ public sealed class Sprites
         // Structures
 
         woodenFloor = content.Load<Texture2D>("Sprites/Items/woodenFloor");
-        woodenWall = content.Load<Texture2D>("Sprites/Items/woodenFloor");
-        stoneWall = content.Load<Texture2D>("Sprites/Items/woodenFloor");
+        woodenWall = content.Load<Texture2D>("Sprites/Items/WoodenWall");
+        stoneWall = content.Load<Texture2D>("Sprites/Items/StoneWall");
         
         // Final Ship
 

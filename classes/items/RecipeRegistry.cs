@@ -216,7 +216,7 @@ public static class RecipeRegistry
 
     public static readonly Recipe WoodenWallRecipe = new Recipe(
         id: 17,
-        result: ItemRegistry.Arena,
+        result: ItemRegistry.WoodenWall,
         ingredients: new List<Ingredient>
         {
             new Ingredient(ItemRegistry.Madera, 2)
@@ -227,7 +227,7 @@ public static class RecipeRegistry
 
     public static readonly Recipe StoneWallRecipe = new Recipe(
         id: 18,
-        result: ItemRegistry.Arena,
+        result: ItemRegistry.StoneWall,
         ingredients: new List<Ingredient>
         {
             new Ingredient(ItemRegistry.Piedra, 2)

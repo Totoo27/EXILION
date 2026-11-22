@@ -111,7 +111,23 @@ public static class ObjectProperties
             HitSound = Assets.SoundEffects?.chop, AbovePlayer = false,
             UseItemSprite = true,
             HandCanBreak = true, BreakableByItems = new[] { ItemRegistry.HachaDeMadera, ItemRegistry.HachaDePiedra, ItemRegistry.HachaDeHierro, ItemRegistry.HachaDeTitanio },
-            Drops = new[] { new ObjectDrop(ItemRegistry.WoodenFloor, 1) },
+            Drops = new[] { new ObjectDrop(ItemRegistry.Madera, 1) },
+            DrawWidthTiles = 1f }},
+
+        { ObjectType.WoodenWall, new ObjectDefinition {
+            Type = ObjectType.WoodenWall, BlocksMovement = true, CollisionRadius = 0.5f, MaxHealth = 50,
+            HitSound = Assets.SoundEffects?.chop, AbovePlayer = true,
+            UseItemSprite = true,
+            HandCanBreak = true, BreakableByItems = new[] { ItemRegistry.HachaDeMadera, ItemRegistry.HachaDePiedra, ItemRegistry.HachaDeHierro, ItemRegistry.HachaDeTitanio },
+            Drops = new[] { new ObjectDrop(ItemRegistry.Madera, 1) },
+            DrawWidthTiles = 1f }},
+
+        { ObjectType.StoneWall, new ObjectDefinition {
+            Type = ObjectType.StoneWall, BlocksMovement = true, CollisionRadius = 0.5f, MaxHealth = 80,
+            HitSound = Assets.SoundEffects?.mine, AbovePlayer = true,
+            UseItemSprite = true,
+            HandCanBreak = true, BreakableByItems = new[] { ItemRegistry.PicoDeMadera, ItemRegistry.PicoDePiedra, ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
+            Drops = new[] { new ObjectDrop(ItemRegistry.Piedra, 1) },
             DrawWidthTiles = 1f }},
             
     };

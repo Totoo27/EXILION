@@ -195,7 +195,7 @@ public class World
         var state = new WorldObjectState(id, ObjectProperties.Get(item.objectType).MaxHealth, false, false, item.objectType);
         ObjectStates.Record(state);
         chunk.Objects.Add(new WorldObject(id, item.objectType, tileX + 0.5f, tileY + 0.5f,
-            state, ObjectStates.Record));
+            state, ObjectStates.Record, obj => ObjectDestroyed?.Invoke(obj)));
         return true;
     }
     public bool IsOxygenSupplied(Vector2 worldPosition)
