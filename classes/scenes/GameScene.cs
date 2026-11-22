@@ -245,39 +245,6 @@ public class GameScene : Scene
             )
 
         );
-
-        catchableItems.Add(
-
-            new CatchableItem(
-                new ItemStack(ItemRegistry.lowArmor, 1),
-                new Vector2(0, 0),
-                new Sprite(ItemRegistry.lowArmor.Icon, GameContext.ScaleXY(1), ItemRegistry.lowArmor.IconSource),
-                GameContext
-            )
-
-        );
-
-        catchableItems.Add(
-
-            new CatchableItem(
-                new ItemStack(ItemRegistry.mediumArmor, 1),
-                new Vector2(0, 0),
-                new Sprite(ItemRegistry.mediumArmor.Icon, GameContext.ScaleXY(1), ItemRegistry.mediumArmor.IconSource),
-                GameContext
-            )
-
-        );
-
-        catchableItems.Add(
-
-            new CatchableItem(
-                new ItemStack(ItemRegistry.advancedArmor, 1),
-                new Vector2(0, 0),
-                new Sprite(ItemRegistry.advancedArmor.Icon, GameContext.ScaleXY(1), ItemRegistry.advancedArmor.IconSource),
-                GameContext
-            )
-
-        );
         
     }
 
