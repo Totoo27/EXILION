@@ -8,12 +8,10 @@ namespace EXILION.Entities.CatchableItems;
 
 public class CatchableItem : Entity
 {
-    private const float PulseSpeed = 1.5f;
-    private const float PulseAmount = 0.12f;
     private const int LifeTime = 20; // Seconds
     private float lifeTimer = 0;
 
-    private float animationTime;
+    private readonly EXILION.Client.CatchableItemPulse pulse = new();
     private const int HitboxSize = 28; // más chico que el del jugador (40)
 
     public ItemStack Stack { get; }
@@ -40,9 +38,8 @@ public class CatchableItem : Entity
             return;
         }
 
-        animationTime += deltaTime;
-        float pulse = 1f + MathF.Sin(animationTime * PulseSpeed) * PulseAmount;
-        sprite.SetScaleMultiplier(pulse);
+        pulse.Update(deltaTime);
+        sprite.SetScaleMultiplier(pulse.Scale);
     }
 
     public new void Draw(SpriteBatch spriteBatch, Texture2D pixel)
