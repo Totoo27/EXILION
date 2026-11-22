@@ -9,7 +9,7 @@ public abstract class LivingThing : Entity
     #nullable enable
     
     public int maxHealth { get; private set; }
-    protected int health;
+    public int health { get; protected set; }
     public bool isDead { get; private set; } = false;
     public int speed { get; private set; }
     public event Action? deathEvent;

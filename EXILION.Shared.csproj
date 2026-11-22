@@ -9,6 +9,9 @@
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="classes/entities/**/*.cs" />
+    <Compile Include="classes/items/tools/AttackHitbox.cs" />
+    <Compile Include="classes/world/**/*.cs" Exclude="classes/world/MapRenderer.cs" />
     <Compile Include="classes/items/**/*.cs" Exclude="classes/items/tools/AttackHitbox.cs" />
     <Compile Include="classes/logic/CatchableItemState.cs" />
     <Compile Include="classes/logic/GameAudioCue.cs" />

@@ -30,36 +30,57 @@ public class World
         TileSize = tileSize;
     }
 
+
     public void UpdateAroundPosition(Vector2 worldPosition)
     {
-        int playerChunkX = (int)MathF.Floor(worldPosition.X / (TileSize * Chunk.Size));
-        int playerChunkY = (int)MathF.Floor(worldPosition.Y / (TileSize * Chunk.Size));
+        UpdateAroundPositions(new[] { worldPosition });
+    }
 
+    public void UpdateAroundPositions(IEnumerable<Vector2> positions)
+    {
         var needed = new HashSet<(int, int)>();
 
-        for (int dx = -RenderDistanceChunks; dx <= RenderDistanceChunks; dx++)
+        foreach (Vector2 worldPosition in positions)
         {
-            for (int dy = -RenderDistanceChunks; dy <= RenderDistanceChunks; dy++)
-            {
-                var key = (playerChunkX + dx, playerChunkY + dy);
-                needed.Add(key);
+            int playerChunkX = (int)MathF.Floor(
+                worldPosition.X / (TileSize * Chunk.Size)
+            );
 
-                if (!_loadedChunks.ContainsKey(key))
+            int playerChunkY = (int)MathF.Floor(
+                worldPosition.Y / (TileSize * Chunk.Size)
+            );
+
+            for (int dx = -RenderDistanceChunks; dx <= RenderDistanceChunks; dx++)
+            {
+                for (int dy = -RenderDistanceChunks; dy <= RenderDistanceChunks; dy++)
                 {
-                    var chunk = _generator.GenerateChunk(key.Item1, key.Item2);
-                    PopulateObjects(chunk);
-                    _loadedChunks[key] = chunk;
+                    needed.Add((playerChunkX + dx, playerChunkY + dy));
                 }
             }
         }
 
+        foreach (var key in needed)
+        {
+            if (_loadedChunks.ContainsKey(key))
+                continue;
+
+            var chunk = _generator.GenerateChunk(key.Item1, key.Item2);
+            PopulateObjects(chunk);
+            _loadedChunks[key] = chunk;
+        }
+
         var toRemove = new List<(int, int)>();
+
         foreach (var key in _loadedChunks.Keys)
         {
-            if (!needed.Contains(key)) toRemove.Add(key);
+            if (!needed.Contains(key))
+                toRemove.Add(key);
         }
-        foreach (var key in toRemove) _loadedChunks.Remove(key);
+
+        foreach (var key in toRemove)
+            _loadedChunks.Remove(key);
     }
+
 
     public void UpdateObjects(float deltaTime)
     {

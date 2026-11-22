@@ -16,7 +16,6 @@
   <ItemGroup>
     <Compile Remove="EXILION.Server\**\*.cs" />
     <Compile Remove="classes\items\**\*.cs" />
-    <Compile Include="classes\items\tools\AttackHitbox.cs" />
     <Compile Remove="classes\logic\CatchableItemState.cs" />
     <Compile Remove="classes\logic\GameAudioCue.cs" />
     <Compile Remove="classes\logic\GameClock.cs" />
@@ -35,6 +34,9 @@
     <Compile Remove="classes\entities\livingThings\player\StatType.cs" />
     <Compile Remove="classes\saving\**\*.cs" />
     <Compile Remove="classes\network\**\*.cs" />
+    <Compile Remove="classes\entities\**\*.cs" />
+    <Compile Remove="classes\world\**\*.cs" />
+    <Compile Include="classes\world\MapRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Icon.ico" />

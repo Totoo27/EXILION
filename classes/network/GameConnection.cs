@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 
@@ -13,6 +14,8 @@ public sealed class GameConnection : IAsyncDisposable, IDisposable
 
     public ConnectionTicket Ticket { get; }
     public IPEndPoint ServerEndpoint => serverEndpoint;
+    public ConcurrentQueue<WorldSnapshot> Snapshots { get; } = new();
+
 
     private GameConnection(UdpClient udp, IPEndPoint serverEndpoint, ConnectionTicket ticket)
     {

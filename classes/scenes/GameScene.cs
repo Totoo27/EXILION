@@ -78,6 +78,7 @@ public class GameScene : Scene
     private bool isLoaded = false;
     private bool blockPlacementMode;
     private int Seed;
+    private readonly Dictionary<Guid, RemotePlayer> remotePlayers = new();
 
     public GameScene(IGameData gameData, string path) : base(gameData)
     {
@@ -276,6 +277,26 @@ public class GameScene : Scene
     public override void Update(GameTime gameTime)
     {
         if(stopUpdating || !isLoaded) return;
+
+        if (isOnline && networkConnection != null)
+        {
+            while (networkConnection.Snapshots.TryDequeue(out var snapshot))
+            {
+                foreach (var remote in snapshot.Players)
+                {
+                    if (remote.PlayerId == networkConnection.Ticket.SessionId)
+                        continue;
+
+                    if (!remotePlayers.TryGetValue(remote.PlayerId, out var player))
+                    {
+                        player = new RemotePlayer(remote.PlayerId);
+                        remotePlayers.Add(remote.PlayerId, player);
+                    }
+
+                    player.ApplySnapshot(remote);
+                }
+            }
+        }
 
         mapRenderer?.Update(gameTime);
 

@@ -8,11 +8,6 @@ using EXILION.Saving;
 
 namespace EXILION.Server;
 
-/// <summary>
-/// Authoritative transport boundary. TCP authenticates/creates a session; UDP is only
-/// accepted after its endpoint proves possession of the per-session key.
-/// Simulation messages will be added here without exposing a graphics dependency.
-/// </summary>
 internal sealed class NetworkServer : IAsyncDisposable, IDisposable
 {
     private const int TcpConnectFixedSize = 4 + 1 + 1 + 16 + 2;
@@ -24,6 +19,8 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
     private UdpClient? udp;
     private TcpListener? tcp;
     private Task? udpTask;
+    private readonly GameSession gameSession;
+    private Task? simulationTask;
     private Task? tcpTask;
 
     public NetworkServer(WorldSaveData world, int port, Action<string> log)
@@ -31,6 +28,8 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
         this.world = world;
         this.port = port;
         this.log = log;
+
+        gameSession = new GameSession(world);
     }
 
     public Task StartAsync()
@@ -44,8 +43,27 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
         tcp.Start();
         udpTask = ReceiveUdpLoopAsync(cancellation.Token);
         tcpTask = AcceptTcpLoopAsync(cancellation.Token);
+        simulationTask = RunSimulationLoopAsync(cancellation.Token);
         log($"Alojando '{world.WorldName}' en 0.0.0.0:{port}.");
         return Task.CompletedTask;
+    }
+
+    private async Task RunSimulationLoopAsync(CancellationToken token)
+    {
+        using PeriodicTimer timer = new(
+            TimeSpan.FromMilliseconds(16)
+        );
+
+        const float deltaTime = 1f / 60f;
+
+        try
+        {
+            while (await timer.WaitForNextTickAsync(token))
+            {
+                gameSession.Update(deltaTime);
+            }
+        }
+        catch (OperationCanceledException) { }
     }
 
     private async Task ReceiveUdpLoopAsync(CancellationToken token)
@@ -134,8 +152,11 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
                 if (client.Client.RemoteEndPoint is not IPEndPoint endpoint)
                     return;
                 Guid sessionId = Guid.NewGuid();
+
                 ClientSession session = new(sessionId, Guid.NewGuid(), endpoint.Address, playerName);
+
                 sessions[sessionId] = session;
+                gameSession.AddPlayer(sessionId, playerName);
                 await stream.WriteAsync(TcpHandshakeCodec.CreateAccepted(
                     new ConnectionTicket(session.Id, session.UdpKey, world.WorldId, world.WorldName, world.WorldSeed, world)), token);
                 log($"TCP confirmado para {playerName} ({endpoint.Address}).");
@@ -156,9 +177,10 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
         cancellation.Cancel();
         tcp?.Stop();
         udp?.Dispose();
-        Task[] tasks = new Task?[] { udpTask, tcpTask }.Where(task => task != null).Cast<Task>().ToArray();
+        Task[] tasks = new Task?[] { udpTask, tcpTask, simulationTask }.Where(task => task != null).Cast<Task>().ToArray();
         if (tasks.Length > 0) await Task.WhenAll(tasks);
         cancellation.Dispose();
+
     }
 
     public void Dispose() => DisposeAsync().AsTask().GetAwaiter().GetResult();

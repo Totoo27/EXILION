@@ -26,6 +26,18 @@ public static class NetworkProtocol
     public enum TcpMessage : byte { Connect = 1, Accepted = 2, Rejected = 3 }
 }
 
+public enum UdpMessage : byte
+{
+    Discover = 1,
+    DiscoveryResponse = 2,
+    ClientHello = 3,
+    Heartbeat = 4,
+    ConnectionConfirmed = 5,
+
+    PlayerInput = 6,
+    WorldSnapshot = 7
+}
+
 public sealed record DiscoveredServer(IPEndPoint Endpoint, string WorldId, string WorldName);
 public sealed record ConnectionTicket(
     Guid SessionId,
@@ -305,3 +317,5 @@ public static class ServerDiscovery
         return results.Values.ToList();
     }
 }
+
+
