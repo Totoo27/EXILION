@@ -1,12 +1,12 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using EXILION.Items;
 using EXILION.Entities.CatchableItems;
 using EXILION.Saving;
 using Microsoft.Xna.Framework.Audio;
 using EXILION.World;
+using EXILION.Logic;
 
 namespace EXILION.Entities.LivingThings;
 
@@ -93,7 +93,7 @@ public class Player : LivingThing
 
     }
 
-    public void Update(Vector2 mousePosition, InputManager input, GameTime gameTime, World.World world)
+    public void Update(Vector2 mousePosition, PlayerInput input, GameTime gameTime, World.World world)
     {
 
         base.Update(gameTime);
@@ -138,12 +138,12 @@ public class Player : LivingThing
 
         Vector2 delta = Vector2.Zero;
 
-        float currentSpeed = speed * (input.IsKeyHeld(Keys.LeftShift) ? 1.5f : 1f);
+        float currentSpeed = speed * (input.Run ? 1.5f : 1f);
 
-        if (input.IsKeyHeld(Keys.A)) delta.X -= 1f;
-        if (input.IsKeyHeld(Keys.D)) delta.X += 1f;
-        if (input.IsKeyHeld(Keys.S)) delta.Y += 1f;
-        if (input.IsKeyHeld(Keys.W)) delta.Y -= 1f;
+        if (input.MoveLeft) delta.X -= 1f;
+        if (input.MoveRight) delta.X += 1f;
+        if (input.MoveDown) delta.Y += 1f;
+        if (input.MoveUp) delta.Y -= 1f;
         if (delta != Vector2.Zero)
         {
             delta.Normalize();
@@ -151,23 +151,16 @@ public class Player : LivingThing
 
         delta *= currentSpeed * deltaTime;
 
-        if (delta != Vector2.Zero && input.IsKeyHeld(Keys.LeftShift))
+        if (delta != Vector2.Zero && input.Run)
         {
             runningMultiplier = 0.5f;
         }
 
         Move(delta, deltaTime, world, currentSpeed / speed);
 
-        // Debug
-
-        if (input.IsKeyPressed(Keys.H))
-        {
-            gameContext.showHitboxes = !gameContext.showHitboxes;
-        }
-
         // Hands
 
-        if (itemTransitionTimer <= 0f && input.IsLeftMousePressed() && !input.IsMouseCaptured)
+        if (itemTransitionTimer <= 0f && input.PrimaryActionPressed && !input.PrimaryActionCaptured)
         {
             if (rightHand.HeldItem?.Id == ItemRegistry.BotellaVacia.Id && world != null
                 && TryFillBottle(world)) return;

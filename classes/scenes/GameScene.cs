@@ -11,6 +11,8 @@ using EXILION.UI;
 using EXILION.World;
 using EXILION.UI.HUD;
 using EXILION.Saving;
+using EXILION.Logic;
+using EXILION.Client;
 using System;
 using System.Linq;
 
@@ -42,8 +44,7 @@ public class GameScene : Scene
     private Player player;
     private List<Creature> creatures = new List<Creature>();
     private CreatureSpawnGenerator creatureSpawnGenerator;
-    private float creatureContactDamageCooldown;
-    private const float CREATURE_CONTACT_DAMAGE_COOLDOWN = 0.8f;
+    private readonly GameWorldLogic gameLogic = new GameWorldLogic();
     private Texture2D pixel;
     private HUD HUD;
     private InputManager input;
@@ -139,7 +140,7 @@ public class GameScene : Scene
                 new CatchableItem(
                     new ItemStack(drop.Item, drop.Quantity),
                     dropPosition,
-                    new Sprite(drop.Item.Icon, GameContext.ScaleXY(1) * 0.8f),
+                    new Sprite(ItemVisuals.GetIcon(drop.Item), GameContext.ScaleXY(1) * 0.8f),
                     GameContext
                 )
             );
@@ -158,7 +159,7 @@ public class GameScene : Scene
             catchableItems.Add(new CatchableItem(
                 drop,
                 creature.position,
-                new Sprite(drop.Item.Icon, GameContext.ScaleXY(1) * 0.8f),
+                new Sprite(ItemVisuals.GetIcon(drop.Item), GameContext.ScaleXY(1) * 0.8f),
                 GameContext
             ));
         }
@@ -195,7 +196,7 @@ public class GameScene : Scene
                 new CatchableItem(
                     new ItemStack(item, catchableItem.Quantity),
                     new Vector2(catchableItem.PositionX, catchableItem.PositionY),
-                    new Sprite(item.Icon, GameContext.ScaleXY(1), item.IconSource),
+                    new Sprite(ItemVisuals.GetIcon(item), GameContext.ScaleXY(1), ItemVisuals.GetIconSource(item.Id)),
                     //new Sprite(item.Icon, GameContext.ScaleXY(1) * 0.8f),
                     GameContext
                 )
@@ -239,7 +240,7 @@ public class GameScene : Scene
             new CatchableItem(
                 new ItemStack(ItemRegistry.GeneradorO2, 1),
                 new Vector2(0, 0),
-                new Sprite(ItemRegistry.GeneradorO2.Icon, GameContext.ScaleXY(1), ItemRegistry.GeneradorO2.IconSource),
+                new Sprite(ItemVisuals.GetIcon(ItemRegistry.GeneradorO2), GameContext.ScaleXY(1), ItemVisuals.GetIconSource(ItemRegistry.GeneradorO2.Id)),
                 GameContext
             )
 
@@ -314,35 +315,38 @@ public class GameScene : Scene
             UpdateNightTransition(gameTime);
 
             HUD.Update(gameTime);
+            if (input.IsKeyPressed(Keys.H))
+            {
+                GameContext.showHitboxes = !GameContext.showHitboxes;
+            }
+
             bool placeBlock = blockPlacementMode && input.IsLeftMousePressed() && !input.IsMouseCaptured;
             bool wasMouseCaptured = input.IsMouseCaptured;
             if (placeBlock) input.IsMouseCaptured = true;
-            player.Update(mouseWorldPosition, input, gameTime, world);
+            PlayerInput playerInput = new PlayerInput(
+                MoveUp: input.IsKeyHeld(Keys.W),
+                MoveDown: input.IsKeyHeld(Keys.S),
+                MoveLeft: input.IsKeyHeld(Keys.A),
+                MoveRight: input.IsKeyHeld(Keys.D),
+                Run: input.IsKeyHeld(Keys.LeftShift),
+                PrimaryActionPressed: input.IsLeftMousePressed(),
+                PrimaryActionCaptured: input.IsMouseCaptured);
+            player.Update(mouseWorldPosition, playerInput, gameTime, world);
 
             foreach (Creature creature in creatures) creature.Update(gameTime, world, player.position, night);
-            ProcessCreatureContactDamage(gameTime);
+            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            gameLogic.ProcessCreatureContactDamage(player, creatures, deltaTime);
 
             input.IsMouseCaptured = wasMouseCaptured;
 
-            Item? itemInHand = player.rightHand.HeldItem;
+            if (placeBlock) gameLogic.TryPlaceStructure(player, world, mouseWorldPosition);
 
-            if (placeBlock && itemInHand != null
-                && player.rightHand.HeldItem is Structure structure
-                && player.Inventory.HasItem(ItemRegistry.GetById(itemInHand.Id), 1)
-                && world.TryPlaceBlock(mouseWorldPosition, player.position, player.GetHitbox().Width / 2f, structure))
-            {
-                player.Inventory.RemoveItem(ItemRegistry.GetById(itemInHand.Id), 1);
-            }
-            
-            
-            
-            ApplyPlayerAttackHits();
+            gameLogic.ResolvePlayerAttacks(player, world, creatures);
             foreach (Creature creature in creatures.Where(creature => creature.isDead))
                 dropCreatureItems(creature);
             creatures.RemoveAll(creature => creature.isDead);
             creatures.RemoveAll(creature => creature.ShouldDespawn);
 
-            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             foreach (CatchableItem item in catchableItems)
             {
                 item.Update(deltaTime);
@@ -371,20 +375,7 @@ public class GameScene : Scene
                     }
                     else
                     {
-                        Rectangle playerHitbox = player.GetHitbox();
-                        bool touchedItem = false;
-
-                        for (int i = catchableItems.Count - 1; i >= 0; i--)
-                        {
-                            CatchableItem item = catchableItems[i];
-
-                            if (playerHitbox.Intersects(item.GetHitbox()))
-                            {
-                                touchedItem = true;
-                                player.TryPickup(item);
-                                if (item.Picked) catchableItems.RemoveAt(i);
-                            }
-                        }
+                        bool touchedItem = gameLogic.TryPickupItems(player, catchableItems);
 
                         if (!touchedItem && world.IsNearCraftingTable(player.position))
                         {
@@ -434,56 +425,6 @@ public class GameScene : Scene
         bool nearExit = world.IsNearExit(player.position);
 
         interactionPrompt.Visible = nearItem || nearCraftingTable || nearExit;
-    }
-
-    private void ApplyPlayerAttackHits()
-    {
-        ApplyHandAttackHits(player.rightHand);
-        ApplyHandAttackHits(player.leftHand);
-    }
-
-    private void ProcessCreatureContactDamage(GameTime gameTime)
-    {
-        creatureContactDamageCooldown = Math.Max(0f,
-            creatureContactDamageCooldown - (float)gameTime.ElapsedGameTime.TotalSeconds);
-        if (creatureContactDamageCooldown > 0f) return;
-
-        Rectangle playerHitbox = player.GetHitbox();
-        foreach (Creature creature in creatures)
-        {
-            if (creature.isDead || creature.ShouldDespawn || !creature.CanDamagePlayer
-                || creature.ContactDamage <= 0 || !playerHitbox.Intersects(creature.GetHitbox()))
-                continue;
-
-            player.takeDamage(creature.ContactDamage);
-            creatureContactDamageCooldown = CREATURE_CONTACT_DAMAGE_COOLDOWN;
-            return;
-        }
-    }
-
-    private void ApplyHandAttackHits(Hand hand)
-    {
-        if (hand.CurrentHitbox is not AttackHitbox hitbox) return;
-
-        world.DamageObjects(hitbox, hand.AttackDamage, hand.HeldItem, hand.RegisterHit);
-
-        foreach (Creature creature in creatures)
-        {
-            if (creature.isDead || !AttackIntersectsCreature(hitbox, creature)) continue;
-            if (hand.RegisterHit(creature)) creature.takeDamage(hand.AttackDamage, player.position);
-        }
-    }
-
-    private static bool AttackIntersectsCreature(AttackHitbox attack, Creature creature)
-    {
-        Vector2 offset = creature.position - attack.Position;
-        float cos = MathF.Cos(attack.Rotation);
-        float sin = MathF.Sin(attack.Rotation);
-        float localX = offset.X * cos + offset.Y * sin;
-        float localY = -offset.X * sin + offset.Y * cos;
-        float radius = creature.GetHitbox().Width * 0.5f;
-        return MathF.Abs(localX) <= attack.Width * 0.5f + radius
-            && MathF.Abs(localY) <= attack.Height * 0.5f + radius;
     }
 
     public override void Draw(SpriteBatch spriteBatch)
@@ -626,7 +567,7 @@ public class GameScene : Scene
                 new CatchableItem(
                     itemStack,
                     player.position,
-                    new Sprite(itemStack.Item.Icon, GameContext.ScaleXY(1) * 0.8f),
+                    new Sprite(ItemVisuals.GetIcon(itemStack.Item), GameContext.ScaleXY(1) * 0.8f),
                     GameContext
                 )
             );
@@ -678,7 +619,7 @@ public class GameScene : Scene
             new CatchableItem(
                 stack,
                 player.position,
-                new Sprite(stack.Item.Icon, GameContext.ScaleXY(1) * 0.8f),
+                new Sprite(ItemVisuals.GetIcon(stack.Item), GameContext.ScaleXY(1) * 0.8f),
                 GameContext
             )
         );

@@ -2,6 +2,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using EXILION.Items;
+using EXILION.Client;
 using EXILION.World;
 using System.Collections.Generic;
 
@@ -365,7 +366,7 @@ public class Hand
         CurrentAttackDuration = item is Tool tool ? 1f / tool.AttackSpeed : DefaultAttackDuration;
 
         itemInHand = item;
-        itemSprite = item != null ? new Sprite(item.Icon, ItemScale) : null;
+        itemSprite = item != null ? new Sprite(ItemVisuals.GetIcon(item), ItemScale) : null;
     }
 
     public void ManageOffsets(Item? item)

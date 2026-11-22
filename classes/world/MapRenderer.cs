@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using EXILION.Items;
+using EXILION.Client;
 
 namespace EXILION.World;
 
@@ -97,7 +98,7 @@ public class MapRenderer
 
             if(definition.UseItemSprite && ItemRegistry.GetByObjectType(obj.Type) is Item item)
             {
-                texture = item.Icon;
+                texture = ItemVisuals.GetIcon(item);
 
                 if(definition.Type == ObjectType.SpaceShip)
                 {
