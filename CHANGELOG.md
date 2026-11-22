@@ -1,5 +1,56 @@
 # Changelog
 
+## [1.0.0](https://github.com/Totoo27/EXILION/compare/v0.4.0...v1.0.0) (2026-11-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* singleplayer finished
+
+### Features
+
+* add 'E' indicator when near object ([4ab2bdc](https://github.com/Totoo27/EXILION/commit/4ab2bdc59588dd68f29ae679de46b8d0a8268e81))
+* add bottle refill ([aef8c9a](https://github.com/Totoo27/EXILION/commit/aef8c9a639e9a1b610372d63b2b9f5cf6f8e5e8b))
+* add catchableItem despawn ([6d6a8f9](https://github.com/Totoo27/EXILION/commit/6d6a8f9f56b1e882756cbba667087c9234e384e4))
+* add color indicator on creatures ([b46230d](https://github.com/Totoo27/EXILION/commit/b46230d37f7ebcbc5ad5769ea91fe8d3b4c50509))
+* add creature factory & save creatures of the world ([d4e23c6](https://github.com/Totoo27/EXILION/commit/d4e23c6682571f32bb126c29511e8e2623fdad9c))
+* add creature generation ([f5ec79e](https://github.com/Totoo27/EXILION/commit/f5ec79e0e01812067f627a7027dc9f0aca8f229a))
+* add creature hit & armor crafts ([95024b1](https://github.com/Totoo27/EXILION/commit/95024b10afc20b0d333a2edb01b605b0a9fa5a65))
+* add creature neutral & hostile intelligence ([86d4d47](https://github.com/Totoo27/EXILION/commit/86d4d471a9834f9f4be9c9112e7069cc53e1834d))
+* add creature sprite & sound, refactor creature intelligences ([7dd5cac](https://github.com/Totoo27/EXILION/commit/7dd5cac84d477e2e94f2131a484da28db475c344))
+* add creatures & different AIs ([581ec88](https://github.com/Totoo27/EXILION/commit/581ec88c078d204bec15e131a5d8386386cc8ebe))
+* add crystal drops to creatures & sprites ([c3f7d28](https://github.com/Totoo27/EXILION/commit/c3f7d285d92a9ba274dd97a13b74cae3cc722819))
+* add custom cursor to game & fix world save rows position ([c43911c](https://github.com/Totoo27/EXILION/commit/c43911cad31e914bee56d51c60d2ad03d45e4dbf))
+* add day counter & hostile based on days ([7a218d8](https://github.com/Totoo27/EXILION/commit/7a218d89ac068a6eb780183c91f722c8d8bb3ccf))
+* add ESC to close inventory & skip intro functionality ([8091e44](https://github.com/Totoo27/EXILION/commit/8091e4419cf48271daf742e27f8faf822805ab27))
+* add game ending & spaceShip functionality ([1bdeec5](https://github.com/Totoo27/EXILION/commit/1bdeec5dac7b017a13ec2d2c1bf6f01a62fc2518))
+* add item drop by player ([4511839](https://github.com/Totoo27/EXILION/commit/4511839dff63d879a2a2a18e368d899709677570))
+* add object regeneration ([9a8a735](https://github.com/Totoo27/EXILION/commit/9a8a73525636932b2f3fcdbc0d9160c2ad6a7a35))
+* add peaceful creature (WIP) ([d8129c9](https://github.com/Totoo27/EXILION/commit/d8129c93c770306f2a3f5681c1031e4037958b91))
+* add player health regeneration ([a715ada](https://github.com/Totoo27/EXILION/commit/a715adaf706bcbb1442411c30fa28f1c16b58a58))
+* add several items & crafts, add sandstone object ([1161c67](https://github.com/Totoo27/EXILION/commit/1161c675647ece17832d339f129aa52858ab12d8))
+* add ship crafting ([2061541](https://github.com/Totoo27/EXILION/commit/206154114e584ea5237a428585a9f0c3c87d4a0e))
+* add stat indicators & advices ([065e042](https://github.com/Totoo27/EXILION/commit/065e0420ba159947d8338492972cd05f8ce7f1e0))
+* add sun animation ([f09a3de](https://github.com/Totoo27/EXILION/commit/f09a3de338aeaf1bdeb5722381a54decccf4fbfd))
+* add usable armor to player ([1f38d2c](https://github.com/Totoo27/EXILION/commit/1f38d2c517225c794afc5edf177aa39793f851d0))
+* add walls ([c70ec5e](https://github.com/Totoo27/EXILION/commit/c70ec5e47f6d5acff1bd856f9c6b5dffc6a9e0e8))
+* add water animation ([0941b29](https://github.com/Totoo27/EXILION/commit/0941b295e86f7e622a2402bfb219a1e32c0011d6))
+* add, change & reorder craftings ([e6918c1](https://github.com/Totoo27/EXILION/commit/e6918c13eec03be5cb4a647075e235121b8a6d69))
+* craftin table status for recipes ([1db3c89](https://github.com/Totoo27/EXILION/commit/1db3c8997241c1ff097234aec0494f9a7fd478d1))
+* crafting and world scrolling ([9966662](https://github.com/Totoo27/EXILION/commit/99666620fe498db3e2e39dd7fd6b992ac79aaf84))
+* crafting table functionalities ([eb019cf](https://github.com/Totoo27/EXILION/commit/eb019cf4b240a89bddfe6537bcef38fad720969c))
+* item droping system ([e0da977](https://github.com/Totoo27/EXILION/commit/e0da97781bdcdcdf13788c1a5fd39b82852718b5))
+* singleplayer finished ([7e2f004](https://github.com/Totoo27/EXILION/commit/7e2f004f07f6b757c25821e395dfea776709e4c7))
+
+
+### Bug Fixes
+
+* fix & adjust object placements ([c24d569](https://github.com/Totoo27/EXILION/commit/c24d569b938b34961eeeaa420becf70d3b7acedc))
+* fix oxygen sprite & add crafting table structure ([e0067d2](https://github.com/Totoo27/EXILION/commit/e0067d2c4700892a0d930c5edd74e0c987687e30))
+* objects saving ([ae40218](https://github.com/Totoo27/EXILION/commit/ae402188ffa327661418f955e21b99cbeec8da5d))
+* recipes merge conflict ([9c5dd33](https://github.com/Totoo27/EXILION/commit/9c5dd33984e23a7cee5e6a8d170aa68c0258c278))
+* scrollList and world Drawing conflict ([4939efe](https://github.com/Totoo27/EXILION/commit/4939efe41873b00091554a7e76c38c38ea399ee4))
+
 ## [0.4.0](https://github.com/Totoo27/EXILION/compare/v0.3.0...v0.4.0) (2026-11-05)
 
 
