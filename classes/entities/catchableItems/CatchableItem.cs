@@ -8,35 +8,27 @@ namespace EXILION.Entities.CatchableItems;
 
 public class CatchableItem : Entity
 {
-    private const int LifeTime = 20; // Seconds
-    private float lifeTimer = 0;
-
     private readonly EXILION.Client.CatchableItemPulse pulse = new();
     private const int HitboxSize = 28; // más chico que el del jugador (40)
 
-    public ItemStack Stack { get; }
-    public bool Picked { get; private set; }
+    private readonly EXILION.Logic.CatchableItemState state;
+    public ItemStack Stack => state.Stack;
+    public bool Picked => state.Picked;
 
     public CatchableItem(ItemStack stack, Vector2 position, Sprite sprite, GameContext gameContext)
         : base(position, sprite, gameContext, HitboxSize, HitboxSize)
     {
-        Stack = stack;
+        state = new EXILION.Logic.CatchableItemState(stack);
 
         sprite.Update(0f, position);
     }
 
-    public void MarkPicked() => Picked = true;
+    public void MarkPicked() => state.MarkPicked();
 
     public void Update(float deltaTime)
     {
+        state.Update(deltaTime);
         if (Picked) return;
-
-        lifeTimer += deltaTime;
-        if (lifeTimer >= LifeTime)
-        {
-            MarkPicked();
-            return;
-        }
 
         pulse.Update(deltaTime);
         sprite.SetScaleMultiplier(pulse.Scale);
