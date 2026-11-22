@@ -11,6 +11,7 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
     private SpriteFont font;
     private Button startGame;
     private Button settings;
+    private Button multiplayer;
     private Button quitGame;
 
     private Rectangle titleRect;
@@ -40,6 +41,7 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
     private Vector2 baseSunPosition;
     private Vector2 baseStartButtonPosition;
     private Vector2 baseSettingsButtonPosition;
+    private Vector2 baseMultiplayerButtonPosition;
     private Vector2 baseQuitButtonPosition;
 
     // ---- Animation
@@ -103,7 +105,8 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
         
         startGame = new Button("Start Game", new Rectangle((int)getHalfScreenPositionX(500), GameContext.ScaleY(400), GameContext.ScaleX(500), GameContext.ScaleY(80)), buttonSprite, Assets.Fonts.PixelArtBig);
         settings = new Button("Settings", new Rectangle((int)getHalfScreenPositionX(280), GameContext.ScaleY(520), GameContext.ScaleX(280), GameContext.ScaleY(50)), buttonSprite, font);
-        quitGame = new Button("Quit Game", new Rectangle((int)getHalfScreenPositionX(280), GameContext.ScaleY(610), GameContext.ScaleX(280), GameContext.ScaleY(50)), buttonSprite, font);
+        multiplayer = new Button("Multiplayer", new Rectangle((int)getHalfScreenPositionX(280), GameContext.ScaleY(580), GameContext.ScaleX(280), GameContext.ScaleY(50)), buttonSprite, font);
+        quitGame = new Button("Quit Game", new Rectangle((int)getHalfScreenPositionX(280), GameContext.ScaleY(640), GameContext.ScaleX(280), GameContext.ScaleY(50)), buttonSprite, font);
         
         // Set original & enabled positions
         originalTitlePosition = new Vector2(getHalfScreenPositionX(900), GameContext.ScaleY(-30));
@@ -122,6 +125,7 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
         baseSunPosition = new Vector2(sunRect.X, originalSunPosition.Y);
         baseStartButtonPosition = startGame.position;
         baseSettingsButtonPosition = settings.position;
+        baseMultiplayerButtonPosition = multiplayer.position;
         baseQuitButtonPosition = quitGame.position;
     
 
@@ -140,6 +144,7 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
 
         startGame.Draw(spriteBatch, buttonsOpacity);
         settings.Draw(spriteBatch, buttonsOpacity);
+        multiplayer.Draw(spriteBatch, buttonsOpacity);
         quitGame.Draw(spriteBatch, buttonsOpacity);
 
         settingsPanel.Draw(spriteBatch);
@@ -206,6 +211,12 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
             settingsPanel.enabled = true;
         }
 
+        if (multiplayer.isClicked(mouseState))
+        {
+            SceneManager.ChangeScene(new MultiplayerScene(GameData));
+            return;
+        }
+
         if (quitGame.isClicked(mouseState))
         {
             MainGame.Exit();
@@ -221,6 +232,7 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
         settingsPanel = null;
         startGame = null;
         settings = null;
+        multiplayer = null;
         quitGame = null;
         starfield = null;
         title = null;
@@ -243,6 +255,7 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
         baseSunPosition = Vector2.Zero;
         baseStartButtonPosition = Vector2.Zero;
         baseSettingsButtonPosition = Vector2.Zero;
+        baseMultiplayerButtonPosition = Vector2.Zero;
         baseQuitButtonPosition = Vector2.Zero;
 
         animationFinished = false;
@@ -482,6 +495,7 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
         sunRect.Y = (int)MathF.Round(baseSunPosition.Y + offsetY);
         startGame.position = baseStartButtonPosition + new Vector2(offsetX, offsetY);
         settings.position = baseSettingsButtonPosition + new Vector2(offsetX, offsetY);
+        multiplayer.position = baseMultiplayerButtonPosition + new Vector2(offsetX, offsetY);
         quitGame.position = baseQuitButtonPosition + new Vector2(offsetX, offsetY);
     }
 

@@ -6,6 +6,9 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="classes/items/**/*.cs" Exclude="classes/items/tools/AttackHitbox.cs" />
     <Compile Include="classes/logic/CatchableItemState.cs" />
     <Compile Include="classes/logic/GameAudioCue.cs" />
@@ -24,5 +27,6 @@
     <Compile Include="classes/entities/livingThings/player/PlayerStat.cs" />
     <Compile Include="classes/entities/livingThings/player/StatType.cs" />
     <Compile Include="classes/saving/**/*.cs" />
+    <Compile Include="classes/network/**/*.cs" />
   </ItemGroup>
 </Project>

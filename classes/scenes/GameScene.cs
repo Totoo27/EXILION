@@ -13,6 +13,7 @@ using EXILION.UI.HUD;
 using EXILION.Saving;
 using EXILION.Logic;
 using EXILION.Client;
+using EXILION.Network;
 using System;
 using System.Linq;
 
@@ -71,6 +72,8 @@ public class GameScene : Scene
     private WorldSaveData saveData;
     private WorldSaveService saveService = new WorldSaveService();
     private string path;
+    private readonly GameConnection? networkConnection;
+    private readonly bool isOnline;
     private bool isNewGame;
     private bool isLoaded = false;
     private bool blockPlacementMode;
@@ -86,6 +89,21 @@ public class GameScene : Scene
         saveData = saveService.LoadAsync(path).Result;
         isNewGame = saveData.IsNewWorld;
 
+        Music.Play(songsQueue[currentSongIndex], 1f);
+    }
+
+    /// <summary>Creates a client view from the state received during the multiplayer handshake.</summary>
+    public GameScene(IGameData gameData, WorldSaveData networkWorld, GameConnection connection) : base(gameData)
+    {
+        input = gameData.GetInput();
+        camera = gameData.GetCamera();
+        graphicsDevice = gameData.GetGraphicsDevice();
+        saveData = networkWorld;
+        // Each connecting player receives a fresh local player until player replication is introduced.
+        saveData.IsNewWorld = true;
+        isNewGame = true;
+        networkConnection = connection;
+        isOnline = true;
         Music.Play(songsQueue[currentSongIndex], 1f);
     }
 
@@ -214,6 +232,7 @@ public class GameScene : Scene
 
     public void saveGame()
     {
+        if (isOnline) return;
 
         saveData.IsNewWorld = false;
         saveData.WorldTime = diurnalCycleTime;
@@ -536,6 +555,7 @@ public class GameScene : Scene
 
         // Music queue
         songsQueue.Clear();
+        networkConnection?.Dispose();
 
     }
 

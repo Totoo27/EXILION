@@ -34,6 +34,7 @@
     <Compile Remove="classes\entities\livingThings\player\PlayerStat.cs" />
     <Compile Remove="classes\entities\livingThings\player\StatType.cs" />
     <Compile Remove="classes\saving\**\*.cs" />
+    <Compile Remove="classes\network\**\*.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Icon.ico" />

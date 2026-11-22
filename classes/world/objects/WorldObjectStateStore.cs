@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-
 namespace EXILION.World;
 
 public sealed class WorldObjectStateStore
@@ -19,7 +16,7 @@ public sealed class WorldObjectStateStore
         return false;
     }
 
-    internal void Record(WorldObjectState state)
+    public void Record(WorldObjectState state)
     {
         _states[state.Id] = state;
     }
