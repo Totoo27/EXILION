@@ -1,6 +1,5 @@
 using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using EXILION.World;
 using EXILION.Logic;
 
@@ -18,10 +17,10 @@ public abstract class LivingThing : Entity
     private float movementSpeedScale = 1f;
     protected GameAudioCue DamageSoundCue { get; }
     public event Action<GameAudioCue>? SoundRequested;
-    protected readonly Color damageColor = new Color(230, 180, 180);
     private float damagedTimer = 0f;
+    public float DamageFeedbackRemaining => damagedTimer;
 
-    public LivingThing(Vector2 position, Sprite sprite, int maxHealth, int speed, GameContext gameContext, GameAudioCue damageSoundCue) : base(position, sprite, gameContext)
+    public LivingThing(Vector2 position, int maxHealth, int speed, GameAudioCue damageSoundCue, Point? hitboxSize = null) : base(position, hitboxSize ?? new Point(40, 40))
     {
         this.maxHealth = maxHealth;
         this.health = maxHealth;
@@ -46,10 +45,9 @@ public abstract class LivingThing : Entity
         if (world == null || world.IsWalkable(next, radius, true)) position.Y = next.Y;
     }
 
-    public virtual void Update(GameTime gameTime)
+    public virtual void Update(float deltaTime)
     {
-        float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-        if (damagedTimer > 0f && (damagedTimer -= deltaTime) <= 0f) color = Color.White;
+        if (damagedTimer > 0f) damagedTimer = Math.Max(0f, damagedTimer - deltaTime);
     }
 
     protected void RequestSound(GameAudioCue cue) => SoundRequested?.Invoke(cue);
@@ -59,7 +57,6 @@ public abstract class LivingThing : Entity
         if (isDead || damage <= 0) return;
 
         this.health -= damage;
-        color = damageColor;
         damagedTimer = 0.3f;
 
         if (this.health <= 0)

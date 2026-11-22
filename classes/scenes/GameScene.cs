@@ -61,6 +61,7 @@ public class GameScene : Scene
     private List<CatchableItem> catchableItems;
     private World.World world;
     private MapRenderer mapRenderer;
+    private EntityRenderer entityRenderer;
 
 
     private Camera camera;
@@ -107,6 +108,7 @@ public class GameScene : Scene
         catchableItems = new List<CatchableItem>();
 
         int tileSize = (int)GameContext.ScaleXY(64);
+        entityRenderer = new EntityRenderer(GameContext.ScaleXY(1));
         world = new World.World(seed: Seed, tileSize: tileSize) { RenderDistanceChunks = 2 };
         creatureSpawnGenerator = new CreatureSpawnGenerator(world);
         world.ObjectDestroyed += dropWorldObjectItems;
@@ -140,8 +142,7 @@ public class GameScene : Scene
                 new CatchableItem(
                     new ItemStack(drop.Item, drop.Quantity),
                     dropPosition,
-                    new Sprite(ItemVisuals.GetIcon(drop.Item), GameContext.ScaleXY(1) * 0.8f),
-                    GameContext
+                    DropHitboxSize()
                 )
             );
         }
@@ -165,8 +166,7 @@ public class GameScene : Scene
             catchableItems.Add(new CatchableItem(
                 drop,
                 creature.position,
-                new Sprite(ItemVisuals.GetIcon(drop.Item), GameContext.ScaleXY(1) * 0.8f),
-                GameContext
+                DropHitboxSize()
             ));
         }
     }
@@ -189,7 +189,7 @@ public class GameScene : Scene
         creatures.Clear();
         foreach (CreatureSaveData creatureData in saveData.Creatures ?? new List<CreatureSaveData>())
         {
-            Creature creature = CreatureFactory.CreateRestoredCreature(creatureData, GameContext);
+            Creature creature = CreatureFactory.CreateRestoredCreature(creatureData, EntityHitboxSize());
             creature.SoundRequested += GameAudio.Play;
             creatures.Add(creature);
         }
@@ -205,8 +205,7 @@ public class GameScene : Scene
                 new CatchableItem(
                     new ItemStack(item, catchableItem.Quantity),
                     new Vector2(catchableItem.PositionX, catchableItem.PositionY),
-                    new Sprite(ItemVisuals.GetIcon(item), GameContext.ScaleXY(1), ItemVisuals.GetIconSource(item.Id)),
-                    GameContext
+                    DropHitboxSize()
                 )
 
             );
@@ -248,8 +247,7 @@ public class GameScene : Scene
             new CatchableItem(
                 new ItemStack(ItemRegistry.GeneradorO2, 1),
                 new Vector2(0, 0),
-                new Sprite(ItemVisuals.GetIcon(ItemRegistry.GeneradorO2), GameContext.ScaleXY(1), ItemVisuals.GetIconSource(ItemRegistry.GeneradorO2.Id)),
-                GameContext
+                DropHitboxSize()
             )
 
         );
@@ -339,10 +337,10 @@ public class GameScene : Scene
                 Run: input.IsKeyHeld(Keys.LeftShift),
                 PrimaryActionPressed: input.IsLeftMousePressed(),
                 PrimaryActionCaptured: input.IsMouseCaptured);
-            player.Update(mouseWorldPosition, playerInput, gameTime, world);
-
-            foreach (Creature creature in creatures) creature.Update(gameTime, world, player.position, night);
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            player.Update(mouseWorldPosition, playerInput, deltaTime, world);
+
+            foreach (Creature creature in creatures) creature.Update(deltaTime, world, player.position, night);
             gameLogic.ProcessCreatureContactDamage(player, creatures, deltaTime);
 
             input.IsMouseCaptured = wasMouseCaptured;
@@ -358,6 +356,7 @@ public class GameScene : Scene
             foreach (CatchableItem item in catchableItems)
             {
                 item.Update(deltaTime);
+                entityRenderer.UpdateDrop(item, deltaTime);
             }
 
             // Cierre automático de la mesa si el jugador se aleja
@@ -402,7 +401,7 @@ public class GameScene : Scene
                 dayCount,
                 creatures,
                 GameContext.ScaleX(20),
-                (type, position) => CreatureFactory.CreateCreature(type, position, GameContext));
+                (type, position) => CreatureFactory.CreateCreature(type, position, EntityHitboxSize()));
             if (spawnedCreature != null)
             {
                 spawnedCreature.SoundRequested += GameAudio.Play;
@@ -452,18 +451,18 @@ public class GameScene : Scene
         {
             foreach (var item in catchableItems)
             {
-                item.Draw(spriteBatch, pixel);
+                entityRenderer.DrawDrop(spriteBatch, item, pixel, GameContext.showHitboxes);
             }
         }
         
         
         // Player & objects
         mapRenderer?.DrawObjects(spriteBatch, world, false);
-        player?.Draw(spriteBatch, pixel);
+        if (player != null) entityRenderer.DrawPlayer(spriteBatch, player, pixel, GameContext.showHitboxes);
         HUD?.DrawStatAdvice(spriteBatch);
 
         foreach (Creature creature in creatures)
-            creature.Draw(spriteBatch, pixel);
+            entityRenderer.DrawCreature(spriteBatch, creature, pixel, GameContext.showHitboxes);
 
         mapRenderer?.DrawObjects(spriteBatch, world, true);
 
@@ -566,8 +565,7 @@ public class GameScene : Scene
                 new CatchableItem(
                     itemStack,
                     player.position,
-                    new Sprite(ItemVisuals.GetIcon(itemStack.Item), GameContext.ScaleXY(1) * 0.8f),
-                    GameContext
+                    DropHitboxSize()
                 )
             );
         }
@@ -582,7 +580,7 @@ public class GameScene : Scene
 
     private void processPlayerSpawn(bool isNewGame)
     {
-        player = new Player(Vector2.Zero, new Sprite(Assets.Sprites.Player, GameContext.ScaleXY(1)), GameContext); 
+        player = new Player(Vector2.Zero, EntityHitboxSize());
         player.SoundRequested += GameAudio.Play;
         if (!isNewGame)
         {
@@ -624,11 +622,14 @@ public class GameScene : Scene
             new CatchableItem(
                 stack,
                 dropPosition,
-                new Sprite(ItemVisuals.GetIcon(stack.Item), GameContext.ScaleXY(1) * 0.8f),
-                GameContext
+                DropHitboxSize()
             )
         );
     }
+
+    private Point EntityHitboxSize() => new(GameContext.ScaleX(40), GameContext.ScaleY(40));
+
+    private Point DropHitboxSize() => new(GameContext.ScaleX(28), GameContext.ScaleY(28));
 
     private void UpdateNightTransition(GameTime gameTime)
     {

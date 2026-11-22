@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using EXILION.Items;
@@ -20,26 +20,25 @@ public sealed class Creature : LivingThing
     public bool ShouldDespawn { get; private set; }
     public CreatureType Type { get; private set; }
     public int ContactDamage { get; }
+    public float VisualAngle { get; private set; }
     public bool CanDamagePlayer => intelligence?.CanDamagePlayer ?? false;
 
-    public Creature(Vector2 position, Sprite sprite, GameContext gameContext, ICreatureIntelligence? intelligence = null, List<ItemStack>? dropItems = null, 
+    public Creature(Vector2 position, ICreatureIntelligence? intelligence = null, List<ItemStack>? dropItems = null,
         int maxHealth = 25, int speed = PlayerMovementSettings.GroundSpeed / 2, CreatureType type = CreatureType.Peaceful,
-        int contactDamage = 1)
-    : base(position, sprite, maxHealth, speed, gameContext, GameAudioCue.CreatureDamage)
+        int contactDamage = 1, Point? hitboxSize = null)
+    : base(position, maxHealth, speed, GameAudioCue.CreatureDamage, hitboxSize ?? new Point(40, 40))
     {
         this.intelligence = intelligence;
         this.dropItems = dropItems;
         Type = type;
         ContactDamage = Math.Max(0, contactDamage);
-        sprite.Update(0f, position);
     }
 
-    public void Update(GameTime gameTime, World.World world, Vector2 playerPosition, bool isNight)
+    public void Update(float deltaTime, World.World world, Vector2 playerPosition, bool isNight)
     {
-        base.Update(gameTime);
+        base.Update(deltaTime);
         if (isDead || ShouldDespawn) return;
 
-        float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
         float despawnDistance = world.TileSize * World.Chunk.Size * DespawnDistanceInChunks;
         if (Vector2.DistanceSquared(position, playerPosition) > despawnDistance * despawnDistance)
         {
@@ -55,7 +54,7 @@ public sealed class Creature : LivingThing
             farFromPlayerTimer = 0f;
         }
 
-        intelligence?.Update(this, gameTime, world, playerPosition, isNight);
+        intelligence?.Update(this, deltaTime, world, playerPosition, isNight);
     }
 
     public IReadOnlyList<ItemStack>? GetDropItems() => dropItems;
@@ -79,7 +78,7 @@ public sealed class Creature : LivingThing
 
     internal void ApplyIntelligenceFacingAngle(float angle)
     {
-        if (!isDead) sprite.Update(angle, position);
+        if (!isDead) VisualAngle = angle;
     }
 
     public void Restore(CreatureSaveData saveData)
