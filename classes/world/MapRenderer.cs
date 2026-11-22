@@ -22,7 +22,7 @@ public class MapRenderer
     private readonly Dictionary<TileType, Rectangle> _sourceRects;
     private readonly Rectangle defaultRectangle = new(0, 0, ObjectSourceSize, ObjectSourceSize);
     private readonly List<WorldObject> _visibleObjects = new();
-    private readonly Dictionary<WorldObjectId, float> _hitAnimationTimers = new();
+    private readonly ObjectHitFeedback _hitFeedback = new();
     private float _waterFrameTimer;
     private int _waterFrame;
 
@@ -47,12 +47,7 @@ public class MapRenderer
     public void Update(GameTime gameTime)
     {
         float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
-        foreach (WorldObjectId id in new List<WorldObjectId>(_hitAnimationTimers.Keys))
-        {
-            float remaining = _hitAnimationTimers[id] - elapsed;
-            if (remaining <= 0f) _hitAnimationTimers.Remove(id);
-            else _hitAnimationTimers[id] = remaining;
-        }
+        _hitFeedback.Update(elapsed);
 
         _waterFrameTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
         while (_waterFrameTimer >= WaterFrameDuration)
@@ -62,7 +57,7 @@ public class MapRenderer
         }
     }
 
-    public void PlayObjectHitAnimation(WorldObjectId id) => _hitAnimationTimers[id] = 0.25f;
+    public void PlayObjectHitAnimation(WorldObjectId id) => _hitFeedback.Play(id);
 
     public void Draw(SpriteBatch spriteBatch, World world)
     {
@@ -132,9 +127,7 @@ public class MapRenderer
             Vector2 center = ObjectCenter(obj);
             float width = visual.DrawWidthTiles * _tileSize;
             float height = width * source.Value.Height / source.Value.Width;
-            float scale = _hitAnimationTimers.TryGetValue(obj.Id, out float remaining)
-                ? 0.85f + 0.15f * SmoothStep(1f - remaining / 0.25f)
-                : 1f;
+            float scale = _hitFeedback.GetScale(obj.Id);
             var destination = new Rectangle(
                 (int)(center.X - width * scale / 2f),
                 (int)(center.Y - height * scale / 2f),
@@ -202,8 +195,6 @@ public class MapRenderer
     }
 
     private Vector2 ObjectCenter(WorldObject obj) => new(obj.TileX * _tileSize, obj.TileY * _tileSize);
-
-    private static float SmoothStep(float value) => value * value * (3f - 2f * value);
 
     private static Rectangle GetSquareSource(Texture2D texture)
     {
