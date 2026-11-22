@@ -44,11 +44,11 @@ public class MapGenerator
     {
         float elevation = SimplexNoise.Fractal(
             worldX + _elevOffsetX, worldY + _elevOffsetY,
-            octaves: 5, persistence: 0.5f, scale: 0.03f);
+            octaves: 5, persistence: 0.5f, scale: 0.025f);
 
         float moisture = SimplexNoise.Fractal(
             worldX + _moistOffsetX, worldY + _moistOffsetY,
-            octaves: 4, persistence: 0.5f, scale: 0.05f);
+            octaves: 4, persistence: 0.5f, scale: 0.01f);
 
         elevation = (elevation + 1f) / 2f;
         moisture = (moisture + 1f) / 2f;

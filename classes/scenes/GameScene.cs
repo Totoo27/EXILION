@@ -26,22 +26,28 @@ public class GameScene : Scene
     private float nightOpacity = 0f;
     private const int DIURNAL_PRESET_TIME = 200; // in seconds
     private int diurnalCycleTime = DIURNAL_PRESET_TIME; // in seconds
+    private int dayCount = 1;
     private const float MAX_NIGHT_OPACITY = 0.65f;
     private const float NIGHT_TRANSITION_SPEED = 0.15f;
     private bool night = false;
-    private Color nightColor = new Color(15, 10, 35);
+    private Color nightColor = new Color(30, 10, 45);
 
     // Panels
 
     private PausePanel pausePanel;
     private DeathPanel deathPanel;
-
+    private VictoryPanel victoryPanel;
 
     // Player
     private Player player;
+    private List<Creature> creatures = new List<Creature>();
+    private CreatureSpawnGenerator creatureSpawnGenerator;
+    private float creatureContactDamageCooldown;
+    private const float CREATURE_CONTACT_DAMAGE_COOLDOWN = 0.8f;
     private Texture2D pixel;
     private HUD HUD;
     private InputManager input;
+    private InteractionPrompt interactionPrompt;
 
     // Songs queue
     private List<Song> songsQueue = new List<Song>
@@ -92,15 +98,20 @@ public class GameScene : Scene
 
         pausePanel = new PausePanel(GameData);
         deathPanel = new DeathPanel(GameData);
+        victoryPanel = new VictoryPanel(GameData);
 
         deathPanel.Respawn += processPlayerSpawn;
+        victoryPanel.ContinuePlaying += resumeAfterVictory;
         Music.musicStop += changeMusic;
 
         catchableItems = new List<CatchableItem>();
 
         int tileSize = (int)GameContext.ScaleXY(64);
         world = new World.World(seed: Seed, tileSize: tileSize) { RenderDistanceChunks = 2 };
+        creatureSpawnGenerator = new CreatureSpawnGenerator(world);
         world.ObjectDestroyed += dropWorldObjectItems;
+
+        interactionPrompt = new InteractionPrompt(Assets.Fonts.PixelArt, GameContext.ScaleXY(1));
 
         if (isNewGame)
         {
@@ -113,7 +124,7 @@ public class GameScene : Scene
         }
 
         world.UpdateAroundPosition(player.position);
-        mapRenderer = new MapRenderer(Assets.Sprites.Tileset, Assets.Sprites.Objects, Assets.Sprites.GeneradorO2, Assets.Sprites.Piedra, tileSize);
+        mapRenderer = new MapRenderer(Assets.Sprites.Tileset, Assets.Sprites.Objects, tileSize);
 
         isLoaded = true;
     }
@@ -135,19 +146,44 @@ public class GameScene : Scene
         }
     }
 
+    private void dropCreatureItems(Creature creature)
+    {
+        IReadOnlyList<ItemStack>? dropItems = creature.GetDropItems();
+
+        if(dropItems == null) return;
+
+        foreach (ItemStack drop in dropItems)
+        {
+            if (drop == null || drop.Quantity <= 0) continue;
+            catchableItems.Add(new CatchableItem(
+                drop,
+                creature.position,
+                new Sprite(drop.Item.Icon, GameContext.ScaleXY(1) * 0.8f),
+                GameContext
+            ));
+        }
+    }
+
     private void loadGame()
     {
 
         world.RestoreObjectStates(saveData.WorldObjectStates.Select(state => state.ToState()));
 
         diurnalCycleTime = saveData.WorldTime;
+        dayCount = Math.Max(1, saveData.DayCount);
+
         night = saveData.IsNight;
-        if (night)
-        {
-            nightOpacity = 1f;
-        }
+        if (night) nightOpacity = 1f;
+        
         Seed = saveData.WorldSeed;
         processPlayerSpawn(false);
+
+        creatures.Clear();
+        foreach (CreatureSaveData creatureData in saveData.Creatures ?? new List<CreatureSaveData>())
+        {
+            Creature creature = CreatureFactory.CreateRestoredCreature(creatureData, GameContext);
+            creatures.Add(creature);
+        }
         
         foreach(var catchableItem in saveData.CatchableItems)
         {
@@ -175,6 +211,7 @@ public class GameScene : Scene
         saveData.IsNewWorld = false;
         saveData.WorldTime = diurnalCycleTime;
         saveData.IsNight = night;
+        saveData.DayCount = dayCount;
 
         saveData.Player = player.GetSaveData();
         saveData.CatchableItems.Clear();
@@ -186,6 +223,11 @@ public class GameScene : Scene
         saveData.WorldObjectStates.Clear();
         saveData.WorldObjectStates.AddRange(world.CaptureObjectStates().Select(WorldObjectStateSaveData.FromState));
 
+        saveData.Creatures.Clear();
+        saveData.Creatures.AddRange(creatures
+            .Where(creature => !creature.isDead && !creature.ShouldDespawn)
+            .Select(creature => creature.GetSaveData()));
+
         saveService.SaveAsync(path, saveData).Wait();
     }
 
@@ -194,42 +236,23 @@ public class GameScene : Scene
         processPlayerSpawn(true);
 
         catchableItems.Add(
-            new CatchableItem(
-                new ItemStack(ItemRegistry.AguaPurificada, 2),
-                new Vector2(300, 100),
-                new Sprite(ItemRegistry.AguaPurificada.Icon, GameContext.ScaleXY(1) * 0.8f),
-                GameContext
-            )
-        );
-        catchableItems.Add(
-            new CatchableItem(
-                new ItemStack(ItemRegistry.CarneCocinada, 2),
-                new Vector2(400, 100),
-                new Sprite(ItemRegistry.CarneCocinada.Icon, GameContext.ScaleXY(1) * 0.8f),
-                GameContext
-            )
-        );
-        catchableItems.Add(
-            new CatchableItem(
-                new ItemStack(ItemRegistry.OxigenoEmbotellado, 2),
-                new Vector2(500, 100),
-                new Sprite(ItemRegistry.OxigenoEmbotellado.Icon, GameContext.ScaleXY(1) * 0.8f),
-                GameContext
-            )
-        );
-        catchableItems.Add(
+
             new CatchableItem(
                 new ItemStack(ItemRegistry.GeneradorO2, 1),
-                new Vector2(700, 100),
+                new Vector2(0, 0),
                 new Sprite(ItemRegistry.GeneradorO2.Icon, GameContext.ScaleXY(1), ItemRegistry.GeneradorO2.IconSource),
                 GameContext
             )
+
         );
+        
     }
 
     public override void Update(GameTime gameTime)
     {
         if(stopUpdating || !isLoaded) return;
+
+        mapRenderer?.Update(gameTime);
 
         MouseState mouse = input.CurrentMouse;
 
@@ -239,9 +262,23 @@ public class GameScene : Scene
             return;
         }
 
+        if (victoryPanel.Enabled)
+        {
+            victoryPanel.Update(gameTime);
+            return;
+        }
+
         if (input.IsKeyPressed(Keys.Escape))
         {
-            pausePanel.enabled = true;
+
+            if (HUD.inventoryUI.expanded)
+            {
+                HUD.inventoryUI.Close();
+            } else
+            {
+                pausePanel.enabled = !pausePanel.enabled;
+            }
+
         }
         if (input.IsKeyPressed(Keys.F1) && player != null)
         {
@@ -277,25 +314,34 @@ public class GameScene : Scene
             UpdateDiurnalCycle(gameTime);
             UpdateNightTransition(gameTime);
 
-            HUD.Update();
+            HUD.Update(gameTime);
             bool placeBlock = blockPlacementMode && input.IsLeftMousePressed() && !input.IsMouseCaptured;
             bool wasMouseCaptured = input.IsMouseCaptured;
             if (placeBlock) input.IsMouseCaptured = true;
             player.Update(mouseWorldPosition, input, gameTime, world);
+
+            foreach (Creature creature in creatures) creature.Update(gameTime, world, player.position, night);
+            ProcessCreatureContactDamage(gameTime);
+
             input.IsMouseCaptured = wasMouseCaptured;
-            if (placeBlock && player.rightHand.HeldItem?.Id == ItemRegistry.GeneradorO2.Id
-                && player.Inventory.HasItem(ItemRegistry.GeneradorO2, 1)
-                && world.TryPlaceOxygenGenerator(mouseWorldPosition, player.position, player.GetHitbox().Width / 2f))
+
+            Item? itemInHand = player.rightHand.HeldItem;
+
+            if (placeBlock && itemInHand != null
+                && player.rightHand.HeldItem is Structure structure
+                && player.Inventory.HasItem(ItemRegistry.GetById(itemInHand.Id), 1)
+                && world.TryPlaceBlock(mouseWorldPosition, player.position, player.GetHitbox().Width / 2f, structure))
             {
-                player.Inventory.RemoveItem(ItemRegistry.GeneradorO2, 1);
+                player.Inventory.RemoveItem(ItemRegistry.GetById(itemInHand.Id), 1);
             }
-            else if (placeBlock && player.rightHand.HeldItem?.Id == ItemRegistry.Piedra.Id
-                && player.Inventory.HasItem(ItemRegistry.Piedra, 1)
-                && world.TryPlaceBlock(mouseWorldPosition, player.position, player.GetHitbox().Width / 2f))
-            {
-                player.Inventory.RemoveItem(ItemRegistry.Piedra, 1);
-            }
+            
+            
+            
             ApplyPlayerAttackHits();
+            foreach (Creature creature in creatures.Where(creature => creature.isDead))
+                dropCreatureItems(creature);
+            creatures.RemoveAll(creature => creature.isDead);
+            creatures.RemoveAll(creature => creature.ShouldDespawn);
 
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             foreach (CatchableItem item in catchableItems)
@@ -303,23 +349,62 @@ public class GameScene : Scene
                 item.Update(deltaTime);
             }
 
+            // Cierre automático de la mesa si el jugador se aleja
+            if (HUD.craftingUI.AtCraftingTable && !world.IsNearCraftingTable(player.position))
+            {
+                HUD.CloseCraftingTable();
+            }
+            UpdateInteractionPrompt();
+
             if (input.IsKeyPressed(Keys.E))
             {
-                Rectangle playerHitbox = player.GetHitbox();
-
-                for (int i = catchableItems.Count - 1; i >= 0; i--)
+                if (HUD.craftingUI.AtCraftingTable)
                 {
-                    CatchableItem item = catchableItems[i];
-
-                    if (playerHitbox.Intersects(item.GetHitbox()))
+                    HUD.CloseCraftingTable();
+                }
+                else
+                {
+                    if (world.IsNearExit(player.position))
                     {
-                        player.TryPickup(item);
-                        if (item.Picked) catchableItems.RemoveAt(i);
+                        victoryPanel.Enabled = true;
+                        Music.musicStop -= changeMusic;
+                        Music.Play(Assets.Songs.MenuMusic);
+                    }
+                    else
+                    {
+                        Rectangle playerHitbox = player.GetHitbox();
+                        bool touchedItem = false;
+
+                        for (int i = catchableItems.Count - 1; i >= 0; i--)
+                        {
+                            CatchableItem item = catchableItems[i];
+
+                            if (playerHitbox.Intersects(item.GetHitbox()))
+                            {
+                                touchedItem = true;
+                                player.TryPickup(item);
+                                if (item.Picked) catchableItems.RemoveAt(i);
+                            }
+                        }
+
+                        if (!touchedItem && world.IsNearCraftingTable(player.position))
+                        {
+                            HUD.OpenCraftingTable();
+                        }
                     }
                 }
             }
         
             world.UpdateAroundPosition(player.position);
+            world.UpdateRegrowth((float)gameTime.ElapsedGameTime.TotalSeconds, player.position);
+            Creature spawnedCreature = creatureSpawnGenerator.TrySpawn(
+                (float)gameTime.ElapsedGameTime.TotalSeconds,
+                player.position,
+                night,
+                dayCount,
+                creatures,
+                GameContext);
+            if (spawnedCreature != null) creatures.Add(spawnedCreature);
             camera.Follow(player.position);
 
             if (player.isDead)
@@ -328,7 +413,28 @@ public class GameScene : Scene
             }
 
         }
+        
 
+    }
+
+    private void UpdateInteractionPrompt()
+    {
+        if (player == null || HUD.craftingUI.AtCraftingTable)
+        {
+            interactionPrompt.Visible = false;
+            return;
+        }
+
+        Rectangle playerHitbox = player.GetHitbox();
+
+        bool nearItem = catchableItems.Any(item =>
+            playerHitbox.Intersects(item.GetHitbox())
+        );
+
+        bool nearCraftingTable = world.IsNearCraftingTable(player.position);
+        bool nearExit = world.IsNearExit(player.position);
+
+        interactionPrompt.Visible = nearItem || nearCraftingTable || nearExit;
     }
 
     private void ApplyPlayerAttackHits()
@@ -337,10 +443,48 @@ public class GameScene : Scene
         ApplyHandAttackHits(player.leftHand);
     }
 
+    private void ProcessCreatureContactDamage(GameTime gameTime)
+    {
+        creatureContactDamageCooldown = Math.Max(0f,
+            creatureContactDamageCooldown - (float)gameTime.ElapsedGameTime.TotalSeconds);
+        if (creatureContactDamageCooldown > 0f) return;
+
+        Rectangle playerHitbox = player.GetHitbox();
+        foreach (Creature creature in creatures)
+        {
+            if (creature.isDead || creature.ShouldDespawn || !creature.CanDamagePlayer
+                || creature.ContactDamage <= 0 || !playerHitbox.Intersects(creature.GetHitbox()))
+                continue;
+
+            player.takeDamage(creature.ContactDamage);
+            creatureContactDamageCooldown = CREATURE_CONTACT_DAMAGE_COOLDOWN;
+            return;
+        }
+    }
+
     private void ApplyHandAttackHits(Hand hand)
     {
         if (hand.CurrentHitbox is not AttackHitbox hitbox) return;
+
         world.DamageObjects(hitbox, hand.AttackDamage, hand.HeldItem, hand.RegisterHit);
+
+        foreach (Creature creature in creatures)
+        {
+            if (creature.isDead || !AttackIntersectsCreature(hitbox, creature)) continue;
+            if (hand.RegisterHit(creature)) creature.takeDamage(hand.AttackDamage, player.position);
+        }
+    }
+
+    private static bool AttackIntersectsCreature(AttackHitbox attack, Creature creature)
+    {
+        Vector2 offset = creature.position - attack.Position;
+        float cos = MathF.Cos(attack.Rotation);
+        float sin = MathF.Sin(attack.Rotation);
+        float localX = offset.X * cos + offset.Y * sin;
+        float localY = -offset.X * sin + offset.Y * cos;
+        float radius = creature.GetHitbox().Width * 0.5f;
+        return MathF.Abs(localX) <= attack.Width * 0.5f + radius
+            && MathF.Abs(localY) <= attack.Height * 0.5f + radius;
     }
 
     public override void Draw(SpriteBatch spriteBatch)
@@ -363,9 +507,20 @@ public class GameScene : Scene
         // Player & objects
         mapRenderer?.DrawObjects(spriteBatch, world, false);
         player?.Draw(spriteBatch, pixel);
+        HUD?.DrawStatAdvice(spriteBatch);
+
+        foreach (Creature creature in creatures)
+            creature.Draw(spriteBatch, pixel);
+
         mapRenderer?.DrawObjects(spriteBatch, world, true);
-        if (GameContext?.showHitboxes == true)
-            mapRenderer?.DrawObjectHitboxes(spriteBatch, world, pixel);
+
+        // Interaction Prompt
+        if (interactionPrompt != null && !pausePanel.enabled && !deathPanel.enabled && !victoryPanel.Enabled && player != null)
+        {
+            interactionPrompt.Draw(spriteBatch, pixel, player.GetHitbox());
+        }
+
+        if (GameContext?.showHitboxes == true) mapRenderer?.DrawObjectHitboxes(spriteBatch, world, pixel);
         
     }
 
@@ -382,6 +537,7 @@ public class GameScene : Scene
         // Panels
         pausePanel.Draw(spriteBatch);
         deathPanel.Draw(spriteBatch);
+        victoryPanel.Draw(spriteBatch, pixel);
     }
 
     public override void UnloadContent()
@@ -391,20 +547,25 @@ public class GameScene : Scene
         // Events
         Music.musicStop -= changeMusic;
         deathPanel.Respawn -= processPlayerSpawn;
+        victoryPanel.ContinuePlaying -= resumeAfterVictory;
         if (player != null)
         {
             player.Inventory.UpdateInventoryUI -= HUD.inventoryUI.UpdateHandItem;
-            player.HealthChanged -= camera.damageShake;
+            player.DamageTaken -= camera.damageShake;
         } 
 
+        HUD.inventoryUI.ItemDropped -= DropItem;
         // UI
         HUD = null;
         pausePanel = null;
         deathPanel = null;
+        victoryPanel = null;
+        interactionPrompt = null;
 
         // Entities
         catchableItems?.Clear();
         catchableItems = null;
+        creatures?.Clear();
 
         // World
         world = null;
@@ -438,7 +599,9 @@ public class GameScene : Scene
             {
 
                 diurnalCycleTime = DIURNAL_PRESET_TIME;
+                if (night) dayCount++;
                 night = !night;
+                HUD.setDayCount(dayCount);
 
             }
 
@@ -470,7 +633,7 @@ public class GameScene : Scene
             );
         }
 
-        player.HealthChanged -= camera.damageShake;
+        player.DamageTaken -= camera.damageShake;
         player.Inventory.UpdateInventoryUI -= HUD.inventoryUI.UpdateHandItem;
 
         HUD = null;
@@ -487,15 +650,44 @@ public class GameScene : Scene
         }
 
         HUD = new HUD(player, GameContext, graphicsDevice, input, DIURNAL_PRESET_TIME);
+        HUD.setDayCount(dayCount);
+
+         HUD.inventoryUI.ItemDropped += DropItem;
 
         // update stats from beggining
         HUD.setTime(DIURNAL_PRESET_TIME - diurnalCycleTime);
         player.ForceUpdateStats();
 
-        player.HealthChanged += camera.damageShake;
+        player.DamageTaken += camera.damageShake;
         player.Inventory.UpdateInventoryUI += HUD.inventoryUI.UpdateHandItem;
 
-        if(isNewGame) player.position = world.FindSpawnPosition();
+        if (isNewGame)
+        {
+            player.position = world.FindSpawnPosition();
+        }
+        else
+        {
+            world.UpdateAroundPosition(player.position);
+        }
+    }
+
+    private void DropItem(ItemStack stack)
+    {
+        if (stack == null || stack.Quantity <= 0) return;
+
+        Rectangle playerHitbox = player.GetHitbox();
+        Vector2 dropPosition = new(
+            player.position.X,
+            playerHitbox.Bottom + GameContext.ScaleY(16));
+
+        catchableItems.Add(
+            new CatchableItem(
+                stack,
+                dropPosition,
+                new Sprite(stack.Item.Icon, GameContext.ScaleXY(1) * 0.8f),
+                GameContext
+            )
+        );
     }
 
     private void UpdateNightTransition(GameTime gameTime)
@@ -519,6 +711,12 @@ public class GameScene : Scene
         currentSongIndex++;
         if (currentSongIndex >= songsQueue.Count) currentSongIndex = 0;
         Music.Play(songsQueue[currentSongIndex], 3f);
+    }
+
+    private void resumeAfterVictory()
+    {
+        Music.musicStop += changeMusic;
+        Music.Play(songsQueue[currentSongIndex], 1f);
     }
 
 }

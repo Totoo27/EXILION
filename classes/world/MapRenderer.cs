@@ -2,28 +2,32 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using EXILION.Items;
 
 namespace EXILION.World;
 
 public class MapRenderer
 {
     private const int ObjectSourceSize = 64;
+    private const int TileSourceSize = 32;
+    private const int WaterFrameCount = 4;
+    private const float WaterFrameDuration = 0.25f;
+    private const int WaterSourceX = 32;
+    private const int DeepWaterSourceX = 0;
 
     private readonly Texture2D _tileset;
     private readonly Texture2D _objectsTexture;
-    private readonly Texture2D _oxygenGeneratorTexture;
-    private readonly Texture2D _blockTexture;
     private readonly int _tileSize;
     private readonly Dictionary<TileType, Rectangle> _sourceRects;
+    private readonly Rectangle defaultRectangle = new(0, 0, ObjectSourceSize, ObjectSourceSize);
     private readonly List<WorldObject> _visibleObjects = new();
+    private float _waterFrameTimer;
+    private int _waterFrame;
 
-    public MapRenderer(Texture2D tileset, Texture2D objectsTexture, Texture2D oxygenGeneratorTexture,
-        Texture2D blockTexture, int tileSize)
+    public MapRenderer(Texture2D tileset, Texture2D objectsTexture, int tileSize)
     {
         _tileset = tileset;
         _objectsTexture = objectsTexture;
-        _oxygenGeneratorTexture = oxygenGeneratorTexture;
-        _blockTexture = blockTexture;
         _tileSize = tileSize;
 
         _sourceRects = new Dictionary<TileType, Rectangle>
@@ -38,6 +42,16 @@ public class MapRenderer
         };
     }
 
+    public void Update(GameTime gameTime)
+    {
+        _waterFrameTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+        while (_waterFrameTimer >= WaterFrameDuration)
+        {
+            _waterFrameTimer -= WaterFrameDuration;
+            _waterFrame = (_waterFrame + 1) % WaterFrameCount;
+        }
+    }
+
     public void Draw(SpriteBatch spriteBatch, World world)
     {
         foreach (var chunk in world.LoadedChunks)
@@ -50,7 +64,14 @@ public class MapRenderer
             {
                 var destination = new Rectangle(
                     (baseX + lx) * _tileSize, (baseY + ly) * _tileSize, _tileSize, _tileSize);
-                spriteBatch.Draw(_tileset, destination, _sourceRects[chunk.Tiles[lx, ly].Type], Color.White);
+                TileType type = chunk.Tiles[lx, ly].Type;
+                Rectangle source = type switch
+                {
+                    TileType.Water => new Rectangle(WaterSourceX, _waterFrame * TileSourceSize, TileSourceSize, TileSourceSize),
+                    TileType.DeepWater => new Rectangle(DeepWaterSourceX, _waterFrame * TileSourceSize, TileSourceSize, TileSourceSize),
+                    _ => _sourceRects[type]
+                };
+                spriteBatch.Draw(_tileset, destination, source, Color.White);
             }
         }
     }
@@ -71,19 +92,33 @@ public class MapRenderer
         foreach (var obj in _visibleObjects)
         {
             var definition = obj.Definition;
-            Texture2D texture = obj.Type switch
-            {
-                ObjectType.Block => _blockTexture,
-                ObjectType.OxygenGenerator => _oxygenGeneratorTexture,
-                _ => _objectsTexture
-            };
+            Texture2D texture;
+            Rectangle? source;
 
-            Rectangle? source = obj.Type switch
+            if(definition.UseItemSprite && ItemRegistry.GetByObjectType(obj.Type) is Item item)
             {
-                ObjectType.Block => GetSquareSource(_blockTexture),
-                ObjectType.OxygenGenerator => GetSquareSource(_oxygenGeneratorTexture),
-                _ => definition.Source
-            };
+                texture = item.Icon;
+
+                if(definition.Type == ObjectType.SpaceShip)
+                {
+                    source = new(0, 0, ObjectSourceSize*2, ObjectSourceSize*2);
+                } else
+                {
+                    source = defaultRectangle;
+                }
+
+            } else
+            {
+                texture = obj.Type switch
+                {
+                    _ => _objectsTexture
+                };
+
+                source = obj.Type switch
+                {
+                    _ => definition.Source
+                };
+            }
 
             Vector2 center = ObjectCenter(obj);
             float width = definition.DrawWidthTiles * _tileSize;
@@ -93,7 +128,8 @@ public class MapRenderer
                 (int)(center.X - width * scale / 2f),
                 (int)(center.Y - height * scale / 2f),
                 (int)(width * scale),
-                (int)(height * scale));
+                (int)(height * scale)
+            );
 
             spriteBatch.Draw(texture, destination, source, Color.White);
         }
@@ -107,7 +143,7 @@ public class MapRenderer
         foreach (var chunk in world.LoadedChunks)
         foreach (var obj in chunk.Objects)
         {
-            if (obj.IsDestroyed || obj.IsCollected || obj.Definition.OxygenRadiusTiles <= 0f) continue;
+            if (obj.IsDestroyed || obj.Definition.OxygenRadiusTiles <= 0f) continue;
 
             float radius = obj.Definition.OxygenRadiusTiles * _tileSize;
             Vector2 center = ObjectCenter(obj);

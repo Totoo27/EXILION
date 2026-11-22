@@ -30,7 +30,7 @@ public class WorldSaveRow
     
     
 
-    // base Row
+    
     private float height;
     private float width;
     private bool isHovered;
@@ -38,7 +38,7 @@ public class WorldSaveRow
     private Color hoveredColor = new Color(35, 25, 45);
     private Color color;
 
-    // delete button
+   
     private float deleteSize;
     private Color baseDeleteColor = new Color(200, 55, 55);
     private Color hoveredDeleteColor = new Color(155, 35, 35);
@@ -46,11 +46,11 @@ public class WorldSaveRow
     private bool isDeleteHovered;
 
 
-    // Row info
+    
     private string worldName;
     private int worldSeed;
 
-    private MouseState previousMouse;
+    
     private SpriteFont font;
     private GameContext gameContext;
 
@@ -69,12 +69,13 @@ public class WorldSaveRow
         deleteSize = gameContext.ScaleXY(30);
     }
 
-    public void UpdatePositionY(int positionY)
+    public void UpdatePosition(int positionX, int positionY)
     {
+        this.position.X = positionX;
         this.position.Y = positionY;
     }
 
-    public int isClicked(MouseState currentMouse)
+    public int isClicked(MouseState currentMouse, MouseState previousMouse)
     {
         int clickType = 0;
 

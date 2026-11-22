@@ -48,11 +48,15 @@ public class InstructionsPanel
             "WASD - Move\n" +
             "LShift - Sprint\n" +
             "Mouse - Aim\n" +
-            "E - Grab Item\n" +
+            "Click - Hit / Use item\n" +
+            "E - Interact\n" +
+            "B - Toggle Building Mode\n" +
+            "I - Toggle inventory\n" +
+            "Numbers - Select Hotbar\n" +
             "G - Manual Save\n" +
-            "Numbers - select Hotbar\n" +
             "H - Show hitboxes\n" +
-            "ESC - Pause";
+            "F1 - Toggle HUD\n" +
+            "ESC - Pause / Back";
 
     public bool enabled = false;
 

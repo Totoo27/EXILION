@@ -31,13 +31,15 @@ public class InventoryUI
     private readonly SpriteFont font;
     private readonly GameContext gameContext;
 
-    private bool expanded = false;
+    public bool expanded { get; private set; } = false;
     private int draggedSlotIndex = -1;
     private Vector2 mousePosition;
 
     public int SelectedSlotIndex { get; private set; } = 0;
     public event Action<Item?>? slotChanged;
     public event Action<Item?>? itemTransitionRequested;
+
+    public event Action<ItemStack>? ItemDropped;
     private int lastUpdatedSlotIndex;
     private Item? lastUpdatedItem;
     private bool inventoryMoveInProgress;
@@ -61,7 +63,7 @@ public class InventoryUI
         mousePosition = input.MousePosition;
         input.IsMouseCaptured = GetSlotIndexAt(mousePosition) != -1 || draggedSlotIndex != -1;
 
-        if (input.IsKeyPressed(Keys.I))
+        if (input.IsKeyPressed(Keys.I) && craftingUI.AtCraftingTable == false)
         {
             expanded = !expanded;
         }
@@ -83,7 +85,11 @@ public class InventoryUI
         if (input.IsLeftMousePressed())
         {
             int slotIndex = GetSlotIndexAt(mousePosition);
-            if (slotIndex != -1 && inventory.GetSlot(slotIndex) != null)
+            if (slotIndex == -2 && inventory.EquippedArmor != null)
+            {
+                draggedSlotIndex = -2;
+            }
+            else if (slotIndex >= 0 && inventory.GetSlot(slotIndex) != null)
             {
                 draggedSlotIndex = slotIndex;
             }
@@ -92,18 +98,36 @@ public class InventoryUI
         if (input.IsLeftMouseReleased() && draggedSlotIndex != -1)
         {
             int targetIndex = GetSlotIndexAt(mousePosition);
-            if (targetIndex != -1)
+
+            if (draggedSlotIndex == -2)
             {
-                inventoryMoveInProgress = true;
-                try
+                if (targetIndex >= 0)
+                    inventory.MoveEquippedArmorToSlot(targetIndex);
+                else if (targetIndex == -1)
                 {
-                    inventory.MoveItem(draggedSlotIndex, targetIndex);
-                }
-                finally
-                {
-                    inventoryMoveInProgress = false;
+                    ItemStack? armor = inventory.TakeEquippedArmor();
+                    if (armor != null) ItemDropped?.Invoke(armor);
                 }
             }
+            else if (targetIndex == -2)
+            {
+                inventory.EquipArmorFromSlot(draggedSlotIndex);
+            }
+            else if (targetIndex >= 0)
+            {
+                inventory.MoveItem(draggedSlotIndex, targetIndex);
+            }
+            else
+            {
+                ItemStack? droppedStack = inventory.TakeStack(draggedSlotIndex);
+
+                if (droppedStack != null)
+                {
+                    // Solicitar a GameScene que genere el objeto en el mundo.
+                    ItemDropped?.Invoke(droppedStack);
+                }
+            }
+
             draggedSlotIndex = -1;
         }
 
@@ -131,6 +155,7 @@ public class InventoryUI
         var layout = GetLayout();
 
         DrawRow(spriteBatch, row: 0, layout);
+        DrawArmorSlot(spriteBatch, layout);
 
         if (expanded)
         {
@@ -144,7 +169,9 @@ public class InventoryUI
 
         if (draggedSlotIndex != -1)
         {
-            ItemStack draggedStack = inventory.GetSlot(draggedSlotIndex);
+            ItemStack? draggedStack = draggedSlotIndex == -2
+                ? inventory.EquippedArmor == null ? null : new ItemStack(inventory.EquippedArmor, 1)
+                : inventory.GetSlot(draggedSlotIndex);
             if (draggedStack != null)
             {
                 var dragRect = new Rectangle(
@@ -196,6 +223,7 @@ public class InventoryUI
     private int GetSlotIndexAt(Vector2 point)
     {
         Layout layout = GetLayout();
+        if (GetArmorSlotRect(layout).Contains(point)) return -2;
         int maxRow = expanded ? Rows : 1;
 
         for (int row = 0; row < maxRow; row++)
@@ -211,6 +239,25 @@ public class InventoryUI
         }
 
         return -1;
+    }
+
+    private void DrawArmorSlot(SpriteBatch spriteBatch, Layout layout)
+    {
+        Rectangle slotRect = GetArmorSlotRect(layout);
+        spriteBatch.Draw(slotTexture, slotRect, Color.White);
+        if (inventory.EquippedArmor is Armor armor)
+            spriteBatch.Draw(armor.Icon, slotRect, armor.IconSource, Color.White);
+        else
+            spriteBatch.DrawString(font, "A", new Vector2(slotRect.X + 8, slotRect.Y + 6), Color.White);
+    }
+
+    private Rectangle GetArmorSlotRect(Layout layout)
+    {
+        return new Rectangle(
+            layout.StartX - layout.SlotSize - layout.Padding,
+            layout.HotbarY,
+            layout.SlotSize,
+            layout.SlotSize);
     }
 
     private Rectangle GetSlotRect(int row, int col, Layout layout)
@@ -240,6 +287,16 @@ public class InventoryUI
 
         lastUpdatedSlotIndex = SelectedSlotIndex;
         lastUpdatedItem = selectedItem;
+    }
+
+    public void Open()
+    {
+        expanded = true;
+    }
+
+    public void Close()
+    {
+        expanded = false;
     }
 
     private readonly struct Layout

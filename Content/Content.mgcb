@@ -82,6 +82,12 @@
 /processorParam:Quality=Best
 /build:SFX/damage/chop.wav;SFX/damage/chop
 
+#begin SFX/damage/GritoDesgarrador.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/damage/GritoDesgarrador.wav
+
 #begin SFX/damage/mine.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
@@ -130,6 +136,42 @@
 /processorParam:Quality=Best
 /build:SFX/UI/pickUpItem.wav;SFX/UI/pickUpItem
 
+#begin Sprites/Entities/hostileCreature.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Entities/hostileCreature.png
+
+#begin Sprites/Entities/neutralCreature.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Entities/neutralCreature.png
+
+#begin Sprites/Entities/peacefulCreature.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Entities/peacefulCreature.png
+
 #begin Sprites/Entities/Player.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -154,6 +196,30 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Entities/playerHand.png
 
+#begin Sprites/Items/advancedArmor.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/advancedArmor.png
+
+#begin Sprites/Items/advancedCrystal.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/advancedCrystal.png
+
 #begin Sprites/Items/AguaPurificada.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -165,6 +231,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/AguaPurificada.png;Sprites/Items/AguaPurificada
+
+#begin Sprites/Items/Alas.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/Alas.png
+
+#begin Sprites/Items/arena.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/arena.png
 
 #begin Sprites/Items/bayas.png
 /importer:TextureImporter
@@ -178,6 +268,30 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/bayas.png
 
+#begin Sprites/Items/botellaVacia.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/botellaVacia.png
+
+#begin Sprites/Items/Cabina.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/Cabina.png
+
 #begin Sprites/Items/CarneCocinada.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -189,6 +303,42 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/CarneCocinada.png
+
+#begin Sprites/Items/chip.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/chip.png
+
+#begin Sprites/Items/combustible.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/combustible.png
+
+#begin Sprites/Items/CraftingTable.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/CraftingTable.png
 
 #begin Sprites/Items/GeneradorO2.png
 /importer:TextureImporter
@@ -238,6 +388,66 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/ironPickaxe.png
 
+#begin Sprites/Items/lowArmor.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/lowArmor.png
+
+#begin Sprites/Items/lowCrystal.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/lowCrystal.png
+
+#begin Sprites/Items/mediumArmor.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/mediumArmor.png
+
+#begin Sprites/Items/mediumCrystal.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/mediumCrystal.png
+
+#begin Sprites/Items/nave.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/nave.png
+
 #begin Sprites/Items/OxigenoEmbotellado.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -262,6 +472,30 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/piedra.png;Sprites/Items/piedra
 
+#begin Sprites/Items/semilla.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/semilla.png
+
+#begin Sprites/Items/silicio.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/silicio.png
+
 #begin Sprites/Items/stoneAxe.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -285,6 +519,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/stonePickaxe.png
+
+#begin Sprites/Items/StoneWall.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/StoneWall.png
 
 #begin Sprites/Items/titanio.png
 /importer:TextureImporter
@@ -346,6 +592,18 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/tronco.png;Sprites/Items/tronco
 
+#begin Sprites/Items/Turbina.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/Turbina.png
+
 #begin Sprites/Items/woodenAxe.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -358,6 +616,18 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/woodenAxe.png
 
+#begin Sprites/Items/woodenFloor.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/woodenFloor.png
+
 #begin Sprites/Items/woodenPickaxe.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -369,6 +639,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/woodenPickaxe.png
+
+#begin Sprites/Items/WoodenWall.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/WoodenWall.png
 
 #begin Sprites/Tiles/objects.png
 /importer:TextureImporter
@@ -454,6 +736,18 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/UI/HUD/healthProgress.png;Sprites/UI/HUD/healthProgress
 
+#begin Sprites/UI/HUD/hungerAdviceIcon.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/UI/HUD/hungerAdviceIcon.png
+
 #begin Sprites/UI/HUD/hungerMeterIcon.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -490,6 +784,18 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/UI/HUD/meterProgress.png;Sprites/UI/HUD/meterProgress
 
+#begin Sprites/UI/HUD/oxygenAdviceIcon.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/UI/HUD/oxygenAdviceIcon.png
+
 #begin Sprites/UI/HUD/oxygenMeter.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -525,6 +831,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/UI/HUD/slot.png;Sprites/UI/HUD/slot
+
+#begin Sprites/UI/HUD/statIndicator.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/UI/HUD/statIndicator.png
 
 #begin Sprites/UI/HUD/thirstMeterIcon.png
 /importer:TextureImporter
@@ -574,6 +892,18 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/UI/HUD/watchSetOff.png;Sprites/UI/HUD/watchSetOff
 
+#begin Sprites/UI/HUD/waterAdviceIcon.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/UI/HUD/waterAdviceIcon.png
+
 #begin Sprites/UI/MainMenuBackground.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -585,6 +915,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/UI/MainMenuBackground.png;Sprites/UI/MainMenuBackground
+
+#begin Sprites/UI/pointer.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/UI/pointer.png
 
 #begin Sprites/UI/Sun.png
 /importer:TextureImporter

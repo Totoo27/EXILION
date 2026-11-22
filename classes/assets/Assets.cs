@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Audio;
 using EXILION.Scenes;
 
 namespace EXILION;
+
 public static class Assets
 {
     public static Songs Songs { get; private set; }

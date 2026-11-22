@@ -15,7 +15,7 @@ public static class ObjectProperties
             Type = ObjectType.Tree, BlocksMovement = true, CollisionRadius = 0.50f, MaxHealth = 20,
             HitSound = Assets.SoundEffects?.chop,
             AbovePlayer = true,
-            HandCanBreak = true, BreakableByItems = new[] { ItemRegistry.HachaDeMadera, ItemRegistry.HachaDePiedra },
+            HandCanBreak = true, BreakableByItems = new[] { ItemRegistry.HachaDeMadera, ItemRegistry.HachaDePiedra, ItemRegistry.HachaDeHierro, ItemRegistry.HachaDeTitanio },
             Drops = new[] { new ObjectDrop(ItemRegistry.Madera, 2) },
             Source = new Rectangle(128, 0, 64, 64), DrawWidthTiles = 2.2f } },
 
@@ -44,7 +44,7 @@ public static class ObjectProperties
             Source = new Rectangle(0, 0, 64, 64), DrawWidthTiles = 1.4f } },
 
         { ObjectType.Iron, new ObjectDefinition {
-            Type = ObjectType.Iron, BlocksMovement = true, CollisionRadius = 0.45f, MaxHealth = 30,
+            Type = ObjectType.Iron, BlocksMovement = true, CollisionRadius = 0.50f, MaxHealth = 30,
             HitSound = Assets.SoundEffects?.mine,
             AbovePlayer = false,
             HandCanBreak = false,
@@ -69,34 +69,82 @@ public static class ObjectProperties
             BreakableByItems = new[] { ItemRegistry.PicoDeTitanio },
             Drops = new[] { new ObjectDrop(ItemRegistry.Torio, 2) },
             Source = new Rectangle(192, 64, 64, 64), DrawWidthTiles = 2.2f } },
+
+        { ObjectType.Sandstone, new ObjectDefinition {
+            Type = ObjectType.Sandstone, BlocksMovement = true, CollisionRadius = 0.35f, MaxHealth = 15,
+            HitSound = Assets.SoundEffects?.mine,
+            AbovePlayer = false,
+            HandCanBreak = false,
+            BreakableByItems = new[] { ItemRegistry.PicoDeMadera, ItemRegistry.PicoDePiedra, ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
+            Drops = new[] { new ObjectDrop(ItemRegistry.Arena, 2) },
+            Source = new Rectangle(0, 64, 64, 64), DrawWidthTiles = 1.4f } },
+
+        { ObjectType.OxygenGenerator, new ObjectDefinition {
+            Type = ObjectType.OxygenGenerator, BlocksMovement = true, CollisionRadius = 0.30f, MaxHealth = 30,
+            HitSound = Assets.SoundEffects?.mine, AbovePlayer = false,
+            HandCanBreak = false,
+            UseItemSprite = true,
+            OxygenRadiusTiles = 8f,
+            BreakableByItems = new[] { ItemRegistry.PicoDePiedra, ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
+            Drops = new[] { new ObjectDrop(ItemRegistry.GeneradorO2, 1) }, DrawWidthTiles = 1f }},
+
+        { ObjectType.CraftingTable, new ObjectDefinition {
+            Type = ObjectType.CraftingTable, BlocksMovement = true, CollisionRadius = 0.45f, MaxHealth = 20,
+            HitSound = Assets.SoundEffects?.mine,
+            AbovePlayer = false,
+            HandCanBreak = false,
+            UseItemSprite = true,
+            BreakableByItems = new[] { ItemRegistry.PicoDePiedra, ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
+            Drops = new[] { new ObjectDrop(ItemRegistry.CraftingTable, 1) }, DrawWidthTiles = 1f ,
+            IsCraftingTable = true, InteractionRadiusTiles = 1.5f}
+        },
+
+        { ObjectType.SpaceShip, new ObjectDefinition {
+            Type = ObjectType.SpaceShip, BlocksMovement = true, CollisionRadius = 1.2f, MaxHealth = 999,
+            HitSound = Assets.SoundEffects?.mine, AbovePlayer = true,
+            HandCanBreak = false,
+            UseItemSprite = true,
+            DrawWidthTiles = 5.5f, IsExit = true, InteractionRadiusTiles = 2f }},
+
+        { ObjectType.WoodenFloor, new ObjectDefinition {
+            Type = ObjectType.WoodenFloor, BlocksMovement = false, CollisionRadius = 0.35f, MaxHealth = 50,
+            HitSound = Assets.SoundEffects?.chop, AbovePlayer = false,
+            UseItemSprite = true,
+            HandCanBreak = true, BreakableByItems = new[] { ItemRegistry.HachaDeMadera, ItemRegistry.HachaDePiedra, ItemRegistry.HachaDeHierro, ItemRegistry.HachaDeTitanio },
+            Drops = new[] { new ObjectDrop(ItemRegistry.Madera, 1) },
+            DrawWidthTiles = 1f }},
+
+        { ObjectType.WoodenWall, new ObjectDefinition {
+            Type = ObjectType.WoodenWall, BlocksMovement = true, CollisionRadius = 0.5f, MaxHealth = 50,
+            HitSound = Assets.SoundEffects?.chop, AbovePlayer = true,
+            UseItemSprite = true,
+            HandCanBreak = true, BreakableByItems = new[] { ItemRegistry.HachaDeMadera, ItemRegistry.HachaDePiedra, ItemRegistry.HachaDeHierro, ItemRegistry.HachaDeTitanio },
+            Drops = new[] { new ObjectDrop(ItemRegistry.Madera, 1) },
+            DrawWidthTiles = 1f }},
+
+        { ObjectType.StoneWall, new ObjectDefinition {
+            Type = ObjectType.StoneWall, BlocksMovement = true, CollisionRadius = 0.5f, MaxHealth = 80,
+            HitSound = Assets.SoundEffects?.mine, AbovePlayer = true,
+            UseItemSprite = true,
+            HandCanBreak = true, BreakableByItems = new[] { ItemRegistry.PicoDeMadera, ItemRegistry.PicoDePiedra, ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
+            Drops = new[] { new ObjectDrop(ItemRegistry.Piedra, 1) },
+            DrawWidthTiles = 1f }},
+            
     };
-
-    private static readonly ObjectDefinition BlockDefinition = new ObjectDefinition {
-        Type = ObjectType.Block, BlocksMovement = true, CollisionRadius = 0.42f, MaxHealth = 20,
-        HitSound = Assets.SoundEffects?.mine, AbovePlayer = false, HandCanBreak = true,
-        Source = new Rectangle(0, 0, 32, 32), DrawWidthTiles = 1f };
-
-    private static readonly ObjectDefinition OxygenGeneratorDefinition = new ObjectDefinition {
-        Type = ObjectType.OxygenGenerator, BlocksMovement = true, CollisionRadius = 0.45f, MaxHealth = 30,
-        HitSound = Assets.SoundEffects?.mine, AbovePlayer = false, HandCanBreak = true,
-        UsesGeneratorSprite = true, OxygenRadiusTiles = 8f, OxygenCircleColor = Color.LightBlue,
-        OxygenCircleAlpha = 80, Source = new Rectangle(0, 0, 32, 32), DrawWidthTiles = 1f };
 
     public static readonly float MaxCollisionRadius = Definitions.Values.Max(d => d.CollisionRadius);
 
     public static ObjectDefinition Get(ObjectType type) => type switch
     {
-        ObjectType.Block => BlockDefinition,
-        ObjectType.OxygenGenerator => OxygenGeneratorDefinition,
         _ => Definitions[type]
     };
 
     // Estas chances indican qué tan seguido aparece cada objeto en cada tipo de terreno.
-    private static readonly (ObjectType Type, float Chance)[] ForestRules = { (ObjectType.Tree, 0.22f), (ObjectType.Bush, 0.04f), (ObjectType.FruitBush, 0.03f)  };
-    private static readonly (ObjectType Type, float Chance)[] GrassRules  = { (ObjectType.Tree, 0.02f), (ObjectType.Bush, 0.04f), (ObjectType.FruitBush, 0.03f), (ObjectType.Rock, 0.01f) };
-    private static readonly (ObjectType Type, float Chance)[] SandRules   = { (ObjectType.Rock, 0.015f) };
-    private static readonly (ObjectType Type, float Chance)[] RockRules   = { (ObjectType.Rock, 0.08f), (ObjectType.Iron, 0.05f), (ObjectType.Titanium, 0.02f), (ObjectType.Thorium, 0.005f), };
-    private static readonly (ObjectType Type, float Chance)[] SnowRules   = { (ObjectType.Rock, 0.03f) };
+    private static readonly (ObjectType Type, float Chance)[] ForestRules = { (ObjectType.Tree, 0.22f), (ObjectType.Bush, 0.04f), (ObjectType.FruitBush, 0.008f)  };
+    private static readonly (ObjectType Type, float Chance)[] GrassRules  = { (ObjectType.Tree, 0.02f), (ObjectType.Bush, 0.01f), (ObjectType.FruitBush, 0.01f), (ObjectType.Rock, 0.01f) };
+    private static readonly (ObjectType Type, float Chance)[] SandRules   = { (ObjectType.Rock, 0.015f), (ObjectType.Sandstone, 0.025f) };
+    private static readonly (ObjectType Type, float Chance)[] RockRules   = { (ObjectType.Rock, 0.06f), (ObjectType.Iron, 0.03f), (ObjectType.Titanium, 0.015f), (ObjectType.Thorium, 0.005f) };
+    private static readonly (ObjectType Type, float Chance)[] SnowRules   = { (ObjectType.Rock, 0.03f), (ObjectType.Titanium, 0.02f), (ObjectType.Thorium, 0.009f) };
     private static readonly (ObjectType Type, float Chance)[] NoRules     = Array.Empty<(ObjectType, float)>();
 
     public static (ObjectType Type, float Chance)[] GetSpawnRules(TileType biome) => biome switch

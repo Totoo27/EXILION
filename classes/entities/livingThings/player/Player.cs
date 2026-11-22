@@ -6,6 +6,7 @@ using EXILION.Items;
 using EXILION.Entities.CatchableItems;
 using EXILION.Saving;
 using Microsoft.Xna.Framework.Audio;
+using EXILION.World;
 
 namespace EXILION.Entities.LivingThings;
 
@@ -14,19 +15,16 @@ public class Player : LivingThing
     #nullable enable
     public const int maxStat = 100;
     private int maxOxygen = 100;
-
-    private float damagedTimer = 0f;
     private float runningMultiplier = 1f;
-    private float movementSpeedScale = 1f;
-    public bool IsSwimming { get; private set; }
     private const float ItemTransitionDuration = 0.5f;
     private float itemTransitionTimer;
     private Item? pendingHandItem;
     private bool hasPendingHandItem;
     private const float AttackHeadTurn = 0.16f;
-    private float headAttackRotation;
+    private const float AttackHeadTurnWeapon = 0.25f;
 
-    private Color damageColor = new Color(230, 180, 180);
+    private float headTurn => rightHand.HeldItem is Tool ? AttackHeadTurnWeapon : AttackHeadTurn;
+    private float headAttackRotation;
 
     public PlayerStat oxygen {get; private set;}
     public PlayerStat hunger {get; private set;}
@@ -36,6 +34,7 @@ public class Player : LivingThing
     public event Action<int>? HungerChanged;
     public event Action<int>? ThirstChanged;
     public event Action<int>? HealthChanged;
+    public event Action<int>? DamageTaken;
     
     private Inventory inventory;
     public Inventory Inventory => inventory;
@@ -45,9 +44,14 @@ public class Player : LivingThing
     public Hand leftHand { get; private set; } = new Hand(Assets.Sprites.playerHand, handHitboxSize);
     private bool IsLeftNext = false;
 
+    private float combatTimer = 0f;
+    private const float combatCooldown = 3f; // Time in seconds before health regeneration can start after taking damage
+    private float healthRegenerationAccumulator;
+    private bool canRegenerate => health < maxHealth && combatTimer <= 0f && hunger.value > 0 && thirst.value > 0 && oxygen.value > 0;
+
 
     public Player(Vector2 position, Sprite sprite, GameContext gameContext)
-    : base(position, sprite, 100, PlayerMovementSettings.GroundSpeed, gameContext)
+    : base(position, sprite, 100, PlayerMovementSettings.GroundSpeed, gameContext, Assets.SoundEffects.playerDamage)
     {
 
         hunger = new PlayerStat(maxStat);
@@ -69,6 +73,7 @@ public class Player : LivingThing
         this.oxygen = saveData.Oxygen;
 
         inventory.Restore(saveData.Inventory);
+        inventory.RestoreArmor(saveData.EquippedArmorItemId);
     }
 
     public PlayerSaveData GetSaveData()
@@ -84,22 +89,25 @@ public class Player : LivingThing
             Thirst = this.thirst,
             Oxygen = this.oxygen,
 
-            Inventory = inventory.GetSaveData()
+            Inventory = inventory.GetSaveData(),
+            EquippedArmorItemId = inventory.EquippedArmor?.Id
         };
 
     }
 
     public void Update(Vector2 mousePosition, InputManager input, GameTime gameTime, World.World world)
     {
+
+        base.Update(gameTime);
+
         updateHunger(gameTime);
         updateThirst(gameTime);
         updateOxygen(gameTime, world != null && world.IsOxygenSupplied(position));
 
-        // Movement
-
-        float collisionRadius = hitbox.Width / 2f;
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+        combatTimer = MathF.Max(0f, combatTimer - deltaTime);
         itemTransitionTimer = MathF.Max(0f, itemTransitionTimer - deltaTime);
+
         if (hasPendingHandItem && itemTransitionTimer <= 0f)
         {
             rightHand.updateItemInHand(pendingHandItem);
@@ -107,21 +115,33 @@ public class Player : LivingThing
             hasPendingHandItem = false;
         }
 
-        IsSwimming = world != null && world.IsInShallowWater(position, collisionRadius, IsSwimming);
-        float targetSpeedScale = IsSwimming ? PlayerMovementSettings.ShallowWaterSpeedMultiplier : 1f;
-        movementSpeedScale += MathHelper.Clamp(targetSpeedScale - movementSpeedScale,
-            -PlayerMovementSettings.SpeedTransitionRate * deltaTime,
-            PlayerMovementSettings.SpeedTransitionRate * deltaTime);
-        float currentSpeed = this.speed * movementSpeedScale;
+        if (canRegenerate)
+        {
+            float regenRate = 2f; // Health points per second
+            healthRegenerationAccumulator += regenRate * deltaTime;
+            int healthToRestore = (int)healthRegenerationAccumulator;
+            if (healthToRestore > 0)
+            {
+                int previousHealth = health;
+                health = Math.Min(maxHealth, health + healthToRestore);
+                healthRegenerationAccumulator -= health - previousHealth;
+                if (health != previousHealth) HealthChanged?.Invoke(health);
+                if (health >= maxHealth) healthRegenerationAccumulator = 0f;
+            }
+        }
+        else if (health >= maxHealth)
+        {
+            healthRegenerationAccumulator = 0f;
+        }
+
+        // Movement
 
         runningMultiplier = 1f;
 
         Vector2 delta = Vector2.Zero;
 
-        if (input.IsKeyHeld(Keys.LeftShift))
-        {
-            currentSpeed *= 1.5f;
-        }
+        float armorSpeedMultiplier = inventory.EquippedArmor?.SpeedMultiplier ?? 1f;
+        float currentSpeed = speed * armorSpeedMultiplier * (input.IsKeyHeld(Keys.LeftShift) ? 1.5f : 1f);
 
         if (input.IsKeyHeld(Keys.A)) delta.X -= 1f;
         if (input.IsKeyHeld(Keys.D)) delta.X += 1f;
@@ -139,25 +159,7 @@ public class Player : LivingThing
             runningMultiplier = 0.5f;
         }
 
-        Vector2 nextX = new Vector2(
-            position.X + delta.X,
-            position.Y
-        );
-
-        if (world == null || world.IsWalkable(nextX, collisionRadius, true))
-        {
-            position.X = nextX.X;
-        }
-
-        Vector2 nextY = new Vector2(
-            position.X,
-            position.Y + delta.Y
-        );
-
-        if (world == null || world.IsWalkable(nextY, collisionRadius, true))
-        {
-            position.Y = nextY.Y;
-        }
+        Move(delta, deltaTime, world, currentSpeed / speed);
 
         // Debug
 
@@ -170,6 +172,9 @@ public class Player : LivingThing
 
         if (itemTransitionTimer <= 0f && input.IsLeftMousePressed() && !input.IsMouseCaptured)
         {
+            if (rightHand.HeldItem?.Id == ItemRegistry.BotellaVacia.Id && world != null
+                && TryFillBottle(world)) return;
+
             if (rightHand.hasItem)
             {
                 if (rightHand.DoAction(this)) return;
@@ -188,18 +193,6 @@ public class Player : LivingThing
             }
         }
 
-        // Damage timer
-
-        if (damagedTimer > 0f)
-        {
-            damagedTimer -= deltaTime;
-
-            if (damagedTimer <= 0f)
-            {
-                color = Color.White;
-            }
-        }
-
         Vector2 direction = mousePosition - position;
         float angle = MathF.Atan2(direction.Y, direction.X);
 
@@ -212,15 +205,15 @@ public class Player : LivingThing
              (leftHand.IsAttacking && !leftHand.IsRetracting)))
         {
             // Las herramientas atacan desde la mano derecha.
-            targetHeadRotation = -AttackHeadTurn;
+            targetHeadRotation = -headTurn;
         }
         else if (rightHand.IsAttacking && !rightHand.IsRetracting)
         {
-            targetHeadRotation = -AttackHeadTurn;
+            targetHeadRotation = -headTurn;
         }
         else if (leftHand.IsAttacking && !leftHand.IsRetracting)
         {
-            targetHeadRotation = AttackHeadTurn;
+            targetHeadRotation = headTurn;
         }
 
         headAttackRotation = MathHelper.Lerp(
@@ -264,7 +257,7 @@ public class Player : LivingThing
             if (stat.value <= 0)
             {
                 stat.value = 0;
-                takeDamage(1);
+                takeNaturalDamage(1);
             }
 
             HungerChanged?.Invoke(stat.value);
@@ -307,7 +300,7 @@ public class Player : LivingThing
             if (stat.value <= 0)
             {
                 stat.value = 0;
-                takeDamage(3);
+                takeNaturalDamage(3);
             }
 
             OxygenChanged?.Invoke(stat.value);
@@ -334,7 +327,7 @@ public class Player : LivingThing
             if (stat.value <= 0)
             {
                 stat.value = 0;
-                takeDamage(1);
+                takeNaturalDamage(1);
             }
 
             ThirstChanged?.Invoke(stat.value);
@@ -354,13 +347,35 @@ public class Player : LivingThing
 
     public override void takeDamage(int damage)
     {
+        if (isDead || damage <= 0) return;
+
+        float protection = (inventory.EquippedArmor?.ArmorPoints ?? 0f) / 100f;
+        damage = Math.Max(1, (int)MathF.Ceiling(damage * (1f - protection)));
+
+        int previousHealth = health;
         base.takeDamage(damage);
+        int damageReceived = previousHealth - health;
+        if (damageReceived <= 0) return;
 
-        color = damageColor;
-        damagedTimer = 0.3f;
+        combatTimer = combatCooldown;
+        healthRegenerationAccumulator = 0f;
+        HealthChanged?.Invoke(health);
+        DamageTaken?.Invoke(damageReceived);
+    }
 
-        SFX.Play(Assets.SoundEffects.playerDamage);
-        HealthChanged?.Invoke(this.health);
+    private void takeNaturalDamage(int damage)
+    {
+        if (isDead || damage <= 0) return;
+
+        int previousHealth = health;
+        base.takeDamage(damage);
+        int damageReceived = previousHealth - health;
+        if (damageReceived <= 0) return;
+
+        combatTimer = combatCooldown;
+        healthRegenerationAccumulator = 0f;
+        HealthChanged?.Invoke(health);
+        DamageTaken?.Invoke(damageReceived);
     }
 
     public override void Draw(SpriteBatch spriteBatch, Texture2D pixel)
@@ -443,47 +458,67 @@ public class Player : LivingThing
 
         SFX.Play(sfx);
         inventory.RemoveItem(item, 1);
+        if (consumable.statType == StatType.Thirst || consumable.statType == StatType.Oxygen)
+            inventory.AddItem(ItemRegistry.BotellaVacia, 1);
         
         return true;
     }
 
-    public CraftResult EvaluateCraft(Recipe recipe)
-{
-    if (recipe == null) return CraftResult.MissingIngredients;
-
-    foreach (Ingredient ingredient in recipe.Ingredients)
+    private bool TryFillBottle(World.World world)
     {
-        if (!inventory.HasItem(ingredient.Item, ingredient.Quantity))
+        Item? filledBottle = world.IsInWater(position)
+            ? ItemRegistry.AguaPurificada
+            : world.IsOxygenSupplied(position) ? ItemRegistry.OxigenoEmbotellado : null;
+        if (filledBottle == null || !inventory.HasItem(ItemRegistry.BotellaVacia, 1)) return false;
+
+        inventory.RemoveItem(ItemRegistry.BotellaVacia, 1);
+        inventory.AddItem(filledBottle, 1);
+        return true;
+    }
+
+    public CraftResult EvaluateCraft(Recipe recipe, bool atCraftingTable = false)
+    {
+        if (recipe == null) return CraftResult.MissingIngredients;
+
+        if (recipe.RequiresCraftingTable && !atCraftingTable)
         {
-            return CraftResult.MissingIngredients;
+            return CraftResult.MissingCraftingTable;
         }
+
+        foreach (Ingredient ingredient in recipe.Ingredients)
+        {
+            if (!inventory.HasItem(ingredient.Item, ingredient.Quantity))
+            {
+                return CraftResult.MissingIngredients;
+            }
+        }
+
+        if (!inventory.CanFit(recipe.Result, recipe.Amount))
+        {
+            return CraftResult.InventoryFull;
+        }
+
+        return CraftResult.Success;
     }
 
-    if (!inventory.CanFit(recipe.Result, recipe.Amount))
+    public bool CanCraft(Recipe recipe, bool atCraftingTable = false)
     {
-        return CraftResult.InventoryFull;
+        return EvaluateCraft(recipe, atCraftingTable) == CraftResult.Success;
     }
 
-    return CraftResult.Success;
-}
-
-public bool CanCraft(Recipe recipe)
-{
-    return EvaluateCraft(recipe) == CraftResult.Success;
-}
-
-public CraftResult TryCraft(Recipe recipe)
-{
-    CraftResult result = EvaluateCraft(recipe);
-    if (result != CraftResult.Success) return result;
-
-    foreach (Ingredient ingredient in recipe.Ingredients)
+    public CraftResult TryCraft(Recipe recipe, bool atCraftingTable = false)
     {
-        inventory.RemoveItem(ingredient.Item, ingredient.Quantity);
+        CraftResult result = EvaluateCraft(recipe, atCraftingTable);
+        if (result != CraftResult.Success) return result;
+
+        foreach (Ingredient ingredient in recipe.Ingredients)
+        {
+            inventory.RemoveItem(ingredient.Item, ingredient.Quantity);
+        }
+
+        inventory.AddItem(recipe.Result, recipe.Amount);
+        return CraftResult.Success;
     }
 
-    inventory.AddItem(recipe.Result, recipe.Amount);
-    return CraftResult.Success;
 }
 
-}

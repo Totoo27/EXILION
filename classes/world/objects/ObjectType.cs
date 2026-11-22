@@ -8,7 +8,12 @@ public enum ObjectType {
     Iron,
     Titanium,
     Thorium,
-    Block,
-    OxygenGenerator
+    OxygenGenerator,
+    Sandstone,
+    CraftingTable,
+    SpaceShip,
+    WoodenFloor,
+    WoodenWall,
+    StoneWall
 
 }

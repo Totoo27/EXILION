@@ -15,6 +15,12 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
 
     private Rectangle titleRect;
     private Rectangle sunRect;
+    private const int SunFrameSize = 128;
+    private const int SunFramesPerRow = 8;
+    private const int SunFrameCount = 8;
+    private const float SunFrameDuration = 0.12f;
+    private int sunFrame;
+    private float sunFrameTimer;
 
     // Original positions
     private Vector2 originalSunPosition;
@@ -30,6 +36,11 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
     private WorldSavesPanel worldSavesPanel;
     private Vector2 enabledSettingsPosition;
     private Vector2 enabledWorldSavesPosition;
+    private Vector2 baseTitlePosition;
+    private Vector2 baseSunPosition;
+    private Vector2 baseStartButtonPosition;
+    private Vector2 baseSettingsButtonPosition;
+    private Vector2 baseQuitButtonPosition;
 
     // ---- Animation
     private bool animationFinished = false;
@@ -72,10 +83,10 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
     {
         // Init Panels
         settingsPanel = new SettingsPanel(GameContext, GraphicsDevice, input, this, displaySettings, new Vector2(GraphicsDevice.Viewport.Width, 0));
-        settingsPanel.position.Y = getHalfScreenPositionY(settingsPanel.Height);
+        settingsPanel.position.Y = getHalfScreenPositionYForScaledSize(settingsPanel.Height);
 
         worldSavesPanel = new WorldSavesPanel(GameData, this, new Vector2(0, GraphicsDevice.Viewport.Height));
-        worldSavesPanel.position.X = getHalfScreenPositionX(settingsPanel.Width);
+        worldSavesPanel.position.X = getHalfScreenPositionXForScaledSize(worldSavesPanel.Width);
 
         // Stars
         starfield = new Starfield(GraphicsDevice, 200);
@@ -98,12 +109,20 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
         originalTitlePosition = new Vector2(getHalfScreenPositionX(900), GameContext.ScaleY(-30));
         originalSunPosition = new Vector2(getHalfScreenPositionX(900) + GameContext.ScaleX(410), GameContext.ScaleY(20));
 
-        enabledSettingsPosition = new Vector2(getHalfScreenPositionX(settingsPanel.Width), getHalfScreenPositionY(settingsPanel.Height));
-        enabledWorldSavesPosition = new Vector2(getHalfScreenPositionX(settingsPanel.Width), getHalfScreenPositionY(settingsPanel.Height));
+        enabledSettingsPosition = new Vector2(getHalfScreenPositionXForScaledSize(settingsPanel.Width), getHalfScreenPositionYForScaledSize(settingsPanel.Height));
+        enabledWorldSavesPosition = new Vector2(getHalfScreenPositionXForScaledSize(worldSavesPanel.Width), getHalfScreenPositionYForScaledSize(worldSavesPanel.Height));
 
         // Rect initializations
         titleRect = new Rectangle((int)originalTitlePosition.X, (int)getHalfScreenPositionY(384), GameContext.ScaleX(900), GameContext.ScaleY(384));
         sunRect = new Rectangle((int)originalSunPosition.X, GameContext.ScaleY(-300), GameContext.ScaleX(300), GameContext.ScaleY(300));
+
+        // The panel animations start only after the intro has finished, so save
+        // the final menu layout rather than the title's pre-animation Y values.
+        baseTitlePosition = new Vector2(titleRect.X, originalTitlePosition.Y);
+        baseSunPosition = new Vector2(sunRect.X, originalSunPosition.Y);
+        baseStartButtonPosition = startGame.position;
+        baseSettingsButtonPosition = settings.position;
+        baseQuitButtonPosition = quitGame.position;
     
 
     }
@@ -112,7 +131,12 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
 
         starfield.Draw(spriteBatch);
         spriteBatch.Draw(title, titleRect, Color.White * titleOpacity);
-        spriteBatch.Draw(sun, sunRect, Color.White);
+        Rectangle sunSource = new Rectangle(
+            (sunFrame % SunFramesPerRow) * SunFrameSize,
+            (sunFrame / SunFramesPerRow) * SunFrameSize,
+            SunFrameSize,
+            SunFrameSize);
+        spriteBatch.Draw(sun, sunRect, sunSource, Color.White);
 
         startGame.Draw(spriteBatch, buttonsOpacity);
         settings.Draw(spriteBatch, buttonsOpacity);
@@ -130,6 +154,16 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
 
         MouseState mouseState = input.CurrentMouse;
 
+        if (!animationFinished)
+        {
+            KeyboardState keyboardState = input.CurrentKeyboard;
+
+            if (keyboardState.GetPressedKeyCount() > 0 || mouseState.LeftButton == ButtonState.Pressed || mouseState.RightButton == ButtonState.Pressed)
+            {
+                SkipTitleAnimation();
+            }
+        }
+
         if (input.IsKeyPressed(Keys.Escape))
         {
 
@@ -145,13 +179,16 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
         }
 
         starfield.Update(gameTime);
+        UpdateSunAnimation(gameTime);
 
         updateTitleAnimation(gameTime);
         if(!animationFinished) return; // Prevent any logic before the animation ends
 
         worldSavesPanel.Update();
+        if (SceneManager.CurrentScene != this) return;
         updateWorldSavesAnimation();
-        if(worldSavesPanel.enabled) return; // Prevent using Menu buttons while worldSaves panel is enabled
+        if (SceneManager.CurrentScene != this) return;
+        if (worldSavesPanel.enabled) return; // Prevent using Menu buttons while worldSavesPanel is enabled
 
         settingsPanel.Update();
         updateSettingsAnimation();
@@ -201,6 +238,12 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
         originalSunPosition = Vector2.Zero;
         originalTitlePosition = Vector2.Zero;
         enabledSettingsPosition = Vector2.Zero;
+        enabledWorldSavesPosition = Vector2.Zero;
+        baseTitlePosition = Vector2.Zero;
+        baseSunPosition = Vector2.Zero;
+        baseStartButtonPosition = Vector2.Zero;
+        baseSettingsButtonPosition = Vector2.Zero;
+        baseQuitButtonPosition = Vector2.Zero;
 
         animationFinished = false;
         settingsDisableAnimation = false;
@@ -208,8 +251,20 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
         timer = 0f;
         titleOpacity = 0f;
         buttonsOpacity = 0f;
+        sunFrame = 0;
+        sunFrameTimer = 0f;
 
         currentState = TitleAnimationState.WaitingStart;
+    }
+
+    private void UpdateSunAnimation(GameTime gameTime)
+    {
+        sunFrameTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+        while (sunFrameTimer >= SunFrameDuration)
+        {
+            sunFrameTimer -= SunFrameDuration;
+            sunFrame = (sunFrame + 1) % SunFrameCount;
+        }
     }
 
     private void updateTitleAnimation(GameTime gameTime)
@@ -293,6 +348,23 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
 
     }
 
+    private void SkipTitleAnimation()
+    {
+        animationFinished = true;
+        currentState = TitleAnimationState.Finished;
+
+        // Opacidad final
+        titleOpacity = 1f;
+        buttonsOpacity = 1f;
+
+        // Posiciones finales
+        titleRect.X = (int)originalTitlePosition.X;
+        titleRect.Y = (int)originalTitlePosition.Y;
+
+        sunRect.X = (int)originalSunPosition.X;
+        sunRect.Y = (int)originalSunPosition.Y;
+    }
+
     public void closeSettings()
     {
        settingsDisableAnimation = true;
@@ -316,12 +388,6 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
 
             worldSavesPanel.position.Y -= speed;
 
-            titleRect.Y -= speed;
-            sunRect.Y -= speed;
-            startGame.position.Y -= speed;
-            settings.position.Y -= speed;
-            quitGame.position.Y -= speed;
-
         }
         
         if(worldSavesDisableAnimation && positionY < GraphicsDevice.Viewport.Height)
@@ -330,17 +396,16 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
 
             worldSavesPanel.position.Y += speed;
 
-            titleRect.Y += speed;
-            sunRect.Y += speed;
-            startGame.position.Y += speed;
-            settings.position.Y += speed;
-            quitGame.position.Y += speed;
-
         } else if(worldSavesDisableAnimation)
         {
             worldSavesDisableAnimation = false;
             worldSavesPanel.enabled = false;
         }
+
+        float menuOffsetY = worldSavesPanel.enabled
+            ? worldSavesPanel.position.Y - GraphicsDevice.Viewport.Height
+            : 0f;
+        ApplyMenuOffset(0f, menuOffsetY);
 
     }
 
@@ -358,13 +423,6 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
             // Settings move to center
             settingsPanel.position.X -= speed;
 
-            // Everything else move apart
-            titleRect.X -= speed;
-            sunRect.X -= speed;
-            startGame.position.X -= speed;
-            settings.position.X -= speed;
-            quitGame.position.X -= speed;
-
         }
 
         if(settingsDisableAnimation && positionX < GraphicsDevice.Viewport.Width)
@@ -375,17 +433,16 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
             settingsPanel.position.X += speed;
 
             // Everything else move apart
-            titleRect.X += speed;
-            sunRect.X += speed;
-            startGame.position.X += speed;
-            settings.position.X += speed;
-            quitGame.position.X += speed;
-
         } else if(settingsDisableAnimation)
         {
             settingsDisableAnimation = false;
             settingsPanel.enabled = false;
         }
+
+        float menuOffsetX = settingsPanel.enabled
+            ? settingsPanel.position.X - GraphicsDevice.Viewport.Width
+            : 0f;
+        ApplyMenuOffset(menuOffsetX, 0f);
 
     }
 
@@ -409,6 +466,23 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
 
         float positionY = (GraphicsDevice.Viewport.Height - GameContext.ScaleY(size)) / 2;
         return positionY;
+    }
+
+    private float getHalfScreenPositionXForScaledSize(int scaledSize)
+        => (GraphicsDevice.Viewport.Width - scaledSize) / 2f;
+
+    private float getHalfScreenPositionYForScaledSize(int scaledSize)
+        => (GraphicsDevice.Viewport.Height - scaledSize) / 2f;
+
+    private void ApplyMenuOffset(float offsetX, float offsetY)
+    {
+        titleRect.X = (int)MathF.Round(baseTitlePosition.X + offsetX);
+        titleRect.Y = (int)MathF.Round(baseTitlePosition.Y + offsetY);
+        sunRect.X = (int)MathF.Round(baseSunPosition.X + offsetX);
+        sunRect.Y = (int)MathF.Round(baseSunPosition.Y + offsetY);
+        startGame.position = baseStartButtonPosition + new Vector2(offsetX, offsetY);
+        settings.position = baseSettingsButtonPosition + new Vector2(offsetX, offsetY);
+        quitGame.position = baseQuitButtonPosition + new Vector2(offsetX, offsetY);
     }
 
     private int getEasingSpeed(int speedDelimiter, int ownPosition, int destinationPos)

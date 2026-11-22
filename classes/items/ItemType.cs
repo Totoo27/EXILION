@@ -6,4 +6,5 @@ public enum ItemType
     STRUCTURES,
     CONSUMABLE,
     RESOURCES,
+    ARMOR
 }

@@ -12,10 +12,33 @@ public sealed class Sprites
     public Texture2D GameTitle { get; private set; }
     public Texture2D Sun { get; private set; }
     public Texture2D Button { get; private set; }
+    public Texture2D cursorTexture { get; private set; }
+
+    public Texture2D statIndicator { get; private set; }
+    public Texture2D hungerAdvice { get; private set; }
+    public Texture2D thirstAdvice { get; private set; }
+    public Texture2D oxygenAdvice { get; private set; }
 
     // Player
     public Texture2D Player { get; private set; }
     public Texture2D playerHand { get; private set; }
+
+    // Creatures
+    public Texture2D PeacefulCreature { get; private set; }
+    public Texture2D NeutralCreature { get; private set; }
+    public Texture2D HostileCreature { get; private set; }
+
+    // Creature drops
+
+    public Texture2D LowCrystal { get; private set; }
+    public Texture2D MediumCrystal { get; private set; }
+    public Texture2D AdvancedCrystal { get; private set; }
+
+    // Armors
+
+    public Texture2D LowArmor { get; private set; }
+    public Texture2D MediumArmor { get; private set; }
+    public Texture2D AdvancedArmor { get; private set; }
 
     // HUD
     public Texture2D meter { get; private set; }
@@ -36,6 +59,10 @@ public sealed class Sprites
     public Texture2D Hierro { get; private set; }
     public Texture2D Titanio { get; private set; }
     public Texture2D Torio { get; private set; }
+    public Texture2D botellaVacia { get; private set; }
+    public Texture2D arena { get; private set; }
+    public Texture2D silicio { get; private set; }
+    public Texture2D chip { get; private set; }
     public Texture2D Tronco { get; private set; }
     public Texture2D AguaPurificada { get; private set; }
     public Texture2D CarneCocinada { get; private set; }
@@ -52,8 +79,24 @@ public sealed class Sprites
     public Texture2D titaniumAxe { get; private set; }
     public Texture2D titaniumPickaxe { get; private set; }
 
+     public Texture2D craftingTable { get;private set;}
+
     // Inventory
     public Texture2D Slot { get; private set; }
+
+    // Structures
+
+    public Texture2D woodenFloor { get; private set; }
+    public Texture2D woodenWall { get; private set; }
+    public Texture2D stoneWall { get; private set; }
+
+    // Final Ship
+
+    public Texture2D turbine { get; private set; }
+    public Texture2D wing { get; private set; }
+    public Texture2D fuelTank { get; private set; }
+    public Texture2D cabin { get; private set; }
+    public Texture2D ship { get; private set; }
 
     // World
     public Texture2D Tileset { get; private set; }
@@ -61,11 +104,20 @@ public sealed class Sprites
 
     public async Task Load(ContentManager content)
     {
+
         // UI
         MenuBackground = content.Load<Texture2D>("Sprites/UI/MainMenuBackground");
         GameTitle = content.Load<Texture2D>("Sprites/UI/ExilionTitle");
         Sun = content.Load<Texture2D>("Sprites/UI/Sun");        
         Button = content.Load<Texture2D>("Sprites/UI/Button");
+        cursorTexture = content.Load<Texture2D>("Sprites/UI/pointer");
+
+        // Advices
+
+        statIndicator = content.Load<Texture2D>("Sprites/UI/HUD/statIndicator");
+        hungerAdvice = content.Load<Texture2D>("Sprites/UI/HUD/hungerAdviceIcon");
+        thirstAdvice = content.Load<Texture2D>("Sprites/UI/HUD/waterAdviceIcon");
+        oxygenAdvice = content.Load<Texture2D>("Sprites/UI/HUD/oxygenAdviceIcon");
 
         // Bars
         meter = content.Load<Texture2D>("Sprites/UI/HUD/meter");
@@ -83,20 +135,40 @@ public sealed class Sprites
         watchMeter = content.Load<Texture2D>("Sprites/UI/HUD/watchMeter");
         watchProgress = content.Load<Texture2D>("Sprites/UI/HUD/watchProgress");
         watchSetOff = content.Load<Texture2D>("Sprites/UI/HUD/watchSetOff");
-      
-      
 
         // Player
         Player = content.Load<Texture2D>("Sprites/Entities/Player");
         playerHand = content.Load<Texture2D>("Sprites/Entities/playerHand");
         Slot   = content.Load<Texture2D>("Sprites/UI/HUD/slot");
-          craftingMenu = content.Load<Texture2D>("Sprites/UI/HUD/craftingMenu");
-        
+        craftingMenu = content.Load<Texture2D>("Sprites/UI/HUD/craftingMenu");
+
+        // Creatures
+
+        PeacefulCreature = content.Load<Texture2D>("Sprites/Entities/peacefulCreature");
+        HostileCreature = content.Load<Texture2D>("Sprites/Entities/hostileCreature");
+        NeutralCreature = content.Load<Texture2D>("Sprites/Entities/neutralCreature");
+
+        // Creature drops
+
+        LowCrystal = content.Load<Texture2D>("Sprites/Items/lowCrystal");
+        MediumCrystal = content.Load<Texture2D>("Sprites/Items/mediumCrystal");
+        AdvancedCrystal = content.Load<Texture2D>("Sprites/Items/advancedCrystal");
+
+        // Armors
+
+        LowArmor = content.Load<Texture2D>("Sprites/Items/lowArmor");
+        MediumArmor = content.Load<Texture2D>("Sprites/Items/mediumArmor");
+        AdvancedArmor = content.Load<Texture2D>("Sprites/Items/advancedArmor");
+
         //Items
         Piedra = content.Load<Texture2D>("Sprites/Items/piedra");
         Hierro = content.Load<Texture2D>("Sprites/Items/hierro");
         Titanio = content.Load<Texture2D>("Sprites/Items/titanio");
         Torio = content.Load<Texture2D>("Sprites/Items/torio");
+        botellaVacia = content.Load<Texture2D>("Sprites/Items/botellaVacia");
+        arena = content.Load<Texture2D>("Sprites/Items/arena");
+        silicio = content.Load<Texture2D>("Sprites/Items/silicio");
+        chip = content.Load<Texture2D>("Sprites/Items/chip");
 
         Tronco = content.Load<Texture2D>("Sprites/Items/tronco");
         AguaPurificada = content.Load<Texture2D>("Sprites/Items/AguaPurificada");
@@ -104,6 +176,7 @@ public sealed class Sprites
         OxigenoEmbotellado = content.Load<Texture2D>("Sprites/Items/OxigenoEmbotellado");
         GeneradorO2 = content.Load<Texture2D>("Sprites/Items/GeneradorO2");
         Baya = content.Load<Texture2D>("Sprites/Items/bayas");
+        craftingTable= content.Load<Texture2D>("Sprites/Items/craftingTable");
       
         // Tools
         woodenAxe = content.Load<Texture2D>("Sprites/Items/woodenAxe");
@@ -117,8 +190,23 @@ public sealed class Sprites
 
         titaniumAxe = content.Load<Texture2D>("Sprites/Items/titaniumAxe");
         titaniumPickaxe = content.Load<Texture2D>("Sprites/Items/titaniumPickaxe");
+
+        // Structures
+
+        woodenFloor = content.Load<Texture2D>("Sprites/Items/woodenFloor");
+        woodenWall = content.Load<Texture2D>("Sprites/Items/WoodenWall");
+        stoneWall = content.Load<Texture2D>("Sprites/Items/StoneWall");
         
-        // World Test
+        // Final Ship
+
+        turbine = content.Load<Texture2D>("Sprites/Items/turbina");
+        wing = content.Load<Texture2D>("Sprites/Items/alas");
+        fuelTank = content.Load<Texture2D>("Sprites/Items/combustible");
+        cabin = content.Load<Texture2D>("Sprites/Items/cabina");
+
+        ship = content.Load<Texture2D>("Sprites/Items/nave");
+
+        // World
         Tileset = content.Load<Texture2D>("Sprites/Tiles/Tileset");
         Objects = content.Load<Texture2D>("Sprites/Tiles/objects");
 
