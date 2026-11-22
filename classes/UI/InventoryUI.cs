@@ -99,7 +99,7 @@ public class InventoryUI
             {
                 inventory.MoveItem(draggedSlotIndex, targetIndex);
             }
-            else if (expanded)
+            else
             {
                 ItemStack? droppedStack = inventory.TakeStack(draggedSlotIndex);
 
