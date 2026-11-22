@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="classes/items/**/*.cs" Exclude="classes/items/tools/AttackHitbox.cs" />
+    <Compile Include="classes/logic/CatchableItemState.cs" />
+    <Compile Include="classes/logic/GameAudioCue.cs" />
+    <Compile Include="classes/logic/GameClock.cs" />
+    <Compile Include="classes/logic/PlayerInput.cs" />
+    <Compile Include="classes/world/TileType.cs" />
+    <Compile Include="classes/world/objects/ObjectDefinition.cs" />
+    <Compile Include="classes/world/objects/ObjectProperties.cs" />
+    <Compile Include="classes/world/objects/ObjectType.cs" />
+    <Compile Include="classes/world/objects/WorldHash.cs" />
+    <Compile Include="classes/world/objects/WorldObjectId.cs" />
+    <Compile Include="classes/world/objects/WorldObjectSpawn.cs" />
+    <Compile Include="classes/world/objects/WorldObjectState.cs" />
+    <Compile Include="classes/world/objects/WorldObjectStateStore.cs" />
+    <Compile Include="classes/entities/livingThings/creatures/CreatureType.cs" />
+    <Compile Include="classes/entities/livingThings/player/PlayerStat.cs" />
+    <Compile Include="classes/entities/livingThings/player/StatType.cs" />
+    <Compile Include="classes/saving/**/*.cs" />
+  </ItemGroup>
+</Project>

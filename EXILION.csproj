@@ -11,6 +11,31 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="EXILION.Shared.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="EXILION.Server\**\*.cs" />
+    <Compile Remove="classes\items\**\*.cs" />
+    <Compile Include="classes\items\tools\AttackHitbox.cs" />
+    <Compile Remove="classes\logic\CatchableItemState.cs" />
+    <Compile Remove="classes\logic\GameAudioCue.cs" />
+    <Compile Remove="classes\logic\GameClock.cs" />
+    <Compile Remove="classes\logic\PlayerInput.cs" />
+    <Compile Remove="classes\world\TileType.cs" />
+    <Compile Remove="classes\world\objects\ObjectDefinition.cs" />
+    <Compile Remove="classes\world\objects\ObjectProperties.cs" />
+    <Compile Remove="classes\world\objects\ObjectType.cs" />
+    <Compile Remove="classes\world\objects\WorldHash.cs" />
+    <Compile Remove="classes\world\objects\WorldObjectId.cs" />
+    <Compile Remove="classes\world\objects\WorldObjectSpawn.cs" />
+    <Compile Remove="classes\world\objects\WorldObjectState.cs" />
+    <Compile Remove="classes\world\objects\WorldObjectStateStore.cs" />
+    <Compile Remove="classes\entities\livingThings\creatures\CreatureType.cs" />
+    <Compile Remove="classes\entities\livingThings\player\PlayerStat.cs" />
+    <Compile Remove="classes\entities\livingThings\player\StatType.cs" />
+    <Compile Remove="classes\saving\**\*.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="Icon.ico" />
     <None Remove="Icon.bmp" />
   </ItemGroup>
