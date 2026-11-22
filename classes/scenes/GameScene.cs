@@ -251,6 +251,8 @@ public class GameScene : Scene
     {
         if(stopUpdating || !isLoaded) return;
 
+        mapRenderer?.Update(gameTime);
+
         MouseState mouse = input.CurrentMouse;
 
         if(deathPanel.enabled)
