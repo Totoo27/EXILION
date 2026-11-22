@@ -182,6 +182,7 @@ public class GameScene : Scene
         foreach (CreatureSaveData creatureData in saveData.Creatures ?? new List<CreatureSaveData>())
         {
             Creature creature = CreatureFactory.CreateRestoredCreature(creatureData, GameContext);
+            creatures.Add(creature);
         }
         
         foreach(var catchableItem in saveData.CatchableItems)
@@ -240,6 +241,39 @@ public class GameScene : Scene
                 new ItemStack(ItemRegistry.GeneradorO2, 1),
                 new Vector2(0, 0),
                 new Sprite(ItemRegistry.GeneradorO2.Icon, GameContext.ScaleXY(1), ItemRegistry.GeneradorO2.IconSource),
+                GameContext
+            )
+
+        );
+
+        catchableItems.Add(
+
+            new CatchableItem(
+                new ItemStack(ItemRegistry.lowArmor, 1),
+                new Vector2(0, 0),
+                new Sprite(ItemRegistry.lowArmor.Icon, GameContext.ScaleXY(1), ItemRegistry.lowArmor.IconSource),
+                GameContext
+            )
+
+        );
+
+        catchableItems.Add(
+
+            new CatchableItem(
+                new ItemStack(ItemRegistry.mediumArmor, 1),
+                new Vector2(0, 0),
+                new Sprite(ItemRegistry.mediumArmor.Icon, GameContext.ScaleXY(1), ItemRegistry.mediumArmor.IconSource),
+                GameContext
+            )
+
+        );
+
+        catchableItems.Add(
+
+            new CatchableItem(
+                new ItemStack(ItemRegistry.advancedArmor, 1),
+                new Vector2(0, 0),
+                new Sprite(ItemRegistry.advancedArmor.Icon, GameContext.ScaleXY(1), ItemRegistry.advancedArmor.IconSource),
                 GameContext
             )
 
