@@ -65,6 +65,7 @@ public class Hand
     private HandState state = HandState.Idle;
     private readonly HashSet<WorldObjectId> hitObjectsThisAttack = new();
     private readonly HashSet<Creature> hitCreaturesThisAttack = new();
+    private readonly HashSet<Player> hitPlayersThisAttack = new();
 
     private float attackTimer = 0f;
 
@@ -197,6 +198,7 @@ public class Hand
 
         hitObjectsThisAttack.Clear();
         hitCreaturesThisAttack.Clear();
+        hitPlayersThisAttack.Clear();
         state = HandState.Extending;
         attackTimer = 0f;
         SoundRequested?.Invoke(GameAudioCue.HandSwing);
@@ -219,6 +221,7 @@ public class Hand
 
     public bool RegisterHit(WorldObjectId objectId) => hitObjectsThisAttack.Add(objectId);
     public bool RegisterHit(Creature creature) => hitCreaturesThisAttack.Add(creature);
+    public bool RegisterHit(Player player) => hitPlayersThisAttack.Add(player);
 
     private void UpdateAttack(float deltaTime)
     {

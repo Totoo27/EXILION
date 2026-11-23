@@ -87,6 +87,7 @@ public class GameScene : Scene
     private float respawnPendingRemaining;
     private bool restoredOnlineProfile;
     private Vector2 localPredictedPosition;
+    private readonly List<PendingBlockPlacement> pendingBlockPlacements = new();
 
     public GameScene(IGameData gameData, string path) : base(gameData)
     {
@@ -355,6 +356,7 @@ public class GameScene : Scene
                     remotePlayer.ApplySnapshot(remote);
                 }
                 world?.ApplyObjectStates(snapshot.WorldObjects);
+                ReconcilePendingBlockPlacements(snapshot.WorldObjects);
                 ApplyCreatureSnapshots(snapshot.Creatures);
                 ApplyCatchableItemSnapshots(snapshot.CatchableItems);
                 foreach (WorldObjectHitEvent hitEvent in snapshot.WorldHitEvents)
@@ -476,7 +478,13 @@ public class GameScene : Scene
 
             input.IsMouseCaptured = wasMouseCaptured;
 
-            if (placeBlock) gameLogic.TryPlaceStructure(player, world, mouseWorldPosition);
+            if (placeBlock)
+            {
+                if (isOnline)
+                    TrackPendingBlockPlacement(mouseWorldPosition);
+                else
+                    gameLogic.TryPlaceStructure(player, world, mouseWorldPosition);
+            }
 
             if (!isOnline)
             {
@@ -568,9 +576,53 @@ public class GameScene : Scene
         creatures.AddRange(synchronized);
     }
 
+    private void TrackPendingBlockPlacement(Vector2 worldPosition)
+    {
+        if (player?.rightHand.HeldItem is not Structure structure) return;
+        int tileX = (int)MathF.Floor(worldPosition.X / world.TileSize);
+        int tileY = (int)MathF.Floor(worldPosition.Y / world.TileSize);
+        WorldObjectId id = new(Seed, tileX, tileY, -1);
+        if (pendingBlockPlacements.Any(pending => pending.Id == id)) return;
+        pendingBlockPlacements.Add(new PendingBlockPlacement(id, structure.objectType, structure.Id));
+    }
+
+    private void ReconcilePendingBlockPlacements(WorldObjectState[] authoritativeStates)
+    {
+        for (int index = pendingBlockPlacements.Count - 1; index >= 0; index--)
+        {
+            PendingBlockPlacement pending = pendingBlockPlacements[index];
+            WorldObjectState? placed = authoritativeStates.FirstOrDefault(state => state.Id == pending.Id);
+            if (placed is null || placed.IsDestroyed || placed.Type != pending.Type) continue;
+
+            Item? item = ItemRegistry.GetById(pending.ItemId);
+            if (item != null) player?.Inventory.RemoveItem(item, 1);
+            pendingBlockPlacements.RemoveAt(index);
+        }
+    }
+
+    private void AdvancePendingBlockPlacements(float deltaTime)
+    {
+        for (int index = pendingBlockPlacements.Count - 1; index >= 0; index--)
+        {
+            PendingBlockPlacement pending = pendingBlockPlacements[index];
+            pending.RemainingSeconds -= deltaTime;
+            if (pending.RemainingSeconds <= 0f)
+                pendingBlockPlacements.RemoveAt(index);
+        }
+    }
+
+    private sealed class PendingBlockPlacement(WorldObjectId id, ObjectType type, int itemId)
+    {
+        public WorldObjectId Id { get; } = id;
+        public ObjectType Type { get; } = type;
+        public int ItemId { get; } = itemId;
+        public float RemainingSeconds { get; set; } = 3f;
+    }
+
     private void UpdateCatchableItemAnimations(GameTime gameTime)
     {
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+        AdvancePendingBlockPlacements(deltaTime);
         foreach (CatchableItem item in catchableItems)
         {
             if (!isOnline) item.Update(deltaTime);
