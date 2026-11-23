@@ -578,6 +578,7 @@ public class GameScene : Scene
             else item.UpdateNetworkVisual(deltaTime);
             entityRenderer.UpdateDrop(item, deltaTime);
         }
+        catchableItems.RemoveAll(item => item.Picked);
         entityRenderer.PruneDropAnimations(catchableItems);
         localDamageFeedbackRemaining = Math.Max(0f, localDamageFeedbackRemaining - deltaTime);
         foreach (RemotePlayer remotePlayer in remotePlayers.Values)
@@ -766,6 +767,15 @@ public class GameScene : Scene
                 networkConnection?.QueueDropItem(itemStack.Item.Id, itemStack.Quantity);
             else
                 catchableItems.Add(new CatchableItem(itemStack, player.position, DropHitboxSize()));
+        }
+
+        ItemStack? equippedArmor = inventory.TakeEquippedArmor();
+        if (equippedArmor != null)
+        {
+            if (isOnline)
+                networkConnection?.QueueDropItem(equippedArmor.Item.Id, equippedArmor.Quantity);
+            else
+                catchableItems.Add(new CatchableItem(equippedArmor, player.position, DropHitboxSize()));
         }
 
         player.DamageTaken -= camera.damageShake;
