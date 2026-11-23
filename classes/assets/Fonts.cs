@@ -13,6 +13,8 @@ public sealed class Fonts
     public async Task Load(ContentManager content)
     {
 
+        MainLoader.SetLoadingText("Fonts");
+
         PixelArt = content.Load<SpriteFont>("Fonts/PixelArt");
         PixelArtBig = content.Load<SpriteFont>("Fonts/PixelArtBig");
         PixelArtSmall = content.Load<SpriteFont>("Fonts/PixelArtSmall");

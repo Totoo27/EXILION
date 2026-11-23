@@ -10,11 +10,12 @@ namespace EXILION.Scenes;
 public class MainLoader : Scene
 {
     
-    private const int totalTasks = 4;
+    private const int totalTasks = 20;
     private static int completedTasks = 0;
 
     private float progress = 0f;
     private Vector2 textPosition;
+    private Vector2 loadingPosition;
 
     private SpriteFont font;
     private Rectangle backgroundRect;
@@ -25,6 +26,10 @@ public class MainLoader : Scene
 
     private ContentManager Content;
     private GraphicsDevice GraphicsDevice;
+    private static String loadingText = "";
+    private String loadingPoints = ".";
+    private float loadingPointsTimer = 0f;
+    private const float loadingPointsInterval = 0.25f;
 
     public MainLoader(IGameData gameData) : base(gameData)
     {
@@ -45,6 +50,13 @@ public class MainLoader : Scene
     {
         if(stopUpdating) return;
 
+        loadingPointsTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+        if (loadingPointsTimer >= loadingPointsInterval)
+        {
+            loadingPointsTimer %= loadingPointsInterval;
+            ManageLoadingPoints();
+        }
+
         if (!contentLoaded)
         {
             _ = Assets.Load(Content);
@@ -62,15 +74,24 @@ public class MainLoader : Scene
 
     public override void DrawUI(SpriteBatch spriteBatch)
     {
-        string text = (progress * 100).ToString() + "%";
+        string text = ((int)(progress * 100)).ToString() + "%";
+        string loading = "Loading " + loadingText + loadingPoints;
         Vector2 textSize = font.MeasureString(text);
+        Vector2 loadingSize = font.MeasureString(loading);
         textPosition = new Vector2(viewPort.Width/2 - textSize.X/2, viewPort.Height/2 - textSize.Y/2);
+        loadingPosition = new Vector2(0, viewPort.Height - loadingSize.Y);
         spriteBatch.Draw(backGround, backgroundRect, Color.White);
 
         spriteBatch.DrawString(
             font,
             text,
             textPosition,
+            Color.White);
+
+        spriteBatch.DrawString(
+            font,
+            loading,
+            loadingPosition,
             Color.White);
     }
 
@@ -98,6 +119,17 @@ public class MainLoader : Scene
     public static void forceCompleteTask()
     {
         completedTasks++;
+    }
+
+    public static void SetLoadingText(String text)
+    {
+        loadingText = text;
+    }
+
+    private void ManageLoadingPoints()
+    {
+        if(loadingPoints.Length >= 3) loadingPoints = ".";
+        else loadingPoints += ".";
     }
 
 }
