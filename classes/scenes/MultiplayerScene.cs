@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace EXILION.Scenes;
 
-/// <summary>LAN server browser backed by the shared UDP discovery and TCP/UDP handshake.</summary>
+
 public sealed class MultiplayerScene : Scene
 {
     private readonly GraphicsDevice graphicsDevice;

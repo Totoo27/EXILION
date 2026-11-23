@@ -286,7 +286,8 @@ public static class RecipeRegistry
         {
             new Ingredient(ItemRegistry.Titanio, 25),
             new Ingredient(ItemRegistry.Chip, 5),
-            new Ingredient(ItemRegistry.advancedCrystal, 10)
+            new Ingredient(ItemRegistry.advancedCrystal, 10),
+            new Ingredient(ItemRegistry.GeneradorO2, 1)
         },
         amount: 1,
         requiresCraftingTable: true
@@ -300,8 +301,7 @@ public static class RecipeRegistry
             new Ingredient(ItemRegistry.turbine, 1),
             new Ingredient(ItemRegistry.wing, 2),
             new Ingredient(ItemRegistry.fuelTank, 1),
-            new Ingredient(ItemRegistry.cabin, 1),
-            new Ingredient(ItemRegistry.GeneradorO2, 1)
+            new Ingredient(ItemRegistry.cabin, 1)
         },
         amount: 1,
         requiresCraftingTable: true
