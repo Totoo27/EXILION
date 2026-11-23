@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.1.0](https://github.com/Totoo27/EXILION/compare/v2.0.0...v2.1.0) (2026-11-23)
+
+
+### Features
+
+* add MainLoader loading text ([c1bc536](https://github.com/Totoo27/EXILION/commit/c1bc536e4725afb4f7abc78ff463dd7da23e8cf5))
+
+
+### Bug Fixes
+
+* fix armor drop & despawned items ([1e11167](https://github.com/Totoo27/EXILION/commit/1e111679ccfbf2858c947490b1befbfa315552c3))
+
 ## [2.0.0](https://github.com/Totoo27/EXILION/compare/v1.0.0...v2.0.0) (2026-11-23)
 
 
