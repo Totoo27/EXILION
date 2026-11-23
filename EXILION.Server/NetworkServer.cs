@@ -126,7 +126,8 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
                 }
 
                 if (NetworkPacketCodec.TryReadPlayerInput(data, out sessionId, out udpKey, out int sequence,
-                    out var input, out System.Numerics.Vector2 mousePosition, out int heldItemId, out bool placeBlockRequested)
+                    out var input, out System.Numerics.Vector2 mousePosition, out int heldItemId, out bool placeBlockRequested,
+                    out int actionSequence)
                     && sessions.TryGetValue(sessionId, out session)
                     && session.RemoteAddress.Equals(received.RemoteEndPoint.Address)
                     && session.UdpKey == udpKey
@@ -136,7 +137,11 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
                     && session.MarkSeen())
                 {
                     session.LastInputSequence = sequence;
-                    gameSession.SetPlayerInput(sessionId, input, new Microsoft.Xna.Framework.Vector2(mousePosition.X, mousePosition.Y), heldItemId, placeBlockRequested);
+                    bool acceptAction = (input.InteractPressed || placeBlockRequested)
+                        && session.TryAcceptActionSequence(actionSequence);
+                    if (!acceptAction) input = input with { InteractPressed = false };
+                    gameSession.SetPlayerInput(sessionId, input, new Microsoft.Xna.Framework.Vector2(mousePosition.X, mousePosition.Y),
+                        heldItemId, acceptAction && placeBlockRequested);
                     continue;
                 }
 
@@ -372,6 +377,8 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
         private readonly HashSet<int> acceptedDropSequences = new();
         private readonly Queue<int> acceptedDropSequenceOrder = new();
         private int lastRespawnSequence;
+        private readonly HashSet<int> acceptedActionSequences = new();
+        private readonly Queue<int> acceptedActionSequenceOrder = new();
         private readonly object activityLock = new();
         private long lastSeenUtcTicks = DateTime.UtcNow.Ticks;
         private bool inactive;
@@ -409,6 +416,15 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
         {
             if (sequence <= lastRespawnSequence) return false;
             lastRespawnSequence = sequence;
+            return true;
+        }
+
+        public bool TryAcceptActionSequence(int sequence)
+        {
+            if (sequence <= 0 || !acceptedActionSequences.Add(sequence)) return false;
+            acceptedActionSequenceOrder.Enqueue(sequence);
+            if (acceptedActionSequenceOrder.Count > 512)
+                acceptedActionSequences.Remove(acceptedActionSequenceOrder.Dequeue());
             return true;
         }
     }

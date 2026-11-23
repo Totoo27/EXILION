@@ -19,7 +19,7 @@ namespace EXILION.Network;
 public static class NetworkProtocol
 {
     public const uint Magic = 0x4E4C5845; // "EXLN" in little endian
-    public const byte Version = 5;
+    public const byte Version = 6;
     public const int DefaultPort = 27860;
     public const int MaxPlayerNameBytes = 32;
     public const int MaxWorldNameBytes = 64;
@@ -147,9 +147,9 @@ public static class NetworkPacketCodec
     }
 
     public static byte[] CreatePlayerInput(Guid sessionId, Guid udpKey, int sequence, PlayerInput input,
-        System.Numerics.Vector2 mousePosition, int heldItemId, bool placeBlockRequested)
+        System.Numerics.Vector2 mousePosition, int heldItemId, bool placeBlockRequested, int actionSequence = 0)
     {
-        byte[] packet = new byte[AuthenticatedHeaderSize + 18];
+        byte[] packet = new byte[AuthenticatedHeaderSize + 22];
         WriteAuthenticatedHeader(packet, NetworkProtocol.UdpMessage.PlayerInput, sessionId, udpKey);
         BinaryPrimitives.WriteInt32LittleEndian(packet.AsSpan(AuthenticatedHeaderSize), sequence);
         packet[AuthenticatedHeaderSize + 4] = (byte)((input.MoveUp ? 1 : 0) | (input.MoveDown ? 2 : 0)
@@ -159,11 +159,13 @@ public static class NetworkPacketCodec
         BinaryPrimitives.WriteInt32LittleEndian(packet.AsSpan(AuthenticatedHeaderSize + 9), BitConverter.SingleToInt32Bits(mousePosition.Y));
         packet[AuthenticatedHeaderSize + 13] = (byte)((input.InteractPressed ? 1 : 0) | (placeBlockRequested ? 2 : 0));
         BinaryPrimitives.WriteInt32LittleEndian(packet.AsSpan(AuthenticatedHeaderSize + 14), heldItemId);
+        BinaryPrimitives.WriteInt32LittleEndian(packet.AsSpan(AuthenticatedHeaderSize + 18), actionSequence);
         return packet;
     }
 
     public static bool TryReadPlayerInput(ReadOnlySpan<byte> data, out Guid sessionId, out Guid udpKey, out int sequence,
-        out PlayerInput input, out System.Numerics.Vector2 mousePosition, out int heldItemId, out bool placeBlockRequested)
+        out PlayerInput input, out System.Numerics.Vector2 mousePosition, out int heldItemId, out bool placeBlockRequested,
+        out int actionSequence)
     {
         sessionId = udpKey = Guid.Empty;
         sequence = 0;
@@ -171,8 +173,9 @@ public static class NetworkPacketCodec
         mousePosition = default;
         heldItemId = -1;
         placeBlockRequested = false;
+        actionSequence = 0;
         if (!TryReadAuthenticatedHeader(data, NetworkProtocol.UdpMessage.PlayerInput, out sessionId, out udpKey)
-            || data.Length != AuthenticatedHeaderSize + 18) return false;
+            || data.Length != AuthenticatedHeaderSize + 22) return false;
         sequence = BinaryPrimitives.ReadInt32LittleEndian(data[AuthenticatedHeaderSize..]);
         byte flags = data[AuthenticatedHeaderSize + 4];
         if ((flags & 0x80) != 0) return false;
@@ -182,8 +185,10 @@ public static class NetworkPacketCodec
         mousePosition = new System.Numerics.Vector2(mouseX, mouseY);
         byte actionFlags = data[AuthenticatedHeaderSize + 13];
         if ((actionFlags & 0xFC) != 0) return false;
-        heldItemId = BinaryPrimitives.ReadInt32LittleEndian(data[(AuthenticatedHeaderSize + 14)..]);
         placeBlockRequested = (actionFlags & 2) != 0;
+        heldItemId = BinaryPrimitives.ReadInt32LittleEndian(data[(AuthenticatedHeaderSize + 14)..]);
+        actionSequence = BinaryPrimitives.ReadInt32LittleEndian(data[(AuthenticatedHeaderSize + 18)..]);
+        if (((actionFlags & 1) != 0 || placeBlockRequested) != (actionSequence > 0)) return false;
         input = new PlayerInput((flags & 1) != 0, (flags & 2) != 0, (flags & 4) != 0,
             (flags & 8) != 0, (flags & 16) != 0, (flags & 32) != 0, (flags & 64) != 0,
             (actionFlags & 1) != 0);

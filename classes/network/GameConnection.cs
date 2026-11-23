@@ -22,6 +22,9 @@ public sealed class GameConnection : IAsyncDisposable, IDisposable
     private bool pendingPrimaryAction;
     private bool pendingInteract;
     private bool pendingPlaceBlock;
+    private int pendingActionSequence;
+    private int pendingActionTransmissions;
+    private int actionSequence;
     private readonly object inputLock = new();
     private readonly ConcurrentQueue<byte[]> pendingGameplayRequests = new();
     private long lastSnapshotTimestamp = Stopwatch.GetTimestamp();
@@ -106,8 +109,20 @@ public sealed class GameConnection : IAsyncDisposable, IDisposable
         lock (inputLock)
         {
             pendingPrimaryAction |= input.PrimaryActionPressed && !input.PrimaryActionCaptured;
-            pendingInteract |= input.InteractPressed;
-            pendingPlaceBlock |= placeBlockRequested;
+            bool interact = input.InteractPressed;
+            bool place = placeBlockRequested;
+            if ((interact || place) && pendingActionTransmissions == 0)
+            {
+                pendingActionSequence = Interlocked.Increment(ref actionSequence);
+                pendingActionTransmissions = 10;
+                pendingInteract = interact;
+                pendingPlaceBlock = place;
+            }
+            else if (pendingActionTransmissions > 0)
+            {
+                pendingInteract |= interact;
+                pendingPlaceBlock |= place;
+            }
             currentInput = input with { PrimaryActionPressed = false, InteractPressed = false };
             currentMousePosition = mousePosition;
             currentHeldItemId = heldItemId;
@@ -140,21 +155,23 @@ public sealed class GameConnection : IAsyncDisposable, IDisposable
                 System.Numerics.Vector2 mousePosition;
                 int heldItemId;
                 bool placeBlockRequested;
+                int actionId;
                 lock (inputLock)
                 {
-                    input = currentInput with
-                    {
-                        PrimaryActionPressed = pendingPrimaryAction,
-                        InteractPressed = pendingInteract
-                    };
-                    placeBlockRequested = pendingPlaceBlock;
-                    pendingPrimaryAction = pendingInteract = pendingPlaceBlock = false;
+                    input = currentInput with { PrimaryActionPressed = pendingPrimaryAction };
+                    placeBlockRequested = pendingPlaceBlock && pendingActionTransmissions > 0;
+                    bool interactRequested = pendingInteract && pendingActionTransmissions > 0;
+                    input = input with { InteractPressed = interactRequested };
+                    if (pendingActionTransmissions > 0) pendingActionTransmissions--;
+                    if (pendingActionTransmissions == 0) pendingInteract = pendingPlaceBlock = false;
+                    pendingPrimaryAction = false;
                     mousePosition = currentMousePosition;
                     heldItemId = currentHeldItemId;
+                    actionId = placeBlockRequested || interactRequested ? pendingActionSequence : 0;
                 }
                 int sequence = Interlocked.Increment(ref inputSequence);
                 byte[] packet = NetworkPacketCodec.CreatePlayerInput(Ticket.SessionId, Ticket.UdpKey, sequence,
-                    input, mousePosition, heldItemId, placeBlockRequested);
+                    input, mousePosition, heldItemId, placeBlockRequested, actionId);
                 try { await udp.SendAsync(packet, serverEndpoint, token); }
                 catch (SocketException) when (!token.IsCancellationRequested) { continue; }
                 while (pendingGameplayRequests.TryDequeue(out byte[] request))

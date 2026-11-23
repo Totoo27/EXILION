@@ -352,8 +352,7 @@ public class GameScene : Scene
                         remotePlayers.Add(remote.PlayerId, remotePlayer);
                     }
 
-                    if (remotePlayer.ApplySnapshot(remote))
-                        GameAudio.Play(GameAudioCue.PlayerDamage);
+                    remotePlayer.ApplySnapshot(remote);
                 }
                 world?.ApplyObjectStates(snapshot.WorldObjects);
                 ApplyCreatureSnapshots(snapshot.Creatures);

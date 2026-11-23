@@ -340,7 +340,7 @@ public class Player : LivingThing
             if (stat.value <= 0)
             {
                 stat.value = 0;
-                takeNaturalDamage(3);
+                takeNaturalDamage(2);
             }
 
             OxygenChanged?.Invoke(stat.value);
