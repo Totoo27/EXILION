@@ -288,16 +288,6 @@ public class GameScene : Scene
 
         );
 
-        catchableItems.Add(
-
-            new CatchableItem(
-                new ItemStack(ItemRegistry.FinalShip, 1),
-                new Vector2(0, 0),
-                DropHitboxSize()
-            )
-
-        );
-
     }
 
     public override void Update(GameTime gameTime)
