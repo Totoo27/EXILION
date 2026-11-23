@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.0.0](https://github.com/Totoo27/EXILION/compare/v1.0.0...v2.0.0) (2026-11-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* game full connection client-server
+
+### Features
+
+* add LAN multiplayer  ([ecfb175](https://github.com/Totoo27/EXILION/commit/ecfb175b51be7cd569e44ceefe0889cce0cf1dc7))
+* add network classes for connection ([c309700](https://github.com/Totoo27/EXILION/commit/c309700e85120e1f974dbf169f927c9f60941117))
+* add network predictions & fix client visuals ([fa3fec9](https://github.com/Totoo27/EXILION/commit/fa3fec9b8b1a12ebc700cc3cdcd1ab80849c16e9))
+* add server - client projects ([54f6239](https://github.com/Totoo27/EXILION/commit/54f62399d0f51926a03a9207460e1c8085a864ed))
+* add server connection with player position & input ([c9639ba](https://github.com/Totoo27/EXILION/commit/c9639ba2ef8846ac2d3e838bcef466b125d89c98))
+* game full connection client-server ([8a54617](https://github.com/Totoo27/EXILION/commit/8a54617f1e0f0a46b14eb67f9c27f2433360d871))
+
+
+### Bug Fixes
+
+* delete finalship from beggining ([d549d9b](https://github.com/Totoo27/EXILION/commit/d549d9b570f82e7a01cd6d684331d43378c28d01))
+
 ## [1.0.0](https://github.com/Totoo27/EXILION/compare/v0.4.0...v1.0.0) (2026-11-22)
 
 
