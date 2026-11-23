@@ -1,8 +1,9 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using EXILION.Items;
 using EXILION.Saving;
+using EXILION.Logic;
 
 namespace EXILION.Entities.LivingThings;
 
@@ -17,28 +18,36 @@ public sealed class Creature : LivingThing
     private readonly List<ItemStack>? dropItems;
     private float farFromPlayerTimer;
     public bool ShouldDespawn { get; private set; }
+    public Guid NetworkId { get; }
     public CreatureType Type { get; private set; }
     public int ContactDamage { get; }
+    public float VisualAngle { get; private set; }
+    private Vector2 networkTargetPosition;
+    private Vector2 networkVisualPosition;
+    private float networkTargetAngle;
+    private float networkVisualAngle;
+    private bool hasNetworkState;
+    public Vector2 PresentationPosition => hasNetworkState ? networkVisualPosition : position;
+    public float PresentationAngle => hasNetworkState ? networkVisualAngle : VisualAngle;
     public bool CanDamagePlayer => intelligence?.CanDamagePlayer ?? false;
 
-    public Creature(Vector2 position, Sprite sprite, GameContext gameContext, ICreatureIntelligence? intelligence = null, List<ItemStack>? dropItems = null, 
+    public Creature(Vector2 position, ICreatureIntelligence? intelligence = null, List<ItemStack>? dropItems = null,
         int maxHealth = 25, int speed = PlayerMovementSettings.GroundSpeed / 2, CreatureType type = CreatureType.Peaceful,
-        int contactDamage = 1)
-    : base(position, sprite, maxHealth, speed, gameContext, Assets.SoundEffects.creatureDamage)
+        int contactDamage = 1, Point? hitboxSize = null, Guid? networkId = null)
+    : base(position, maxHealth, speed, GameAudioCue.CreatureDamage, hitboxSize ?? new Point(40, 40))
     {
         this.intelligence = intelligence;
         this.dropItems = dropItems;
         Type = type;
         ContactDamage = Math.Max(0, contactDamage);
-        sprite.Update(0f, position);
+        NetworkId = networkId ?? Guid.NewGuid();
     }
 
-    public void Update(GameTime gameTime, World.World world, Vector2 playerPosition, bool isNight)
+    public void Update(float deltaTime, World.World world, Vector2 playerPosition, bool isNight)
     {
-        base.Update(gameTime);
+        base.Update(deltaTime);
         if (isDead || ShouldDespawn) return;
 
-        float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
         float despawnDistance = world.TileSize * World.Chunk.Size * DespawnDistanceInChunks;
         if (Vector2.DistanceSquared(position, playerPosition) > despawnDistance * despawnDistance)
         {
@@ -54,7 +63,7 @@ public sealed class Creature : LivingThing
             farFromPlayerTimer = 0f;
         }
 
-        intelligence?.Update(this, gameTime, world, playerPosition, isNight);
+        intelligence?.Update(this, deltaTime, world, playerPosition, isNight);
     }
 
     public IReadOnlyList<ItemStack>? GetDropItems() => dropItems;
@@ -78,7 +87,7 @@ public sealed class Creature : LivingThing
 
     internal void ApplyIntelligenceFacingAngle(float angle)
     {
-        if (!isDead) sprite.Update(angle, position);
+        if (!isDead) VisualAngle = angle;
     }
 
     public void Restore(CreatureSaveData saveData)
@@ -86,6 +95,38 @@ public sealed class Creature : LivingThing
         this.position = new Vector2(saveData.PositionX, saveData.PositionY);
         this.health = Math.Clamp(saveData.Health, 1, maxHealth);
         Type = saveData.Type;
+    }
+
+    public void ApplyNetworkState(float x, float y, float rotation, int currentHealth, bool playDamageFeedback = true)
+    {
+        if (playDamageFeedback && currentHealth < health)
+            takeDamage(health - currentHealth, new Vector2(x, y));
+        networkTargetPosition = new Vector2(x, y);
+        networkTargetAngle = rotation;
+        if (!hasNetworkState)
+        {
+            position = networkTargetPosition;
+            VisualAngle = networkTargetAngle;
+            networkVisualPosition = networkTargetPosition;
+            networkVisualAngle = networkTargetAngle;
+            hasNetworkState = true;
+        }
+        else
+        {
+            position = networkTargetPosition;
+            VisualAngle = networkTargetAngle;
+        }
+        health = Math.Clamp(currentHealth, 0, maxHealth);
+    }
+
+    public void UpdateNetworkVisual(float deltaTime)
+    {
+        if (!hasNetworkState) return;
+        float amount = 1f - MathF.Exp(-24f * deltaTime);
+        networkVisualPosition = Vector2.Lerp(networkVisualPosition, networkTargetPosition, amount);
+        float angleDelta = MathF.Atan2(MathF.Sin(networkTargetAngle - networkVisualAngle),
+            MathF.Cos(networkTargetAngle - networkVisualAngle));
+        networkVisualAngle += angleDelta * amount;
     }
 
     public CreatureSaveData GetSaveData()

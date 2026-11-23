@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="classes/entities/**/*.cs" />
+    <Compile Include="classes/items/tools/AttackHitbox.cs" />
+    <Compile Include="classes/world/**/*.cs" Exclude="classes/world/MapRenderer.cs" />
+    <Compile Include="classes/items/**/*.cs" Exclude="classes/items/tools/AttackHitbox.cs" />
+    <Compile Include="classes/logic/CatchableItemState.cs" />
+    <Compile Include="classes/logic/GameAudioCue.cs" />
+    <Compile Include="classes/logic/GameClock.cs" />
+    <Compile Include="classes/logic/GameWorldLogic.cs" />
+    <Compile Include="classes/logic/PlayerInput.cs" />
+    <Compile Include="classes/world/TileType.cs" />
+    <Compile Include="classes/world/objects/ObjectDefinition.cs" />
+    <Compile Include="classes/world/objects/ObjectProperties.cs" />
+    <Compile Include="classes/world/objects/ObjectType.cs" />
+    <Compile Include="classes/world/objects/WorldHash.cs" />
+    <Compile Include="classes/world/objects/WorldObjectId.cs" />
+    <Compile Include="classes/world/objects/WorldObjectSpawn.cs" />
+    <Compile Include="classes/world/objects/WorldObjectState.cs" />
+    <Compile Include="classes/world/objects/WorldObjectStateStore.cs" />
+    <Compile Include="classes/entities/livingThings/creatures/CreatureType.cs" />
+    <Compile Include="classes/entities/livingThings/player/PlayerStat.cs" />
+    <Compile Include="classes/entities/livingThings/player/StatType.cs" />
+    <Compile Include="classes/saving/**/*.cs" />
+    <Compile Include="classes/network/**/*.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="EXILION.Server\bin\Debug\net10.0-windows\Saves\worlds\" />
+  </ItemGroup>
+</Project>

@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using EXILION.Entities.LivingThings;
 using System;
 using EXILION.Items;
+using EXILION.Client;
 
 namespace EXILION.UI;
 
@@ -180,7 +181,8 @@ public class InventoryUI
                     layout.SlotSize,
                     layout.SlotSize
                 );
-                spriteBatch.Draw(draggedStack.Item.Icon, dragRect, draggedStack.Item.IconSource, Color.White);
+                Texture2D? icon = ItemVisuals.GetIcon(draggedStack.Item);
+                if (icon != null) spriteBatch.Draw(icon, dragRect, ItemVisuals.GetIconSource(draggedStack.Item.Id), Color.White);
             }
         }
     }
@@ -204,7 +206,8 @@ public class InventoryUI
             ItemStack stack = inventory.GetSlot(slotIndex);
             if (stack == null) continue;
 
-            spriteBatch.Draw(stack.Item.Icon, slotRect, stack.Item.IconSource, Color.White);
+                Texture2D? icon = ItemVisuals.GetIcon(stack.Item);
+                if (icon != null) spriteBatch.Draw(icon, slotRect, ItemVisuals.GetIconSource(stack.Item.Id), Color.White);
 
             if (stack.Quantity > 1)
             {
@@ -245,8 +248,8 @@ public class InventoryUI
     {
         Rectangle slotRect = GetArmorSlotRect(layout);
         spriteBatch.Draw(slotTexture, slotRect, Color.White);
-        if (inventory.EquippedArmor is Armor armor)
-            spriteBatch.Draw(armor.Icon, slotRect, armor.IconSource, Color.White);
+        if (inventory.EquippedArmor is Armor armor && ItemVisuals.GetIcon(armor) is Texture2D icon)
+            spriteBatch.Draw(icon, slotRect, ItemVisuals.GetIconSource(armor.Id), Color.White);
         else
             spriteBatch.DrawString(font, "A", new Vector2(slotRect.X + 8, slotRect.Y + 6), Color.White);
     }

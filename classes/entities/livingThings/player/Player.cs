@@ -1,12 +1,10 @@
 using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using EXILION.Items;
 using EXILION.Entities.CatchableItems;
 using EXILION.Saving;
-using Microsoft.Xna.Framework.Audio;
 using EXILION.World;
+using EXILION.Logic;
 
 namespace EXILION.Entities.LivingThings;
 
@@ -25,6 +23,7 @@ public class Player : LivingThing
 
     private float headTurn => rightHand.HeldItem is Tool ? AttackHeadTurnWeapon : AttackHeadTurn;
     private float headAttackRotation;
+    public float VisualAngle { get; private set; }
 
     public PlayerStat oxygen {get; private set;}
     public PlayerStat hunger {get; private set;}
@@ -40,8 +39,8 @@ public class Player : LivingThing
     public Inventory Inventory => inventory;
 
     private const int handHitboxSize = 20;
-    public Hand rightHand { get; private set; } = new Hand(Assets.Sprites.playerHand, handHitboxSize);
-    public Hand leftHand { get; private set; } = new Hand(Assets.Sprites.playerHand, handHitboxSize);
+    public Hand rightHand { get; private set; } = new Hand(handHitboxSize);
+    public Hand leftHand { get; private set; } = new Hand(handHitboxSize);
     private bool IsLeftNext = false;
 
     private float combatTimer = 0f;
@@ -50,8 +49,9 @@ public class Player : LivingThing
     private bool canRegenerate => health < maxHealth && combatTimer <= 0f && hunger.value > 0 && thirst.value > 0 && oxygen.value > 0;
 
 
-    public Player(Vector2 position, Sprite sprite, GameContext gameContext)
-    : base(position, sprite, 100, PlayerMovementSettings.GroundSpeed, gameContext, Assets.SoundEffects.playerDamage)
+    public Player(Vector2 position, Point hitboxSize)
+    : base(position, 100, PlayerMovementSettings.GroundSpeed, GameAudioCue.PlayerDamage,
+        hitboxSize)
     {
 
         hunger = new PlayerStat(maxStat);
@@ -62,6 +62,14 @@ public class Player : LivingThing
         rightHand.UpdateHandsOffset += rightHand.ManageOffsets;
         rightHand.UpdateHandsOffset += leftHand.ManageOffsets;
         rightHand.ToolAttack += leftHand.StartToolAttack;
+        rightHand.SoundRequested += RequestSound;
+        leftHand.SoundRequested += cue =>
+        {
+            if (rightHand.HeldItem is not Tool)
+            {
+                RequestSound(cue);
+            }
+        };
     }
 
     public void Restore(PlayerSaveData saveData)
@@ -74,6 +82,24 @@ public class Player : LivingThing
 
         inventory.Restore(saveData.Inventory);
         inventory.RestoreArmor(saveData.EquippedArmorItemId);
+    }
+
+    public void ApplyNetworkStats(int currentHealth, PlayerStat currentHunger, PlayerStat currentThirst, PlayerStat currentOxygen)
+    {
+        if (health != currentHealth)
+        {
+            health = Math.Clamp(currentHealth, 0, maxHealth);
+            HealthChanged?.Invoke(health);
+        }
+        if (hunger.value != currentHunger.value || hunger.max != currentHunger.max)
+            HungerChanged?.Invoke(currentHunger.value);
+        if (thirst.value != currentThirst.value || thirst.max != currentThirst.max)
+            ThirstChanged?.Invoke(currentThirst.value);
+        if (oxygen.value != currentOxygen.value || oxygen.max != currentOxygen.max)
+            OxygenChanged?.Invoke(currentOxygen.value);
+        hunger = currentHunger;
+        thirst = currentThirst;
+        oxygen = currentOxygen;
     }
 
     public PlayerSaveData GetSaveData()
@@ -95,17 +121,18 @@ public class Player : LivingThing
 
     }
 
-    public void Update(Vector2 mousePosition, InputManager input, GameTime gameTime, World.World world)
+    public void Update(Vector2 mousePosition, PlayerInput input, float deltaTime, World.World world,
+        bool allowMovement = true, bool simulateStats = true)
     {
+        base.Update(deltaTime);
 
-        base.Update(gameTime);
-
-        updateHunger(gameTime);
-        updateThirst(gameTime);
-        updateOxygen(gameTime, world != null && world.IsOxygenSupplied(position));
-
-        float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-        combatTimer = MathF.Max(0f, combatTimer - deltaTime);
+        if (simulateStats)
+        {
+            updateHunger(deltaTime);
+            updateThirst(deltaTime);
+            updateOxygen(deltaTime, world != null && world.IsOxygenSupplied(position));
+            combatTimer = MathF.Max(0f, combatTimer - deltaTime);
+        }
         itemTransitionTimer = MathF.Max(0f, itemTransitionTimer - deltaTime);
 
         if (hasPendingHandItem && itemTransitionTimer <= 0f)
@@ -115,7 +142,7 @@ public class Player : LivingThing
             hasPendingHandItem = false;
         }
 
-        if (canRegenerate)
+        if (simulateStats && canRegenerate)
         {
             float regenRate = 2f; // Health points per second
             healthRegenerationAccumulator += regenRate * deltaTime;
@@ -129,7 +156,7 @@ public class Player : LivingThing
                 if (health >= maxHealth) healthRegenerationAccumulator = 0f;
             }
         }
-        else if (health >= maxHealth)
+        else if (simulateStats && health >= maxHealth)
         {
             healthRegenerationAccumulator = 0f;
         }
@@ -141,12 +168,12 @@ public class Player : LivingThing
         Vector2 delta = Vector2.Zero;
 
         float armorSpeedMultiplier = inventory.EquippedArmor?.SpeedMultiplier ?? 1f;
-        float currentSpeed = speed * armorSpeedMultiplier * (input.IsKeyHeld(Keys.LeftShift) ? 1.5f : 1f);
+        float currentSpeed = speed * armorSpeedMultiplier * (input.Run ? 1.5f : 1f);
 
-        if (input.IsKeyHeld(Keys.A)) delta.X -= 1f;
-        if (input.IsKeyHeld(Keys.D)) delta.X += 1f;
-        if (input.IsKeyHeld(Keys.S)) delta.Y += 1f;
-        if (input.IsKeyHeld(Keys.W)) delta.Y -= 1f;
+        if (input.MoveLeft) delta.X -= 1f;
+        if (input.MoveRight) delta.X += 1f;
+        if (input.MoveDown) delta.Y += 1f;
+        if (input.MoveUp) delta.Y -= 1f;
         if (delta != Vector2.Zero)
         {
             delta.Normalize();
@@ -154,23 +181,17 @@ public class Player : LivingThing
 
         delta *= currentSpeed * deltaTime;
 
-        if (delta != Vector2.Zero && input.IsKeyHeld(Keys.LeftShift))
+        if (delta != Vector2.Zero && input.Run)
         {
             runningMultiplier = 0.5f;
         }
 
-        Move(delta, deltaTime, world, currentSpeed / speed);
-
-        // Debug
-
-        if (input.IsKeyPressed(Keys.H))
-        {
-            gameContext.showHitboxes = !gameContext.showHitboxes;
-        }
+        if (allowMovement)
+            Move(delta, deltaTime, world, currentSpeed / speed);
 
         // Hands
 
-        if (itemTransitionTimer <= 0f && input.IsLeftMousePressed() && !input.IsMouseCaptured)
+        if (itemTransitionTimer <= 0f && input.PrimaryActionPressed && !input.PrimaryActionCaptured)
         {
             if (rightHand.HeldItem?.Id == ItemRegistry.BotellaVacia.Id && world != null
                 && TryFillBottle(world)) return;
@@ -196,8 +217,8 @@ public class Player : LivingThing
         Vector2 direction = mousePosition - position;
         float angle = MathF.Atan2(direction.Y, direction.X);
 
-        rightHand.Update(position, direction, false, gameTime);
-        leftHand.Update(position, direction, true, gameTime);
+        rightHand.Update(position, direction, false, deltaTime);
+        leftHand.Update(position, direction, true, deltaTime);
 
         float targetHeadRotation = 0f;
         if (rightHand.HeldItem is Tool &&
@@ -221,7 +242,26 @@ public class Player : LivingThing
             targetHeadRotation,
             MathHelper.Clamp(deltaTime * 12f, 0f, 1f)
         );
-        sprite.Update(angle + headAttackRotation, position);
+        VisualAngle = angle + headAttackRotation;
+    }
+
+    public Vector2 PredictPosition(Vector2 startPosition, PlayerInput input, float deltaTime, World.World world)
+    {
+        Vector2 direction = Vector2.Zero;
+        if (input.MoveLeft) direction.X -= 1f;
+        if (input.MoveRight) direction.X += 1f;
+        if (input.MoveDown) direction.Y += 1f;
+        if (input.MoveUp) direction.Y -= 1f;
+        if (direction == Vector2.Zero) return startPosition;
+
+        float armorSpeedMultiplier = inventory.EquippedArmor?.SpeedMultiplier ?? 1f;
+        float speedMultiplier = armorSpeedMultiplier * (input.Run ? 1.5f : 1f);
+        Vector2 previousPosition = position;
+        position = startPosition;
+        Move(direction, deltaTime, world, speedMultiplier);
+        Vector2 predictedPosition = position;
+        position = previousPosition;
+        return predictedPosition;
     }
 
     public void BeginItemTransition(Item? item)
@@ -241,12 +281,12 @@ public class Player : LivingThing
         rightHand.updateItemInHand(item);
     }
 
-    public void updateHunger(GameTime gameTime)
+    public void updateHunger(float deltaTime)
     {
 
         PlayerStat stat = hunger;
 
-        stat.timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+        stat.timer += deltaTime;
 
         if (stat.timer >= 2.5f * runningMultiplier)
         {
@@ -268,13 +308,13 @@ public class Player : LivingThing
 
     }
 
-    public void updateOxygen(GameTime gameTime, bool oxygenSupplied = false)
+    public void updateOxygen(float deltaTime, bool oxygenSupplied = false)
     {
         PlayerStat stat = oxygen;
 
         if (oxygenSupplied)
         {
-            stat.timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            stat.timer += deltaTime;
             bool changed = false;
             const float oxygenRecoveryInterval = 0.2f;
             while (stat.timer >= oxygenRecoveryInterval && stat.value < stat.max)
@@ -290,7 +330,7 @@ public class Player : LivingThing
             return;
         }
 
-        stat.timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+        stat.timer += deltaTime;
 
         if (stat.timer >= 1f * runningMultiplier)
         {
@@ -311,12 +351,12 @@ public class Player : LivingThing
 
     }
 
-    public void updateThirst(GameTime gameTime)
+    public void updateThirst(float deltaTime)
     {
 
         PlayerStat stat = thirst;
 
-        stat.timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+        stat.timer += deltaTime;
 
         if (stat.timer >= 2f * runningMultiplier)
         {
@@ -378,21 +418,6 @@ public class Player : LivingThing
         DamageTaken?.Invoke(damageReceived);
     }
 
-    public override void Draw(SpriteBatch spriteBatch, Texture2D pixel)
-    {
-
-        leftHand.Draw(spriteBatch, color, gameContext.showHitboxes);
-        rightHand.Draw(spriteBatch, color, gameContext.showHitboxes);
-
-        sprite.Draw(spriteBatch, color);
-
-        if (gameContext.showHitboxes)
-        {
-            spriteBatch.Draw(pixel, hitbox, Color.Red);
-        }
-        
-    }
-
     // Item usage
     public bool TryPickup(CatchableItem item)
     {
@@ -411,7 +436,7 @@ public class Player : LivingThing
             item.MarkPicked();
         }
 
-        SFX.Play(Assets.SoundEffects.pickUpItem);
+        RequestSound(GameAudioCue.Pickup);
         return true;
     }
 
@@ -420,7 +445,7 @@ public class Player : LivingThing
         if (item is not Consumable consumable) return false;
 
         PlayerStat stat;
-        SoundEffect sfx;
+        GameAudioCue soundCue;
 
         switch (consumable.statType)
         {
@@ -430,7 +455,7 @@ public class Player : LivingThing
                 thirst = stat;
                 ThirstChanged?.Invoke(thirst.value);
 
-                sfx = Assets.SoundEffects.drink;
+                soundCue = GameAudioCue.Drink;
             break;
 
             case StatType.Hunger:
@@ -439,7 +464,7 @@ public class Player : LivingThing
                 hunger = stat;
                 HungerChanged?.Invoke(hunger.value);
 
-                sfx = Assets.SoundEffects.eat;
+                soundCue = GameAudioCue.Eat;
             break;
 
             case StatType.Oxygen:
@@ -448,15 +473,15 @@ public class Player : LivingThing
                 oxygen = stat;
                 OxygenChanged?.Invoke(oxygen.value);
 
-                sfx = Assets.SoundEffects.bottleBreath;
+                soundCue = GameAudioCue.BottleBreath;
             break;
 
             default:
-                sfx = Assets.SoundEffects.playerDamage;
+                soundCue = GameAudioCue.PlayerDamage;
             break;
         }
 
-        SFX.Play(sfx);
+        RequestSound(soundCue);
         inventory.RemoveItem(item, 1);
         if (consumable.statType == StatType.Thirst || consumable.statType == StatType.Oxygen)
             inventory.AddItem(ItemRegistry.BotellaVacia, 1);

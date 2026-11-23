@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using EXILION.Entities;
 using EXILION.Entities.LivingThings;
@@ -21,6 +22,7 @@ public class World
     public int RenderDistanceChunks { get; set; } = 2;
     public WorldObjectStateStore ObjectStates { get; } = new();
     public event Action<WorldObject> ObjectDestroyed;
+    public event Action<WorldObjectId, ObjectType> ObjectDamaged;
 
     public World(int seed, int tileSize)
     {
@@ -29,42 +31,61 @@ public class World
         TileSize = tileSize;
     }
 
+
     public void UpdateAroundPosition(Vector2 worldPosition)
     {
-        int playerChunkX = (int)MathF.Floor(worldPosition.X / (TileSize * Chunk.Size));
-        int playerChunkY = (int)MathF.Floor(worldPosition.Y / (TileSize * Chunk.Size));
+        UpdateAroundPositions(new[] { worldPosition });
+    }
 
+    public void UpdateAroundPositions(IEnumerable<Vector2> positions)
+    {
         var needed = new HashSet<(int, int)>();
 
-        for (int dx = -RenderDistanceChunks; dx <= RenderDistanceChunks; dx++)
+        foreach (Vector2 worldPosition in positions)
         {
-            for (int dy = -RenderDistanceChunks; dy <= RenderDistanceChunks; dy++)
-            {
-                var key = (playerChunkX + dx, playerChunkY + dy);
-                needed.Add(key);
+            int playerChunkX = (int)MathF.Floor(
+                worldPosition.X / (TileSize * Chunk.Size)
+            );
 
-                if (!_loadedChunks.ContainsKey(key))
+            int playerChunkY = (int)MathF.Floor(
+                worldPosition.Y / (TileSize * Chunk.Size)
+            );
+
+            for (int dx = -RenderDistanceChunks; dx <= RenderDistanceChunks; dx++)
+            {
+                for (int dy = -RenderDistanceChunks; dy <= RenderDistanceChunks; dy++)
                 {
-                    var chunk = _generator.GenerateChunk(key.Item1, key.Item2);
-                    PopulateObjects(chunk);
-                    _loadedChunks[key] = chunk;
+                    needed.Add((playerChunkX + dx, playerChunkY + dy));
                 }
             }
         }
 
+        foreach (var key in needed)
+        {
+            if (_loadedChunks.ContainsKey(key))
+                continue;
+
+            var chunk = _generator.GenerateChunk(key.Item1, key.Item2);
+            PopulateObjects(chunk);
+            _loadedChunks[key] = chunk;
+        }
+
         var toRemove = new List<(int, int)>();
+
         foreach (var key in _loadedChunks.Keys)
         {
-            if (!needed.Contains(key)) toRemove.Add(key);
+            if (!needed.Contains(key))
+                toRemove.Add(key);
         }
-        foreach (var key in toRemove) _loadedChunks.Remove(key);
+
+        foreach (var key in toRemove)
+            _loadedChunks.Remove(key);
     }
+
 
     public void UpdateObjects(float deltaTime)
     {
-        foreach (var chunk in _loadedChunks.Values)
-            foreach (var obj in chunk.Objects)
-                obj.Update(deltaTime);
+        // Reserved for future timed world simulation; rendering effects are client-owned.
     }
 
     public void UpdateRegrowth(float deltaTime, Vector2 worldPosition)
@@ -315,7 +336,8 @@ public class World
 
                 bool isAllowedTool = heldItem != null && obj.Definition.CanBeBrokenBy(heldItem);
                 bool isAllowed = heldItem == null ? obj.Definition.HandCanBreak : isAllowedTool;
-                obj.ApplyDamage(isAllowed ? damage : 1, allowDrops: isAllowed);
+                if (obj.ApplyDamage(isAllowed ? damage : 1, allowDrops: isAllowed))
+                    ObjectDamaged?.Invoke(obj.Id, obj.Type);
             }
         }
     }
@@ -401,6 +423,16 @@ public class World
             chunk.Objects.Clear();
             PopulateObjects(chunk);
         }
+    }
+
+    public void ApplyObjectStates(IEnumerable<WorldObjectState> updates)
+    {
+        WorldObjectState[] authoritative = updates.ToArray();
+        IReadOnlyList<WorldObjectState> current = ObjectStates.CaptureSnapshot();
+        if (current.Count == authoritative.Length
+            && authoritative.All(state => ObjectStates.TryGet(state.Id, out WorldObjectState existing) && existing == state))
+            return;
+        RestoreObjectStates(authoritative);
     }
 
     private void PopulateObjects(Chunk chunk)

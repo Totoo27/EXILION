@@ -1,8 +1,8 @@
 using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using EXILION.Items;
 using EXILION.World;
+using EXILION.Logic;
 using System.Collections.Generic;
 
 namespace EXILION.Entities.LivingThings;
@@ -20,10 +20,10 @@ public class Hand
 
     public event Action<Item?>? UpdateHandsOffset;
     public event Action<float>? ToolAttack;
+    public event Action<GameAudioCue>? SoundRequested;
     private Item? itemInHand;
-    private Sprite? itemSprite;
-    private Vector2 ItemPosition;
-    private float ItemAngle;
+    public Vector2 ItemPosition { get; private set; }
+    public float ItemAngle { get; private set; }
 
     // Hand distance Offset
     private const float DefaultSideDistance = 30f;
@@ -72,8 +72,6 @@ public class Hand
     private Vector2 direction = Vector2.UnitX;
 
     public Vector2 Position { get; private set; }
-    private Sprite sprite;
-
     public float Angle { get; private set; }
 
     public bool IsAttacking => state != HandState.Idle;
@@ -97,13 +95,12 @@ public class Hand
         }
     }
 
-    public Hand(Texture2D texture, int hitboxSize)
+    public Hand(int hitboxSize)
     {
-        sprite = new Sprite(texture, 0.8f);
         HitboxSize = hitboxSize;
     }
 
-    public void Update(Vector2 ownerPosition, Vector2 direction, bool isLeft, GameTime gameTime)
+    public void Update(Vector2 ownerPosition, Vector2 direction, bool isLeft, float deltaTime)
     {
         this.ownerPosition = ownerPosition;
 
@@ -113,8 +110,6 @@ public class Hand
         }
 
         Angle = MathF.Atan2(this.direction.Y, this.direction.X) - MathF.PI/2f;
-        float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
         UpdateAttack(deltaTime);
         UpdateConsume(deltaTime);
         UpdatePosition(isLeft);
@@ -131,9 +126,6 @@ public class Hand
             }
         }
 
-        // Sprite updates
-        sprite.Update(Angle, Position);
-        itemSprite?.Update(ItemAngle, ItemPosition);
     }
 
     public bool DoAction(Player player)
@@ -207,7 +199,7 @@ public class Hand
         hitCreaturesThisAttack.Clear();
         state = HandState.Extending;
         attackTimer = 0f;
-        SFX.Play(Assets.SoundEffects.swings[Random.Shared.Next(Assets.SoundEffects.swings.Length)]);
+        SoundRequested?.Invoke(GameAudioCue.HandSwing);
 
         return true;
     }
@@ -360,12 +352,9 @@ public class Hand
 
         UpdateHandsOffset?.Invoke(item);
 
-        // Tool management
-        float ItemScale = item is Tool ? 2.5f : 0.8f;
         CurrentAttackDuration = item is Tool tool ? 1f / tool.AttackSpeed : DefaultAttackDuration;
 
         itemInHand = item;
-        itemSprite = item != null ? new Sprite(item.Icon, ItemScale) : null;
     }
 
     public void ManageOffsets(Item? item)
@@ -395,20 +384,6 @@ public class Hand
             return;
         }
 
-    }
-
-    public void Draw(SpriteBatch spriteBatch, Color color, bool showHitboxes)
-    {
-        sprite.Draw(spriteBatch, color);
-        itemSprite?.Draw(spriteBatch, color);
-
-        if(CurrentHitbox != null && showHitboxes)
-        {
-            Texture2D hitboxTexture = new Texture2D(spriteBatch.GraphicsDevice, 1, 1);
-            hitboxTexture.SetData(new[] { Color.White });
-
-            spriteBatch.Draw(hitboxTexture, CurrentHitbox?.Position ?? Vector2.Zero, null, Color.Red * 0.5f, CurrentHitbox?.Rotation ?? 0f, new Vector2(0.5f, 0.5f), new Vector2(CurrentHitbox?.Width ?? 0f, CurrentHitbox?.Height ?? 0f), SpriteEffects.None, 0f);
-        }
     }
 
 }

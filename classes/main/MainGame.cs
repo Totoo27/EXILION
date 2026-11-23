@@ -25,6 +25,7 @@ public class MainGame : Game, IDisplaySettings, IGameData
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
         gameContext = new GameContext(this);
+        Exiting += (_, _) => SceneManager.CurrentScene?.UnloadContent();
 
         _graphics.PreferredBackBufferWidth = gameContext.ScreenWidth;
         _graphics.PreferredBackBufferHeight =  gameContext.ScreenHeight;

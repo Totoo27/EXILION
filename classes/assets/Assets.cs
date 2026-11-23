@@ -1,6 +1,6 @@
-using Microsoft.Xna.Framework.Content;
 using System.Threading.Tasks;
 using System;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Audio;
 using EXILION.Scenes;
 

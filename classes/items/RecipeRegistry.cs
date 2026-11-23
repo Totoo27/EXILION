@@ -285,7 +285,6 @@ public static class RecipeRegistry
         ingredients: new List<Ingredient>
         {
             new Ingredient(ItemRegistry.Titanio, 25),
-            // Cristal, 10
             new Ingredient(ItemRegistry.Chip, 5),
             new Ingredient(ItemRegistry.advancedCrystal, 10)
         },
