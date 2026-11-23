@@ -94,8 +94,6 @@ internal sealed class GameSession
         {
             catchableItems.Add(new CatchableItem(new ItemStack(ItemRegistry.GeneradorO2, 1),
                 Vector2.Zero, new Microsoft.Xna.Framework.Point(28, 28)));
-            catchableItems.Add(new CatchableItem(new ItemStack(ItemRegistry.FinalShip, 1),
-                Vector2.Zero, new Microsoft.Xna.Framework.Point(28, 28)));
         }
 
         spawnGenerator = new CreatureSpawnGenerator(world);
