@@ -13,6 +13,7 @@ public sealed class Songs
     public async Task Load(ContentManager content)
     {
 
+        MainLoader.SetLoadingText("Songs");
         MenuMusic = content.Load<Song>("Music/menuMusic");
         exiliated = content.Load<Song>("Music/exiliated");
         drownInInterrogations = content.Load<Song>("Music/drownInInterrogations");
