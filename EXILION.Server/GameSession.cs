@@ -60,6 +60,12 @@ internal sealed class GameSession
         world.ObjectDestroyed += DropWorldObjectItems;
         world.ObjectDamaged += RecordWorldObjectHit;
 
+        if (saveData.IsNewWorld && saveData.WorldTime <= 0)
+        {
+            saveData.WorldTime = GameClock.DayLengthSeconds;
+            saveData.IsNight = false;
+        }
+
         clock.Restore(
             saveData.WorldTime,
             saveData.DayCount,
@@ -82,6 +88,14 @@ internal sealed class GameSession
             if (item != null && data.Quantity > 0)
                 catchableItems.Add(new CatchableItem(new ItemStack(item, data.Quantity),
                     new Vector2(data.PositionX, data.PositionY), new Microsoft.Xna.Framework.Point(28, 28)));
+        }
+
+        if (saveData.IsNewWorld && catchableItems.Count == 0)
+        {
+            catchableItems.Add(new CatchableItem(new ItemStack(ItemRegistry.GeneradorO2, 1),
+                Vector2.Zero, new Microsoft.Xna.Framework.Point(28, 28)));
+            catchableItems.Add(new CatchableItem(new ItemStack(ItemRegistry.FinalShip, 1),
+                Vector2.Zero, new Microsoft.Xna.Framework.Point(28, 28)));
         }
 
         spawnGenerator = new CreatureSpawnGenerator(world);

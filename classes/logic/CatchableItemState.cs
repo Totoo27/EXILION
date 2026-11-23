@@ -5,7 +5,7 @@ namespace EXILION.Logic;
 /// <summary>Gameplay state and lifetime for a dropped item.</summary>
 public sealed class CatchableItemState
 {
-    public const float LifetimeSeconds = 20f;
+    public const float LifetimeSeconds = 30f;
     private float _age;
 
     public ItemStack Stack { get; }

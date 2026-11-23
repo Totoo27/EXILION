@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using EXILION.Logic;
 
 namespace EXILION.Saving;
 
@@ -37,7 +38,10 @@ public class WorldSaveService
         {
             WorldId = worldId,
             WorldName = worldName,
-            WorldSeed = seed
+            WorldSeed = seed,
+            WorldTime = GameClock.DayLengthSeconds,
+            DayCount = 1,
+            IsNight = false
         };
 
         await SaveAsync(GetWorldPath(worldId), world);

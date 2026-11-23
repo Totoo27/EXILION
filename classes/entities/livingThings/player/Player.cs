@@ -245,6 +245,25 @@ public class Player : LivingThing
         VisualAngle = angle + headAttackRotation;
     }
 
+    public Vector2 PredictPosition(Vector2 startPosition, PlayerInput input, float deltaTime, World.World world)
+    {
+        Vector2 direction = Vector2.Zero;
+        if (input.MoveLeft) direction.X -= 1f;
+        if (input.MoveRight) direction.X += 1f;
+        if (input.MoveDown) direction.Y += 1f;
+        if (input.MoveUp) direction.Y -= 1f;
+        if (direction == Vector2.Zero) return startPosition;
+
+        float armorSpeedMultiplier = inventory.EquippedArmor?.SpeedMultiplier ?? 1f;
+        float speedMultiplier = armorSpeedMultiplier * (input.Run ? 1.5f : 1f);
+        Vector2 previousPosition = position;
+        position = startPosition;
+        Move(direction, deltaTime, world, speedMultiplier);
+        Vector2 predictedPosition = position;
+        position = previousPosition;
+        return predictedPosition;
+    }
+
     public void BeginItemTransition(Item? item)
     {
         pendingHandItem = item;

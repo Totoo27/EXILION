@@ -86,6 +86,7 @@ public class GameScene : Scene
     private bool respawnPending;
     private float respawnPendingRemaining;
     private bool restoredOnlineProfile;
+    private Vector2 localPredictedPosition;
 
     public GameScene(IGameData gameData, string path) : base(gameData)
     {
@@ -323,22 +324,29 @@ public class GameScene : Scene
                                 continue;
                             respawnPending = false;
                             authoritativePlayerSnapshot = null;
+                            localPredictedPosition = Vector2.Zero;
                             if (player != null) processPlayerDeath();
                             continue;
                         }
                         respawnPending = false;
                         respawnPendingRemaining = 0f;
-                        if (authoritativePlayerSnapshot is { } previousLocal && remote.Health < previousLocal.Health)
+                        int previousHealth = authoritativePlayerSnapshot?.Health ?? player?.health ?? remote.Health;
+                        if (remote.Health < previousHealth)
                         {
                             localDamageFeedbackRemaining = 0.3f;
+                            camera.damageShake(previousHealth - remote.Health);
                             GameAudio.Play(GameAudioCue.PlayerDamage);
                         }
-                        authoritativePlayerSnapshot = remote;
                         if (player != null)
                         {
-                            player.position = new Vector2(remote.X, remote.Y);
+                            Vector2 serverPosition = new(remote.X, remote.Y);
+                            localPredictedPosition = authoritativePlayerSnapshot != null
+                                ? Vector2.Lerp(localPredictedPosition, serverPosition, 0.35f)
+                                : serverPosition;
+                            player.position = serverPosition;
                             player.ApplyNetworkStats(remote.Health, remote.Hunger, remote.Thirst, remote.Oxygen);
                         }
+                        authoritativePlayerSnapshot = remote;
                         continue;
                     }
 
@@ -466,6 +474,8 @@ public class GameScene : Scene
                     player.rightHand.HeldItem?.Id ?? -1,
                     placeBlock);
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (isOnline)
+                localPredictedPosition = player.PredictPosition(localPredictedPosition, playerInput, deltaTime, world);
             player.Update(mouseWorldPosition, playerInput, deltaTime, world,
                 allowMovement: !isOnline, simulateStats: !isOnline);
 
@@ -536,7 +546,7 @@ public class GameScene : Scene
                 spawnedCreature.SoundRequested += GameAudio.Play;
                 creatures.Add(spawnedCreature);
             }
-            camera.Follow(player.position);
+            camera.Follow(isOnline ? localPredictedPosition : player.position);
 
             if (player.isDead)
             {
@@ -575,6 +585,7 @@ public class GameScene : Scene
         foreach (CatchableItem item in catchableItems)
         {
             if (!isOnline) item.Update(deltaTime);
+            else item.UpdateNetworkVisual(deltaTime);
             entityRenderer.UpdateDrop(item, deltaTime);
         }
         entityRenderer.PruneDropAnimations(catchableItems);
@@ -583,7 +594,10 @@ public class GameScene : Scene
             remotePlayer.Update(deltaTime);
         if (isOnline)
             foreach (Creature creature in creatures)
+            {
+                creature.UpdateNetworkVisual(deltaTime);
                 creature.Update(deltaTime);
+            }
     }
 
     private void ApplyCatchableItemSnapshots(CatchableItemSnapshot[] snapshots)
@@ -598,7 +612,7 @@ public class GameScene : Scene
                 && item.Stack.Item.Id == snapshot.ItemTypeId
                 && item.Stack.Quantity == snapshot.Quantity)
             {
-                item.position = new Vector2(snapshot.X, snapshot.Y);
+                item.ApplyNetworkPosition(new Vector2(snapshot.X, snapshot.Y));
                 synchronized.Add(item);
                 continue;
             }
@@ -648,9 +662,11 @@ public class GameScene : Scene
         
         // Player & objects
         mapRenderer?.DrawObjects(spriteBatch, world, false);
-        if (isOnline && authoritativePlayerSnapshot is { } localSnapshot)
-            entityRenderer.DrawNetworkPlayer(spriteBatch, localSnapshot, Color.White, localDamageFeedbackRemaining);
-        else if (player != null) entityRenderer.DrawPlayer(spriteBatch, player, pixel, GameContext.showHitboxes);
+        if (isOnline && player != null)
+            entityRenderer.DrawPlayer(spriteBatch, player, pixel, GameContext.showHitboxes,
+                localPredictedPosition - player.position, localDamageFeedbackRemaining);
+        else if (player != null)
+            entityRenderer.DrawPlayer(spriteBatch, player, pixel, GameContext.showHitboxes);
         foreach (RemotePlayer remotePlayer in remotePlayers.Values)
             entityRenderer.DrawRemotePlayer(spriteBatch, remotePlayer);
         HUD?.DrawStatAdvice(spriteBatch);
@@ -767,6 +783,7 @@ public class GameScene : Scene
 
         HUD = null;
         player = null;
+        localPredictedPosition = Vector2.Zero;
         deathPanel.enabled = true;
     }
 
@@ -804,6 +821,7 @@ public class GameScene : Scene
         {
             world.UpdateAroundPosition(player.position);
         }
+        localPredictedPosition = player.position;
     }
 
     private void OnRespawnRequested(bool isNewGame)

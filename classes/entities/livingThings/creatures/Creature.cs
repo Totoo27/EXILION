@@ -22,6 +22,13 @@ public sealed class Creature : LivingThing
     public CreatureType Type { get; private set; }
     public int ContactDamage { get; }
     public float VisualAngle { get; private set; }
+    private Vector2 networkTargetPosition;
+    private Vector2 networkVisualPosition;
+    private float networkTargetAngle;
+    private float networkVisualAngle;
+    private bool hasNetworkState;
+    public Vector2 PresentationPosition => hasNetworkState ? networkVisualPosition : position;
+    public float PresentationAngle => hasNetworkState ? networkVisualAngle : VisualAngle;
     public bool CanDamagePlayer => intelligence?.CanDamagePlayer ?? false;
 
     public Creature(Vector2 position, ICreatureIntelligence? intelligence = null, List<ItemStack>? dropItems = null,
@@ -94,9 +101,32 @@ public sealed class Creature : LivingThing
     {
         if (playDamageFeedback && currentHealth < health)
             takeDamage(health - currentHealth, new Vector2(x, y));
-        position = new Vector2(x, y);
+        networkTargetPosition = new Vector2(x, y);
+        networkTargetAngle = rotation;
+        if (!hasNetworkState)
+        {
+            position = networkTargetPosition;
+            VisualAngle = networkTargetAngle;
+            networkVisualPosition = networkTargetPosition;
+            networkVisualAngle = networkTargetAngle;
+            hasNetworkState = true;
+        }
+        else
+        {
+            position = networkTargetPosition;
+            VisualAngle = networkTargetAngle;
+        }
         health = Math.Clamp(currentHealth, 0, maxHealth);
-        VisualAngle = rotation;
+    }
+
+    public void UpdateNetworkVisual(float deltaTime)
+    {
+        if (!hasNetworkState) return;
+        float amount = 1f - MathF.Exp(-24f * deltaTime);
+        networkVisualPosition = Vector2.Lerp(networkVisualPosition, networkTargetPosition, amount);
+        float angleDelta = MathF.Atan2(MathF.Sin(networkTargetAngle - networkVisualAngle),
+            MathF.Cos(networkTargetAngle - networkVisualAngle));
+        networkVisualAngle += angleDelta * amount;
     }
 
     public CreatureSaveData GetSaveData()

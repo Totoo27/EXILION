@@ -4,6 +4,7 @@ using EXILION.Entities.CatchableItems;
 using EXILION.Entities.LivingThings;
 using System.Collections.Generic;
 using EXILION.Network;
+using System;
 
 namespace EXILION.Client;
 
@@ -34,8 +35,10 @@ public sealed class EntityRenderer
     {
         if (item.Picked) return;
         float pulseScale = _dropPulses.TryGetValue(item, out CatchableItemPulse? pulse) ? pulse.Scale : 1f;
-        DrawSprite(spriteBatch, ItemVisuals.GetIcon(item.Stack.Item), item.position, 0f, _scale * 0.8f * pulseScale, Color.White);
-        DrawEntityHitbox(spriteBatch, pixel, item, showHitboxes);
+        DrawSprite(spriteBatch, ItemVisuals.GetIcon(item.Stack.Item), item.VisualPosition, 0f,
+            _scale * 0.8f * pulseScale, Color.White);
+        Vector2 visualOffset = item.VisualPosition - item.position;
+        DrawEntityHitbox(spriteBatch, pixel, item, showHitboxes, visualOffset);
     }
 
     public void UpdateDrop(CatchableItem item, float deltaTime)
@@ -61,13 +64,19 @@ public sealed class EntityRenderer
             if (!active.Contains(item)) _dropPulses.Remove(item);
     }
 
-    public void DrawPlayer(SpriteBatch spriteBatch, Player player, Texture2D pixel, bool showHitboxes)
+    public void DrawPlayer(SpriteBatch spriteBatch, Player player, Texture2D pixel, bool showHitboxes,
+        Vector2 positionOffset = default, float networkDamageFeedback = 0f)
     {
-        Color color = DamageColor(player.DamageFeedbackRemaining);
-        DrawHand(spriteBatch, player.leftHand, color, pixel, showHitboxes);
-        DrawHand(spriteBatch, player.rightHand, color, pixel, showHitboxes);
-        DrawSprite(spriteBatch, _playerTexture, player.position, player.VisualAngle, _scale, color);
-        DrawEntityHitbox(spriteBatch, pixel, player, showHitboxes);
+        Color color = DamageColor(Math.Max(player.DamageFeedbackRemaining, networkDamageFeedback));
+        DrawHand(spriteBatch, player.leftHand, color, pixel, showHitboxes, positionOffset);
+        DrawHand(spriteBatch, player.rightHand, color, pixel, showHitboxes, positionOffset);
+        DrawSprite(spriteBatch, _playerTexture, player.position + positionOffset, player.VisualAngle, _scale, color);
+        if (showHitboxes)
+        {
+            Rectangle hitbox = player.GetHitbox();
+            hitbox.Offset((int)positionOffset.X, (int)positionOffset.Y);
+            spriteBatch.Draw(pixel, hitbox, Color.Red);
+        }
     }
 
     public void DrawRemotePlayer(SpriteBatch spriteBatch, Vector2 position)
@@ -111,23 +120,26 @@ public sealed class EntityRenderer
             CreatureType.Hostile => _hostileCreatureTexture,
             _ => _peacefulCreatureTexture
         };
-        DrawSprite(spriteBatch, texture, creature.position, creature.VisualAngle, _scale * 0.8f,
+        Vector2 visualOffset = creature.PresentationPosition - creature.position;
+        DrawSprite(spriteBatch, texture, creature.PresentationPosition, creature.PresentationAngle, _scale * 0.8f,
             DamageColor(creature.DamageFeedbackRemaining));
-        DrawEntityHitbox(spriteBatch, pixel, creature, showHitboxes);
+        DrawEntityHitbox(spriteBatch, pixel, creature, showHitboxes, visualOffset);
     }
 
-    private void DrawHand(SpriteBatch spriteBatch, Hand hand, Color color, Texture2D pixel, bool showHitboxes)
+    private void DrawHand(SpriteBatch spriteBatch, Hand hand, Color color, Texture2D pixel, bool showHitboxes,
+        Vector2 positionOffset = default)
     {
-        DrawSprite(spriteBatch, _handTexture, hand.Position, hand.Angle, 0.8f, color);
+        DrawSprite(spriteBatch, _handTexture, hand.Position + positionOffset, hand.Angle, 0.8f, color);
         if (hand.HeldItem is not null)
         {
             float itemScale = hand.HeldItem is EXILION.Items.Tool ? 2.5f : 0.8f;
-            DrawSprite(spriteBatch, ItemVisuals.GetIcon(hand.HeldItem), hand.ItemPosition, hand.ItemAngle, itemScale, color);
+            DrawSprite(spriteBatch, ItemVisuals.GetIcon(hand.HeldItem), hand.ItemPosition + positionOffset,
+                hand.ItemAngle, itemScale, color);
         }
 
         if (showHitboxes && hand.CurrentHitbox is { } hitbox)
         {
-            spriteBatch.Draw(pixel, hitbox.Position, null, Color.Red * 0.5f, hitbox.Rotation,
+            spriteBatch.Draw(pixel, hitbox.Position + positionOffset, null, Color.Red * 0.5f, hitbox.Rotation,
                 new Vector2(0.5f, 0.5f), new Vector2(hitbox.Width, hitbox.Height), SpriteEffects.None, 0f);
         }
     }
@@ -139,9 +151,13 @@ public sealed class EntityRenderer
         sprite.Draw(spriteBatch, color);
     }
 
-    private static void DrawEntityHitbox(SpriteBatch spriteBatch, Texture2D pixel, EXILION.Entities.Entity entity, bool showHitboxes)
+    private static void DrawEntityHitbox(SpriteBatch spriteBatch, Texture2D pixel, EXILION.Entities.Entity entity,
+        bool showHitboxes, Vector2 positionOffset = default)
     {
-        if (showHitboxes) spriteBatch.Draw(pixel, entity.GetHitbox(), Color.Red);
+        if (!showHitboxes) return;
+        Rectangle hitbox = entity.GetHitbox();
+        hitbox.Offset((int)positionOffset.X, (int)positionOffset.Y);
+        spriteBatch.Draw(pixel, hitbox, Color.Red);
     }
 
     private static Color DamageColor(float remaining) => remaining > 0f ? new Color(230, 180, 180) : Color.White;
