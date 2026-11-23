@@ -17,7 +17,13 @@ public sealed record PlayerSnapshot(
     float X,
     float Y,
     float Rotation,
-    int Health
+    int Health,
+    float LeftHandX,
+    float LeftHandY,
+    float LeftHandAngle,
+    float RightHandX,
+    float RightHandY,
+    float RightHandAngle
 );
 
 public sealed record WorldSnapshot(

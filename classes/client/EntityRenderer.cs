@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using EXILION.Entities.CatchableItems;
 using EXILION.Entities.LivingThings;
 using System.Collections.Generic;
+using EXILION.Network;
 
 namespace EXILION.Client;
 
@@ -60,6 +61,25 @@ public sealed class EntityRenderer
         DrawHand(spriteBatch, player.rightHand, color, pixel, showHitboxes);
         DrawSprite(spriteBatch, _playerTexture, player.position, player.VisualAngle, _scale, color);
         DrawEntityHitbox(spriteBatch, pixel, player, showHitboxes);
+    }
+
+    public void DrawRemotePlayer(SpriteBatch spriteBatch, Vector2 position)
+    {
+        DrawSprite(spriteBatch, _playerTexture, position, 0f, _scale, Color.LightBlue);
+    }
+
+    public void DrawNetworkPlayer(SpriteBatch spriteBatch, PlayerSnapshot snapshot, Color color)
+    {
+        DrawSprite(spriteBatch, _handTexture, new Vector2(snapshot.LeftHandX, snapshot.LeftHandY), snapshot.LeftHandAngle, 0.8f, color);
+        DrawSprite(spriteBatch, _handTexture, new Vector2(snapshot.RightHandX, snapshot.RightHandY), snapshot.RightHandAngle, 0.8f, color);
+        DrawSprite(spriteBatch, _playerTexture, new Vector2(snapshot.X, snapshot.Y), snapshot.Rotation, _scale, color);
+    }
+
+    public void DrawRemotePlayer(SpriteBatch spriteBatch, RemotePlayer player)
+    {
+        DrawNetworkPlayer(spriteBatch, new PlayerSnapshot(player.PlayerId, player.X, player.Y, player.Rotation, 100,
+            player.LeftHandX, player.LeftHandY, player.LeftHandAngle,
+            player.RightHandX, player.RightHandY, player.RightHandAngle), Color.LightBlue);
     }
 
     public void DrawCreature(SpriteBatch spriteBatch, Creature creature, Texture2D pixel, bool showHitboxes)

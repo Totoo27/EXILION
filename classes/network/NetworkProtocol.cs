@@ -10,6 +10,7 @@ using System.Linq;
 using System.IO;
 using System.Text.Json;
 using EXILION.Saving;
+using EXILION.Logic;
 
 namespace EXILION.Network;
 
@@ -22,7 +23,7 @@ public static class NetworkProtocol
     public const int MaxPlayerNameBytes = 32;
     public const int MaxWorldNameBytes = 64;
 
-    public enum UdpMessage : byte { Discover = 1, DiscoveryResponse = 2, ClientHello = 3, Heartbeat = 4, ConnectionConfirmed = 5 }
+    public enum UdpMessage : byte { Discover = 1, DiscoveryResponse = 2, ClientHello = 3, Heartbeat = 4, ConnectionConfirmed = 5, PlayerInput = 6, WorldSnapshot = 7 }
     public enum TcpMessage : byte { Connect = 1, Accepted = 2, Rejected = 3 }
 }
 
@@ -51,6 +52,9 @@ public sealed record ConnectionTicket(
 public static class NetworkPacketCodec
 {
     private const int HeaderSize = 6;
+    private const int AuthenticatedHeaderSize = HeaderSize + 32;
+    private const int MaxSnapshotPacketBytes = 60 * 1024;
+    private static readonly JsonSerializerOptions JsonOptions = new() { IncludeFields = true };
 
     public static byte[] CreateDiscoveryRequest()
         => CreateHeader(NetworkProtocol.UdpMessage.Discover);
@@ -134,6 +138,80 @@ public static class NetworkPacketCodec
         if (!HasHeader(data, NetworkProtocol.UdpMessage.ConnectionConfirmed) || data.Length != HeaderSize + 16) return false;
         sessionId = new Guid(data.Slice(HeaderSize, 16));
         return sessionId != Guid.Empty;
+    }
+
+    public static byte[] CreatePlayerInput(Guid sessionId, Guid udpKey, int sequence, PlayerInput input, System.Numerics.Vector2 mousePosition)
+    {
+        byte[] packet = new byte[AuthenticatedHeaderSize + 13];
+        WriteAuthenticatedHeader(packet, NetworkProtocol.UdpMessage.PlayerInput, sessionId, udpKey);
+        BinaryPrimitives.WriteInt32LittleEndian(packet.AsSpan(AuthenticatedHeaderSize), sequence);
+        packet[AuthenticatedHeaderSize + 4] = (byte)((input.MoveUp ? 1 : 0) | (input.MoveDown ? 2 : 0)
+            | (input.MoveLeft ? 4 : 0) | (input.MoveRight ? 8 : 0) | (input.Run ? 16 : 0)
+            | (input.PrimaryActionPressed ? 32 : 0) | (input.PrimaryActionCaptured ? 64 : 0));
+        BinaryPrimitives.WriteInt32LittleEndian(packet.AsSpan(AuthenticatedHeaderSize + 5), BitConverter.SingleToInt32Bits(mousePosition.X));
+        BinaryPrimitives.WriteInt32LittleEndian(packet.AsSpan(AuthenticatedHeaderSize + 9), BitConverter.SingleToInt32Bits(mousePosition.Y));
+        return packet;
+    }
+
+    public static bool TryReadPlayerInput(ReadOnlySpan<byte> data, out Guid sessionId, out Guid udpKey, out int sequence, out PlayerInput input, out System.Numerics.Vector2 mousePosition)
+    {
+        sessionId = udpKey = Guid.Empty;
+        sequence = 0;
+        input = default;
+        mousePosition = default;
+        if (!TryReadAuthenticatedHeader(data, NetworkProtocol.UdpMessage.PlayerInput, out sessionId, out udpKey)
+            || data.Length != AuthenticatedHeaderSize + 13) return false;
+        sequence = BinaryPrimitives.ReadInt32LittleEndian(data[AuthenticatedHeaderSize..]);
+        byte flags = data[AuthenticatedHeaderSize + 4];
+        if ((flags & 0x80) != 0) return false;
+        float mouseX = BitConverter.Int32BitsToSingle(BinaryPrimitives.ReadInt32LittleEndian(data[(AuthenticatedHeaderSize + 5)..]));
+        float mouseY = BitConverter.Int32BitsToSingle(BinaryPrimitives.ReadInt32LittleEndian(data[(AuthenticatedHeaderSize + 9)..]));
+        if (!float.IsFinite(mouseX) || !float.IsFinite(mouseY)) return false;
+        mousePosition = new System.Numerics.Vector2(mouseX, mouseY);
+        input = new PlayerInput((flags & 1) != 0, (flags & 2) != 0, (flags & 4) != 0,
+            (flags & 8) != 0, (flags & 16) != 0, (flags & 32) != 0, (flags & 64) != 0);
+        return true;
+    }
+
+    public static byte[] CreateWorldSnapshot(Guid sessionId, Guid udpKey, WorldSnapshot snapshot)
+    {
+        byte[] payload = JsonSerializer.SerializeToUtf8Bytes(snapshot, JsonOptions);
+        if (payload.Length > MaxSnapshotPacketBytes - AuthenticatedHeaderSize)
+            throw new InvalidOperationException("El snapshot del mundo excede el tamaño máximo UDP.");
+        byte[] packet = new byte[AuthenticatedHeaderSize + payload.Length];
+        WriteAuthenticatedHeader(packet, NetworkProtocol.UdpMessage.WorldSnapshot, sessionId, udpKey);
+        payload.CopyTo(packet, AuthenticatedHeaderSize);
+        return packet;
+    }
+
+    public static bool TryReadWorldSnapshot(ReadOnlySpan<byte> data, out Guid sessionId, out Guid udpKey, out WorldSnapshot? snapshot)
+    {
+        sessionId = udpKey = Guid.Empty;
+        snapshot = null;
+        if (!TryReadAuthenticatedHeader(data, NetworkProtocol.UdpMessage.WorldSnapshot, out sessionId, out udpKey)
+            || data.Length <= AuthenticatedHeaderSize || data.Length > MaxSnapshotPacketBytes) return false;
+        try
+        {
+            snapshot = JsonSerializer.Deserialize<WorldSnapshot>(data[AuthenticatedHeaderSize..], JsonOptions);
+            return snapshot?.Players != null;
+        }
+        catch (JsonException) { return false; }
+    }
+
+    private static void WriteAuthenticatedHeader(Span<byte> target, NetworkProtocol.UdpMessage type, Guid sessionId, Guid udpKey)
+    {
+        WriteHeader(target, type);
+        sessionId.TryWriteBytes(target.Slice(HeaderSize, 16));
+        udpKey.TryWriteBytes(target.Slice(HeaderSize + 16, 16));
+    }
+
+    private static bool TryReadAuthenticatedHeader(ReadOnlySpan<byte> data, NetworkProtocol.UdpMessage type, out Guid sessionId, out Guid udpKey)
+    {
+        sessionId = udpKey = Guid.Empty;
+        if (!HasHeader(data, type) || data.Length < AuthenticatedHeaderSize) return false;
+        sessionId = new Guid(data.Slice(HeaderSize, 16));
+        udpKey = new Guid(data.Slice(HeaderSize + 16, 16));
+        return sessionId != Guid.Empty && udpKey != Guid.Empty;
     }
 
     public static byte[] CreateHeader(NetworkProtocol.UdpMessage type)

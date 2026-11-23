@@ -103,7 +103,7 @@ public class Player : LivingThing
 
     }
 
-    public void Update(Vector2 mousePosition, PlayerInput input, float deltaTime, World.World world)
+    public void Update(Vector2 mousePosition, PlayerInput input, float deltaTime, World.World world, bool allowMovement = true)
     {
         base.Update(deltaTime);
 
@@ -164,7 +164,8 @@ public class Player : LivingThing
             runningMultiplier = 0.5f;
         }
 
-        Move(delta, deltaTime, world, currentSpeed / speed);
+        if (allowMovement)
+            Move(delta, deltaTime, world, currentSpeed / speed);
 
         // Hands
 

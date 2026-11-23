@@ -1,6 +1,8 @@
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
+using EXILION.Logic;
+using System.Diagnostics;
 
 namespace EXILION.Network;
 
@@ -11,9 +13,17 @@ public sealed class GameConnection : IAsyncDisposable, IDisposable
     private readonly IPEndPoint serverEndpoint;
     private readonly CancellationTokenSource cancellation = new();
     private readonly Task heartbeatTask;
+    private readonly Task receiveTask;
+    private readonly Task inputTask;
+    private int inputSequence;
+    private PlayerInput currentInput;
+    private System.Numerics.Vector2 currentMousePosition;
+    private readonly object inputLock = new();
+    private long lastSnapshotTimestamp = Stopwatch.GetTimestamp();
 
     public ConnectionTicket Ticket { get; }
     public IPEndPoint ServerEndpoint => serverEndpoint;
+    public bool IsDisconnected => Stopwatch.GetElapsedTime(Interlocked.Read(ref lastSnapshotTimestamp)) > TimeSpan.FromSeconds(5);
     public ConcurrentQueue<WorldSnapshot> Snapshots { get; } = new();
 
 
@@ -23,6 +33,8 @@ public sealed class GameConnection : IAsyncDisposable, IDisposable
         this.serverEndpoint = serverEndpoint;
         Ticket = ticket;
         heartbeatTask = SendHeartbeatsAsync(cancellation.Token);
+        receiveTask = ReceiveSnapshotsAsync(cancellation.Token);
+        inputTask = SendInputsAsync(cancellation.Token);
     }
 
     public static async Task<GameConnection> ConnectAsync(
@@ -81,11 +93,64 @@ public sealed class GameConnection : IAsyncDisposable, IDisposable
         catch (SocketException) when (token.IsCancellationRequested) { }
     }
 
+    public void SetInput(PlayerInput input, System.Numerics.Vector2 mousePosition)
+    {
+        lock (inputLock)
+        {
+            currentInput = input;
+            currentMousePosition = mousePosition;
+        }
+    }
+
+    private async Task SendInputsAsync(CancellationToken token)
+    {
+        try
+        {
+            using PeriodicTimer timer = new(TimeSpan.FromMilliseconds(33));
+            while (await timer.WaitForNextTickAsync(token))
+            {
+                PlayerInput input;
+                System.Numerics.Vector2 mousePosition;
+                lock (inputLock) { input = currentInput; mousePosition = currentMousePosition; }
+                int sequence = Interlocked.Increment(ref inputSequence);
+                byte[] packet = NetworkPacketCodec.CreatePlayerInput(Ticket.SessionId, Ticket.UdpKey, sequence, input, mousePosition);
+                await udp.SendAsync(packet, serverEndpoint, token);
+            }
+        }
+        catch (OperationCanceledException) { }
+        catch (ObjectDisposedException) when (token.IsCancellationRequested) { }
+        catch (SocketException) when (token.IsCancellationRequested) { }
+    }
+
+    private async Task ReceiveSnapshotsAsync(CancellationToken token)
+    {
+        try
+        {
+            while (!token.IsCancellationRequested)
+            {
+                UdpReceiveResult received = await udp.ReceiveAsync(token);
+                if (!received.RemoteEndPoint.Address.Equals(serverEndpoint.Address)
+                    || received.RemoteEndPoint.Port != serverEndpoint.Port
+                    || !NetworkPacketCodec.TryReadWorldSnapshot(received.Buffer, out Guid sessionId, out Guid udpKey, out WorldSnapshot? snapshot)
+                    || sessionId != Ticket.SessionId || udpKey != Ticket.UdpKey || snapshot == null)
+                    continue;
+                Snapshots.Enqueue(snapshot);
+                Interlocked.Exchange(ref lastSnapshotTimestamp, Stopwatch.GetTimestamp());
+                while (Snapshots.Count > 32) Snapshots.TryDequeue(out _);
+            }
+        }
+        catch (OperationCanceledException) { }
+        catch (ObjectDisposedException) when (token.IsCancellationRequested) { }
+        catch (SocketException) when (token.IsCancellationRequested) { }
+    }
+
     public async ValueTask DisposeAsync()
     {
         cancellation.Cancel();
         udp.Dispose();
         await heartbeatTask;
+        await receiveTask;
+        await inputTask;
         cancellation.Dispose();
     }
 

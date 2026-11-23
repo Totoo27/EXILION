@@ -27,6 +27,7 @@ internal sealed class GameSession
     public string WorldId { get; }
     public string WorldName { get; }
     public int WorldSeed { get; }
+    public int Tick => tick;
 
     private int tick = 0;
 
@@ -77,8 +78,14 @@ internal sealed class GameSession
                     player.Id,
                     player.Player.position.X,
                     player.Player.position.Y,
-                    0f,
-                    player.Player.health
+                    player.Player.VisualAngle,
+                    player.Player.health,
+                    player.Player.leftHand.Position.X,
+                    player.Player.leftHand.Position.Y,
+                    player.Player.leftHand.Angle,
+                    player.Player.rightHand.Position.X,
+                    player.Player.rightHand.Position.Y,
+                    player.Player.rightHand.Angle
                 )
             ).ToArray()
         );
@@ -117,12 +124,15 @@ internal sealed class GameSession
         }
     }
 
-    public void SetPlayerInput(Guid playerId, PlayerInput input)
+    public void SetPlayerInput(Guid playerId, PlayerInput input, Vector2 mousePosition)
     {
         lock (sync)
         {
             if (players.TryGetValue(playerId, out ServerPlayer? player))
+            {
                 player.Input = input;
+                player.MousePosition = mousePosition;
+            }
         }
     }
 
@@ -140,7 +150,7 @@ internal sealed class GameSession
             foreach (ServerPlayer serverPlayer in players.Values)
             {
                 serverPlayer.Player.Update(
-                    serverPlayer.Player.position,
+                    serverPlayer.MousePosition,
                     serverPlayer.Input,
                     deltaTime,
                     world
@@ -192,5 +202,6 @@ internal sealed class GameSession
         public Player Player { get; } = player;
 
         public PlayerInput Input { get; set; }
+        public Vector2 MousePosition { get; set; } = player.position;
     }
 }

@@ -79,6 +79,7 @@ public class GameScene : Scene
     private bool blockPlacementMode;
     private int Seed;
     private readonly Dictionary<Guid, RemotePlayer> remotePlayers = new();
+    private PlayerSnapshot? authoritativePlayerSnapshot;
 
     public GameScene(IGameData gameData, string path) : base(gameData)
     {
@@ -278,6 +279,12 @@ public class GameScene : Scene
     {
         if(stopUpdating || !isLoaded) return;
 
+        if (isOnline && networkConnection?.IsDisconnected == true)
+        {
+            SceneManager.ChangeScene(new MainMenu(GameData));
+            return;
+        }
+
         if (isOnline && networkConnection != null)
         {
             while (networkConnection.Snapshots.TryDequeue(out var snapshot))
@@ -285,15 +292,19 @@ public class GameScene : Scene
                 foreach (var remote in snapshot.Players)
                 {
                     if (remote.PlayerId == networkConnection.Ticket.SessionId)
-                        continue;
-
-                    if (!remotePlayers.TryGetValue(remote.PlayerId, out var player))
                     {
-                        player = new RemotePlayer(remote.PlayerId);
-                        remotePlayers.Add(remote.PlayerId, player);
+                        authoritativePlayerSnapshot = remote;
+                        if (player != null) player.position = new Vector2(remote.X, remote.Y);
+                        continue;
                     }
 
-                    player.ApplySnapshot(remote);
+                    if (!remotePlayers.TryGetValue(remote.PlayerId, out var remotePlayer))
+                    {
+                        remotePlayer = new RemotePlayer(remote.PlayerId);
+                        remotePlayers.Add(remote.PlayerId, remotePlayer);
+                    }
+
+                    remotePlayer.ApplySnapshot(remote);
                 }
             }
         }
@@ -377,8 +388,9 @@ public class GameScene : Scene
                 Run: input.IsKeyHeld(Keys.LeftShift),
                 PrimaryActionPressed: input.IsLeftMousePressed(),
                 PrimaryActionCaptured: input.IsMouseCaptured);
+            if (isOnline) networkConnection?.SetInput(playerInput, new System.Numerics.Vector2(mouseWorldPosition.X, mouseWorldPosition.Y));
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            player.Update(mouseWorldPosition, playerInput, deltaTime, world);
+            player.Update(mouseWorldPosition, playerInput, deltaTime, world, allowMovement: !isOnline);
 
             foreach (Creature creature in creatures) creature.Update(deltaTime, world, player.position, night);
             gameLogic.ProcessCreatureContactDamage(player, creatures, deltaTime);
@@ -498,7 +510,11 @@ public class GameScene : Scene
         
         // Player & objects
         mapRenderer?.DrawObjects(spriteBatch, world, false);
-        if (player != null) entityRenderer.DrawPlayer(spriteBatch, player, pixel, GameContext.showHitboxes);
+        if (isOnline && authoritativePlayerSnapshot is { } localSnapshot)
+            entityRenderer.DrawNetworkPlayer(spriteBatch, localSnapshot, Color.White);
+        else if (player != null) entityRenderer.DrawPlayer(spriteBatch, player, pixel, GameContext.showHitboxes);
+        foreach (RemotePlayer remotePlayer in remotePlayers.Values)
+            entityRenderer.DrawRemotePlayer(spriteBatch, remotePlayer);
         HUD?.DrawStatAdvice(spriteBatch);
 
         foreach (Creature creature in creatures)

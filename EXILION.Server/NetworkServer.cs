@@ -11,6 +11,7 @@ namespace EXILION.Server;
 internal sealed class NetworkServer : IAsyncDisposable, IDisposable
 {
     private const int TcpConnectFixedSize = 4 + 1 + 1 + 16 + 2;
+    private static readonly TimeSpan SessionInactivityTimeout = TimeSpan.FromSeconds(10);
     private readonly WorldSaveData world;
     private readonly int port;
     private readonly Action<string> log;
@@ -55,12 +56,25 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
         );
 
         const float deltaTime = 1f / 60f;
+        DateTime nextSessionSweep = DateTime.UtcNow;
 
         try
         {
             while (await timer.WaitForNextTickAsync(token))
             {
-                gameSession.Update(deltaTime);
+                try
+                {
+                    gameSession.Update(deltaTime);
+                    if (DateTime.UtcNow >= nextSessionSweep)
+                    {
+                        RemoveInactiveSessions();
+                        nextSessionSweep = DateTime.UtcNow + TimeSpan.FromSeconds(1);
+                    }
+                    if (gameSession.Tick % 3 == 0)
+                        await BroadcastSnapshotAsync(token);
+                }
+                catch (OperationCanceledException) when (token.IsCancellationRequested) { break; }
+                catch (Exception exception) { log($"Error de simulación (se reintentará): {exception.Message}"); }
             }
         }
         catch (OperationCanceledException) { }
@@ -72,12 +86,20 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
         {
             while (!token.IsCancellationRequested)
             {
-                UdpReceiveResult received = await udp!.ReceiveAsync(token);
+                UdpReceiveResult received;
+                try { received = await udp!.ReceiveAsync(token); }
+                catch (SocketException exception) when (!token.IsCancellationRequested)
+                {
+                    // Windows reports ICMP port-unreachable for UDP clients that have exited.
+                    log($"Paquete UDP descartado ({exception.SocketErrorCode}); el servidor continúa.");
+                    continue;
+                }
                 ReadOnlySpan<byte> data = received.Buffer;
                 if (NetworkPacketCodec.IsDiscoveryRequest(data))
                 {
                     byte[] response = NetworkPacketCodec.CreateDiscoveryResponse(port, world.WorldId, world.WorldName);
-                    await udp.SendAsync(response, received.RemoteEndPoint, token);
+                    try { await udp.SendAsync(response, received.RemoteEndPoint, token); }
+                    catch (SocketException) when (!token.IsCancellationRequested) { }
                     continue;
                 }
                 bool isHello = NetworkPacketCodec.TryReadClientHello(data, out Guid sessionId, out Guid udpKey);
@@ -88,12 +110,27 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
                     && session.UdpKey == udpKey)
                 {
                     session.UdpEndpoint = received.RemoteEndPoint;
-                    session.LastSeenUtc = DateTime.UtcNow;
+                    session.MarkSeen();
                     if (isHello)
                     {
-                        await udp.SendAsync(NetworkPacketCodec.CreateConnectionConfirmed(sessionId), received.RemoteEndPoint, token);
+                        try { await udp.SendAsync(NetworkPacketCodec.CreateConnectionConfirmed(sessionId), received.RemoteEndPoint, token); }
+                        catch (SocketException) when (!token.IsCancellationRequested) { }
                         log($"UDP confirmado para {session.PlayerName} ({received.RemoteEndPoint}).");
                     }
+                    continue;
+                }
+
+                if (NetworkPacketCodec.TryReadPlayerInput(data, out sessionId, out udpKey, out int sequence, out var input, out System.Numerics.Vector2 mousePosition)
+                    && sessions.TryGetValue(sessionId, out session)
+                    && session.RemoteAddress.Equals(received.RemoteEndPoint.Address)
+                    && session.UdpKey == udpKey
+                    && session.UdpEndpoint is { } udpEndpoint
+                    && udpEndpoint.Equals(received.RemoteEndPoint)
+                    && sequence > session.LastInputSequence)
+                {
+                    session.LastInputSequence = sequence;
+                    session.MarkSeen();
+                    gameSession.SetPlayerInput(sessionId, input, new Microsoft.Xna.Framework.Vector2(mousePosition.X, mousePosition.Y));
                 }
             }
         }
@@ -102,13 +139,53 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
         catch (Exception exception) { log($"Error UDP: {exception.Message}"); }
     }
 
+    private void RemoveInactiveSessions()
+    {
+        DateTime now = DateTime.UtcNow;
+        foreach (ClientSession session in sessions.Values)
+        {
+            if (!session.IsInactive(now, SessionInactivityTimeout)
+                || !sessions.TryRemove(session.Id, out _))
+                continue;
+
+            gameSession.RemovePlayer(session.Id);
+            log($"Sesión de {session.PlayerName} cerrada por inactividad.");
+        }
+    }
+
+    private async Task BroadcastSnapshotAsync(CancellationToken token)
+    {
+        WorldSnapshot snapshot = gameSession.CreateSnapshot();
+        foreach (ClientSession session in sessions.Values)
+        {
+            IPEndPoint? endpoint = session.UdpEndpoint;
+            if (endpoint == null) continue;
+            try
+            {
+                byte[] packet = NetworkPacketCodec.CreateWorldSnapshot(session.Id, session.UdpKey, snapshot);
+                await udp!.SendAsync(packet, endpoint, token);
+            }
+            catch (SocketException) when (!token.IsCancellationRequested) { }
+            catch (Exception exception) when (!token.IsCancellationRequested)
+            {
+                log($"Snapshot no enviado a {session.PlayerName}: {exception.Message}");
+            }
+        }
+    }
+
     private async Task AcceptTcpLoopAsync(CancellationToken token)
     {
         try
         {
             while (!token.IsCancellationRequested)
             {
-                TcpClient client = await tcp!.AcceptTcpClientAsync(token);
+                TcpClient client;
+                try { client = await tcp!.AcceptTcpClientAsync(token); }
+                catch (SocketException exception) when (!token.IsCancellationRequested)
+                {
+                    log($"Conexión TCP descartada ({exception.SocketErrorCode}); el servidor continúa.");
+                    continue;
+                }
                 _ = HandleTcpClientAsync(client, token);
             }
         }
@@ -192,6 +269,12 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
         public IPAddress RemoteAddress { get; } = remoteAddress;
         public string PlayerName { get; } = playerName;
         public IPEndPoint? UdpEndpoint { get; set; }
-        public DateTime LastSeenUtc { get; set; } = DateTime.UtcNow;
+        public int LastInputSequence { get; set; }
+        private long lastSeenUtcTicks = DateTime.UtcNow.Ticks;
+
+        public void MarkSeen() => Interlocked.Exchange(ref lastSeenUtcTicks, DateTime.UtcNow.Ticks);
+
+        public bool IsInactive(DateTime now, TimeSpan timeout)
+            => now.Ticks - Interlocked.Read(ref lastSeenUtcTicks) > timeout.Ticks;
     }
 }
