@@ -1,8 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Graphics;
 using EXILION.World;
+using EXILION.Logic;
 
 namespace EXILION.Entities.LivingThings;
 public abstract class LivingThing : Entity
@@ -10,23 +9,23 @@ public abstract class LivingThing : Entity
     #nullable enable
     
     public int maxHealth { get; private set; }
-    protected int health;
+    public int health { get; protected set; }
     public bool isDead { get; private set; } = false;
     public int speed { get; private set; }
     public event Action? deathEvent;
     public bool IsSwimming { get; private set; }
     private float movementSpeedScale = 1f;
-    protected SoundEffect damageSoundEffect;
+    protected GameAudioCue DamageSoundCue { get; }
+    public event Action<GameAudioCue>? SoundRequested;
+    private float damagedTimer = 0f;
+    public float DamageFeedbackRemaining => damagedTimer;
 
-    protected readonly Color damageColor = new Color(230, 180, 180);
-    private float damagedTimer = 0f; 
-
-    public LivingThing(Vector2 position, Sprite sprite, int maxHealth, int speed, GameContext gameContext, SoundEffect damageSoundEffect) : base(position, sprite, gameContext)
+    public LivingThing(Vector2 position, int maxHealth, int speed, GameAudioCue damageSoundCue, Point? hitboxSize = null) : base(position, hitboxSize ?? new Point(40, 40))
     {
         this.maxHealth = maxHealth;
         this.health = maxHealth;
         this.speed = speed;
-        this.damageSoundEffect = damageSoundEffect;
+        DamageSoundCue = damageSoundCue;
     }
 
     protected void Move(Vector2 direction, float deltaTime, World.World? world, float speedMultiplier = 1f)
@@ -46,30 +45,18 @@ public abstract class LivingThing : Entity
         if (world == null || world.IsWalkable(next, radius, true)) position.Y = next.Y;
     }
 
-    public virtual void Update(GameTime gameTime)
+    public virtual void Update(float deltaTime)
     {
-        float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-        // Damage timer
-
-        if (damagedTimer > 0f)
-        {
-            damagedTimer -= deltaTime;
-
-            if (damagedTimer <= 0f)
-            {
-                color = Color.White;
-            }
-        }
+        if (damagedTimer > 0f) damagedTimer = Math.Max(0f, damagedTimer - deltaTime);
     }
+
+    protected void RequestSound(GameAudioCue cue) => SoundRequested?.Invoke(cue);
 
     public virtual void takeDamage(int damage)
     {
         if (isDead || damage <= 0) return;
 
         this.health -= damage;
-
-        color = damageColor;
         damagedTimer = 0.3f;
 
         if (this.health <= 0)
@@ -78,7 +65,7 @@ public abstract class LivingThing : Entity
             die();
         }
 
-        SFX.Play(damageSoundEffect);
+        RequestSound(DamageSoundCue);
 
     }
 

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using EXILION.Entities.LivingThings;
+using System;
 
 namespace EXILION.Saving;
 
@@ -16,6 +17,7 @@ public class WorldSaveData
     public int DayCount { get; set; } = 1;
 
     public PlayerSaveData Player { get; set; } = new();
+    public Dictionary<Guid, PlayerSaveData> PlayerProfiles { get; set; } = new();
 
     public List<CatchableItemSaveData> CatchableItems { get; set; } = new();
     public List<WorldObjectStateSaveData> WorldObjectStates { get; set; } = new();

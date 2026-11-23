@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using EXILION.Items;
+using EXILION.Client;
 
 namespace EXILION.World;
 
@@ -21,6 +22,7 @@ public class MapRenderer
     private readonly Dictionary<TileType, Rectangle> _sourceRects;
     private readonly Rectangle defaultRectangle = new(0, 0, ObjectSourceSize, ObjectSourceSize);
     private readonly List<WorldObject> _visibleObjects = new();
+    private readonly ObjectHitFeedback _hitFeedback = new();
     private float _waterFrameTimer;
     private int _waterFrame;
 
@@ -44,6 +46,9 @@ public class MapRenderer
 
     public void Update(GameTime gameTime)
     {
+        float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
+        _hitFeedback.Update(elapsed);
+
         _waterFrameTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
         while (_waterFrameTimer >= WaterFrameDuration)
         {
@@ -51,6 +56,8 @@ public class MapRenderer
             _waterFrame = (_waterFrame + 1) % WaterFrameCount;
         }
     }
+
+    public void PlayObjectHitAnimation(WorldObjectId id) => _hitFeedback.Play(id);
 
     public void Draw(SpriteBatch spriteBatch, World world)
     {
@@ -83,7 +90,7 @@ public class MapRenderer
         foreach (var obj in chunk.Objects)
         {
             if (obj.IsDestroyed || obj.IsCollected) continue;
-            if (obj.Definition.AbovePlayer != drawAbove) continue;
+            if (ObjectVisuals.Get(obj.Type).AbovePlayer != drawAbove) continue;
             _visibleObjects.Add(obj);
         }
 
@@ -91,15 +98,15 @@ public class MapRenderer
 
         foreach (var obj in _visibleObjects)
         {
-            var definition = obj.Definition;
+            var visual = ObjectVisuals.Get(obj.Type);
             Texture2D texture;
             Rectangle? source;
 
-            if(definition.UseItemSprite && ItemRegistry.GetByObjectType(obj.Type) is Item item)
+            if(visual.UseItemSprite && ItemRegistry.GetByObjectType(obj.Type) is Item item)
             {
-                texture = item.Icon;
+                texture = ItemVisuals.GetIcon(item);
 
-                if(definition.Type == ObjectType.SpaceShip)
+                if(obj.Definition.Type == ObjectType.SpaceShip)
                 {
                     source = new(0, 0, ObjectSourceSize*2, ObjectSourceSize*2);
                 } else
@@ -114,16 +121,13 @@ public class MapRenderer
                     _ => _objectsTexture
                 };
 
-                source = obj.Type switch
-                {
-                    _ => definition.Source
-                };
+                source = visual.Source;
             }
 
             Vector2 center = ObjectCenter(obj);
-            float width = definition.DrawWidthTiles * _tileSize;
+            float width = visual.DrawWidthTiles * _tileSize;
             float height = width * source.Value.Height / source.Value.Width;
-            float scale = obj.DrawScale;
+            float scale = _hitFeedback.GetScale(obj.Id);
             var destination = new Rectangle(
                 (int)(center.X - width * scale / 2f),
                 (int)(center.Y - height * scale / 2f),
@@ -147,7 +151,8 @@ public class MapRenderer
 
             float radius = obj.Definition.OxygenRadiusTiles * _tileSize;
             Vector2 center = ObjectCenter(obj);
-            Color color = obj.Definition.OxygenCircleColor * (obj.Definition.OxygenCircleAlpha / 255f);
+            ObjectVisualDefinition visual = ObjectVisuals.Get(obj.Type);
+            Color color = (visual.OxygenCircleColor ?? Color.LightBlue) * (visual.OxygenCircleAlpha / 255f);
             for (int i = 0; i < segments; i++)
             {
                 float a0 = MathHelper.TwoPi * i / segments;

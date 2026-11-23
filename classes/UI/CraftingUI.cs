@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using EXILION.Entities.LivingThings;
 using EXILION.Items;
 using EXILION.UI;
+using EXILION.Client;
 
 namespace EXILION.UI;
 
@@ -313,9 +314,10 @@ public class CraftingUI
             iconSize
         );
 
-        if (item.Icon != null)
+        Texture2D? icon = ItemVisuals.GetIcon(item);
+        if (icon != null)
         {
-            spriteBatch.Draw(item.Icon, iconRect, Color.White);
+            spriteBatch.Draw(icon, iconRect, Color.White);
         }
 
         Vector2 textSize = font.MeasureString(text);

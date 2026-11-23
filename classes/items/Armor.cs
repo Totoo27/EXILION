@@ -1,5 +1,4 @@
 using System;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace EXILION.Items;
 
@@ -9,8 +8,8 @@ public class Armor : Item
     public float ArmorPoints { get; }
     public float SpeedMultiplier { get; }
 
-    public Armor(int id, string name, float armorPoints, float speedMultiplier, Texture2D icon = null)
-        : base(id, name, ItemType.ARMOR, icon)
+    public Armor(int id, string name, float armorPoints, float speedMultiplier)
+        : base(id, name, ItemType.ARMOR)
     {
         ArmorPoints = Math.Clamp(armorPoints, 0f, 100f);
         SpeedMultiplier = Math.Max(0f, speedMultiplier);

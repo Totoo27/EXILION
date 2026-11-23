@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xna.Framework;
 using EXILION.Items;
-using EXILION;
 
 namespace EXILION.World;
 
@@ -13,122 +11,93 @@ public static class ObjectProperties
     {
         { ObjectType.Tree, new ObjectDefinition {
             Type = ObjectType.Tree, BlocksMovement = true, CollisionRadius = 0.50f, MaxHealth = 20,
-            HitSound = Assets.SoundEffects?.chop,
-            AbovePlayer = true,
             HandCanBreak = true, BreakableByItems = new[] { ItemRegistry.HachaDeMadera, ItemRegistry.HachaDePiedra, ItemRegistry.HachaDeHierro, ItemRegistry.HachaDeTitanio },
             Drops = new[] { new ObjectDrop(ItemRegistry.Madera, 2) },
-            Source = new Rectangle(128, 0, 64, 64), DrawWidthTiles = 2.2f } },
+            } },
 
         { ObjectType.Rock, new ObjectDefinition {
             Type = ObjectType.Rock, BlocksMovement = true, CollisionRadius = 0.40f, MaxHealth = 20,
-            HitSound = Assets.SoundEffects?.mine,
-            AbovePlayer = false,
             HandCanBreak = false,
             BreakableByItems = new[] { ItemRegistry.PicoDeMadera, ItemRegistry.PicoDePiedra, ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
             Drops = new[] { new ObjectDrop(ItemRegistry.Piedra, 2) },
-            Source = new Rectangle(192, 0, 64, 64), DrawWidthTiles = 1.6f } },
+            } },
 
         { ObjectType.Bush, new ObjectDefinition {
             Type = ObjectType.Bush, BlocksMovement = false, CollisionRadius = 0.35f, MaxHealth = 4,
-            HitSound = Assets.SoundEffects?.brokenBush,
-            AbovePlayer = false,
             HandCanBreak = true,
-            Source = new Rectangle(64, 0, 64, 64), DrawWidthTiles = 1.4f } },
+            } },
 
         { ObjectType.FruitBush, new ObjectDefinition {
             Type = ObjectType.FruitBush, BlocksMovement = false, CollisionRadius = 0.35f, MaxHealth = 4,
-            HitSound = Assets.SoundEffects?.brokenBush,
-            AbovePlayer = false,
             HandCanBreak = true,
             Drops = new[] { new ObjectDrop(ItemRegistry.Baya, 2) },
-            Source = new Rectangle(0, 0, 64, 64), DrawWidthTiles = 1.4f } },
+            } },
 
         { ObjectType.Iron, new ObjectDefinition {
             Type = ObjectType.Iron, BlocksMovement = true, CollisionRadius = 0.50f, MaxHealth = 30,
-            HitSound = Assets.SoundEffects?.mine,
-            AbovePlayer = false,
             HandCanBreak = false,
             BreakableByItems = new[] { ItemRegistry.PicoDePiedra, ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
             Drops = new[] { new ObjectDrop(ItemRegistry.Hierro, 2) },
-            Source = new Rectangle(256, 0, 64, 64), DrawWidthTiles = 1.7f } },
+            } },
 
         { ObjectType.Titanium, new ObjectDefinition {
             Type = ObjectType.Titanium, BlocksMovement = true, CollisionRadius = 0.55f, MaxHealth = 45,
-            HitSound = Assets.SoundEffects?.mine,
-            AbovePlayer = false,
             HandCanBreak = false,
             BreakableByItems = new[] { ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
             Drops = new[] { new ObjectDrop(ItemRegistry.Titanio, 2) },
-            Source = new Rectangle(256, 64, 64, 64), DrawWidthTiles = 1.9f } },
+            } },
 
         { ObjectType.Thorium, new ObjectDefinition {
             Type = ObjectType.Thorium, BlocksMovement = true, CollisionRadius = 0.6f, MaxHealth = 60,
-            HitSound = Assets.SoundEffects?.mine,
-            AbovePlayer = false,
             HandCanBreak = false,
             BreakableByItems = new[] { ItemRegistry.PicoDeTitanio },
             Drops = new[] { new ObjectDrop(ItemRegistry.Torio, 2) },
-            Source = new Rectangle(192, 64, 64, 64), DrawWidthTiles = 2.2f } },
+            } },
 
         { ObjectType.Sandstone, new ObjectDefinition {
             Type = ObjectType.Sandstone, BlocksMovement = true, CollisionRadius = 0.35f, MaxHealth = 15,
-            HitSound = Assets.SoundEffects?.mine,
-            AbovePlayer = false,
             HandCanBreak = false,
             BreakableByItems = new[] { ItemRegistry.PicoDeMadera, ItemRegistry.PicoDePiedra, ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
             Drops = new[] { new ObjectDrop(ItemRegistry.Arena, 2) },
-            Source = new Rectangle(0, 64, 64, 64), DrawWidthTiles = 1.4f } },
+            } },
 
         { ObjectType.OxygenGenerator, new ObjectDefinition {
             Type = ObjectType.OxygenGenerator, BlocksMovement = true, CollisionRadius = 0.30f, MaxHealth = 30,
-            HitSound = Assets.SoundEffects?.mine, AbovePlayer = false,
             HandCanBreak = false,
-            UseItemSprite = true,
             OxygenRadiusTiles = 8f,
             BreakableByItems = new[] { ItemRegistry.PicoDePiedra, ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
-            Drops = new[] { new ObjectDrop(ItemRegistry.GeneradorO2, 1) }, DrawWidthTiles = 1f }},
+            Drops = new[] { new ObjectDrop(ItemRegistry.GeneradorO2, 1) } }},
 
         { ObjectType.CraftingTable, new ObjectDefinition {
             Type = ObjectType.CraftingTable, BlocksMovement = true, CollisionRadius = 0.45f, MaxHealth = 20,
-            HitSound = Assets.SoundEffects?.mine,
-            AbovePlayer = false,
             HandCanBreak = false,
-            UseItemSprite = true,
             BreakableByItems = new[] { ItemRegistry.PicoDePiedra, ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
-            Drops = new[] { new ObjectDrop(ItemRegistry.CraftingTable, 1) }, DrawWidthTiles = 1f ,
+            Drops = new[] { new ObjectDrop(ItemRegistry.CraftingTable, 1) },
             IsCraftingTable = true, InteractionRadiusTiles = 1.5f}
         },
 
         { ObjectType.SpaceShip, new ObjectDefinition {
             Type = ObjectType.SpaceShip, BlocksMovement = true, CollisionRadius = 1.2f, MaxHealth = 999,
-            HitSound = Assets.SoundEffects?.mine, AbovePlayer = true,
             HandCanBreak = false,
-            UseItemSprite = true,
-            DrawWidthTiles = 5.5f, IsExit = true, InteractionRadiusTiles = 2f }},
+            IsExit = true, InteractionRadiusTiles = 2f }},
 
         { ObjectType.WoodenFloor, new ObjectDefinition {
             Type = ObjectType.WoodenFloor, BlocksMovement = false, CollisionRadius = 0.35f, MaxHealth = 50,
-            HitSound = Assets.SoundEffects?.chop, AbovePlayer = false,
-            UseItemSprite = true,
             HandCanBreak = true, BreakableByItems = new[] { ItemRegistry.HachaDeMadera, ItemRegistry.HachaDePiedra, ItemRegistry.HachaDeHierro, ItemRegistry.HachaDeTitanio },
             Drops = new[] { new ObjectDrop(ItemRegistry.Madera, 1) },
-            DrawWidthTiles = 1f }},
+            }},
 
         { ObjectType.WoodenWall, new ObjectDefinition {
             Type = ObjectType.WoodenWall, BlocksMovement = true, CollisionRadius = 0.5f, MaxHealth = 50,
-            HitSound = Assets.SoundEffects?.chop, AbovePlayer = true,
-            UseItemSprite = true,
             HandCanBreak = true, BreakableByItems = new[] { ItemRegistry.HachaDeMadera, ItemRegistry.HachaDePiedra, ItemRegistry.HachaDeHierro, ItemRegistry.HachaDeTitanio },
             Drops = new[] { new ObjectDrop(ItemRegistry.Madera, 1) },
-            DrawWidthTiles = 1f }},
+            }},
 
         { ObjectType.StoneWall, new ObjectDefinition {
             Type = ObjectType.StoneWall, BlocksMovement = true, CollisionRadius = 0.5f, MaxHealth = 80,
-            HitSound = Assets.SoundEffects?.mine, AbovePlayer = true,
-            UseItemSprite = true,
             HandCanBreak = true, BreakableByItems = new[] { ItemRegistry.PicoDeMadera, ItemRegistry.PicoDePiedra, ItemRegistry.PicoDeHierro, ItemRegistry.PicoDeTitanio },
             Drops = new[] { new ObjectDrop(ItemRegistry.Piedra, 1) },
-            DrawWidthTiles = 1f }},
+            }},
             
     };
 
