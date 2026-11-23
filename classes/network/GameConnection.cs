@@ -18,8 +18,16 @@ public sealed class GameConnection : IAsyncDisposable, IDisposable
     private int inputSequence;
     private PlayerInput currentInput;
     private System.Numerics.Vector2 currentMousePosition;
+    private int currentHeldItemId = -1;
+    private bool pendingPrimaryAction;
+    private bool pendingInteract;
+    private bool pendingPlaceBlock;
     private readonly object inputLock = new();
+    private readonly ConcurrentQueue<byte[]> pendingGameplayRequests = new();
     private long lastSnapshotTimestamp = Stopwatch.GetTimestamp();
+    private long lastSnapshotTick = -1;
+    private int dropSequence;
+    private int respawnSequence;
 
     public ConnectionTicket Ticket { get; }
     public IPEndPoint ServerEndpoint => serverEndpoint;
@@ -45,7 +53,7 @@ public sealed class GameConnection : IAsyncDisposable, IDisposable
         using TcpClient tcp = new(AddressFamily.InterNetwork);
         await tcp.ConnectAsync(endpoint, linked.Token);
         NetworkStream stream = tcp.GetStream();
-        await stream.WriteAsync(TcpHandshakeCodec.CreateConnectRequest(playerName), linked.Token);
+        await stream.WriteAsync(TcpHandshakeCodec.CreateConnectRequest(playerName, PlayerIdentity.GetOrCreate()), linked.Token);
         ConnectionTicket ticket = await TcpHandshakeCodec.ReadResponseAsync(stream, linked.Token);
 
         UdpClient udp = new(AddressFamily.InterNetwork);
@@ -93,13 +101,32 @@ public sealed class GameConnection : IAsyncDisposable, IDisposable
         catch (SocketException) when (token.IsCancellationRequested) { }
     }
 
-    public void SetInput(PlayerInput input, System.Numerics.Vector2 mousePosition)
+    public void SetInput(PlayerInput input, System.Numerics.Vector2 mousePosition, int heldItemId, bool placeBlockRequested)
     {
         lock (inputLock)
         {
-            currentInput = input;
+            pendingPrimaryAction |= input.PrimaryActionPressed && !input.PrimaryActionCaptured;
+            pendingInteract |= input.InteractPressed;
+            pendingPlaceBlock |= placeBlockRequested;
+            currentInput = input with { PrimaryActionPressed = false, InteractPressed = false };
             currentMousePosition = mousePosition;
+            currentHeldItemId = heldItemId;
         }
+    }
+
+    public void QueueDropItem(int itemId, int quantity)
+    {
+        if (itemId < 0 || quantity <= 0) return;
+        int sequence = Interlocked.Increment(ref dropSequence);
+        pendingGameplayRequests.Enqueue(NetworkPacketCodec.CreateDropItemRequest(
+            Ticket.SessionId, Ticket.UdpKey, sequence, itemId, quantity));
+    }
+
+    public void QueueRespawnRequest()
+    {
+        int sequence = Interlocked.Increment(ref respawnSequence);
+        pendingGameplayRequests.Enqueue(NetworkPacketCodec.CreateRespawnRequest(
+            Ticket.SessionId, Ticket.UdpKey, sequence));
     }
 
     private async Task SendInputsAsync(CancellationToken token)
@@ -111,10 +138,38 @@ public sealed class GameConnection : IAsyncDisposable, IDisposable
             {
                 PlayerInput input;
                 System.Numerics.Vector2 mousePosition;
-                lock (inputLock) { input = currentInput; mousePosition = currentMousePosition; }
+                int heldItemId;
+                bool placeBlockRequested;
+                lock (inputLock)
+                {
+                    input = currentInput with
+                    {
+                        PrimaryActionPressed = pendingPrimaryAction,
+                        InteractPressed = pendingInteract
+                    };
+                    placeBlockRequested = pendingPlaceBlock;
+                    pendingPrimaryAction = pendingInteract = pendingPlaceBlock = false;
+                    mousePosition = currentMousePosition;
+                    heldItemId = currentHeldItemId;
+                }
                 int sequence = Interlocked.Increment(ref inputSequence);
-                byte[] packet = NetworkPacketCodec.CreatePlayerInput(Ticket.SessionId, Ticket.UdpKey, sequence, input, mousePosition);
-                await udp.SendAsync(packet, serverEndpoint, token);
+                byte[] packet = NetworkPacketCodec.CreatePlayerInput(Ticket.SessionId, Ticket.UdpKey, sequence,
+                    input, mousePosition, heldItemId, placeBlockRequested);
+                try { await udp.SendAsync(packet, serverEndpoint, token); }
+                catch (SocketException) when (!token.IsCancellationRequested) { continue; }
+                while (pendingGameplayRequests.TryDequeue(out byte[] request))
+                {
+                    try
+                    {
+                        for (int attempt = 0; attempt < 3; attempt++)
+                            await udp.SendAsync(request, serverEndpoint, token);
+                    }
+                    catch (SocketException) when (!token.IsCancellationRequested)
+                    {
+                        pendingGameplayRequests.Enqueue(request);
+                        break;
+                    }
+                }
             }
         }
         catch (OperationCanceledException) { }
@@ -134,6 +189,9 @@ public sealed class GameConnection : IAsyncDisposable, IDisposable
                     || !NetworkPacketCodec.TryReadWorldSnapshot(received.Buffer, out Guid sessionId, out Guid udpKey, out WorldSnapshot? snapshot)
                     || sessionId != Ticket.SessionId || udpKey != Ticket.UdpKey || snapshot == null)
                     continue;
+                long previousTick = Interlocked.Read(ref lastSnapshotTick);
+                if (snapshot.Tick <= previousTick) continue;
+                Interlocked.Exchange(ref lastSnapshotTick, snapshot.Tick);
                 Snapshots.Enqueue(snapshot);
                 Interlocked.Exchange(ref lastSnapshotTimestamp, Stopwatch.GetTimestamp());
                 while (Snapshots.Count > 32) Snapshots.TryDequeue(out _);
@@ -146,6 +204,14 @@ public sealed class GameConnection : IAsyncDisposable, IDisposable
 
     public async ValueTask DisposeAsync()
     {
+        if (cancellation.IsCancellationRequested) return;
+        try
+        {
+            byte[] disconnect = NetworkPacketCodec.CreateDisconnectRequest(Ticket.SessionId, Ticket.UdpKey);
+            for (int attempt = 0; attempt < 3; attempt++)
+                await udp.SendAsync(disconnect, serverEndpoint);
+        }
+        catch (Exception exception) when (exception is SocketException or ObjectDisposedException) { }
         cancellation.Cancel();
         udp.Dispose();
         await heartbeatTask;

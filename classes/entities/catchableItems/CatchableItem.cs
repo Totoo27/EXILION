@@ -10,13 +10,15 @@ public class CatchableItem : Entity
     private const int HitboxSize = 28; // más chico que el del jugador (40)
 
     private readonly EXILION.Logic.CatchableItemState state;
+    public Guid NetworkId { get; }
     public ItemStack Stack => state.Stack;
     public bool Picked => state.Picked;
 
-    public CatchableItem(ItemStack stack, Vector2 position, Point hitboxSize)
+    public CatchableItem(ItemStack stack, Vector2 position, Point hitboxSize, Guid? networkId = null)
         : base(position, hitboxSize)
     {
         state = new EXILION.Logic.CatchableItemState(stack);
+        NetworkId = networkId ?? Guid.NewGuid();
 
     }
 

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Text.Json;
+using System.IO.Compression;
 using EXILION.Saving;
 using EXILION.Logic;
 
@@ -18,12 +19,12 @@ namespace EXILION.Network;
 public static class NetworkProtocol
 {
     public const uint Magic = 0x4E4C5845; // "EXLN" in little endian
-    public const byte Version = 1;
+    public const byte Version = 5;
     public const int DefaultPort = 27860;
     public const int MaxPlayerNameBytes = 32;
     public const int MaxWorldNameBytes = 64;
 
-    public enum UdpMessage : byte { Discover = 1, DiscoveryResponse = 2, ClientHello = 3, Heartbeat = 4, ConnectionConfirmed = 5, PlayerInput = 6, WorldSnapshot = 7 }
+    public enum UdpMessage : byte { Discover = 1, DiscoveryResponse = 2, ClientHello = 3, Heartbeat = 4, ConnectionConfirmed = 5, PlayerInput = 6, WorldSnapshot = 7, DropItemRequest = 8, RespawnRequest = 9, DisconnectRequest = 10 }
     public enum TcpMessage : byte { Connect = 1, Accepted = 2, Rejected = 3 }
 }
 
@@ -36,7 +37,10 @@ public enum UdpMessage : byte
     ConnectionConfirmed = 5,
 
     PlayerInput = 6,
-    WorldSnapshot = 7
+    WorldSnapshot = 7,
+    DropItemRequest = 8,
+    RespawnRequest = 9,
+    DisconnectRequest = 10
 }
 
 public sealed record DiscoveredServer(IPEndPoint Endpoint, string WorldId, string WorldName);
@@ -46,7 +50,8 @@ public sealed record ConnectionTicket(
     string WorldId,
     string WorldName,
     int WorldSeed,
-    WorldSaveData World);
+    WorldSaveData World,
+    PlayerSaveData Player);
 
 /// <summary>Small, length-bounded packet codec. Invalid packets are ignored by callers.</summary>
 public static class NetworkPacketCodec
@@ -54,6 +59,7 @@ public static class NetworkPacketCodec
     private const int HeaderSize = 6;
     private const int AuthenticatedHeaderSize = HeaderSize + 32;
     private const int MaxSnapshotPacketBytes = 60 * 1024;
+    private const int MaxSnapshotJsonBytes = 4 * 1024 * 1024;
     private static readonly JsonSerializerOptions JsonOptions = new() { IncludeFields = true };
 
     public static byte[] CreateDiscoveryRequest()
@@ -140,9 +146,10 @@ public static class NetworkPacketCodec
         return sessionId != Guid.Empty;
     }
 
-    public static byte[] CreatePlayerInput(Guid sessionId, Guid udpKey, int sequence, PlayerInput input, System.Numerics.Vector2 mousePosition)
+    public static byte[] CreatePlayerInput(Guid sessionId, Guid udpKey, int sequence, PlayerInput input,
+        System.Numerics.Vector2 mousePosition, int heldItemId, bool placeBlockRequested)
     {
-        byte[] packet = new byte[AuthenticatedHeaderSize + 13];
+        byte[] packet = new byte[AuthenticatedHeaderSize + 18];
         WriteAuthenticatedHeader(packet, NetworkProtocol.UdpMessage.PlayerInput, sessionId, udpKey);
         BinaryPrimitives.WriteInt32LittleEndian(packet.AsSpan(AuthenticatedHeaderSize), sequence);
         packet[AuthenticatedHeaderSize + 4] = (byte)((input.MoveUp ? 1 : 0) | (input.MoveDown ? 2 : 0)
@@ -150,17 +157,22 @@ public static class NetworkPacketCodec
             | (input.PrimaryActionPressed ? 32 : 0) | (input.PrimaryActionCaptured ? 64 : 0));
         BinaryPrimitives.WriteInt32LittleEndian(packet.AsSpan(AuthenticatedHeaderSize + 5), BitConverter.SingleToInt32Bits(mousePosition.X));
         BinaryPrimitives.WriteInt32LittleEndian(packet.AsSpan(AuthenticatedHeaderSize + 9), BitConverter.SingleToInt32Bits(mousePosition.Y));
+        packet[AuthenticatedHeaderSize + 13] = (byte)((input.InteractPressed ? 1 : 0) | (placeBlockRequested ? 2 : 0));
+        BinaryPrimitives.WriteInt32LittleEndian(packet.AsSpan(AuthenticatedHeaderSize + 14), heldItemId);
         return packet;
     }
 
-    public static bool TryReadPlayerInput(ReadOnlySpan<byte> data, out Guid sessionId, out Guid udpKey, out int sequence, out PlayerInput input, out System.Numerics.Vector2 mousePosition)
+    public static bool TryReadPlayerInput(ReadOnlySpan<byte> data, out Guid sessionId, out Guid udpKey, out int sequence,
+        out PlayerInput input, out System.Numerics.Vector2 mousePosition, out int heldItemId, out bool placeBlockRequested)
     {
         sessionId = udpKey = Guid.Empty;
         sequence = 0;
         input = default;
         mousePosition = default;
+        heldItemId = -1;
+        placeBlockRequested = false;
         if (!TryReadAuthenticatedHeader(data, NetworkProtocol.UdpMessage.PlayerInput, out sessionId, out udpKey)
-            || data.Length != AuthenticatedHeaderSize + 13) return false;
+            || data.Length != AuthenticatedHeaderSize + 18) return false;
         sequence = BinaryPrimitives.ReadInt32LittleEndian(data[AuthenticatedHeaderSize..]);
         byte flags = data[AuthenticatedHeaderSize + 4];
         if ((flags & 0x80) != 0) return false;
@@ -168,15 +180,71 @@ public static class NetworkPacketCodec
         float mouseY = BitConverter.Int32BitsToSingle(BinaryPrimitives.ReadInt32LittleEndian(data[(AuthenticatedHeaderSize + 9)..]));
         if (!float.IsFinite(mouseX) || !float.IsFinite(mouseY)) return false;
         mousePosition = new System.Numerics.Vector2(mouseX, mouseY);
+        byte actionFlags = data[AuthenticatedHeaderSize + 13];
+        if ((actionFlags & 0xFC) != 0) return false;
+        heldItemId = BinaryPrimitives.ReadInt32LittleEndian(data[(AuthenticatedHeaderSize + 14)..]);
+        placeBlockRequested = (actionFlags & 2) != 0;
         input = new PlayerInput((flags & 1) != 0, (flags & 2) != 0, (flags & 4) != 0,
-            (flags & 8) != 0, (flags & 16) != 0, (flags & 32) != 0, (flags & 64) != 0);
+            (flags & 8) != 0, (flags & 16) != 0, (flags & 32) != 0, (flags & 64) != 0,
+            (actionFlags & 1) != 0);
         return true;
     }
 
+    public static byte[] CreateDropItemRequest(Guid sessionId, Guid udpKey, int sequence, int itemId, int quantity)
+    {
+        byte[] packet = new byte[AuthenticatedHeaderSize + 12];
+        WriteAuthenticatedHeader(packet, NetworkProtocol.UdpMessage.DropItemRequest, sessionId, udpKey);
+        BinaryPrimitives.WriteInt32LittleEndian(packet.AsSpan(AuthenticatedHeaderSize), sequence);
+        BinaryPrimitives.WriteInt32LittleEndian(packet.AsSpan(AuthenticatedHeaderSize + 4), itemId);
+        BinaryPrimitives.WriteInt32LittleEndian(packet.AsSpan(AuthenticatedHeaderSize + 8), quantity);
+        return packet;
+    }
+
+    public static bool TryReadDropItemRequest(ReadOnlySpan<byte> data, out Guid sessionId, out Guid udpKey,
+        out int sequence, out int itemId, out int quantity)
+    {
+        sessionId = udpKey = Guid.Empty;
+        sequence = itemId = quantity = 0;
+        if (!TryReadAuthenticatedHeader(data, NetworkProtocol.UdpMessage.DropItemRequest, out sessionId, out udpKey)
+            || data.Length != AuthenticatedHeaderSize + 12) return false;
+        sequence = BinaryPrimitives.ReadInt32LittleEndian(data[AuthenticatedHeaderSize..]);
+        itemId = BinaryPrimitives.ReadInt32LittleEndian(data[(AuthenticatedHeaderSize + 4)..]);
+        quantity = BinaryPrimitives.ReadInt32LittleEndian(data[(AuthenticatedHeaderSize + 8)..]);
+        return sequence > 0 && itemId >= 0 && quantity is > 0 and <= 9999;
+    }
+
+    public static byte[] CreateRespawnRequest(Guid sessionId, Guid udpKey, int sequence)
+    {
+        byte[] packet = new byte[AuthenticatedHeaderSize + 4];
+        WriteAuthenticatedHeader(packet, NetworkProtocol.UdpMessage.RespawnRequest, sessionId, udpKey);
+        BinaryPrimitives.WriteInt32LittleEndian(packet.AsSpan(AuthenticatedHeaderSize), sequence);
+        return packet;
+    }
+
+    public static bool TryReadRespawnRequest(ReadOnlySpan<byte> data, out Guid sessionId, out Guid udpKey, out int sequence)
+    {
+        sessionId = udpKey = Guid.Empty;
+        sequence = 0;
+        if (!TryReadAuthenticatedHeader(data, NetworkProtocol.UdpMessage.RespawnRequest, out sessionId, out udpKey)
+            || data.Length != AuthenticatedHeaderSize + 4) return false;
+        sequence = BinaryPrimitives.ReadInt32LittleEndian(data[AuthenticatedHeaderSize..]);
+        return sequence > 0;
+    }
+
+    public static byte[] CreateDisconnectRequest(Guid sessionId, Guid udpKey)
+        => CreateSessionPacket(NetworkProtocol.UdpMessage.DisconnectRequest, sessionId, udpKey);
+
+    public static bool TryReadDisconnectRequest(ReadOnlySpan<byte> data, out Guid sessionId, out Guid udpKey)
+        => TryReadSessionPacket(data, NetworkProtocol.UdpMessage.DisconnectRequest, out sessionId, out udpKey);
+
     public static byte[] CreateWorldSnapshot(Guid sessionId, Guid udpKey, WorldSnapshot snapshot)
     {
-        byte[] payload = JsonSerializer.SerializeToUtf8Bytes(snapshot, JsonOptions);
-        if (payload.Length > MaxSnapshotPacketBytes - AuthenticatedHeaderSize)
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(snapshot, JsonOptions);
+        using MemoryStream compressedStream = new();
+        using (BrotliStream compressor = new(compressedStream, CompressionLevel.Fastest, leaveOpen: true))
+            compressor.Write(json, 0, json.Length);
+        byte[] payload = compressedStream.ToArray();
+        if (json.Length > MaxSnapshotJsonBytes || payload.Length > MaxSnapshotPacketBytes - AuthenticatedHeaderSize)
             throw new InvalidOperationException("El snapshot del mundo excede el tamaño máximo UDP.");
         byte[] packet = new byte[AuthenticatedHeaderSize + payload.Length];
         WriteAuthenticatedHeader(packet, NetworkProtocol.UdpMessage.WorldSnapshot, sessionId, udpKey);
@@ -192,10 +260,25 @@ public static class NetworkPacketCodec
             || data.Length <= AuthenticatedHeaderSize || data.Length > MaxSnapshotPacketBytes) return false;
         try
         {
-            snapshot = JsonSerializer.Deserialize<WorldSnapshot>(data[AuthenticatedHeaderSize..], JsonOptions);
-            return snapshot?.Players != null;
+            using MemoryStream compressedStream = new(data[AuthenticatedHeaderSize..].ToArray());
+            using BrotliStream decompressor = new(compressedStream, CompressionMode.Decompress);
+            using MemoryStream jsonStream = new();
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = decompressor.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                if (jsonStream.Length + bytesRead > MaxSnapshotJsonBytes) return false;
+                jsonStream.Write(buffer, 0, bytesRead);
+            }
+            snapshot = JsonSerializer.Deserialize<WorldSnapshot>(jsonStream.ToArray(), JsonOptions);
+            return snapshot?.Players != null
+                && snapshot.WorldObjects != null
+                && snapshot.Creatures != null
+                && snapshot.CatchableItems != null
+                && snapshot.WorldHitEvents != null;
         }
         catch (JsonException) { return false; }
+        catch (InvalidDataException) { return false; }
     }
 
     private static void WriteAuthenticatedHeader(Span<byte> target, NetworkProtocol.UdpMessage type, Guid sessionId, Guid udpKey)
@@ -253,15 +336,17 @@ public static class TcpHandshakeCodec
     private const int MaxWorldSnapshotBytes = 4 * 1024 * 1024;
     private static readonly JsonSerializerOptions JsonOptions = new() { IncludeFields = true };
 
-    public static byte[] CreateConnectRequest(string playerName)
+    public static byte[] CreateConnectRequest(string playerName, Guid playerIdentity)
     {
         byte[] name = Encoding.UTF8.GetBytes(TrimUtf8(playerName.Trim(), NetworkProtocol.MaxPlayerNameBytes));
         if (name.Length == 0) throw new ArgumentException("El nombre del jugador es obligatorio.", nameof(playerName));
-        byte[] packet = new byte[HeaderSize + 16 + 2 + name.Length];
+        if (playerIdentity == Guid.Empty) throw new ArgumentException("La identidad del jugador es obligatoria.", nameof(playerIdentity));
+        byte[] packet = new byte[HeaderSize + 16 + 16 + 2 + name.Length];
         WriteHeader(packet, NetworkProtocol.TcpMessage.Connect);
         Guid.NewGuid().TryWriteBytes(packet.AsSpan(HeaderSize, 16));
-        BinaryPrimitives.WriteUInt16LittleEndian(packet.AsSpan(HeaderSize + 16, 2), (ushort)name.Length);
-        name.CopyTo(packet, HeaderSize + 18);
+        playerIdentity.TryWriteBytes(packet.AsSpan(HeaderSize + 16, 16));
+        BinaryPrimitives.WriteUInt16LittleEndian(packet.AsSpan(HeaderSize + 32, 2), (ushort)name.Length);
+        name.CopyTo(packet, HeaderSize + 34);
         return packet;
     }
 
@@ -269,10 +354,26 @@ public static class TcpHandshakeCodec
     {
         byte[] worldId = Encoding.UTF8.GetBytes(ticket.WorldId);
         byte[] worldName = Encoding.UTF8.GetBytes(TrimUtf8(ticket.WorldName, NetworkProtocol.MaxWorldNameBytes));
-        byte[] snapshot = JsonSerializer.SerializeToUtf8Bytes(ticket.World, JsonOptions);
-        if (worldId.Length > ushort.MaxValue || worldName.Length > ushort.MaxValue || snapshot.Length > MaxWorldSnapshotBytes)
+        WorldSaveData clientWorld = new()
+        {
+            Version = ticket.World.Version,
+            WorldId = ticket.World.WorldId,
+            WorldName = ticket.World.WorldName,
+            WorldSeed = ticket.World.WorldSeed,
+            WorldTime = ticket.World.WorldTime,
+            IsNight = ticket.World.IsNight,
+            DayCount = ticket.World.DayCount,
+            Player = ticket.World.Player,
+            CatchableItems = ticket.World.CatchableItems,
+            WorldObjectStates = ticket.World.WorldObjectStates,
+            Creatures = ticket.World.Creatures
+        };
+        byte[] snapshot = JsonSerializer.SerializeToUtf8Bytes(clientWorld, JsonOptions);
+        byte[] player = JsonSerializer.SerializeToUtf8Bytes(ticket.Player, JsonOptions);
+        if (worldId.Length > ushort.MaxValue || worldName.Length > ushort.MaxValue
+            || snapshot.Length > MaxWorldSnapshotBytes || player.Length > 64 * 1024)
             throw new InvalidOperationException("El estado inicial del mundo es demasiado grande para conectarse.");
-        byte[] packet = new byte[HeaderSize + 16 + 16 + 4 + 2 + worldId.Length + 2 + worldName.Length + 4 + snapshot.Length];
+        byte[] packet = new byte[HeaderSize + 16 + 16 + 4 + 2 + worldId.Length + 2 + worldName.Length + 4 + snapshot.Length + 4 + player.Length];
         WriteHeader(packet, NetworkProtocol.TcpMessage.Accepted);
         ticket.SessionId.TryWriteBytes(packet.AsSpan(HeaderSize, 16));
         ticket.UdpKey.TryWriteBytes(packet.AsSpan(HeaderSize + 16, 16));
@@ -282,6 +383,9 @@ public static class TcpHandshakeCodec
         WriteBytes(packet, ref offset, worldName);
         BinaryPrimitives.WriteInt32LittleEndian(packet.AsSpan(offset, 4), snapshot.Length);
         snapshot.CopyTo(packet, offset + 4);
+        offset += 4 + snapshot.Length;
+        BinaryPrimitives.WriteInt32LittleEndian(packet.AsSpan(offset, 4), player.Length);
+        player.CopyTo(packet, offset + 4);
         return packet;
     }
 
@@ -318,7 +422,13 @@ public static class TcpHandshakeCodec
         WorldSaveData? world = JsonSerializer.Deserialize<WorldSaveData>(await ReadExactlyAsync(stream, snapshotLength, cancellationToken), JsonOptions);
         if (world == null || world.WorldId != worldId || world.WorldSeed != seed)
             throw new InvalidDataException("El estado inicial no coincide con el servidor.");
-        return new ConnectionTicket(sessionId, udpKey, worldId, worldName, seed, world);
+        int playerLength = BinaryPrimitives.ReadInt32LittleEndian(await ReadExactlyAsync(stream, 4, cancellationToken));
+        if (playerLength is < 2 or > 64 * 1024)
+            throw new InvalidDataException("El perfil inicial del jugador es inválido.");
+        PlayerSaveData? player = JsonSerializer.Deserialize<PlayerSaveData>(
+            await ReadExactlyAsync(stream, playerLength, cancellationToken), JsonOptions);
+        if (player == null) throw new InvalidDataException("El perfil inicial del jugador está vacío.");
+        return new ConnectionTicket(sessionId, udpKey, worldId, worldName, seed, world, player);
     }
 
     public static byte[] CreateRejected(string reason)

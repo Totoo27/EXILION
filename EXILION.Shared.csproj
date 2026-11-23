@@ -16,6 +16,7 @@
     <Compile Include="classes/logic/CatchableItemState.cs" />
     <Compile Include="classes/logic/GameAudioCue.cs" />
     <Compile Include="classes/logic/GameClock.cs" />
+    <Compile Include="classes/logic/GameWorldLogic.cs" />
     <Compile Include="classes/logic/PlayerInput.cs" />
     <Compile Include="classes/world/TileType.cs" />
     <Compile Include="classes/world/objects/ObjectDefinition.cs" />
@@ -31,5 +32,8 @@
     <Compile Include="classes/entities/livingThings/player/StatType.cs" />
     <Compile Include="classes/saving/**/*.cs" />
     <Compile Include="classes/network/**/*.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="EXILION.Server\bin\Debug\net10.0-windows\Saves\worlds\" />
   </ItemGroup>
 </Project>

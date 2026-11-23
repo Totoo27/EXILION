@@ -84,6 +84,24 @@ public class Player : LivingThing
         inventory.RestoreArmor(saveData.EquippedArmorItemId);
     }
 
+    public void ApplyNetworkStats(int currentHealth, PlayerStat currentHunger, PlayerStat currentThirst, PlayerStat currentOxygen)
+    {
+        if (health != currentHealth)
+        {
+            health = Math.Clamp(currentHealth, 0, maxHealth);
+            HealthChanged?.Invoke(health);
+        }
+        if (hunger.value != currentHunger.value || hunger.max != currentHunger.max)
+            HungerChanged?.Invoke(currentHunger.value);
+        if (thirst.value != currentThirst.value || thirst.max != currentThirst.max)
+            ThirstChanged?.Invoke(currentThirst.value);
+        if (oxygen.value != currentOxygen.value || oxygen.max != currentOxygen.max)
+            OxygenChanged?.Invoke(currentOxygen.value);
+        hunger = currentHunger;
+        thirst = currentThirst;
+        oxygen = currentOxygen;
+    }
+
     public PlayerSaveData GetSaveData()
     {
         
@@ -103,14 +121,18 @@ public class Player : LivingThing
 
     }
 
-    public void Update(Vector2 mousePosition, PlayerInput input, float deltaTime, World.World world, bool allowMovement = true)
+    public void Update(Vector2 mousePosition, PlayerInput input, float deltaTime, World.World world,
+        bool allowMovement = true, bool simulateStats = true)
     {
         base.Update(deltaTime);
 
-        updateHunger(deltaTime);
-        updateThirst(deltaTime);
-        updateOxygen(deltaTime, world != null && world.IsOxygenSupplied(position));
-        combatTimer = MathF.Max(0f, combatTimer - deltaTime);
+        if (simulateStats)
+        {
+            updateHunger(deltaTime);
+            updateThirst(deltaTime);
+            updateOxygen(deltaTime, world != null && world.IsOxygenSupplied(position));
+            combatTimer = MathF.Max(0f, combatTimer - deltaTime);
+        }
         itemTransitionTimer = MathF.Max(0f, itemTransitionTimer - deltaTime);
 
         if (hasPendingHandItem && itemTransitionTimer <= 0f)
@@ -120,7 +142,7 @@ public class Player : LivingThing
             hasPendingHandItem = false;
         }
 
-        if (canRegenerate)
+        if (simulateStats && canRegenerate)
         {
             float regenRate = 2f; // Health points per second
             healthRegenerationAccumulator += regenRate * deltaTime;
@@ -134,7 +156,7 @@ public class Player : LivingThing
                 if (health >= maxHealth) healthRegenerationAccumulator = 0f;
             }
         }
-        else if (health >= maxHealth)
+        else if (simulateStats && health >= maxHealth)
         {
             healthRegenerationAccumulator = 0f;
         }

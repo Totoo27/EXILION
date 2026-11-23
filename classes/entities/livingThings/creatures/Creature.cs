@@ -18,6 +18,7 @@ public sealed class Creature : LivingThing
     private readonly List<ItemStack>? dropItems;
     private float farFromPlayerTimer;
     public bool ShouldDespawn { get; private set; }
+    public Guid NetworkId { get; }
     public CreatureType Type { get; private set; }
     public int ContactDamage { get; }
     public float VisualAngle { get; private set; }
@@ -25,13 +26,14 @@ public sealed class Creature : LivingThing
 
     public Creature(Vector2 position, ICreatureIntelligence? intelligence = null, List<ItemStack>? dropItems = null,
         int maxHealth = 25, int speed = PlayerMovementSettings.GroundSpeed / 2, CreatureType type = CreatureType.Peaceful,
-        int contactDamage = 1, Point? hitboxSize = null)
+        int contactDamage = 1, Point? hitboxSize = null, Guid? networkId = null)
     : base(position, maxHealth, speed, GameAudioCue.CreatureDamage, hitboxSize ?? new Point(40, 40))
     {
         this.intelligence = intelligence;
         this.dropItems = dropItems;
         Type = type;
         ContactDamage = Math.Max(0, contactDamage);
+        NetworkId = networkId ?? Guid.NewGuid();
     }
 
     public void Update(float deltaTime, World.World world, Vector2 playerPosition, bool isNight)
@@ -86,6 +88,15 @@ public sealed class Creature : LivingThing
         this.position = new Vector2(saveData.PositionX, saveData.PositionY);
         this.health = Math.Clamp(saveData.Health, 1, maxHealth);
         Type = saveData.Type;
+    }
+
+    public void ApplyNetworkState(float x, float y, float rotation, int currentHealth, bool playDamageFeedback = true)
+    {
+        if (playDamageFeedback && currentHealth < health)
+            takeDamage(health - currentHealth, new Vector2(x, y));
+        position = new Vector2(x, y);
+        health = Math.Clamp(currentHealth, 0, maxHealth);
+        VisualAngle = rotation;
     }
 
     public CreatureSaveData GetSaveData()

@@ -10,7 +10,7 @@ namespace EXILION.Server;
 
 internal sealed class NetworkServer : IAsyncDisposable, IDisposable
 {
-    private const int TcpConnectFixedSize = 4 + 1 + 1 + 16 + 2;
+    private const int TcpConnectFixedSize = 4 + 1 + 1 + 16 + 16 + 2;
     private static readonly TimeSpan SessionInactivityTimeout = TimeSpan.FromSeconds(10);
     private readonly WorldSaveData world;
     private readonly int port;
@@ -21,6 +21,9 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
     private TcpListener? tcp;
     private Task? udpTask;
     private readonly GameSession gameSession;
+    private readonly WorldSaveService saveService = new();
+    private readonly string savePath;
+    private readonly SemaphoreSlim saveLock = new(1, 1);
     private Task? simulationTask;
     private Task? tcpTask;
 
@@ -30,6 +33,7 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
         this.port = port;
         this.log = log;
 
+        savePath = saveService.GetWorldPath(world.WorldId);
         gameSession = new GameSession(world);
     }
 
@@ -64,10 +68,11 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
             {
                 try
                 {
-                    gameSession.Update(deltaTime);
+                    if (gameSession.Update(deltaTime))
+                        await SaveWorldAsync();
                     if (DateTime.UtcNow >= nextSessionSweep)
                     {
-                        RemoveInactiveSessions();
+                        await RemoveInactiveSessionsAsync();
                         nextSessionSweep = DateTime.UtcNow + TimeSpan.FromSeconds(1);
                     }
                     if (gameSession.Tick % 3 == 0)
@@ -107,10 +112,10 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
                 if ((isHello || isHeartbeat)
                     && sessions.TryGetValue(sessionId, out ClientSession? session)
                     && session.RemoteAddress.Equals(received.RemoteEndPoint.Address)
-                    && session.UdpKey == udpKey)
+                    && session.UdpKey == udpKey
+                    && session.MarkSeen())
                 {
                     session.UdpEndpoint = received.RemoteEndPoint;
-                    session.MarkSeen();
                     if (isHello)
                     {
                         try { await udp.SendAsync(NetworkPacketCodec.CreateConnectionConfirmed(sessionId), received.RemoteEndPoint, token); }
@@ -120,17 +125,58 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
                     continue;
                 }
 
-                if (NetworkPacketCodec.TryReadPlayerInput(data, out sessionId, out udpKey, out int sequence, out var input, out System.Numerics.Vector2 mousePosition)
+                if (NetworkPacketCodec.TryReadPlayerInput(data, out sessionId, out udpKey, out int sequence,
+                    out var input, out System.Numerics.Vector2 mousePosition, out int heldItemId, out bool placeBlockRequested)
                     && sessions.TryGetValue(sessionId, out session)
                     && session.RemoteAddress.Equals(received.RemoteEndPoint.Address)
                     && session.UdpKey == udpKey
                     && session.UdpEndpoint is { } udpEndpoint
                     && udpEndpoint.Equals(received.RemoteEndPoint)
-                    && sequence > session.LastInputSequence)
+                    && sequence > session.LastInputSequence
+                    && session.MarkSeen())
                 {
                     session.LastInputSequence = sequence;
-                    session.MarkSeen();
-                    gameSession.SetPlayerInput(sessionId, input, new Microsoft.Xna.Framework.Vector2(mousePosition.X, mousePosition.Y));
+                    gameSession.SetPlayerInput(sessionId, input, new Microsoft.Xna.Framework.Vector2(mousePosition.X, mousePosition.Y), heldItemId, placeBlockRequested);
+                    continue;
+                }
+
+                if (NetworkPacketCodec.TryReadDropItemRequest(data, out sessionId, out udpKey,
+                    out int dropSequence, out int itemId, out int quantity)
+                    && sessions.TryGetValue(sessionId, out session)
+                    && session.RemoteAddress.Equals(received.RemoteEndPoint.Address)
+                    && session.UdpKey == udpKey
+                    && session.UdpEndpoint is { } dropEndpoint
+                    && dropEndpoint.Equals(received.RemoteEndPoint)
+                    && session.TryAcceptDropSequence(dropSequence)
+                    && session.MarkSeen())
+                {
+                    gameSession.DropItem(sessionId, itemId, quantity);
+                }
+
+                if (NetworkPacketCodec.TryReadRespawnRequest(data, out sessionId, out udpKey, out int respawnSequence)
+                    && sessions.TryGetValue(sessionId, out session)
+                    && session.RemoteAddress.Equals(received.RemoteEndPoint.Address)
+                    && session.UdpKey == udpKey
+                    && session.UdpEndpoint is { } respawnEndpoint
+                    && respawnEndpoint.Equals(received.RemoteEndPoint)
+                    && session.TryAcceptRespawnSequence(respawnSequence)
+                    && session.MarkSeen())
+                {
+                    gameSession.Respawn(sessionId);
+                }
+
+                if (NetworkPacketCodec.TryReadDisconnectRequest(data, out sessionId, out udpKey)
+                    && sessions.TryGetValue(sessionId, out session)
+                    && session.RemoteAddress.Equals(received.RemoteEndPoint.Address)
+                    && session.UdpKey == udpKey
+                    && session.UdpEndpoint is { } disconnectEndpoint
+                    && disconnectEndpoint.Equals(received.RemoteEndPoint)
+                    && session.MarkSeen()
+                    && sessions.TryRemove(sessionId, out _))
+                {
+                    gameSession.RemovePlayer(sessionId);
+                    log($"SesiÃ³n de {session.PlayerName} cerrada por el jugador.");
+                    await SaveWorldAsync();
                 }
             }
         }
@@ -139,17 +185,43 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
         catch (Exception exception) { log($"Error UDP: {exception.Message}"); }
     }
 
-    private void RemoveInactiveSessions()
+    private async Task RemoveInactiveSessionsAsync()
     {
         DateTime now = DateTime.UtcNow;
         foreach (ClientSession session in sessions.Values)
         {
-            if (!session.IsInactive(now, SessionInactivityTimeout)
+            if (!session.TryMarkInactive(now, SessionInactivityTimeout)
                 || !sessions.TryRemove(session.Id, out _))
                 continue;
 
             gameSession.RemovePlayer(session.Id);
+            await SaveWorldAsync();
             log($"Sesión de {session.PlayerName} cerrada por inactividad.");
+        }
+    }
+
+    private async Task RemovePlayerSessionAsync(ClientSession session, string reason)
+    {
+        gameSession.RemovePlayer(session.Id);
+        await SaveWorldAsync();
+        log($"Sesión de {session.PlayerName} {reason}.");
+    }
+
+    private async Task SaveWorldAsync()
+    {
+        await saveLock.WaitAsync();
+        try
+        {
+            await saveService.SaveAsync(savePath, gameSession.CaptureSaveData());
+            log("Mundo y perfiles de jugadores guardados.");
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            log($"No se pudo guardar el mundo: {exception.Message}");
+        }
+        finally
+        {
+            saveLock.Release();
         }
     }
 
@@ -196,6 +268,8 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
 
     private async Task HandleTcpClientAsync(TcpClient client, CancellationToken token)
     {
+        ClientSession? pendingSession = null;
+        bool handshakeCompleted = false;
         using (client)
         {
             client.ReceiveTimeout = 5000;
@@ -212,7 +286,8 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
                     await SendRejectedAsync(stream, "Protocolo incompatible.", token);
                     return;
                 }
-                int nameLength = BinaryPrimitives.ReadUInt16LittleEndian(fixedPart.AsSpan(22, 2));
+                Guid persistentPlayerId = new(fixedPart.AsSpan(22, 16));
+                int nameLength = BinaryPrimitives.ReadUInt16LittleEndian(fixedPart.AsSpan(38, 2));
                 if (nameLength is < 1 or > NetworkProtocol.MaxPlayerNameBytes)
                 {
                     await SendRejectedAsync(stream, "Nombre de jugador inválido.", token);
@@ -228,17 +303,39 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
                 }
                 if (client.Client.RemoteEndPoint is not IPEndPoint endpoint)
                     return;
+                if (persistentPlayerId == Guid.Empty)
+                {
+                    await SendRejectedAsync(stream, "Identidad de jugador inválida.", token);
+                    return;
+                }
                 Guid sessionId = Guid.NewGuid();
 
-                ClientSession session = new(sessionId, Guid.NewGuid(), endpoint.Address, playerName);
+                foreach (ClientSession previousSession in sessions.Values
+                    .Where(existing => existing.PersistentPlayerId == persistentPlayerId).ToArray())
+                {
+                    if (!sessions.TryRemove(previousSession.Id, out _)) continue;
+                    gameSession.RemovePlayer(previousSession.Id);
+                    log($"SesiÃ³n anterior de {playerName} reemplazada al reconectar.");
+                }
+
+                ClientSession session = new(sessionId, Guid.NewGuid(), endpoint.Address, playerName, persistentPlayerId);
+                pendingSession = session;
 
                 sessions[sessionId] = session;
-                gameSession.AddPlayer(sessionId, playerName);
+                gameSession.AddPlayer(sessionId, persistentPlayerId, playerName);
+                WorldSaveData currentWorld = gameSession.CaptureSaveData();
                 await stream.WriteAsync(TcpHandshakeCodec.CreateAccepted(
-                    new ConnectionTicket(session.Id, session.UdpKey, world.WorldId, world.WorldName, world.WorldSeed, world)), token);
+                    new ConnectionTicket(session.Id, session.UdpKey, world.WorldId, world.WorldName, world.WorldSeed,
+                        currentWorld, gameSession.GetPlayerSaveData(sessionId))), token);
+                handshakeCompleted = true;
                 log($"TCP confirmado para {playerName} ({endpoint.Address}).");
             }
-            catch (IOException) { }
+            catch (IOException)
+            {
+                if (!handshakeCompleted && pendingSession != null
+                    && sessions.TryRemove(pendingSession.Id, out _))
+                    await RemovePlayerSessionAsync(pendingSession, "retirada tras fallar el handshake TCP");
+            }
             catch (OperationCanceledException) { }
             catch (Exception exception) { log($"Conexión TCP rechazada: {exception.Message}"); }
         }
@@ -256,25 +353,63 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
         udp?.Dispose();
         Task[] tasks = new Task?[] { udpTask, tcpTask, simulationTask }.Where(task => task != null).Cast<Task>().ToArray();
         if (tasks.Length > 0) await Task.WhenAll(tasks);
+        await SaveWorldAsync();
         cancellation.Dispose();
 
     }
 
     public void Dispose() => DisposeAsync().AsTask().GetAwaiter().GetResult();
 
-    private sealed class ClientSession(Guid id, Guid udpKey, IPAddress remoteAddress, string playerName)
+    private sealed class ClientSession(Guid id, Guid udpKey, IPAddress remoteAddress, string playerName, Guid persistentPlayerId)
     {
         public Guid Id { get; } = id;
         public Guid UdpKey { get; } = udpKey;
         public IPAddress RemoteAddress { get; } = remoteAddress;
         public string PlayerName { get; } = playerName;
+        public Guid PersistentPlayerId { get; } = persistentPlayerId;
         public IPEndPoint? UdpEndpoint { get; set; }
         public int LastInputSequence { get; set; }
+        private readonly HashSet<int> acceptedDropSequences = new();
+        private readonly Queue<int> acceptedDropSequenceOrder = new();
+        private int lastRespawnSequence;
+        private readonly object activityLock = new();
         private long lastSeenUtcTicks = DateTime.UtcNow.Ticks;
+        private bool inactive;
 
-        public void MarkSeen() => Interlocked.Exchange(ref lastSeenUtcTicks, DateTime.UtcNow.Ticks);
+        public bool MarkSeen()
+        {
+            lock (activityLock)
+            {
+                if (inactive) return false;
+                lastSeenUtcTicks = DateTime.UtcNow.Ticks;
+                return true;
+            }
+        }
 
-        public bool IsInactive(DateTime now, TimeSpan timeout)
-            => now.Ticks - Interlocked.Read(ref lastSeenUtcTicks) > timeout.Ticks;
+        public bool TryMarkInactive(DateTime now, TimeSpan timeout)
+        {
+            lock (activityLock)
+            {
+                if (inactive || now.Ticks - lastSeenUtcTicks <= timeout.Ticks) return false;
+                inactive = true;
+                return true;
+            }
+        }
+
+        public bool TryAcceptDropSequence(int sequence)
+        {
+            if (!acceptedDropSequences.Add(sequence)) return false;
+            acceptedDropSequenceOrder.Enqueue(sequence);
+            if (acceptedDropSequenceOrder.Count > 512)
+                acceptedDropSequences.Remove(acceptedDropSequenceOrder.Dequeue());
+            return true;
+        }
+
+        public bool TryAcceptRespawnSequence(int sequence)
+        {
+            if (sequence <= lastRespawnSequence) return false;
+            lastRespawnSequence = sequence;
+            return true;
+        }
     }
 }

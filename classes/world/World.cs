@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using EXILION.Entities;
 using EXILION.Entities.LivingThings;
@@ -422,6 +423,16 @@ public class World
             chunk.Objects.Clear();
             PopulateObjects(chunk);
         }
+    }
+
+    public void ApplyObjectStates(IEnumerable<WorldObjectState> updates)
+    {
+        WorldObjectState[] authoritative = updates.ToArray();
+        IReadOnlyList<WorldObjectState> current = ObjectStates.CaptureSnapshot();
+        if (current.Count == authoritative.Length
+            && authoritative.All(state => ObjectStates.TryGet(state.Id, out WorldObjectState existing) && existing == state))
+            return;
+        RestoreObjectStates(authoritative);
     }
 
     private void PopulateObjects(Chunk chunk)

@@ -19,6 +19,7 @@
     <Compile Remove="classes\logic\CatchableItemState.cs" />
     <Compile Remove="classes\logic\GameAudioCue.cs" />
     <Compile Remove="classes\logic\GameClock.cs" />
+    <Compile Remove="classes\logic\GameWorldLogic.cs" />
     <Compile Remove="classes\logic\PlayerInput.cs" />
     <Compile Remove="classes\world\TileType.cs" />
     <Compile Remove="classes\world\objects\ObjectDefinition.cs" />

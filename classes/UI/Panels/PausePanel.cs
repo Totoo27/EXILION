@@ -55,18 +55,21 @@ public class PausePanel : IHasSettings
     private InputManager input;
     private IDisplaySettings displaySettings;
     private IGameData GameData;
+    private bool isOnline;
 
     // Settings
 
     private SettingsPanel settingsPanel;
 
-    public PausePanel(IGameData gameData)
+    public PausePanel(IGameData gameData, bool isOnline = false)
     {
         GameData = gameData;
         this.gameContext = gameData.GetGameContext();
         this.GraphicsDevice = gameData.GetGraphicsDevice();
         this.input = gameData.GetInput();
         this.displaySettings = gameData.GetDisplaySettings();
+
+        this.isOnline = isOnline;
 
         this.Width = this.gameContext.ScaleX(300);
         this.Height = this.gameContext.ScaleY(400);
@@ -135,7 +138,7 @@ public class PausePanel : IHasSettings
         );
 
         quitButton = new Button(
-            "Save & Quit",
+            isOnline ? "Exit" : "Save & Quit",
             new Rectangle(
                 buttonX,
                 (int)position.Y + spacing * 3 + buttonHeight * 2,

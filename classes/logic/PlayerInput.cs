@@ -8,4 +8,5 @@ public readonly record struct PlayerInput(
     bool MoveRight,
     bool Run,
     bool PrimaryActionPressed,
-    bool PrimaryActionCaptured);
+    bool PrimaryActionCaptured,
+    bool InteractPressed = false);

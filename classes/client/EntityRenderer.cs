@@ -54,6 +54,13 @@ public sealed class EntityRenderer
         pulse.Update(deltaTime);
     }
 
+    public void PruneDropAnimations(IReadOnlyCollection<CatchableItem> activeItems)
+    {
+        HashSet<CatchableItem> active = new(activeItems);
+        foreach (CatchableItem item in new List<CatchableItem>(_dropPulses.Keys))
+            if (!active.Contains(item)) _dropPulses.Remove(item);
+    }
+
     public void DrawPlayer(SpriteBatch spriteBatch, Player player, Texture2D pixel, bool showHitboxes)
     {
         Color color = DamageColor(player.DamageFeedbackRemaining);
@@ -68,18 +75,32 @@ public sealed class EntityRenderer
         DrawSprite(spriteBatch, _playerTexture, position, 0f, _scale, Color.LightBlue);
     }
 
-    public void DrawNetworkPlayer(SpriteBatch spriteBatch, PlayerSnapshot snapshot, Color color)
+    public void DrawNetworkPlayer(SpriteBatch spriteBatch, PlayerSnapshot snapshot, Color color, float damageFeedback = 0f)
     {
+        color *= DamageColor(damageFeedback);
         DrawSprite(spriteBatch, _handTexture, new Vector2(snapshot.LeftHandX, snapshot.LeftHandY), snapshot.LeftHandAngle, 0.8f, color);
         DrawSprite(spriteBatch, _handTexture, new Vector2(snapshot.RightHandX, snapshot.RightHandY), snapshot.RightHandAngle, 0.8f, color);
+        DrawHeldItem(spriteBatch, snapshot.LeftHandItemId, snapshot.LeftHandItemX, snapshot.LeftHandItemY, snapshot.LeftHandItemAngle, color);
+        DrawHeldItem(spriteBatch, snapshot.RightHandItemId, snapshot.RightHandItemX, snapshot.RightHandItemY, snapshot.RightHandItemAngle, color);
         DrawSprite(spriteBatch, _playerTexture, new Vector2(snapshot.X, snapshot.Y), snapshot.Rotation, _scale, color);
     }
 
     public void DrawRemotePlayer(SpriteBatch spriteBatch, RemotePlayer player)
     {
-        DrawNetworkPlayer(spriteBatch, new PlayerSnapshot(player.PlayerId, player.X, player.Y, player.Rotation, 100,
-            player.LeftHandX, player.LeftHandY, player.LeftHandAngle,
-            player.RightHandX, player.RightHandY, player.RightHandAngle), Color.LightBlue);
+        Color color = Color.LightBlue * DamageColor(player.DamageFeedbackRemaining);
+        DrawSprite(spriteBatch, _handTexture, new Vector2(player.LeftHandX, player.LeftHandY), player.LeftHandAngle, 0.8f, color);
+        DrawSprite(spriteBatch, _handTexture, new Vector2(player.RightHandX, player.RightHandY), player.RightHandAngle, 0.8f, color);
+        DrawHeldItem(spriteBatch, player.LeftHandItemId, player.LeftHandItemX, player.LeftHandItemY, player.LeftHandItemAngle, color);
+        DrawHeldItem(spriteBatch, player.RightHandItemId, player.RightHandItemX, player.RightHandItemY, player.RightHandItemAngle, color);
+        DrawSprite(spriteBatch, _playerTexture, new Vector2(player.X, player.Y), player.Rotation, _scale, color);
+    }
+
+    private void DrawHeldItem(SpriteBatch spriteBatch, int itemId, float x, float y, float angle, Color color)
+    {
+        EXILION.Items.Item? item = EXILION.Items.ItemRegistry.GetById(itemId);
+        if (item == null) return;
+        float itemScale = item is EXILION.Items.Tool ? 2.5f : 0.8f;
+        DrawSprite(spriteBatch, ItemVisuals.GetIcon(item), new Vector2(x, y), angle, itemScale, color);
     }
 
     public void DrawCreature(SpriteBatch spriteBatch, Creature creature, Texture2D pixel, bool showHitboxes)
