@@ -30,6 +30,7 @@ public class MainLoader : Scene
     private String loadingPoints = ".";
     private float loadingPointsTimer = 0f;
     private const float loadingPointsInterval = 0.25f;
+    private Task loadTask;
 
     public MainLoader(IGameData gameData) : base(gameData)
     {
@@ -59,11 +60,13 @@ public class MainLoader : Scene
 
         if (!contentLoaded)
         {
-            _ = Assets.Load(Content);
+            loadTask = Assets.Load(Content);
             contentLoaded = true;
         }
 
-        progress = (float)completedTasks/totalTasks;
+        if (loadTask != null && loadTask.IsFaulted) throw loadTask.Exception;
+
+        progress = (loadTask != null && loadTask.IsCompletedSuccessfully) ? 1f : Math.Min(0.99f, (float)completedTasks / totalTasks);
 
         if(progress >= 1)
         {
@@ -110,9 +113,8 @@ public class MainLoader : Scene
         contentLoaded = false;
     }
 
-    public static async Task addCompletedTask()
+    public static void addCompletedTask()
     {
-        await Task.Delay(5);
         completedTasks++;
     }
 

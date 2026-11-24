@@ -19,7 +19,7 @@ public sealed class Fonts
         PixelArtBig = content.Load<SpriteFont>("Fonts/PixelArtBig");
         PixelArtSmall = content.Load<SpriteFont>("Fonts/PixelArtSmall");
 
-        await MainLoader.addCompletedTask();
+        MainLoader.addCompletedTask();
 
     }
 }

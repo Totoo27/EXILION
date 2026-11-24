@@ -115,7 +115,7 @@ public sealed class Sprites
         Sun = content.Load<Texture2D>("Sprites/UI/Sun");        
         Button = content.Load<Texture2D>("Sprites/UI/Button");
         cursorTexture = content.Load<Texture2D>("Sprites/UI/pointer");
-        await MainLoader.addCompletedTask();
+        MainLoader.addCompletedTask();
 
         // Advices
         MainLoader.SetLoadingText("Sprites: UI advices");
@@ -123,7 +123,7 @@ public sealed class Sprites
         hungerAdvice = content.Load<Texture2D>("Sprites/UI/HUD/hungerAdviceIcon");
         thirstAdvice = content.Load<Texture2D>("Sprites/UI/HUD/waterAdviceIcon");
         oxygenAdvice = content.Load<Texture2D>("Sprites/UI/HUD/oxygenAdviceIcon");
-        await MainLoader.addCompletedTask();
+        MainLoader.addCompletedTask();
 
         // Bars
         MainLoader.SetLoadingText("Sprites: UI Bars");
@@ -131,7 +131,7 @@ public sealed class Sprites
         meterProgress = content.Load<Texture2D>("Sprites/UI/HUD/meterProgress");
         hungerIcon = content.Load<Texture2D>("Sprites/UI/HUD/hungerMeterIcon");
         thirstIcon = content.Load<Texture2D>("Sprites/UI/HUD/thirstMeterIcon");
-        await MainLoader.addCompletedTask();
+        MainLoader.addCompletedTask();
 
         // World
         MainLoader.SetLoadingText("Sprites: UI HUD");
@@ -145,7 +145,7 @@ public sealed class Sprites
         watchMeter = content.Load<Texture2D>("Sprites/UI/HUD/watchMeter");
         watchProgress = content.Load<Texture2D>("Sprites/UI/HUD/watchProgress");
         watchSetOff = content.Load<Texture2D>("Sprites/UI/HUD/watchSetOff");
-        await MainLoader.addCompletedTask();
+        MainLoader.addCompletedTask();
 
         // Player
         MainLoader.SetLoadingText("Sprites: Player");
@@ -153,28 +153,28 @@ public sealed class Sprites
         playerHand = content.Load<Texture2D>("Sprites/Entities/playerHand");
         Slot   = content.Load<Texture2D>("Sprites/UI/HUD/slot");
         craftingMenu = content.Load<Texture2D>("Sprites/UI/HUD/craftingMenu");
-        await MainLoader.addCompletedTask();
+        MainLoader.addCompletedTask();
 
         // Creatures
         MainLoader.SetLoadingText("Sprites: Creatures");
         PeacefulCreature = content.Load<Texture2D>("Sprites/Entities/peacefulCreature");
         HostileCreature = content.Load<Texture2D>("Sprites/Entities/hostileCreature");
         NeutralCreature = content.Load<Texture2D>("Sprites/Entities/neutralCreature");
-        await MainLoader.addCompletedTask();
+        MainLoader.addCompletedTask();
 
         // Creature drops
         MainLoader.SetLoadingText("Sprites: Items creatures");
         LowCrystal = content.Load<Texture2D>("Sprites/Items/lowCrystal");
         MediumCrystal = content.Load<Texture2D>("Sprites/Items/mediumCrystal");
         AdvancedCrystal = content.Load<Texture2D>("Sprites/Items/advancedCrystal");
-        await MainLoader.addCompletedTask();
+        MainLoader.addCompletedTask();
 
         // Armors
         MainLoader.SetLoadingText("Sprites: Items armor");
         LowArmor = content.Load<Texture2D>("Sprites/Items/lowArmor");
         MediumArmor = content.Load<Texture2D>("Sprites/Items/mediumArmor");
         AdvancedArmor = content.Load<Texture2D>("Sprites/Items/advancedArmor");
-        await MainLoader.addCompletedTask();
+        MainLoader.addCompletedTask();
 
         //Items
         MainLoader.SetLoadingText("Sprites: Items resources");
@@ -194,7 +194,7 @@ public sealed class Sprites
         GeneradorO2 = content.Load<Texture2D>("Sprites/Items/GeneradorO2");
         Baya = content.Load<Texture2D>("Sprites/Items/bayas");
         craftingTable= content.Load<Texture2D>("Sprites/Items/craftingTable");
-        await MainLoader.addCompletedTask();
+        MainLoader.addCompletedTask();
       
         // Tools
         MainLoader.SetLoadingText("Sprites: Items tools");
@@ -213,14 +213,14 @@ public sealed class Sprites
 
         titaniumAxe = content.Load<Texture2D>("Sprites/Items/titaniumAxe");
         titaniumPickaxe = content.Load<Texture2D>("Sprites/Items/titaniumPickaxe");
-        await MainLoader.addCompletedTask();
+        MainLoader.addCompletedTask();
 
         // Structures
         MainLoader.SetLoadingText("Sprites: Items structures");
         woodenFloor = content.Load<Texture2D>("Sprites/Items/woodenFloor");
         woodenWall = content.Load<Texture2D>("Sprites/Items/WoodenWall");
         stoneWall = content.Load<Texture2D>("Sprites/Items/StoneWall");
-        await MainLoader.addCompletedTask();
+        MainLoader.addCompletedTask();
         
         // Final Ship
         MainLoader.SetLoadingText("Sprites: Items ship");
@@ -230,14 +230,14 @@ public sealed class Sprites
         cabin = content.Load<Texture2D>("Sprites/Items/cabina");
 
         ship = content.Load<Texture2D>("Sprites/Items/nave");
-        await MainLoader.addCompletedTask();
+        MainLoader.addCompletedTask();
 
         // World
         MainLoader.SetLoadingText("Sprites: World objects");
         Tileset = content.Load<Texture2D>("Sprites/Tiles/Tileset");
         Objects = content.Load<Texture2D>("Sprites/Tiles/objects");
 
-        await MainLoader.addCompletedTask();
+        MainLoader.addCompletedTask();
 
     }
 }

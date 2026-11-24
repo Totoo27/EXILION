@@ -278,7 +278,7 @@ public static class ItemRegistry
         attackSpeed: 1.9f,
         damage: 10f,
         hitboxWidth: 15f,
-        hitboxHeight: 85f
+        hitboxHeight: 95f
     );
 
     public static readonly Tool StoneSpear = new Tool(
@@ -287,7 +287,7 @@ public static class ItemRegistry
         attackSpeed: 1.9f,
         damage: 13f,
         hitboxWidth: 15f,
-        hitboxHeight: 85f
+        hitboxHeight: 95f
     );
 
     public static readonly Tool IronSpear = new Tool(
@@ -296,7 +296,7 @@ public static class ItemRegistry
         attackSpeed: 1.9f,
         damage: 18f,
         hitboxWidth: 15f,
-        hitboxHeight: 85f
+        hitboxHeight: 95f
     );
 
     // -------------------------
