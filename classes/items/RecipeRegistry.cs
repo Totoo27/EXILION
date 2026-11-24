@@ -350,7 +350,7 @@ public static class RecipeRegistry
             new Ingredient(ItemRegistry.Hierro, 8)
         },
         amount: 1,
-        requiresCraftingTable: false
+        requiresCraftingTable: true
     );
 
     public static readonly IReadOnlyList<Recipe> All = new List<Recipe>
