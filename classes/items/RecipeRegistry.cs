@@ -318,14 +318,53 @@ public static class RecipeRegistry
         requiresCraftingTable: false
     );
 
+    public static readonly Recipe WoodenSpearRecipe = new Recipe(
+        id: 25,
+        result: ItemRegistry.WoodenSpear,
+        ingredients: new List<Ingredient>
+        {
+            new Ingredient(ItemRegistry.Madera, 12)
+        },
+        amount: 1,
+        requiresCraftingTable: false
+    );
+
+    public static readonly Recipe StoneSpearRecipe = new Recipe(
+        id: 26,
+        result: ItemRegistry.StoneSpear,
+        ingredients: new List<Ingredient>
+        {
+            new Ingredient(ItemRegistry.Madera, 15),
+            new Ingredient(ItemRegistry.Piedra, 6)
+        },
+        amount: 1,
+        requiresCraftingTable: false
+    );
+
+    public static readonly Recipe IronSpearRecipe = new Recipe(
+        id: 27,
+        result: ItemRegistry.IronSpear,
+        ingredients: new List<Ingredient>
+        {
+            new Ingredient(ItemRegistry.Madera, 25),
+            new Ingredient(ItemRegistry.Hierro, 8)
+        },
+        amount: 1,
+        requiresCraftingTable: false
+    );
+
     public static readonly IReadOnlyList<Recipe> All = new List<Recipe>
     {
+
+        
         CraftingTableRecipe,
         WoodenAxeRecipe,
         WoodenPickaxeRecipe,
+        WoodenSpearRecipe,
         EmptyBottleRecipe,
         StonePickaxeRecipe,
         StoneAxeRecipe,
+        StoneSpearRecipe,
         SiliconRecipe,
         ChipRecipe,
 
@@ -335,6 +374,7 @@ public static class RecipeRegistry
 
         IronPickaxeRecipe,
         IronAxeRecipe,
+        IronSpearRecipe,
         OxygenGeneratorRecipe,
         TitaniumAxeRecipe,
         TitaniumPickaxeRecipe,

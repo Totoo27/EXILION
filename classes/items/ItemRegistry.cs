@@ -272,6 +272,33 @@ public static class ItemRegistry
         type: ObjectType.StoneWall
     );
 
+    public static readonly Tool WoodenSpear = new Tool(
+        id: 38,
+        name: "Wooden Spear",
+        attackSpeed: 1.9f,
+        damage: 10f,
+        hitboxWidth: 15f,
+        hitboxHeight: 85f
+    );
+
+    public static readonly Tool StoneSpear = new Tool(
+        id: 39,
+        name: "Stone Spear",
+        attackSpeed: 1.9f,
+        damage: 13f,
+        hitboxWidth: 15f,
+        hitboxHeight: 85f
+    );
+
+    public static readonly Tool IronSpear = new Tool(
+        id: 40,
+        name: "Iron Spear",
+        attackSpeed: 1.9f,
+        damage: 18f,
+        hitboxWidth: 15f,
+        hitboxHeight: 85f
+    );
+
     // -------------------------
 
     private static readonly Dictionary<int, Item> items = new()
@@ -316,6 +343,10 @@ public static class ItemRegistry
         { PicoDeHierro.Id, PicoDeHierro },
         { HachaDeTitanio.Id, HachaDeTitanio },
         { PicoDeTitanio.Id, PicoDeTitanio },
+
+        { WoodenSpear.Id, WoodenSpear },
+        { StoneSpear.Id, StoneSpear },
+        { IronSpear.Id, IronSpear },
 
         // Final Ship
         { turbine.Id, turbine },

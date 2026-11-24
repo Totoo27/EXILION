@@ -48,6 +48,9 @@ public static class ItemVisuals
         35 => Assets.Sprites.woodenFloor,
         36 => Assets.Sprites.woodenWall,
         37 => Assets.Sprites.stoneWall,
+        38 => Assets.Sprites.woodenSpear,
+        39 => Assets.Sprites.stoneSpear,
+        40 => Assets.Sprites.ironSpear,
         _ => null
     };
 

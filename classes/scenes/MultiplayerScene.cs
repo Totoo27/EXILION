@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace EXILION.Scenes;
 
-
 public sealed class MultiplayerScene : Scene
 {
     private readonly GraphicsDevice graphicsDevice;

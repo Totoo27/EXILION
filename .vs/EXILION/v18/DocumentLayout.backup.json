@@ -1,12 +1,38 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\workspace\\EXILION\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{5A8BE073-7044-48E8-B351-5F5855D26E13}|EXILION.csproj|c:\\workspace\\exilion\\classes\\ui\\craftingui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5A8BE073-7044-48E8-B351-5F5855D26E13}|EXILION.csproj|solutionrelative:classes\\ui\\craftingui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "CraftingUI.cs",
+              "DocumentMoniker": "C:\\workspace\\EXILION\\classes\\UI\\CraftingUI.cs",
+              "RelativeDocumentMoniker": "classes\\UI\\CraftingUI.cs",
+              "ToolTip": "C:\\workspace\\EXILION\\classes\\UI\\CraftingUI.cs",
+              "RelativeToolTip": "classes\\UI\\CraftingUI.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-24T00:01:27.857Z",
+              "EditorCaption": "",
+              "OwnerCaption": "%2"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

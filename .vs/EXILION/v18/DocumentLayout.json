@@ -3,8 +3,8 @@
   "WorkspaceRootPath": "C:\\workspace\\EXILION\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{D1207C1D-5E11-435B-8F26-538461419EBA}|EXILION.Shared.csproj|c:\\workspace\\exilion\\classes\\logic\\catchableitemstate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D1207C1D-5E11-435B-8F26-538461419EBA}|EXILION.Shared.csproj|solutionrelative:classes\\logic\\catchableitemstate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{5A8BE073-7044-48E8-B351-5F5855D26E13}|EXILION.csproj|c:\\workspace\\exilion\\classes\\ui\\craftingui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5A8BE073-7044-48E8-B351-5F5855D26E13}|EXILION.csproj|solutionrelative:classes\\ui\\craftingui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -19,15 +19,16 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "CatchableItemState.cs",
-              "DocumentMoniker": "C:\\workspace\\EXILION\\classes\\logic\\CatchableItemState.cs",
-              "RelativeDocumentMoniker": "classes\\logic\\CatchableItemState.cs",
-              "ToolTip": "C:\\workspace\\EXILION\\classes\\logic\\CatchableItemState.cs",
-              "RelativeToolTip": "classes\\logic\\CatchableItemState.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAtAAAAAAAAAA==",
+              "Title": "CraftingUI.cs",
+              "DocumentMoniker": "C:\\workspace\\EXILION\\classes\\UI\\CraftingUI.cs",
+              "RelativeDocumentMoniker": "classes\\UI\\CraftingUI.cs",
+              "ToolTip": "C:\\workspace\\EXILION\\classes\\UI\\CraftingUI.cs",
+              "RelativeToolTip": "classes\\UI\\CraftingUI.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-23T03:42:28.114Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-11-24T00:01:27.857Z",
+              "EditorCaption": "",
+              "OwnerCaption": "%2"
             }
           ]
         }

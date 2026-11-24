@@ -72,10 +72,13 @@ public sealed class Sprites
     // Tools
     public Texture2D woodenAxe { get; private set; }
     public Texture2D woodenPickaxe { get; private set; }
+    public Texture2D woodenSpear { get; private set; }
     public Texture2D stoneAxe { get; private set; }
     public Texture2D stonePickaxe { get; private set; }
+    public Texture2D stoneSpear { get; private set; }
     public Texture2D ironAxe { get; private set; }
     public Texture2D ironPickaxe { get; private set; }
+    public Texture2D ironSpear { get; private set; }
     public Texture2D titaniumAxe { get; private set; }
     public Texture2D titaniumPickaxe { get; private set; }
 
@@ -195,14 +198,18 @@ public sealed class Sprites
       
         // Tools
         MainLoader.SetLoadingText("Sprites: Items tools");
+
         woodenAxe = content.Load<Texture2D>("Sprites/Items/woodenAxe");
         woodenPickaxe = content.Load<Texture2D>("Sprites/Items/woodenPickaxe");
+        woodenSpear = content.Load<Texture2D>("Sprites/Items/WoodenSpear");
 
         stoneAxe = content.Load<Texture2D>("Sprites/Items/stoneAxe");
         stonePickaxe = content.Load<Texture2D>("Sprites/Items/stonePickaxe");
+        stoneSpear = content.Load<Texture2D>("Sprites/Items/StoneSpear");
 
         ironAxe = content.Load<Texture2D>("Sprites/Items/ironAxe");
         ironPickaxe = content.Load<Texture2D>("Sprites/Items/ironPickaxe");
+        ironSpear = content.Load<Texture2D>("Sprites/Items/IronSpear");
 
         titaniumAxe = content.Load<Texture2D>("Sprites/Items/titaniumAxe");
         titaniumPickaxe = content.Load<Texture2D>("Sprites/Items/titaniumPickaxe");
