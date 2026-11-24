@@ -388,6 +388,18 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/ironPickaxe.png
 
+#begin Sprites/Items/IronSpear.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/IronSpear.png
+
 #begin Sprites/Items/lowArmor.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -520,6 +532,18 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/stonePickaxe.png
 
+#begin Sprites/Items/StoneSpear.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/StoneSpear.png
+
 #begin Sprites/Items/StoneWall.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -639,6 +663,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/woodenPickaxe.png
+
+#begin Sprites/Items/WoodenSpear.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/WoodenSpear.png
 
 #begin Sprites/Items/WoodenWall.png
 /importer:TextureImporter

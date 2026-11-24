@@ -68,14 +68,15 @@ public sealed class GameWorldLogic
         }
     }
 
-    public void ResolvePlayerAttacks(Player player, World.World world, IReadOnlyList<Creature> creatures)
+    public void ResolvePlayerAttacks(Player player, World.World world, IReadOnlyList<Creature> creatures,
+        IReadOnlyList<Player>? otherPlayers = null)
     {
-        ApplyHandAttackHits(player, world, creatures, player.rightHand);
-        ApplyHandAttackHits(player, world, creatures, player.leftHand);
+        ApplyHandAttackHits(player, world, creatures, otherPlayers, player.rightHand);
+        ApplyHandAttackHits(player, world, creatures, otherPlayers, player.leftHand);
     }
 
     private static void ApplyHandAttackHits(Player player, World.World world,
-        IReadOnlyList<Creature> creatures, Hand hand)
+        IReadOnlyList<Creature> creatures, IReadOnlyList<Player>? otherPlayers, Hand hand)
     {
         if (hand.CurrentHitbox is not AttackHitbox hitbox) return;
 
@@ -85,6 +86,13 @@ public sealed class GameWorldLogic
         {
             if (creature.isDead || !AttackIntersectsCreature(hitbox, creature)) continue;
             if (hand.RegisterHit(creature)) creature.takeDamage(hand.AttackDamage, player.position);
+        }
+
+        if (otherPlayers == null) return;
+        foreach (Player target in otherPlayers)
+        {
+            if (ReferenceEquals(player, target) || target.isDead || !AttackIntersectsPlayer(hitbox, target)) continue;
+            if (hand.RegisterHit(target)) target.takeDamage(hand.AttackDamage);
         }
     }
 
@@ -96,6 +104,18 @@ public sealed class GameWorldLogic
         float localX = offset.X * cos + offset.Y * sin;
         float localY = -offset.X * sin + offset.Y * cos;
         float radius = creature.GetHitbox().Width * 0.5f;
+        return MathF.Abs(localX) <= attack.Width * 0.5f + radius
+            && MathF.Abs(localY) <= attack.Height * 0.5f + radius;
+    }
+
+    private static bool AttackIntersectsPlayer(AttackHitbox attack, Player target)
+    {
+        Vector2 offset = target.position - attack.Position;
+        float cos = MathF.Cos(attack.Rotation);
+        float sin = MathF.Sin(attack.Rotation);
+        float localX = offset.X * cos + offset.Y * sin;
+        float localY = -offset.X * sin + offset.Y * cos;
+        float radius = target.GetHitbox().Width * 0.5f;
         return MathF.Abs(localX) <= attack.Width * 0.5f + radius
             && MathF.Abs(localY) <= attack.Height * 0.5f + radius;
     }

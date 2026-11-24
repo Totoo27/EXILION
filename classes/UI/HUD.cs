@@ -26,6 +26,8 @@ public class HUD
     private InputManager input;
     private int DIURNAL_TIME;
     private int dayCount = 1;
+    private int tileX;
+    private int tileY;
     public HUD(Player player, GameContext gameContext, GraphicsDevice GraphicsDevice, InputManager input, int DIURNAL_TIME)
     {
         this.gameContext = gameContext;
@@ -188,6 +190,7 @@ public class HUD
         oxygenBar.Draw(spriteBatch);
         watchBar.Draw(spriteBatch);
         spriteBatch.DrawString(Assets.Fonts.PixelArtSmall, $"Days Exiled: {dayCount}", new Vector2(gameContext.ScaleX(24), gameContext.ScaleY(20)), Color.White);
+        spriteBatch.DrawString(Assets.Fonts.PixelArtSmall, $"Coordinates: {tileX}, {tileY}", new Vector2(gameContext.ScaleX(24), gameContext.ScaleY(40)), Color.White);
         inventoryUI.Draw(spriteBatch);
         craftingUI.Draw(spriteBatch);
     }
@@ -205,6 +208,12 @@ public class HUD
     public void setDayCount(int value)
     {
         dayCount = Math.Max(1, value);
+    }
+
+    public void SetCoordinates(int x, int y)
+    {
+        tileX = x;
+        tileY = y;
     }
 
     public void hide()

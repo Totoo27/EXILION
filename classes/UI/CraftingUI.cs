@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using EXILION.Entities.LivingThings;
 using EXILION.Items;
-using EXILION.UI;
 using EXILION.Client;
 
 namespace EXILION.UI;
@@ -207,8 +206,8 @@ public class CraftingUI
     public void Draw(SpriteBatch spriteBatch)
     {
         if (!visible) return;
-
-        spriteBatch.Draw(pixel, GetPanelRect(), new Color(0, 183, 239) * 0.7f);
+        
+        spriteBatch.Draw(pixel, GetPanelRect(), (AtCraftingTable ? new Color(0, 183, 239) : new Color(150, 150, 150)) * 0.7f);
 
         DrawRecipeList(spriteBatch);
         DrawScrollBar(spriteBatch);

@@ -7,7 +7,6 @@ using EXILION.World;
 using EXILION.Items;
 using EXILION.Entities.CatchableItems;
 using Microsoft.Xna.Framework;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
 
 namespace EXILION.Server;
 
@@ -93,8 +92,6 @@ internal sealed class GameSession
         if (saveData.IsNewWorld && catchableItems.Count == 0)
         {
             catchableItems.Add(new CatchableItem(new ItemStack(ItemRegistry.GeneradorO2, 1),
-                Vector2.Zero, new Microsoft.Xna.Framework.Point(28, 28)));
-            catchableItems.Add(new CatchableItem(new ItemStack(ItemRegistry.FinalShip, 1),
                 Vector2.Zero, new Microsoft.Xna.Framework.Point(28, 28)));
         }
 
@@ -293,6 +290,7 @@ internal sealed class GameSession
             bool phaseChanged = clock.Update(deltaTime);
 
             ServerPlayer[] activePlayers = players.Values.Where(serverPlayer => !serverPlayer.IsDead).ToArray();
+            Player[] activePlayerCharacters = activePlayers.Select(serverPlayer => serverPlayer.Player).ToArray();
             if (activePlayers.Length > 0)
             {
                 Vector2 spawnAnchor = activePlayers[0].Player.position;
@@ -309,12 +307,11 @@ internal sealed class GameSession
                     if (serverPlayer.Player.rightHand.HeldItem?.Id != heldItem?.Id)
                         serverPlayer.Player.SetHandItemImmediately(heldItem);
                     serverPlayer.Player.Update(serverPlayer.MousePosition, frameInput, deltaTime, world);
-                    gameLogic.ResolvePlayerAttacks(serverPlayer.Player, world, creatures);
+                    gameLogic.ResolvePlayerAttacks(serverPlayer.Player, world, creatures, activePlayerCharacters);
                     if (frameInput.InteractPressed)
                         gameLogic.TryPickupItems(serverPlayer.Player, catchableItems);
-                    if (placeBlock && heldItem is Structure structure)
-                        world.TryPlaceBlock(serverPlayer.MousePosition, serverPlayer.Player.position,
-                            serverPlayer.Player.GetHitbox().Width / 2f, structure);
+                    if (placeBlock && heldItem is Structure)
+                        gameLogic.TryPlaceStructure(serverPlayer.Player, world, serverPlayer.MousePosition);
                     gameLogic.ProcessCreatureContactDamage(serverPlayer.Player, creatures, deltaTime);
                     if (serverPlayer.Player.isDead) serverPlayer.IsDead = true;
                 }
