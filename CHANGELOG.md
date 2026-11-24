@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.2.0](https://github.com/Totoo27/EXILION/compare/v2.1.0...v2.2.0) (2026-11-24)
+
+
+### Features
+
+* add coords to gameplay ([f8b329e](https://github.com/Totoo27/EXILION/commit/f8b329ec4d2fc36a3b098ba67f756411889ebb15))
+* add player PvP & fix object & items lose ([e11b2c6](https://github.com/Totoo27/EXILION/commit/e11b2c6b37c275fc5c4995288bcabdfc61e738c3))
+* add weapon: Spear & show version on mainmenu ([ac1869a](https://github.com/Totoo27/EXILION/commit/ac1869a51d664f1d8ade0f305f2f748c22525e12))
+
+
+### Bug Fixes
+
+* fix iron spear craft & version ([0b1e2b7](https://github.com/Totoo27/EXILION/commit/0b1e2b7e76f54ec11ca26ca8ce716fe9053fd428))
+* fix packet loss ([5c688d4](https://github.com/Totoo27/EXILION/commit/5c688d45a858fe1bd395d0471b2881993f820765))
+* remove final ship from GameSession ([d6639bf](https://github.com/Totoo27/EXILION/commit/d6639bf17218349a301162c14a0d2b5ffab08c3d))
+
 ## [2.1.0](https://github.com/Totoo27/EXILION/compare/v2.0.0...v2.1.0) (2026-11-23)
 
 
