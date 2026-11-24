@@ -7,7 +7,6 @@ using EXILION.World;
 using EXILION.Items;
 using EXILION.Entities.CatchableItems;
 using Microsoft.Xna.Framework;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
 
 namespace EXILION.Server;
 

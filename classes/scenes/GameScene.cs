@@ -442,6 +442,10 @@ public class GameScene : Scene
             UpdateNightTransition(gameTime);
 
             HUD.Update(gameTime);
+            Vector2 coordinatePosition = isOnline ? localPredictedPosition : player.position;
+            HUD.SetCoordinates(
+                (int)MathF.Floor(coordinatePosition.X / world.TileSize),
+                (int)MathF.Floor(coordinatePosition.Y / world.TileSize));
             if (input.IsKeyPressed(Keys.H))
             {
                 GameContext.showHitboxes = !GameContext.showHitboxes;
