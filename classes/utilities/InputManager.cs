@@ -46,4 +46,10 @@ public class InputManager
         return CurrentMouse.LeftButton == ButtonState.Released
             && PreviousMouse.LeftButton == ButtonState.Pressed;
     }
+
+    public bool IsRightMousePressed()
+    {
+        return CurrentMouse.RightButton == ButtonState.Pressed
+            && PreviousMouse.RightButton == ButtonState.Released;
+    }
 }

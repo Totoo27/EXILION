@@ -142,7 +142,7 @@ public class MainMenu : Scene, IHasSettings, IHasWorldSaves
             SunFrameSize);
         spriteBatch.Draw(sun, sunRect, sunSource, Color.White);
 
-        String versionText = "Version 2.2.0";
+        String versionText = "Version 2.4.0";
         Vector2 textSize = font.MeasureString(versionText);
         spriteBatch.DrawString(font, versionText, new Vector2(0, GameContext.ScreenHeight - textSize.Y), Color.White);
 
