@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.3.0](https://github.com/Totoo27/EXILION/compare/v2.2.0...v2.3.0) (2026-11-25)
+
+
+### Features
+
+* add players name in multiplayer & can now shutdown server ([cef4be7](https://github.com/Totoo27/EXILION/commit/cef4be749e34f085df1d8e8d6fbce5311a10680e))
+
+
+### Bug Fixes
+
+* fix loading without audio, spear hitbox & Y coords ([e9b48ab](https://github.com/Totoo27/EXILION/commit/e9b48abd9e1f9ca01dedccea2bb8be0a3d1edd37))
+
 ## [2.2.0](https://github.com/Totoo27/EXILION/compare/v2.1.0...v2.2.0) (2026-11-24)
 
 
