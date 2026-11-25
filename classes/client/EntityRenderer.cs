@@ -18,6 +18,7 @@ public sealed class EntityRenderer
     private readonly Texture2D _peacefulCreatureTexture;
     private readonly Texture2D _neutralCreatureTexture;
     private readonly Texture2D _hostileCreatureTexture;
+    private readonly SpriteFont _nameFont;
     private readonly float _scale;
     private readonly Dictionary<CatchableItem, CatchableItemPulse> _dropPulses = new();
 
@@ -29,6 +30,7 @@ public sealed class EntityRenderer
         _peacefulCreatureTexture = Assets.Sprites.PeacefulCreature;
         _neutralCreatureTexture = Assets.Sprites.NeutralCreature;
         _hostileCreatureTexture = Assets.Sprites.HostileCreature;
+        _nameFont = Assets.Fonts.PixelArt;
     }
 
     public void DrawDrop(SpriteBatch spriteBatch, CatchableItem item, Texture2D pixel, bool showHitboxes)
@@ -82,6 +84,24 @@ public sealed class EntityRenderer
     public void DrawRemotePlayer(SpriteBatch spriteBatch, Vector2 position)
     {
         DrawSprite(spriteBatch, _playerTexture, position, 0f, _scale, Color.LightBlue);
+    }
+
+    public void DrawPlayerName(SpriteBatch spriteBatch, string name, Vector2 position)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return;
+        Vector2 size;
+        try
+        {
+            size = _nameFont.MeasureString(name);
+        }
+        catch (ArgumentException)
+        {
+            return;
+        }
+        Vector2 labelPosition = new(position.X - size.X / 2f,
+            position.Y - Assets.Sprites.Player.Height * _scale / 2f - _nameFont.LineSpacing - 4f);
+        spriteBatch.DrawString(_nameFont, name, labelPosition + Vector2.One, Color.Black * 0.8f);
+        spriteBatch.DrawString(_nameFont, name, labelPosition, Color.White);
     }
 
     public void DrawNetworkPlayer(SpriteBatch spriteBatch, PlayerSnapshot snapshot, Color color, float damageFeedback = 0f)

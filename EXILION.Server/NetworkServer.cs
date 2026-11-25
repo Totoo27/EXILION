@@ -301,7 +301,7 @@ internal sealed class NetworkServer : IAsyncDisposable, IDisposable
                 byte[] nameBytes = new byte[nameLength];
                 await stream.ReadExactlyAsync(nameBytes, token);
                 string playerName = Encoding.UTF8.GetString(nameBytes).Trim();
-                if (playerName.Length == 0)
+                if (!NetworkProtocol.IsValidPlayerName(playerName))
                 {
                     await SendRejectedAsync(stream, "Nombre de jugador inválido.", token);
                     return;

@@ -18,6 +18,6 @@ public sealed class Songs
         exiliated = content.Load<Song>("Music/exiliated");
         drownInInterrogations = content.Load<Song>("Music/drownInInterrogations");
 
-        await MainLoader.addCompletedTask();
+        MainLoader.addCompletedTask();
     }
 }

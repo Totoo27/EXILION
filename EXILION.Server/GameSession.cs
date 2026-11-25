@@ -108,6 +108,7 @@ internal sealed class GameSession
             players.Values.Select(player =>
                 new PlayerSnapshot(
                     player.Id,
+                    player.Name,
                     player.Player.position.X,
                     player.Player.position.Y,
                     player.Player.VisualAngle,

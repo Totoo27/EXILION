@@ -445,7 +445,7 @@ public class GameScene : Scene
             Vector2 coordinatePosition = isOnline ? localPredictedPosition : player.position;
             HUD.SetCoordinates(
                 (int)MathF.Floor(coordinatePosition.X / world.TileSize),
-                (int)MathF.Floor(coordinatePosition.Y / world.TileSize));
+                -(int)MathF.Floor(coordinatePosition.Y / world.TileSize));
             if (input.IsKeyPressed(Keys.H))
             {
                 GameContext.showHitboxes = !GameContext.showHitboxes;
@@ -709,8 +709,10 @@ public class GameScene : Scene
         // Player & objects
         mapRenderer?.DrawObjects(spriteBatch, world, false);
         if (isOnline && player != null)
+        {
             entityRenderer.DrawPlayer(spriteBatch, player, pixel, GameContext.showHitboxes,
                 localPredictedPosition - player.position, localDamageFeedbackRemaining);
+        }
         else if (player != null)
             entityRenderer.DrawPlayer(spriteBatch, player, pixel, GameContext.showHitboxes);
         foreach (RemotePlayer remotePlayer in remotePlayers.Values)
@@ -721,6 +723,11 @@ public class GameScene : Scene
             entityRenderer.DrawCreature(spriteBatch, creature, pixel, GameContext.showHitboxes);
 
         mapRenderer?.DrawObjects(spriteBatch, world, true);
+
+        if (isOnline && player != null)
+            entityRenderer.DrawPlayerName(spriteBatch, networkConnection!.PlayerName, localPredictedPosition);
+        foreach (RemotePlayer remotePlayer in remotePlayers.Values)
+            entityRenderer.DrawPlayerName(spriteBatch, remotePlayer.Name, new Vector2(remotePlayer.X, remotePlayer.Y));
 
         // Interaction Prompt
         if (interactionPrompt != null && !pausePanel.enabled && !deathPanel.enabled && !victoryPanel.Enabled && player != null)

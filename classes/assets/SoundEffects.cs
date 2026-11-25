@@ -37,7 +37,7 @@ public sealed class SoundEffects
         MainLoader.SetLoadingText("SFX: Buttons");
         buttonHover = content.Load<SoundEffect>("SFX/UI/buttonHover");
         buttonClick = content.Load<SoundEffect>("SFX/UI/buttonClick");
-        await MainLoader.addCompletedTask();
+        MainLoader.addCompletedTask();
 
         // Player
         MainLoader.SetLoadingText("SFX: Player");
@@ -47,19 +47,19 @@ public sealed class SoundEffects
         swings[0] = content.Load<SoundEffect>("SFX/Swings/swing1");
         swings[1] = content.Load<SoundEffect>("SFX/Swings/swing2");
         swings[2] = content.Load<SoundEffect>("SFX/Swings/swing3");
-        await MainLoader.addCompletedTask();
+        MainLoader.addCompletedTask();
 
         // Creatures
         MainLoader.SetLoadingText("SFX: Creatures");
         creatureDamage = content.Load<SoundEffect>("SFX/damage/GritoDesgarrador");
-        await MainLoader.addCompletedTask();
+        MainLoader.addCompletedTask();
 
         // Objects
         MainLoader.SetLoadingText("SFX: Objects");
         chop = content.Load<SoundEffect>("SFX/damage/chop");
         mine = content.Load<SoundEffect>("SFX/damage/mine");
         brokenBush = content.Load<SoundEffect>("SFX/damage/brokenBush");
-        await MainLoader.addCompletedTask();
+        MainLoader.addCompletedTask();
 
         // Consume effects
         MainLoader.SetLoadingText("SFX: Consume");
@@ -67,6 +67,6 @@ public sealed class SoundEffects
         eat = content.Load<SoundEffect>("SFX/consume/eat");
         bottleBreath = content.Load<SoundEffect>("SFX/consume/bottleBreath");
 
-        await MainLoader.addCompletedTask();
+        MainLoader.addCompletedTask();
     }
 }
