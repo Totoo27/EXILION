@@ -66,8 +66,8 @@ public class MapGenerator
         if (elevation < 0.30f) return TileType.DeepWater;
         if (elevation < 0.38f) return TileType.Water;
         if (elevation < 0.42f) return TileType.Sand;
-        if (elevation > 0.85f) return TileType.Snow;
-        if (elevation > 0.70f) return TileType.Rock;
+        if (elevation > 0.78f) return TileType.Snow;
+        if (elevation > 0.65f) return TileType.Rock;
 
         if (moisture < 0.3f) return TileType.Sand;
         if (moisture < 0.6f) return TileType.Grass;
