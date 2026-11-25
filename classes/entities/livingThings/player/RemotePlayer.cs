@@ -7,6 +7,7 @@ namespace EXILION.Network;
 public sealed class RemotePlayer
 {
     public Guid PlayerId { get; }
+    public string Name { get; private set; } = string.Empty;
 
     public float X { get; private set; }
     public float Y { get; private set; }
@@ -56,6 +57,7 @@ public sealed class RemotePlayer
 
     private void ApplyVisualSnapshot(PlayerSnapshot snapshot, float amount)
     {
+        Name = snapshot.PlayerName;
         X = MathHelper.Lerp(X, snapshot.X, amount);
         Y = MathHelper.Lerp(Y, snapshot.Y, amount);
         Rotation = LerpAngle(Rotation, snapshot.Rotation, amount);

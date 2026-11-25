@@ -16,6 +16,7 @@ public sealed record PlayerInputMessage(
 
 public sealed record PlayerSnapshot(
     Guid PlayerId,
+    string PlayerName,
     float X,
     float Y,
     float Rotation,

@@ -33,16 +33,18 @@ public sealed class GameConnection : IAsyncDisposable, IDisposable
     private int respawnSequence;
 
     public ConnectionTicket Ticket { get; }
+    public string PlayerName { get; }
     public IPEndPoint ServerEndpoint => serverEndpoint;
     public bool IsDisconnected => Stopwatch.GetElapsedTime(Interlocked.Read(ref lastSnapshotTimestamp)) > TimeSpan.FromSeconds(5);
     public ConcurrentQueue<WorldSnapshot> Snapshots { get; } = new();
 
 
-    private GameConnection(UdpClient udp, IPEndPoint serverEndpoint, ConnectionTicket ticket)
+    private GameConnection(UdpClient udp, IPEndPoint serverEndpoint, ConnectionTicket ticket, string playerName)
     {
         this.udp = udp;
         this.serverEndpoint = serverEndpoint;
         Ticket = ticket;
+        PlayerName = playerName;
         heartbeatTask = SendHeartbeatsAsync(cancellation.Token);
         receiveTask = ReceiveSnapshotsAsync(cancellation.Token);
         inputTask = SendInputsAsync(cancellation.Token);
@@ -77,7 +79,7 @@ public sealed class GameConnection : IAsyncDisposable, IDisposable
                         if (received.RemoteEndPoint.Address.Equals(endpoint.Address)
                             && NetworkPacketCodec.TryReadConnectionConfirmed(received.Buffer, out Guid confirmed)
                             && confirmed == ticket.SessionId)
-                            return new GameConnection(udp, endpoint, ticket);
+                            return new GameConnection(udp, endpoint, ticket, playerName);
                     }
                 }
                 catch (OperationCanceledException) when (confirmationTimeout.IsCancellationRequested && !linked.IsCancellationRequested) { }

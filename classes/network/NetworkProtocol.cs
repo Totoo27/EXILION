@@ -19,10 +19,17 @@ namespace EXILION.Network;
 public static class NetworkProtocol
 {
     public const uint Magic = 0x4E4C5845; // "EXLN" in little endian
-    public const byte Version = 6;
+    public const byte Version = 7;
     public const int DefaultPort = 27860;
-    public const int MaxPlayerNameBytes = 32;
+    public const int MaxPlayerNameLength = 20;
+    public const int MaxPlayerNameBytes = 64;
     public const int MaxWorldNameBytes = 64;
+
+    public static bool IsValidPlayerName(string name)
+        => !string.IsNullOrWhiteSpace(name)
+        && name.Length <= MaxPlayerNameLength
+        && name == name.Trim()
+        && name.All(character => char.IsLetterOrDigit(character) || character is ' ' or '-' or '_');
 
     public enum UdpMessage : byte { Discover = 1, DiscoveryResponse = 2, ClientHello = 3, Heartbeat = 4, ConnectionConfirmed = 5, PlayerInput = 6, WorldSnapshot = 7, DropItemRequest = 8, RespawnRequest = 9, DisconnectRequest = 10 }
     public enum TcpMessage : byte { Connect = 1, Accepted = 2, Rejected = 3 }
@@ -343,8 +350,9 @@ public static class TcpHandshakeCodec
 
     public static byte[] CreateConnectRequest(string playerName, Guid playerIdentity)
     {
-        byte[] name = Encoding.UTF8.GetBytes(TrimUtf8(playerName.Trim(), NetworkProtocol.MaxPlayerNameBytes));
-        if (name.Length == 0) throw new ArgumentException("El nombre del jugador es obligatorio.", nameof(playerName));
+        if (!NetworkProtocol.IsValidPlayerName(playerName))
+            throw new ArgumentException($"El nombre debe tener entre 1 y {NetworkProtocol.MaxPlayerNameLength} caracteres válidos.", nameof(playerName));
+        byte[] name = Encoding.UTF8.GetBytes(playerName);
         if (playerIdentity == Guid.Empty) throw new ArgumentException("La identidad del jugador es obligatoria.", nameof(playerIdentity));
         byte[] packet = new byte[HeaderSize + 16 + 16 + 2 + name.Length];
         WriteHeader(packet, NetworkProtocol.TcpMessage.Connect);
