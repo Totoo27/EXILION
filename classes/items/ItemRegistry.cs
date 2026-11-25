@@ -197,21 +197,21 @@ public static class ItemRegistry
         id: 26,
         name: "Advanced Armor",
         armorPoints: 60f,
-        speedMultiplier: 1.35f
+        speedMultiplier: 1.3f
     );
 
     public static readonly Armor mediumArmor = new Armor(
         id: 27,
         name: "Medium Armor",
         armorPoints: 35f,
-        speedMultiplier: 1.25f
+        speedMultiplier: 1.2f
     );
 
     public static readonly Armor lowArmor = new Armor(
         id: 28,
         name: "Low-Grade Armor",
         armorPoints: 20f,
-        speedMultiplier: 1.15f
+        speedMultiplier: 1.1f
     );
 
     public static readonly Structure CraftingTable = new Structure(

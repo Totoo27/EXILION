@@ -13,7 +13,7 @@ namespace EXILION.Logic;
 
 public sealed class GameWorldLogic
 {
-    private const float CreatureContactDamageCooldown = 0.8f;
+    private const float CreatureContactDamageCooldown = 1.2f;
     private float creatureContactDamageTimer;
 
     public bool TryPlaceStructure(Player player, World.World world, Vector2 worldPosition)

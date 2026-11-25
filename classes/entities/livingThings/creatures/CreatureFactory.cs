@@ -25,7 +25,7 @@ public static class CreatureFactory
                 position,
                 new NeutralCreatureIntelligence(),
                 new List<ItemStack> { new(ItemRegistry.Silicio, 1), new(ItemRegistry.mediumCrystal, 1) },
-                maxHealth: 50, speed: PlayerMovementSettings.GroundSpeed / 2, type: type, contactDamage: 15,
+                maxHealth: 50, speed: PlayerMovementSettings.GroundSpeed * 3 / 4, type: type, contactDamage: 15,
                 hitboxSize: hitboxSize, networkId: networkId),
 
             CreatureType.Hostile => new Creature(

@@ -29,7 +29,7 @@ public sealed class WorldObjectGenerator
 
                     var id = new WorldObjectId(_seed, worldX, worldY, i);
                     objects.Add(new WorldObjectSpawn(id, rules[i].Type, worldX + 0.5f, worldY + 0.5f));
-                    break; // Por ahora solo aparece un objeto en cada tile.
+                    break;
                 }
             }
         }

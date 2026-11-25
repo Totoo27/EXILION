@@ -15,8 +15,8 @@ public class World
     private readonly Dictionary<(int, int), Chunk> _loadedChunks = new();
     private float _regrowthTimer;
     private int _regrowthCycle;
-    private const float RegrowthIntervalSeconds = 60f;
-    private const int RegrowthRadiusChunks = 5;
+    private const float RegrowthIntervalSeconds = 10f;
+    private const int RegrowthRadiusChunks = 3;
 
     public int TileSize { get; }
     public int RenderDistanceChunks { get; set; } = 2;
