@@ -79,6 +79,30 @@ public class InventoryUI
                     UpdateHandItem();
                 }
             }
+
+        }
+
+        if (input.isScrolling)
+        {
+            if (input.ScrollUp)
+            {
+                SelectedSlotIndex += 1;
+                if(SelectedSlotIndex >= HotbarSelectKeys.Length)
+                {
+                    SelectedSlotIndex = 0;
+                }
+            }
+
+            if (input.ScrollDown)
+            {
+                SelectedSlotIndex -= 1;
+                if(SelectedSlotIndex < 0)
+                {
+                    SelectedSlotIndex = HotbarSelectKeys.Length - 1;
+                }
+            }
+
+            UpdateHandItem();
         }
 
         mousePosition = input.MousePosition;
@@ -93,6 +117,16 @@ public class InventoryUI
             else if (slotIndex >= 0 && inventory.GetSlot(slotIndex) != null)
             {
                 draggedSlotIndex = slotIndex;
+            }
+        }
+
+        if (input.IsKeyPressed(Keys.Q))
+        {
+            ItemStack? droppedStack = inventory.TakeStack(SelectedSlotIndex );
+
+            if (droppedStack != null)
+            {
+                ItemDropped?.Invoke(droppedStack);
             }
         }
 

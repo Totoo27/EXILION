@@ -23,14 +23,14 @@ public static class ItemRegistry
     public static readonly Consumable AguaPurificada = new Consumable(
         id: 3,
         name: "Purified Water",
-        statRestore: 20,
+        statRestore: 30,
         statType: Entities.LivingThings.StatType.Thirst
     );
 
     public static readonly Consumable CarneCocinada = new Consumable(
         id: 4,
         name: "Meat",
-        statRestore: 20,
+        statRestore: 30,
         statType: Entities.LivingThings.StatType.Hunger
     );
 
@@ -53,7 +53,7 @@ public static class ItemRegistry
     public static readonly Consumable Baya = new Consumable(
         id: 7,
         name: "Berry",
-        statRestore: 8,
+        statRestore: 15,
         statType: Entities.LivingThings.StatType.Hunger
     );
 

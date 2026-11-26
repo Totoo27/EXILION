@@ -26,15 +26,17 @@ public class InputManager
         return CurrentKeyboard.IsKeyDown(key) && PreviousKeyboard.IsKeyUp(key);
     }
 
+    
+
     public bool IsKeyHeld(Keys key)
     {
         return CurrentKeyboard.IsKeyDown(key);
     }
-
     public Vector2 MousePosition => CurrentMouse.Position.ToVector2();
-
     public int ScrollDelta => CurrentMouse.ScrollWheelValue - PreviousMouse.ScrollWheelValue;
-
+    public bool isScrolling => ScrollDelta != 0;
+    public bool ScrollUp => ScrollDelta > 0;
+    public bool ScrollDown => ScrollDelta < 0;
      public bool IsLeftMousePressed()
     {
         return CurrentMouse.LeftButton == ButtonState.Pressed

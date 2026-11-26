@@ -288,7 +288,7 @@ public class Player : LivingThing
 
         stat.timer += deltaTime;
 
-        if (stat.timer >= 2.5f * runningMultiplier)
+        if (stat.timer >= 3f * runningMultiplier)
         {
 
             stat.timer = 0f;
@@ -358,7 +358,7 @@ public class Player : LivingThing
 
         stat.timer += deltaTime;
 
-        if (stat.timer >= 2f * runningMultiplier)
+        if (stat.timer >= 2.5f * runningMultiplier)
         {
 
             stat.timer = 0f;
