@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.0](https://github.com/Totoo27/EXILION/compare/v2.4.0...v2.5.0) (2026-11-26)
+
+
+### Features
+
+* add Scroll in inventory & 'Q' to drop ([9e96776](https://github.com/Totoo27/EXILION/commit/9e96776b129e8d1c0533dd6171cd9181a4e361a5))
+
 ## [2.4.0](https://github.com/Totoo27/EXILION/compare/v2.3.0...v2.4.0) (2026-11-26)
 
 
