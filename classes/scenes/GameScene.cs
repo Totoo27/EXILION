@@ -715,6 +715,8 @@ public class GameScene : Scene
         }
         else if (player != null)
             entityRenderer.DrawPlayer(spriteBatch, player, pixel, GameContext.showHitboxes);
+        if (blockPlacementMode && player != null)
+            entityRenderer.DrawBuildingStatus(spriteBatch, isOnline ? localPredictedPosition : player.position);
         foreach (RemotePlayer remotePlayer in remotePlayers.Values)
             entityRenderer.DrawRemotePlayer(spriteBatch, remotePlayer);
         HUD?.DrawStatAdvice(spriteBatch);

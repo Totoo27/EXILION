@@ -229,6 +229,22 @@ public class Inventory
         return slots[index];
     }
 
+    public bool SplitStack(int index)
+    {
+        if (index < 0 || index >= slots.Length) return false;
+        ItemStack? source = slots[index];
+        if (source == null || source.Quantity < 2) return false;
+
+        int emptySlot = Array.FindIndex(slots, stack => stack == null);
+        if (emptySlot < 0) return false;
+
+        int splitQuantity = source.Quantity / 2;
+        source.Remove(splitQuantity);
+        slots[emptySlot] = new ItemStack(source.Item, splitQuantity);
+        UpdateInventoryUI?.Invoke();
+        return true;
+    }
+
     public void MoveItem(int from, int to)
     {
         if (from < 0 || from >= slots.Length) return;

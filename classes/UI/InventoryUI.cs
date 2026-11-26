@@ -96,6 +96,13 @@ public class InventoryUI
             }
         }
 
+        if (input.IsRightMousePressed())
+        {
+            int slotIndex = GetSlotIndexAt(mousePosition);
+            if (slotIndex >= 0)
+                inventory.SplitStack(slotIndex);
+        }
+
         if (input.IsLeftMouseReleased() && draggedSlotIndex != -1)
         {
             int targetIndex = GetSlotIndexAt(mousePosition);

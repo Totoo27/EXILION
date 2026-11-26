@@ -104,6 +104,15 @@ public sealed class EntityRenderer
         spriteBatch.DrawString(_nameFont, name, labelPosition, Color.White);
     }
 
+    public void DrawBuildingStatus(SpriteBatch spriteBatch, Vector2 position)
+    {
+        const string status = "Building";
+        Vector2 size = _nameFont.MeasureString(status);
+        Vector2 labelPosition = new(position.X - size.X / 2f,
+            position.Y + Assets.Sprites.Player.Height * _scale / 2f + 4f);
+        spriteBatch.DrawString(_nameFont, status, labelPosition, Color.LightBlue * 0.8f);
+    }
+
     public void DrawNetworkPlayer(SpriteBatch spriteBatch, PlayerSnapshot snapshot, Color color, float damageFeedback = 0f)
     {
         color *= DamageColor(damageFeedback);

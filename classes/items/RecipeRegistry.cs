@@ -206,8 +206,8 @@ public static class RecipeRegistry
         ingredients: new List<Ingredient>
         {
             new Ingredient(ItemRegistry.mediumArmor, 1),
-            new Ingredient(ItemRegistry.Chip, 2),
-            new Ingredient(ItemRegistry.Torio, 15),
+            new Ingredient(ItemRegistry.Chip, 3),
+            new Ingredient(ItemRegistry.Torio, 5),
             new Ingredient(ItemRegistry.advancedCrystal, 20),
         },
         amount: 1,
@@ -334,6 +334,7 @@ public static class RecipeRegistry
         result: ItemRegistry.StoneSpear,
         ingredients: new List<Ingredient>
         {
+            new Ingredient(ItemRegistry.WoodenSpear, 1),
             new Ingredient(ItemRegistry.Madera, 15),
             new Ingredient(ItemRegistry.Piedra, 6)
         },
@@ -346,6 +347,7 @@ public static class RecipeRegistry
         result: ItemRegistry.IronSpear,
         ingredients: new List<Ingredient>
         {
+            new Ingredient(ItemRegistry.StoneSpear, 1),
             new Ingredient(ItemRegistry.Madera, 25),
             new Ingredient(ItemRegistry.Hierro, 8)
         },
