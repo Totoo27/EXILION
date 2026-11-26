@@ -48,11 +48,12 @@ public class InstructionsPanel
             "WASD - Move\n" +
             "LShift - Sprint\n" +
             "Mouse - Aim\n" +
-            "Click - Hit / Use item\n" +
+            "Left Click - Hit / Use item\n" +
+            "Right Click - Separate items\n" +
             "E - Interact\n" +
             "B - Toggle Building Mode\n" +
             "I - Toggle inventory\n" +
-            "Numbers - Select Hotbar\n" +
+            "Numbers - Select Hotbar\n\n" +
             "G - Manual Save\n" +
             "H - Show hitboxes\n" +
             "F1 - Toggle HUD\n" +
