@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.4.0](https://github.com/Totoo27/EXILION/compare/v2.3.0...v2.4.0) (2026-11-26)
+
+
+### Features
+
+* add Building mode indicator ([e8cd350](https://github.com/Totoo27/EXILION/commit/e8cd3501b9ff9c140b745d92f0023d8325cd4ab3))
+* add item separation on inventory ([249a651](https://github.com/Totoo27/EXILION/commit/249a6518e9af3a979980e049c59816f12cbfaed6))
+* decrease regrowth cooldown, change spear crafting ([477be4f](https://github.com/Totoo27/EXILION/commit/477be4fca9a8aeb32a8edbcc172f022bb03accf0))
+
+
+### Bug Fixes
+
+* add right click to 'How to Play' ([8c70b51](https://github.com/Totoo27/EXILION/commit/8c70b51dd352c5a44c1a85f094ff0c8c8c85a0ea))
+
 ## [2.3.0](https://github.com/Totoo27/EXILION/compare/v2.2.0...v2.3.0) (2026-11-25)
 
 
